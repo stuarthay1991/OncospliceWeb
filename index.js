@@ -120,6 +120,9 @@ const Uitabstyle = makeStyles((theme) => ({
   }
 }));
 
+//Versioning
+var version = "0.1";
+
 //Global Variables
 var flag = 0;
 var ui_field_dict;
