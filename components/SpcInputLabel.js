@@ -13,9 +13,9 @@ const labelstyle = makeStyles((theme) => ({
     paddingLeft: 16,
     paddingRight: 16,
     marginLeft: 2,
-    maxWidth: "200px",
-    width: "200px",
-    minWidth: "200px",
+    maxWidth: "130px",
+    width: "130px",
+    minWidth: "130px"
   }
 }));
 

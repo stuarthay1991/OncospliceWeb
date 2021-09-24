@@ -359,7 +359,7 @@ function DQ_UI_fields(splicingreturned, splicingcols) {
     sendToViewPane["cancer"] = "LAML";
     sendToViewPane["ui_field_dict"] = response["data"]["meta"];
     sendToViewPane["ui_field_range"] = response["data"]["range"];
-    updateViewPane(splicingreturned, splicingcols, splicingcc);
+    updateViewPane(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans);
     document.getElementById("sub").style.display = "none";
   })
 }
@@ -473,6 +473,8 @@ function ajaxdq() {
       sendToViewPane["filter"] = [];
       sendToViewPane["cancer"] = "LAML";
       sendToViewPane["single"] = ["Psi cbfb gene fusions vs others"];
+      splicingrpsi = response["data"]["rpsi"];
+      splicingtrans = response["data"]["oncokey"];
       DQ_UI_fields(splicingreturned, splicingcols);
   })
 }
@@ -726,9 +728,10 @@ function ClientSEF_select(props)
             const options = [];
             options.push(<option value={"Oncosplice Signature Filter"}>{"Oncosplice Signature Filter"}</option>);
             options.push(<option value={"Gene Symbol Filter"}>{"Gene Symbol Filter"}</option>);
+            options.push(<option value={"Coordinate Filter"}>{"Coordinate Filter"}</option>);
             return options;
     })()}
-    </Select> 
+    </Select>
   )
 }
 

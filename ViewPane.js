@@ -182,6 +182,10 @@ var rows = [
   createData('-none selected-', '-none selected-'),
 ];
 
+/*function updateFHS(props){
+  const [state, setState] = React.useState
+}*/
+
 function FilterHeatmapSelect(props) {
   const classes = useStyles();
   const [state, setState] = React.useState({
@@ -1228,7 +1232,7 @@ function ViewPane_Top(props) {
           </span>
         </Grid>
       </Grid>
-    </div>    
+    </div>   
   );
 }
 
