@@ -131,6 +131,7 @@ var cur_filter_amt = 0;
 var childrenFilters = [];
 var postoncosig = [];
 var clientgenes = [];
+var clientcoord = [];
 var queueboxchildren = {};
 var pre_queueboxchildren = {};
 var queueboxsignatures = {};
@@ -145,6 +146,7 @@ var displayvalue_userquery = "block";
 var displayvalue_sigquery = "block";
 var displayvalue_defaultquery = "none";
 var displayvalue_geneinput = "none";
+var displayvalue_coordinput = "none";
 var splicingreturned = [];
 var splicingcols = [];
 var splicingcc = [];
@@ -759,6 +761,7 @@ class ClientSEF extends React.Component
       updateFilterBoxSEF(obj1);
       clientgenes = [];
       displayvalue_geneinput = "none";
+      displayvalue_coordinput = "none";
       displayvalue_sigquery = "block";
       updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
     }
@@ -769,6 +772,17 @@ class ClientSEF extends React.Component
       keys["single"] = [];
       queueboxsignatures = {};
       displayvalue_geneinput = "block";
+      displayvalue_coordinput = "none";
+      displayvalue_sigquery = "none";
+      updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
+    }
+    if(event.target.value == "Coordinate Filter")
+    {
+      const obj3 = <ClientAddGene egg={clientcoord} filterID={"clientinputcoord"} />;
+      updateFilterBoxSEF(obj3);
+      keys["single"] = [];
+      queueboxsignatures = {};
+      displayvalue_coordinput = "block";
       displayvalue_sigquery = "none";
       updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
     }
@@ -1035,6 +1049,8 @@ function QB_SelectedSignature(props)
             </Grid>
           </div>
         </div> 
+        <div id="QueueBoxCoordDiv" style={{display: displayvalue_coordinput, position: 'relative', alignItems: 'left', textAlign: 'center'}}>
+        </div>        
       </Box> 
       </div> 
     </div>  
