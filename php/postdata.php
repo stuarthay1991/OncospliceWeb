@@ -44,36 +44,42 @@ class PostType {
     }
 
     function getCounter(){
-        return $this->contents->["objects"]["counter"];
+        return $this->contents["objects"]["counter"];
     }
 
     function getKey(){
-        return $this->contents->["objects"]["key"];
+        return $this->contents["objects"]["key"];
     }
 
     function getQuery(){
-        return $this->contents->["query"];
+        return $this->contents["query"];
     }
 
     function addToCounter(){
-        $this->contents->["objects"]["counter"] = $this->getCounter() + 1;
+        $this->contents["objects"]["counter"] = $this->getCounter() + 1;
     }
 }
 
 class PostData {
 	private $post = array();
 
-    private $Cancer = "";
-    public $Coords = new PostType("Query");
-    public $Genes = new PostType("Query");
-    public $Signatures = new PostType("Query");
-    public $SplicingQueries = new PostType("Query");
-    public $MergedResults = new PostType("Cluster");
-    public $Histories = new PostType("History");
+    private $Cancer;
+    public $Coords;
+    public $Genes;
+    public $Signatures;
+    public $SplicingQueries;
+    public $MergedResults;
+    public $Histories;
 
     function __construct($post_variable){
         $this->post = $post_variable;
         $this->Cancer = $this->post["CANCER"];
+        $this->Coords = new PostType("Query");
+        $this->Genes = new PostType("Query");
+        $this->Signatures = new PostType("Query");
+        $this->SplicingQueries = new PostType("Query");
+        $this->MergedResults = new PostType("Cluster");
+        $this->Histories = new PostType("History");
         $this->setValues();
     }
 

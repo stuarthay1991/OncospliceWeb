@@ -1,8 +1,8 @@
 <?php
-require '/var/www/AltAnalyze/ICGS/Oncosplice/testing/backend/compoenents/postdata.php';
-//ini_set('display_errors', 1);
-//ini_set('display_startup_errors', 1);
-//error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+include 'postdata.php';
 //Connect to postgres db
 //include 'queryhistoryaccess.php'; 
 
@@ -66,18 +66,18 @@ $history_added = "test";
 $onco_merged_result_key = "NA";
 
 //NEW post data iterate
-$postdata = new PostData($_POST);
+$posted = new PostData($_POST);
 
-$onco_merged_result_key = $postdata->MergedResults->getKey();
-$history_added = $postdata->Histories->getKey();
+$onco_merged_result_key = $posted->MergedResults->getKey();
+$history_added = $posted->Histories->getKey();
 
-$meta_base_query = $postdata->SplicingQueries->getQuery();
-$oncosig_base_query = $postdata->Signatures->getQuery();
-$cligene_base_query = $postdata->Genes->getQuery();
+$meta_base_query = $posted->SplicingQueries->getQuery();
+$oncosig_base_query = $posted->Signatures->getQuery();
+$cligene_base_query = $posted->Genes->getQuery();
 
-$meta_base_count = $postdata->SplicingQueries->getCounter();
-$oncosig_base_count = $postdata->Signatures->getCounter();
-$cligene_base_count = $postdata->Genes->getCounter();
+$meta_base_count = $posted->SplicingQueries->getCounter();
+$oncosig_base_count = $posted->Signatures->getCounter();
+$cligene_base_count = $posted->Genes->getCounter();
 //POST DATA iterate
 /*
 foreach ($_POST as $key => $value) {
