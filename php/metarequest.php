@@ -1,4 +1,5 @@
 <?php
+require '/var/www/AltAnalyze/ICGS/Oncosplice/testing/backend/compoenents/postdata.php';
 //ini_set('display_errors', 1);
 //ini_set('display_startup_errors', 1);
 //error_reporting(E_ALL);
@@ -53,6 +54,9 @@ $TABLE_DICT["BLCA"]["META"]["SPC"] = "uid";
 $cligene_base_query = " WHERE (";
 $cligene_base_count = 0;
 
+$clicoord_base_query = " WHERE (";
+$clicoord_base_count = 0;
+
 $oncosig_base_query = $TABLE_DICT[$cancertype]["SIG"]["QUERY"];
 $oncosig_base_count = 0;
 
@@ -61,8 +65,36 @@ $meta_base_count = 0;
 $history_added = "test";
 $onco_merged_result_key = "NA";
 
+//NEW post data iterate
+$postdata = new PostData($_POST);
+
+$onco_merged_result_key = $postdata->MergedResults->getKey();
+$history_added = $postdata->Histories->getKey();
+
+$meta_base_query = $postdata->SplicingQueries->getQuery();
+$oncosig_base_query = $postdata->Signatures->getQuery();
+$cligene_base_query = $postdata->Genes->getQuery();
+
+$meta_base_count = $postdata->SplicingQueries->getCounter();
+$oncosig_base_count = $postdata->Signatures->getCounter();
+$cligene_base_count = $postdata->Genes->getCounter();
+//POST DATA iterate
+/*
 foreach ($_POST as $key => $value) {
-	if("GENE" == substr($key, 0, 4))
+	if("COORD" == substr($key, 0, 5))
+	{
+		$value = substr($value, 5);
+		if($clicoord_base_count != 0)
+		{
+	    	$clicoord_base_query = $clicoord_base_query . " OR coord = '" . $value . "'";
+		}
+		else
+		{
+			$clicoord_base_query = $clicoord_base_query . " coord = '" . $value . "'";
+		}
+		$clicoord_base_count = $clicoord_base_count + 1;
+	}
+	else if("GENE" == substr($key, 0, 4))
 	{
 		$value = substr($value, 4);
 		if($cligene_base_count != 0)
@@ -135,7 +167,7 @@ foreach ($_POST as $key => $value) {
 		$history_added = $value;
 	}
 }
-
+*/
 $rpsi_dict = array();
 
 
