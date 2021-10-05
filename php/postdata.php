@@ -31,7 +31,6 @@ class PostType {
                 );
                 break;
         }
-        $this->contents = $post_variable;
     }
 
     function setBaseQuery($str_obj){
@@ -80,6 +79,7 @@ class PostData {
         $this->SplicingQueries = new PostType("Query");
         $this->MergedResults = new PostType("Cluster");
         $this->Histories = new PostType("History");
+        $this->setBaseQueries();
         $this->setValues();
     }
 
@@ -92,9 +92,9 @@ class PostData {
 
     function setValues(){
     	foreach ($this->post as $key => $value) {
-    		$key_possible_prefix_5 = substr($key, 0, 5));
-            $key_possible_prefix_4 = substr($key, 0, 4));
-            $key_possible_prefix_3 = substr($key, 0, 3));
+    		$key_possible_prefix_5 = substr($key, 0, 5);
+            $key_possible_prefix_4 = substr($key, 0, 4);
+            $key_possible_prefix_3 = substr($key, 0, 3);
             if($key_possible_prefix_5 == "COORD"){
                 $value = substr($value, 5);
                 continue;
@@ -161,7 +161,7 @@ class PostData {
 
                 case "HIST":
                     $this->Histories->contents["objects"]["exists"] = true;
-                    $this->Histories->contents["objects"]["key"] = $key;
+                    $this->Histories->contents["objects"]["key"] = $value;
                     break;
             }
     	}

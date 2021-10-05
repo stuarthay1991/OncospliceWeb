@@ -1,7 +1,7 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+//ini_set('display_errors', 1);
+//ini_set('display_startup_errors', 1);
+//error_reporting(E_ALL);
 include 'postdata.php';
 //Connect to postgres db
 //include 'queryhistoryaccess.php'; 
@@ -78,6 +78,7 @@ $cligene_base_query = $posted->Genes->getQuery();
 $meta_base_count = $posted->SplicingQueries->getCounter();
 $oncosig_base_count = $posted->Signatures->getCounter();
 $cligene_base_count = $posted->Genes->getCounter();
+//$history_added = "test";
 //POST DATA iterate
 /*
 foreach ($_POST as $key => $value) {
