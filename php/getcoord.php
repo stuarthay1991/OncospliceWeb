@@ -61,9 +61,19 @@ foreach ($_POST as $key => $value) {
 			//$coord2_pos_split = explode("-", $coord2_chrm_split[1]);
 			//$coord2_start = $coord2_pos_split[0];
 			//$coord2_end = $coord2_pos_split[1];
+            $coord1_start_int = intval($coord1_start);
+            $coord1_end_int = intval($coord1_end);
+            $coord1_start_one_more = strval(($coord1_start_int + 1));
+            $coord1_start_one_less = strval(($coord1_start_int - 1));
 
+            $coord1_end_one_more = strval(($coord1_end_int + 1));
+            $coord1_end_one_less = strval(($coord1_end_int - 1));
 
 			$pre_coord_query = " (coordinates LIKE " . "'%" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end . "%')";
+
+            $pre_coord_query = $pre_coord_query . " OR (coordinates LIKE " . "'" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start_one_more . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end_one_more . "%')";
+
+            $pre_coord_query = $pre_coord_query . " OR (coordinates LIKE " . "'" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start_one_less . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end_one_less . "%')";
 
 			if($meta_coord_count != 0)
 			{

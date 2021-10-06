@@ -157,7 +157,6 @@ if($meta_base_count > 0)
 	    exit;
 	}
 
-
 	while ($mrow = pg_fetch_assoc($metaresult)) {
 	  $m_arr[$m_arr_count] = $mrow[$TABLE_DICT[$cancertype]["META"]["SPC"]];
 	  $m_arr_count = $m_arr_count + 1;
