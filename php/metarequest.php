@@ -60,10 +60,12 @@ $history_added = $posted->Histories->getKey();
 $meta_base_query = $posted->SplicingQueries->getQuery();
 $oncosig_base_query = $posted->Signatures->getQuery();
 $cligene_base_query = $posted->Genes->getQuery();
+$coord_base_query = $posted->Coords->getQuery();
 
 $meta_base_count = $posted->SplicingQueries->getCounter();
 $oncosig_base_count = $posted->Signatures->getCounter();
 $cligene_base_count = $posted->Genes->getCounter();
+$coord_base_count = $posted->Coords->getCounter();
 
 $rpsi_dict = array();
 
@@ -213,6 +215,10 @@ if(count($m_arr) > 0)
 			{
 				$makequery = $makequery . $cligene_base_query;
 			}
+			if($coord_base_count > 0)
+			{
+				$makequery = $makequery . $coord_base_query;
+			}
 		}
 		
 
@@ -242,6 +248,10 @@ else
 	if($cligene_base_count > 0)
 	{
 		$makequery = $makequery . $cligene_base_query;
+	}
+	if($coord_base_count > 0)
+	{
+		$makequery = $makequery . $coord_base_query;
 	}
 }
 

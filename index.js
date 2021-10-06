@@ -347,6 +347,29 @@ function selectgene(num){
   }) 
 }
 
+function selectcoord(num){
+  var bodyFormData = new FormData();
+  sendToViewPane["single"] = [];
+  for(var i = 0; i < clientcoord.length; i++)
+  {
+    bodyFormData.append(("COORD".concat(clientcoord[i])), ("COORD".concat(clientcoord[i])));
+    sendToViewPane["single"].push(("Coord: ".concat(clientcoord[i])));
+  }
+  bodyFormData.append("CANCER",curCancer);
+  axios({
+    method: "post",
+    url: (targeturl.concat("/backend/getcoord.php")),
+    data: bodyFormData,
+    headers: { "Content-Type": "multipart/form-data" },
+  })
+    .then(function (response) {
+      var totalmatch = response["data"]["single"];
+      console.log("1", totalmatch);
+      console.log("2", response["data"]);
+      updateNumberCoord(num, totalmatch);
+  }) 
+}
+
 function DQ_UI_fields(splicingreturned, splicingcols) {
   var bodyFormData = new FormData();
   bodyFormData.append("cancer_type", "LAML");
@@ -567,6 +590,17 @@ function ajaxfunc() {
     //console.log("bodyFormDataGene", myString, myString);
     bodyFormData.append(myString, myString);
   }
+  for(var i = 0; i < clientcoord.length; i++)
+  {
+    var myString = clientcoord[i];
+    tmp_qh_obj = {};
+    myString = "COORD".concat(myString);
+    tmp_qh_obj["key"] = myString;
+    tmp_qh_obj["val"] = myString;
+    qh_arr.push(tmp_qh_obj);
+    //console.log("bodyFormDataGene", myString, myString);
+    bodyFormData.append(myString, myString);
+  }  
   bodyFormData.append("CANCER",curCancer);
   tmp_qh_obj = {};
   tmp_qh_obj["key"] = "CANCER";
@@ -576,9 +610,9 @@ function ajaxfunc() {
   bodyFormData.append("HIST",qh_postdata);
   bodyFormData.append("USER",GLOBAL_user);
   //console.log("bodyFormDataCancer", curCancer)
-  if(keys["single"].length == 0 && clientgenes.length == 0)
+  if(keys["single"].length == 0 && clientgenes.length == 0 && clientcoord.length == 0)
   {
-    alert("Please select at least one signature or gene to continue.")
+    alert("Please select at least one signature or gene to continue.");
   }
   else
   {
@@ -778,10 +812,11 @@ class ClientSEF extends React.Component
     }
     if(event.target.value == "Coordinate Filter")
     {
-      const obj3 = <ClientAddGene egg={clientcoord} filterID={"clientinputcoord"} />;
+      const obj3 = <ClientAddCoord egg={clientcoord} filterID={"clientinputcoord"} />;
       updateFilterBoxSEF(obj3);
       keys["single"] = [];
       queueboxsignatures = {};
+      displayvalue_geneinput = "none";
       displayvalue_coordinput = "block";
       displayvalue_sigquery = "none";
       updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
@@ -798,6 +833,46 @@ class ClientSEF extends React.Component
     </div>
   )
   }
+}
+
+function postCoords()
+{
+  var all_coords = document.getElementById("clientinputcoord").value;
+  var delimiter = "\n";
+  if(all_coords.indexOf("\n") != -1 && all_coords.indexOf(",") == -1)
+  {
+    delimiter = "\n";
+  }
+  if(all_coords.indexOf("\n") == -1 && all_coords.indexOf(",") != -1)
+  {
+    delimiter = ",";
+  }
+  if(all_coords.indexOf("\n") != -1 && all_coords.indexOf(",") != -1)
+  {
+    if(all_coords.split(",").length > all_coords.split("\n").length)
+    {
+      delimiter = ",";
+      all_coords = all_coords.replace("\n", "");
+    }
+    else
+    {
+      delimiter = "\n";
+    }
+  }
+
+  all_coords = all_coords.split(delimiter);
+
+  var pile_of_coords = [];
+
+  for(var i=0; i<all_coords.length; i++)
+  {
+    pile_of_coords.push(all_coords[i]);
+  }
+
+  clientcoord = pile_of_coords;
+  console.log(pile_of_coords.length);
+  console.log(pile_of_coords);
+  selectcoord(pile_of_coords.length);
 }
 
 function postGenes()
@@ -847,6 +922,57 @@ function updateNumberGenes(num, tm)
       numberGenes: num,
       totalMatch: tm
     });
+}
+
+function updateNumberCoord(num, tm)
+{
+    displayvalue_coordinput = "block";
+    this.setState({
+      numberCoords: num,
+      totalMatch: tm
+    });
+}
+
+class ClientAddCoord extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      numChildren: 0
+    };
+  }
+
+  render ()
+  {
+    return(
+      <InputCoord addChild={this.onAddChild}>
+      </InputCoord>
+    )
+  }
+
+  onAddChild = () => {
+    postCoords();
+  }
+
+}
+
+function InputCoord(props) {
+  const classes = useStyles();
+  const stringA = "Enter Coordinates";
+  return(
+    <div>
+    <Grid container spacing={0}>
+    <Grid item xs={3}>
+    <SpcInputLabel label={stringA} />
+    <div style={{display: "flex"}}>
+        <textarea id="clientinputcoord" name="name" placeholder="Enter coordinates here" style={{minWidth: 360, fontSize: 17, minHeight: 60}}/>
+        <IconButton type="submit" className={classes.iconAdd} aria-label="add" onClick={props.addChild}>
+          <AddIcon />
+        </IconButton>
+    </div>
+    </Grid>
+    </Grid>
+    </div>
+  );  
 }
 
 class ClientAddGene extends React.Component {
@@ -1050,6 +1176,21 @@ function QB_SelectedSignature(props)
           </div>
         </div> 
         <div id="QueueBoxCoordDiv" style={{display: displayvalue_coordinput, position: 'relative', alignItems: 'left', textAlign: 'center'}}>
+            <div style={{position: 'relative', minHeight: "40px", alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', margin: 12}}>
+            <Grid container spacing={2}>
+                <Grid item xs={1}></Grid>
+                <Grid item>
+                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5, fontSize: 19}}>
+                {"Selected ".concat(clientcoord.length).concat(" Coordinates.")}
+                </div>
+                </Grid>
+                <Grid item>
+                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', fontSize: 13}}>
+                {"Selected ".concat(props.totalMatch).concat(" samples.")}
+                </div>
+                </Grid>
+            </Grid>
+            </div>
         </div>        
       </Box> 
       </div> 
@@ -1088,11 +1229,13 @@ class QueueBox extends React.Component {
       targetSignatures: [],
       targetSigSelections: [],
       numberGenes: 0,
+      numberCoords: 0,
       defaultOn: false,
       totalMatch: 0
     }
     updateQueueBox = updateQueueBox.bind(this);
     updateNumberGenes = updateNumberGenes.bind(this);
+    updateNumberCoord = updateNumberCoord.bind(this);
     syncQB = syncQB.bind(this);
   }
 

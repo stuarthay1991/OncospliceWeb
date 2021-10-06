@@ -1,5 +1,7 @@
 <?php
-
+//ini_set('display_errors', 1);
+//ini_set('display_startup_errors', 1);
+//error_reporting(E_ALL);
 class PostType {
     public $contents = array();
 
@@ -87,7 +89,7 @@ class PostData {
         $this->SplicingQueries->setBaseQuery(("SELECT * FROM " . $this->Cancer . "_TCGA_META"));
         $this->Signatures->setBaseQuery(("SELECT * FROM " . $this->Cancer . "_TCGA_SIGNATURE"));
         $this->Genes->setBaseQuery(" WHERE (");
-        $this->Coords->setBaseQuery(" WHERE (");
+        $this->Coords->setBaseQuery(" WHERE ");
     }
 
     function setValues(){
@@ -96,7 +98,22 @@ class PostData {
             $key_possible_prefix_4 = substr($key, 0, 4);
             $key_possible_prefix_3 = substr($key, 0, 3);
             if($key_possible_prefix_5 == "COORD"){
-                $value = substr($value, 5);
+                $key = substr($key, 5);
+
+                $coord1_chrm_split = explode(":", $key);
+                $coord1_chrm = $coord1_chrm_split[0];
+
+                $coord1_pos_split = explode("-", $coord1_chrm_split[1]);
+                $coord1_start = $coord1_pos_split[0];
+                $coord1_end = $coord1_pos_split[1];
+
+                $pre_coord_query = " (coordinates LIKE " . "'%" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end . "%')";
+                if($this->Coords->getCounter() != 0){
+                    $this->Coords->addToQuery((" OR" . $pre_coord_query));
+                }
+                else{
+                    $this->Coords->addToQuery($pre_coord_query);
+                }
                 continue;
             }
             if($key_possible_prefix_3 == "PSI"){
@@ -122,7 +139,7 @@ class PostData {
                     else{
                         $this->Genes->addToQuery((" symbol = '" . $value . "'"));
                     }
-                    $cligene_base_count = $cligene_base_count + 1;
+                    //$cligene_base_count = $cligene_base_count + 1;
                     break;
 
                 case "RPSI":
