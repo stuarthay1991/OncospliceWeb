@@ -44,6 +44,7 @@ foreach ($_POST as $key => $value) {
 		if("COORD" == substr($key, 0, 5))
 		{
 			$key = substr($key, 5);
+			$key = preg_replace("/\r|\n/", "", $key);
 			//$coord_split = explode("|", $key);
 			//$coord1 = $coord_split[0];
 			//$coord2 = $coord_split[1];
@@ -61,19 +62,21 @@ foreach ($_POST as $key => $value) {
 			//$coord2_pos_split = explode("-", $coord2_chrm_split[1]);
 			//$coord2_start = $coord2_pos_split[0];
 			//$coord2_end = $coord2_pos_split[1];
-            $coord1_start_int = intval($coord1_start);
-            $coord1_end_int = intval($coord1_end);
-            $coord1_start_one_more = strval(($coord1_start_int + 1));
-            $coord1_start_one_less = strval(($coord1_start_int - 1));
+            //$coord1_start_int = intval($coord1_start);
+            //$coord1_end_int = intval($coord1_end);
+            //$coord1_start_one_more = strval(($coord1_start_int + 1));
+            //$coord1_start_one_less = strval(($coord1_start_int - 1));
 
-            $coord1_end_one_more = strval(($coord1_end_int + 1));
-            $coord1_end_one_less = strval(($coord1_end_int - 1));
+            //$coord1_end_one_more = strval(($coord1_end_int + 1));
+            //$coord1_end_one_less = strval(($coord1_end_int - 1));
 
-			$pre_coord_query = " (coordinates LIKE " . "'%" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end . "%')";
+			//$pre_coord_query = " (coordinates LIKE " . "'" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end . "%')";
 
-            $pre_coord_query = $pre_coord_query . " OR (coordinates LIKE " . "'" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start_one_more . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end_one_more . "%')";
+			$pre_coord_query = " ((chromosome = " . "'" . $coord1_chrm . "'" . ") AND ((coord1 = " . "'" . $coord1_start . "'" . " OR coord2 = " . "'" . $coord1_start . "'" . " OR coord3 = " . "'" . $coord1_start . "'" . " OR coord4 = " . "'" . $coord1_start . "'" . ") OR (coord1 = " . "'" . $coord1_end . "'" . " OR coord2 = " . "'" . $coord1_end . "'" . " OR coord3 = " . "'" . $coord1_end . "'" . " OR coord4 = " . "'" . $coord1_end . "'" . ")))";
 
-            $pre_coord_query = $pre_coord_query . " OR (coordinates LIKE " . "'" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start_one_less . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end_one_less . "%')";
+            //$pre_coord_query = $pre_coord_query . " OR (coordinates LIKE " . "'" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start_one_more . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end_one_more . "%')";
+
+            //$pre_coord_query = $pre_coord_query . " OR (coordinates LIKE " . "'" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start_one_less . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end_one_less . "%')";
 
 			if($meta_coord_count != 0)
 			{

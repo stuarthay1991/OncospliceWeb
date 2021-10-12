@@ -67,7 +67,8 @@ for($i = 2; $i < count($rangefiles); $i++)
   $lookattitle = str_replace(".txt", "", $lookattitle);
   $lookattitle = str_replace(".", "_", $lookattitle);
   $exmp[$i] = $lookattitle;
-  if(($NAME) == $lookattitle)
+  $goodname = str_replace("_", " ", $NAME);
+  if((strtolower($goodname)) == (strtolower($lookattitle)))
   {
       $cur_file = $TABLE_DICT[$cancertype]["META"]["RANGE"] . "/" . $rangefiles[$i];
       $cur_file_open = fopen($cur_file, "r");

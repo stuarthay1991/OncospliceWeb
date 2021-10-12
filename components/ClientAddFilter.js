@@ -337,6 +337,11 @@ function ClientSelectedFilter({key, number, get, deleteChild, range, chicken, eg
     value: initial_val,
     name: 'hai',
   });
+  var found_range = false;
+  //console.log("RANGE", range);
+  //console.log("EGG", egg);
+  //console.log("pre_q", pre_q);
+
 
   const handleChange = (event) => {
     const name = event.target.name;
@@ -348,7 +353,16 @@ function ClientSelectedFilter({key, number, get, deleteChild, range, chicken, eg
     functioncall(egg, event.target.value, get, "filter");
   }
 
-  const cur_filter = chicken[egg];
+  var cur_filter = chicken[egg];
+  for (const [key, value] of Object.entries(range))
+  {
+    console.log("ENTRIES", key, egg);
+    if(key.toLowerCase() == egg.toLowerCase())
+    {
+      found_range = true;
+      cur_filter = value;
+    }
+  }
   const cur_id = (egg).concat("_id");
   return (
     <Grid item>
@@ -371,7 +385,8 @@ function ClientSelectedFilter({key, number, get, deleteChild, range, chicken, eg
           {(() => {
             const options = [];
 
-            for (var i = 0; i < cur_filter.length; i++) {
+            for (var i = 0; i < cur_filter.length; i++) 
+            {
               var name_selected = cur_filter[i].replaceAll("_", " ");
               name_selected = name_selected.charAt(0).toUpperCase() + name_selected.slice(1);
               options.push(<option value={cur_filter[i]}>{name_selected}</option>);

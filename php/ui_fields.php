@@ -90,7 +90,7 @@ for($i = 2; $i < count($file_arr); $i++)
 }
 
 $rangefiles = scandir($TABLE_DICT[$selected_cancer_type]["META"]["RANGE"]);
-for($i = 2; $i < count($rangefiles); $i++)
+for($i = 0; $i < count($rangefiles); $i++)
 {
 	$cur_file = $TABLE_DICT[$selected_cancer_type]["META"]["RANGE"] . "/" . $rangefiles[$i];
 	$cur_file_open = fopen($cur_file, "r");

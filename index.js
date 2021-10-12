@@ -412,7 +412,7 @@ function getfields(cancername) {
     var local_ui_field_range = response["data"]["range"];
     var local_sigFilters = response["data"]["sig"];
     sigTranslate = response["data"]["sigtranslate"];
-    console.log("sigTranslate", sigTranslate);
+    console.log("ui_fields.php Response", response["data"]);
     ui_field_dict = local_ui_field_dict;
     ui_field_range = local_ui_field_range;
     sigFilters = local_sigFilters;

@@ -18,6 +18,7 @@ $cancertype = $_POST["CANCER"];
 date_default_timezone_set('UTC');
 $TABLE_DICT = array();
 
+//initial declarations (will need something better later)
 $TABLE_DICT["LAML"]["META"]["COLUMNS"] = "LAML/Columns";
 $TABLE_DICT["LAML"]["META"]["QUERY"] = "SELECT * FROM TCGA_LAML_META";
 $TABLE_DICT["LAML"]["SIG"]["QUERY"] = "SELECT * FROM TCGA_LAML_SIGNATURE";
@@ -54,12 +55,14 @@ $TABLE_DICT["BLCA"]["META"]["SPC"] = "uid";
 //NEW post data iterate
 $posted = new PostData($_POST);
 
+//Data retrieval and formatting from user input
 $onco_merged_result_key = $posted->MergedResults->getKey();
 $history_added = $posted->Histories->getKey();
 
 $meta_base_query = $posted->SplicingQueries->getQuery();
 $oncosig_base_query = $posted->Signatures->getQuery();
 $cligene_base_query = $posted->Genes->getQuery();
+$cligene_base_query = $cligene_base_query . ")";
 $coord_base_query = $posted->Coords->getQuery();
 
 $meta_base_count = $posted->SplicingQueries->getCounter();
@@ -67,8 +70,8 @@ $oncosig_base_count = $posted->Signatures->getCounter();
 $cligene_base_count = $posted->Genes->getCounter();
 $coord_base_count = $posted->Coords->getCounter();
 
+//Find file for cluster positions (if exists) and write corresponding dictionary
 $rpsi_dict = array();
-
 if(file_exists($TABLE_DICT[$cancertype]["RPSI"]))
 {
 	$rpsi_index = "NA";
@@ -99,6 +102,7 @@ if(file_exists($TABLE_DICT[$cancertype]["RPSI"]))
 	}
 }
 
+//Check for user tag to incorporate into the history
 if(isset($_POST["USER"]))
 {
 	$userpath = $_POST["USER"];
@@ -116,8 +120,6 @@ if(isset($_POST["USER"]))
 	fwrite($handle, $arr_tofile);
 	fclose($handle);
 }
-
-$cligene_base_query = $cligene_base_query . ")";
 
 //First query for sample UIDS.
 if($oncosig_base_count > 0)
@@ -164,7 +166,14 @@ if($meta_base_count > 0)
 }
 
 //Hardcoded query for annotations for signatures
-$makequery = "SELECT symbol, description, examined_Junction, background_major_junction, altexons, proteinpredictions, dpsi, clusterid, uid, coordinates, eventannotation, ";
+if($cancertype != "LAML" && $cancertype != "LGG")
+{
+	$makequery = "SELECT symbol, description, examined_Junction, background_major_junction, altexons, proteinpredictions, dpsi, clusterid, uid, chromosome, coord1, coord2, coord3, coord4, eventannotation, ";
+}
+else
+{
+	$makequery = "SELECT symbol, description, examined_Junction, background_major_junction, altexons, proteinpredictions, dpsi, clusterid, uid, coordinates, eventannotation, ";
+}
 
 //Only sample ids matched by the metadata query are retrieved
 if(count($m_arr) > 0)
@@ -206,15 +215,15 @@ if(count($m_arr) > 0)
 
 				$makequery = $makequery . $TABLE_DICT[$cancertype]["SPLC"]["QUERY"];
 			}
-			if($oncosig_base_count > 0)
+			if($oncosig_base_count > 0)//Check for normal signature filter
 			{
 				$makequery = $makequery . $uidsub_makequery;
 			}
-			if($cligene_base_count > 0)
+			if($cligene_base_count > 0)//Check for 
 			{
 				$makequery = $makequery . $cligene_base_query;
 			}
-			if($coord_base_count > 0)
+			if($coord_base_count > 0)//
 			{
 				$makequery = $makequery . $coord_base_query;
 			}
