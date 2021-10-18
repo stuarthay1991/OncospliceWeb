@@ -356,8 +356,9 @@ function ClientSelectedFilter({key, number, get, deleteChild, range, chicken, eg
   var cur_filter = chicken[egg];
   for (const [key, value] of Object.entries(range))
   {
-    console.log("ENTRIES", key, egg);
-    if(key.toLowerCase() == egg.toLowerCase())
+    var groovykey = key.replaceAll("_", " ");
+    console.log("ENTRIES", key, groovykey, egg);
+    if((key.toLowerCase() == egg.toLowerCase()) || (groovykey.toLowerCase() == egg.toLowerCase()))
     {
       found_range = true;
       cur_filter = value;

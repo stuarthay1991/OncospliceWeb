@@ -256,7 +256,7 @@ function selectfield(name, value, number, filter){
       queueboxchildren[number] = <QueueMessage key={number} number={number} name={name} get={number} value={value} type={"samples"} total_selected={in_criterion} total_left={selected_left}/>
       updateQueueBox(curCancer, keys["filter"].length, queueboxchildren, queueboxsignatures);
       //console.log("selectfield response code finished.");
-    })
+  })
 }
 
 function selectsignature(name, number, filter){
@@ -648,11 +648,11 @@ class FilterBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cancerType: "NULL",
+      cancerType: this.props.inherit.cancer,
       number: 0,
-      fieldSet: "NULL",
-      sigSet: "NULL",
-      rangeSet: "NULL",
+      fieldSet: this.props.inherit.ui_fields,
+      sigSet: this.props.inherit.signatures,
+      rangeSet: this.props.inherit.range,
       eventfilterSet: null
     };
     updateFilterBox = updateFilterBox.bind(this);
@@ -669,8 +669,6 @@ class FilterBox extends React.Component {
         cancerType: curCancer,
         number: 1,
       })
-      //console.log(pre_queueboxchildren);
-      //console.log(pre_queueboxsignatures);
     }
   }
 
@@ -683,7 +681,22 @@ class FilterBox extends React.Component {
     {
       children.push(<div>
       <div>
-      <ClientAddFilter syncQB={syncQB} removeKey={removeKey} functioncall={selectfield} keys={keys} sigTranslate={sigTranslate} rangeSet={this.state.rangeSet} chicken={this.state.fieldSet} egg={childrenFilters} pre_q={pre_queueboxchildren} q={queueboxchildren} type={"filter"} filterID={"meta_filter_id"} label={"Add Sample Filter"}>
+      <ClientAddFilter 
+        inheritState={this.state} 
+        parentProps={this.props} 
+        syncQB={syncQB}
+        removeKey={removeKey}
+        functioncall={selectfield}
+        keys={keys}
+        sigTranslate={sigTranslate}
+        rangeSet={this.state.rangeSet}
+        chicken={this.state.fieldSet}
+        egg={childrenFilters}
+        pre_q={pre_queueboxchildren}
+        q={queueboxchildren}
+        type={"filter"}
+        filterID={"meta_filter_id"}
+        label={"Add Sample Filter"}>
       </ClientAddFilter>
       </div>
       <ClientSEF sigvalue={this.state.sigSet}/>
@@ -985,31 +998,13 @@ class ClientAddGene extends React.Component {
 
   render ()
   {
-    //const children = [];
-    //for (var i = 0; i < this.state.numChildren; i += 1) 
-    //{
-      //children.push(this.props.egg[i]);
-    //};
     return(
       <InputGenes addChild={this.onAddChild}>
       </InputGenes>
     )
   }
 
-  /*onDeleteChild = (num) => {
-    this.props.egg.splice(num, 1);
-    console.log(this.props.egg);
-    this.setState({
-      numChildren: this.state.numChildren - 1
-    });
-
-  }*/
-
   onAddChild = () => {
-    //this.props.egg.push(<SingleItem key={this.state.numChildren} number={this.state.numChildren} deleteChild={this.onDeleteChild} egg={document.getElementById(this.props.filterID).value}/>);
-    /*this.setState({
-      numChildren: this.state.numChildren + 1
-    });*/
     postGenes();
   }
 
@@ -1198,7 +1193,7 @@ function QB_SelectedSignature(props)
   );
 }
 
-function QB_displayEventsSigs()
+function QB_displayEventsSigs(props)
 {
   return(
     <div style={{position: 'relative', fontSize: 16, paddingTop:6, paddingBottom:5, backgroundColor: '#E8E8E8'}}>
@@ -1210,7 +1205,7 @@ function QB_displayEventsSigs()
     </Grid>
     <Grid item>
     <div style={{marginRight: 10, alignItems: 'right', textAlign: 'right'}}>
-    {(current_number_of_samples).toString().concat(" samples and ").concat((current_number_of_events).toString()).concat(" events")}
+    {props.amount["samples"].toString().concat(" samples and ").concat(props.amount["events"].toString()).concat(" events")}
     </div>
     </Grid>
     </Grid>
@@ -1223,7 +1218,7 @@ class QueueBox extends React.Component {
     super(props)
     this.state = {
       numChildren: 0,
-      targetCancer: [],
+      targetCancer: this.props.cancerQueueMessage,
       targetArr: [],
       targetArrSelections: [],
       targetSignatures: [],
@@ -1231,7 +1226,8 @@ class QueueBox extends React.Component {
       numberGenes: 0,
       numberCoords: 0,
       defaultOn: false,
-      totalMatch: 0
+      totalMatch: 0,
+      resultamount: this.props.resamt
     }
     updateQueueBox = updateQueueBox.bind(this);
     updateNumberGenes = updateNumberGenes.bind(this);
@@ -1240,28 +1236,39 @@ class QueueBox extends React.Component {
   }
 
   componentDidMount (){
-    if(keys["filter"].length > 0 || keys["single"].length > 0)
+    if(this.props.keys["filter"].length > 0 || this.props.keys["single"].length > 0)
     {
     var ta1 = [];
     var ta2 = [];
-    var totalkeylen = keys["filter"].length + keys["single"].length;
-    for(var i = 0; i < keys["filter"].length; i++)
+    var totalkeylen = this.props.keys["filter"].length + this.props.keys["single"].length;
+    for(var i = 0; i < this.props.keys["filter"].length; i++)
     {
-      ta1.push(this.props.queueboxchildren[keys["filter"][i]])
+      ta1.push(this.props.queueboxchildren[this.props.keys["filter"][i]])
     }
 
-    for(var i = 0; i < keys["single"].length; i++)
+    for(var i = 0; i < this.props.keys["single"].length; i++)
     {
-      ta2.push(this.props.queueboxsignatures[keys["single"][i]])
+      ta2.push(this.props.queueboxsignatures[this.props.keys["single"][i]])
     }
 
     this.setState({
         numChildren: totalkeylen,
-        targetCancer: cancerQueueMessage,
+        targetCancer: this.props.cancerQueueMessage,
         targetArr: ta1,
         targetSignatures: ta2
     });
     }
+  }
+
+  componentDidUpdate(prevProps) {
+    if(prevProps.cancerQueueMessage != this.props.cancerQueueMessage)
+    {
+      this.setState({
+        targetCancer: this.props.cancerQueueMessage,
+        resultamount: this.props.resamt
+      })
+    }
+    //console.log("queuebox", this.state, this.props);
   }
 
   render (){
@@ -1272,7 +1279,7 @@ class QueueBox extends React.Component {
       <QB_SelectedCancer targetCancer={this.state.targetCancer}/>
       <QB_SelectedSample targetArrSelections={this.state.targetArrSelections} targetArr={this.state.targetArr}/>
       <QB_SelectedSignature targetSigSelections={this.state.targetSigSelections} targetSignatures={this.state.targetSignatures} totalMatch={this.state.totalMatch}/>
-      <QB_displayEventsSigs/>
+      <QB_displayEventsSigs amount={this.state.resultamount}/>
       </Box>
       </div>
     );
@@ -1341,8 +1348,18 @@ class BQPane extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      numChildren: 0,
       defaultQuery: false,
+      queuebox_values: {},
+      pre_queueboxvalues: {"children": [], "signatures": []},
+      eventfilterSet: null,
+      resultamount: {"samples": 0, "events": 0},
+      keys: {"filter": [], "single": []},
+      range: undefined,
+      cancer: "",
+      ui_fields: {},
+      genes: [],
+      coordinates: [],
+      signatures: undefined
     }
     updateBQPane = updateBQPane.bind(this)
   }
@@ -1358,6 +1375,7 @@ class BQPane extends React.Component {
     {
       displayvalue = "none";
     }
+    console.log(this.state);
     //console.log(this.state.defaultQuery);
     return (
     	<div style={{ marginLeft: 40, fontFamily: 'Arial' }}>
@@ -1374,11 +1392,23 @@ class BQPane extends React.Component {
             <DefaultQueryWrapper value={this.state.defaultQuery} />
       	    <Grid container spacing={2}>
       	      <Grid item>
-              <CancerSelect	inherit={this.props}/>
+              <CancerSelect	inherit={this.props} prevState={this.state} 
+                setUI={(in_ui_fields, in_cancer, in_qbox, range, sigs, resamt) => this.setState({
+                ui_fields: in_ui_fields, 
+                cancer: in_cancer,
+                queuebox_values: in_qbox,
+                keys: {"filter": [], "single": []},
+                range: range,
+                signatures: sigs,
+                resultamount: resamt
+                })}
+                />
       	      </Grid>
             </Grid>
             <Typography style={{padding: '2px 4px'}} />
-            <FilterBox />
+            <FilterBox inherit={this.state} 
+              setMeta={() => this.setState({
+              })}/>
             </div>
             </div>
           </Grid>
@@ -1401,7 +1431,13 @@ class BQPane extends React.Component {
             </Grid>
             </Grid>
             <div id="QueueBox_div">
-              <QueueBox queueboxchildren={queueboxchildren} queueboxsignatures={queueboxsignatures} qBDefaultMessage={qBDefaultMessage}></QueueBox>
+              <QueueBox keys={this.state.keys} cancerQueueMessage={this.state.queuebox_values["cancer"]} 
+                queueboxchildren={this.state.queuebox_values["children"]} 
+                queueboxsignatures={this.state.queuebox_values["signature"]} 
+                qBDefaultMessage={qBDefaultMessage}
+                resamt={this.state.resultamount}
+                inherit={this.state}>
+              </QueueBox>
             </div>
           </Grid>
           <Grid item sm={12} md={1}>
@@ -1438,8 +1474,6 @@ class ViewPaneWrapper extends React.Component {
 
   render()
   {
-    //console.log(this.state);
-    //console.log("sendToViewPane", sendToViewPane)
     return(
       <div>
         {this.state.inData.length > 0 && (
@@ -1518,13 +1552,9 @@ class QueryHistoryPaneWrapper extends React.Component {
       headers: { "Content-Type": "multipart/form-data" },
       })
       .then(function (response) {
-        //console.log(response);
         var responsedata = response["data"];
         var tmp_array = [];
-        //for(var i = 0; i < responsedata.length)
         console.log("RESPONSE", responsedata);
-        //console.log("RESPONSE_TEST", responsedata["date"]);
-        //console.log("RESPONSE_OBJ", responsedata["obj"]);
         updateQueryHistory(responsedata);
     })
 
@@ -1532,8 +1562,6 @@ class QueryHistoryPaneWrapper extends React.Component {
 
   render()
   {
-    //console.log(this.state);
-    //console.log("sendToViewPane", sendToViewPane)
     return(
       <div>
         {this.state.inData.length > 0 && (
@@ -1545,14 +1573,12 @@ class QueryHistoryPaneWrapper extends React.Component {
 }
 
 const responseGoogle = response => {
-  //console.log(response["Ys"]["Ve"]);
   console.log("Google response: ", response);
   var user = response["Ys"]["Ve"];
   updateAuthentication(user);
 };
 
 function updateAuthentication(value) {
-  //console.log("working");
   this.setState({
       user: value
   });

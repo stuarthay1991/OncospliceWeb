@@ -126,28 +126,8 @@ class PostData {
                 $coord1_start = $coord1_pos_split[0];
                 $coord1_end = $coord1_pos_split[1];
                 
-                /*
-                //Convert user input coordinate values to integer
-                $coord1_start_int = intval($coord1_start);
-                $coord1_end_int = intval($coord1_end);
-
-                //Account for an offset of one for each coordinate
-                $coord1_start_one_more = strval(($coord1_start_int + 1));
-                $coord1_start_one_less = strval(($coord1_start_int - 1));
-
-                $coord1_end_one_more = strval(($coord1_end_int + 1));
-                $coord1_end_one_less = strval(($coord1_end_int - 1));*/
-
-                //Exact coordinate retrieval
-                //$pre_coord_query = " (coordinates LIKE " . "'" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end . "%')";
                 $pre_coord_query = " ((chromosome = " . "'" . $coord1_chrm . "'" . ") AND ((coord1 = " . "'" . $coord1_start . "'" . " OR coord2 = " . "'" . $coord1_start . "'" . " OR coord3 = " . "'" . $coord1_start . "'" . " OR coord4 = " . "'" . $coord1_start . "'" . ") OR (coord1 = " . "'" . $coord1_end . "'" . " OR coord2 = " . "'" . $coord1_end . "'" . " OR coord3 = " . "'" . $coord1_end . "'" . " OR coord4 = " . "'" . $coord1_end . "'" . ")))";
-                //Offset by 1 coordinate retrieval
-                /*
-                $pre_coord_query = $pre_coord_query . " OR (coordinates LIKE " . "'%" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start_one_more . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end_one_more . "%')";
 
-                $pre_coord_query = $pre_coord_query . " OR (coordinates LIKE " . "'%" . $coord1_chrm . "%'" . " AND coordinates LIKE " . "'%" . $coord1_start_one_less . "%'" . " AND coordinates LIKE " . "'%" . $coord1_end_one_less . "%')";
-                */
-                //Add coordinate condition to the query
                 if($this->Coords->getCounter() != 0){
                     $this->Coords->addToQuery((" OR" . $pre_coord_query));
                 }

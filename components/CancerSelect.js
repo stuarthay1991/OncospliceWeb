@@ -5,6 +5,7 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Grid from '@material-ui/core/Grid';
 import SpcInputLabel from "./SpcInputLabel";
+import { makeRequest } from './CancerDataManagement.js'
 
 const widgetlabel = makeStyles((theme) => ({
   root: {
@@ -105,7 +106,10 @@ class CancerSelect extends React.Component {
       name: 'hai',
       value: event.target.value,
     });
-    P.getfields(event.target.value);
+    var args = {};
+    args["cancername"] = event.target.value;
+    args["setState"] = this.props.setUI;
+    makeRequest("uiFields", args);
   }
 
   render ()
