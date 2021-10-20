@@ -5,7 +5,7 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Grid from '@material-ui/core/Grid';
 import SpcInputLabel from "./SpcInputLabel";
-import { makeRequest } from './CancerDataManagement.js'
+import { makeRequest } from './CancerDataManagement.js';
 
 const widgetlabel = makeStyles((theme) => ({
   root: {

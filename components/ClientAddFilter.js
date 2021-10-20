@@ -13,6 +13,7 @@ import PreQueueMessage from './PreQueueMessage';
 import SingleItem from './SingleItem';
 import Icon from '@material-ui/core/Icon';
 import SpcInputLabel from "./SpcInputLabel";
+import { makeRequest } from './CancerDataManagement.js';
 
 const useStyles = makeStyles((theme) => ({
   parent: {
@@ -91,6 +92,7 @@ class ClientAddFilter extends React.Component {
   constructor(props) {
     super(props);
     const P = this.props;
+    const callback = P.parentProps.setMeta;
     this.state = {
       numChildren: P.keys[P.type].length
     };
@@ -116,19 +118,32 @@ class ClientAddFilter extends React.Component {
 
   onDeleteChild = (keyval) => {
     const P = this.props;
-    P.removeKey(P.type, keyval)
+    P.keys = P.removeKey(P.type, keyval, P.keys);
     P.egg[keyval] = "";
     console.log(this.state.numChildren);
     this.setState(state => ({...state, numChildren: state.numChildren - 1}));
     console.log(this.state.numChildren);
     if(P.type == "filter")
     {
-      P.pre_q[keyval] = undefined;
-      P.q[keyval] = "";
-      for(var i = 0; i < P.keys["filter"].length; i++)
-      {
-        P.functioncall(P.pre_q[P.keys["filter"][i]].props.name, P.pre_q[P.keys["filter"][i]].props.value, P.keys["filter"][i], P.type)
-      }
+      P.pre_q["children"][keyval] = undefined;
+      P.q["children"][keyval] = "";
+      var args = {};
+      //args["name"] = P.pre_q["children"][P.keys["filter"][i]].props.name;
+      //args["value"] = P.pre_q["children"][P.keys["filter"][i]].props.value;
+      //args["number"] = P.keys["filter"][i];
+      args["filter"] = "filter";
+      args["keys"] = P.keys;
+      args["pre_queueboxchildren"] = P.pre_q;
+      args["queueboxchildren"] = P.q;
+      args["cancer"] = P.inheritState.cancerType;
+      args["parentResultAmt"] = P.parentProps.inherit.resultamount;
+      args["setState"] = P.parentProps.setMeta;
+      makeRequest("recursiveMetaDataField", args);
+      //for(var i = 0; i < P.keys["filter"].length; i++)
+      //{    
+        //makeRequest("metaDataField", args);
+        //P.functioncall(P.pre_q["children"][P.keys["filter"][i]].props.name, P.pre_q["children"][P.keys["filter"][i]].props.value, P.keys["filter"][i], P.type)
+      //}
     }
     if(P.type == "single")
     {
@@ -163,11 +178,11 @@ class ClientAddFilter extends React.Component {
     {
       if(found)
       {
-        P.egg[keyval] = <ClientSelectedFilter functioncall={P.functioncall} key={keyval} number={S.numChildren} get={keyval} deleteChild={this.onDeleteChild} range={P.rangeSet} chicken={P.rangeSet} egg={filterIDvalue} pre_q={P.pre_q}/>;
+        P.egg[keyval] = <ClientSelectedFilter P={P} functioncall={P.functioncall} key={keyval} number={S.numChildren} get={keyval} deleteChild={this.onDeleteChild} range={P.rangeSet} chicken={P.rangeSet} egg={filterIDvalue} pre_q={P.pre_q}/>;
       }
       else
       {
-        P.egg[keyval] = <ClientSelectedFilter functioncall={P.functioncall} key={keyval} number={S.numChildren} get={keyval} deleteChild={this.onDeleteChild} range={P.rangeSet} chicken={P.chicken} egg={filterIDvalue} pre_q={P.pre_q}/>;
+        P.egg[keyval] = <ClientSelectedFilter P={P} functioncall={P.functioncall} key={keyval} number={S.numChildren} get={keyval} deleteChild={this.onDeleteChild} range={P.rangeSet} chicken={P.chicken} egg={filterIDvalue} pre_q={P.pre_q}/>;
       }
     }
     if(P.type == "single")
@@ -239,32 +254,10 @@ function FilterMenuPopulate(props) {
             if(props.type == "filter")
             {
             for (const [key, value] of Object.entries(props.chicken)) {
-             /* var found = false;
-              if(props.range != undefined)
-              {
-                for (const [newkey, newvalue] of Object.entries(props.range)) {
-                  if(newkey == key)
-                  {
-                    console.log("Kung fu randypants");
-                    found = true;
-                    break;
-                  }
-                }
-              }*/
-              //if(found)
-              //{
-                //console.log("Key time", key);
-                //var name_selected = "Range: ".concat(key);
-                //options.push(<option value={key}>{name_selected}</option>);
-              ///}
-              //else
-              //{
-              //console.log("Print out the key: ", key);
               var name_selected = key.replaceAll("_", " ");
               name_selected = name_selected.charAt(0).toUpperCase() + name_selected.slice(1);
               name_selected = name_selected.toUpperCase();
               options.push(<option value={key}>{name_selected}</option>);
-              //}
             }
             }
             else if(props.type == "single")
@@ -273,7 +266,6 @@ function FilterMenuPopulate(props) {
               var name_selected = props.chicken[i];
               if((Object.entries(props.sigTranslate)).length > 0)
               {
-                //console.log("WUMBA!", props.sigTranslate[name_selected]);
                 if(props.sigTranslate[name_selected] != undefined)
                 {
                   final_name_selected = props.sigTranslate[name_selected];
@@ -322,7 +314,7 @@ function FilterMenuPopulate(props) {
   );
 }
 
-function ClientSelectedFilter({key, number, get, deleteChild, range, chicken, egg, pre_q, functioncall}) {
+function ClientSelectedFilter({P, key, number, get, deleteChild, range, chicken, egg, pre_q, functioncall}) {
   const classes = useStyles();
   const widgemidge = widgetlabel5();
   if(pre_q[get] != undefined)
@@ -349,8 +341,22 @@ function ClientSelectedFilter({key, number, get, deleteChild, range, chicken, eg
       ...state,
       [name]: event.target.value,
     });
-    pre_q[get] = <PreQueueMessage key={number} number={number} get={get} name={egg} value={event.target.value}/>
-    functioncall(egg, event.target.value, get, "filter");
+    pre_q["children"][get] = <PreQueueMessage key={number} number={number} get={get} name={egg} value={event.target.value}/>
+    var args = {};
+
+    //name, value, number, filter
+    args["name"] = egg;
+    args["value"] = event.target.value;
+    args["number"] = get;
+    args["filter"] = "filter";
+    args["keys"] = P.keys;
+    args["pre_queueboxchildren"] = pre_q;
+    args["queueboxchildren"] = P.q;
+    args["cancer"] = P.inheritState.cancerType;
+    args["parentResultAmt"] = P.parentProps.inherit.resultamount;
+    args["setState"] = P.parentProps.setMeta;
+    makeRequest("metaDataField", args);
+    //functioncall(egg, event.target.value, get, "filter");
   }
 
   var cur_filter = chicken[egg];

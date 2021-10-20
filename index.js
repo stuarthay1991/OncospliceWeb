@@ -212,17 +212,17 @@ function updateViewPane(list1, list2, list3, list4, list5){
   });
 }
 
-function removeKey(type, keyval){
+function removeKey(type, keyval, keys){
   //console.log("Delete starting...");
   for(var i = 0; i < keys[type].length; i++)
   {
     if(keys[type][i] == keyval)
     {
-      //console.log("Key found!");
       keys[type].splice(i, 1);
       break;
     }
   }
+  return keys;
 }
 ///material-app
 ///ICGS/Oncosplice/build
@@ -672,6 +672,19 @@ class FilterBox extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    if(prevProps != this.props)
+    {
+      this.setState({
+        cancerType: this.props.inherit.cancer,
+        number: 0,
+        fieldSet: this.props.inherit.ui_fields,
+        sigSet: this.props.inherit.signatures,
+        rangeSet: this.props.inherit.range
+      })
+    }
+  }
+
   render ()
   {
     const children = [];
@@ -692,8 +705,8 @@ class FilterBox extends React.Component {
         rangeSet={this.state.rangeSet}
         chicken={this.state.fieldSet}
         egg={childrenFilters}
-        pre_q={pre_queueboxchildren}
-        q={queueboxchildren}
+        pre_q={this.props.inherit.pre_queueboxvalues}
+        q={this.props.inherit.queuebox_values}
         type={"filter"}
         filterID={"meta_filter_id"}
         label={"Add Sample Filter"}>
@@ -1261,11 +1274,26 @@ class QueueBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if(prevProps.cancerQueueMessage != this.props.cancerQueueMessage)
+    if(prevProps !== this.props)
     {
+      var ta1 = [];
+      var ta2 = [];
+      var arr = this.props.inherit.queuebox_values["children"];
+      var sig = this.props.inherit.queuebox_values["signatures"];
+      for(var i = 0; i < this.props.keys["filter"].length; i++)
+      {
+        ta1.push(arr[this.props.keys["filter"][i]])
+      }
+
+      for(var i = 0; i < this.props.keys["single"].length; i++)
+      {
+        ta2.push(sig[this.props.keys["single"][i]])
+      }
       this.setState({
         targetCancer: this.props.cancerQueueMessage,
-        resultamount: this.props.resamt
+        resultamount: this.props.resamt,
+        targetArr: ta1,
+        targetSignatures: ta2
       })
     }
     //console.log("queuebox", this.state, this.props);
@@ -1349,8 +1377,8 @@ class BQPane extends React.Component {
     super(props)
     this.state = {
       defaultQuery: false,
-      queuebox_values: {},
-      pre_queueboxvalues: {"children": [], "signatures": []},
+      queuebox_values: {"children": undefined, "signatures": undefined},
+      pre_queueboxvalues: {"children": {}, "signatures": {}},
       eventfilterSet: null,
       resultamount: {"samples": 0, "events": 0},
       keys: {"filter": [], "single": []},
@@ -1407,7 +1435,11 @@ class BQPane extends React.Component {
             </Grid>
             <Typography style={{padding: '2px 4px'}} />
             <FilterBox inherit={this.state} 
-              setMeta={() => this.setState({
+              setMeta={(resamt, qbox, pre_qbox, keys) => this.setState({
+                resultamount: resamt,
+                queuebox_values: qbox,
+                pre_queueboxvalues: pre_qbox,
+                keys: keys
               })}/>
             </div>
             </div>
