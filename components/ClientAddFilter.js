@@ -92,7 +92,8 @@ class ClientAddFilter extends React.Component {
   constructor(props) {
     super(props);
     const P = this.props;
-    const callback = P.parentProps.setMeta;
+    //const callback = P.parentProps.setMeta;
+    //const callback = P.parentProps.setSig;
     this.state = {
       numChildren: P.keys[P.type].length
     };
@@ -108,10 +109,10 @@ class ClientAddFilter extends React.Component {
       children.push(P.egg[P.keys[P.type][i]]);
     };
 
-    P.syncQB(children, P.type);
+    //P.syncQB(children, P.type);
 
     return(
-      <FilterMenuPopulate addChild={this.onAddChild} type={P.type} filterID={P.filterID} sigTranslate={P.sigTranslate} label={P.label} chicken={P.chicken} range={P.rangeSet}> 
+      <FilterMenuPopulate addChild={this.onAddChild} parentProps={P.parentProps} egg={P.egg} childrenFilters={children} type={P.type} filterID={P.filterID} sigTranslate={P.sigTranslate} label={P.label} chicken={P.chicken} range={P.rangeSet}> 
       </FilterMenuPopulate>
     )
   }
@@ -138,6 +139,7 @@ class ClientAddFilter extends React.Component {
       args["cancer"] = P.inheritState.cancerType;
       args["parentResultAmt"] = P.parentProps.inherit.resultamount;
       args["setState"] = P.parentProps.setMeta;
+      args["export"] = P.parentProps.inherit.export;
       makeRequest("recursiveMetaDataField", args);
       //for(var i = 0; i < P.keys["filter"].length; i++)
       //{    
@@ -149,10 +151,20 @@ class ClientAddFilter extends React.Component {
     {
       P.pre_q[keyval] = undefined;
       P.q[keyval] = "";
-      for(var i = 0; i < P.keys["single"].length; i++)
-      {
-        P.functioncall(P.pre_q[P.keys["single"][i]].props.name, P.keys["single"][i], P.type);
-      }
+      var args = {};
+      args["filter"] = "single";
+      args["keys"] = P.keys;
+      args["pre_queueboxchildren"] = P.pre_q;
+      args["queueboxchildren"] = P.q;
+      args["cancer"] = P.inheritState.cancerType;
+      args["parentResultAmt"] = P.parentProps.inherit.resultamount;
+      args["setState"] = P.parentProps.setSig;
+      args["export"] = P.parentProps.inherit.export;
+      makeRequest("recursiveSignature", args);
+      //for(var i = 0; i < P.keys["single"].length; i++)
+      //{
+        //P.functioncall(P.pre_q[P.keys["single"][i]].props.name, P.keys["single"][i], P.type);
+      //}
     }    
   }
 
@@ -187,9 +199,24 @@ class ClientAddFilter extends React.Component {
     }
     if(P.type == "single")
     {
+      var args = {};
+      args["filter"] = "single";
+      args["keys"] = P.keys;
+      args["pre_queueboxchildren"] = P.pre_q;
+      args["queueboxchildren"] = P.q;
+      args["cancer"] = P.inheritState.cancerType;
+      args["parentResultAmt"] = P.parentProps.inherit.resultamount;
+      args["sigTranslate"] = P.parentProps.inherit.sigTranslate;
+      args["setState"] = P.parentProps.setSig;
+      args["name"] = invalue;
+      args["keyval"] = keyval;
+      args["type"] = P.type;
+      args["export"] = P.parentProps.inherit.export;
+      //name, number, filter
       P.egg[keyval] = <SingleItem key={keyval} number={S.numChildren} get={keyval} deleteChild={this.onDeleteChild} chicken={P.chicken} egg={invalue}/>;
       P.pre_q[keyval] = <PreQueueMessage key={keyval} number={S.numChildren} get={keyval} name={invalue}/>
-      P.functioncall(invalue, keyval, P.type);
+      makeRequest("signature", args);
+      //P.functioncall(invalue, keyval, P.type);
     }
     this.setState(state => ({...state, numChildren: state.numChildren + 1}));
   }
@@ -226,6 +253,21 @@ function FilterMenuPopulate(props) {
     //console.log(event.target);
     props.addChild(viewDict[event.target.value]);
   };
+  
+  if(props.type == "filter")
+  {
+    if(props.childrenFilters.length != props.parentProps.inherit.childrenFilters.length)
+    {
+      props.parentProps.setChildrenFilters(props.childrenFilters, props.egg);
+    }
+  }
+  if(props.type == "single")
+  {
+    if(props.childrenFilters.length != props.parentProps.inherit.postoncosig.length)
+    {
+      props.parentProps.setPostoncosig(props.childrenFilters, props.egg);
+    }
+  }
 
   return(
     <div className={classes.parent}>
@@ -354,6 +396,7 @@ function ClientSelectedFilter({P, key, number, get, deleteChild, range, chicken,
     args["queueboxchildren"] = P.q;
     args["cancer"] = P.inheritState.cancerType;
     args["parentResultAmt"] = P.parentProps.inherit.resultamount;
+    args["export"] = P.parentProps.inherit.export;
     args["setState"] = P.parentProps.setMeta;
     makeRequest("metaDataField", args);
     //functioncall(egg, event.target.value, get, "filter");

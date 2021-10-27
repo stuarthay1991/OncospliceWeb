@@ -49,6 +49,7 @@ import CancerSelect from './components/CancerSelect';
 import SpcInputLabel from './components/SpcInputLabel';
 import CheckboxForm from './components/CheckboxForm';
 import AboutUs from './components/AboutUs';
+import { makeRequest } from './components/CancerDataManagement.js';
 //import ClientAddFilter from './ClientAddFilter.js'
 
 const StyledTabs = withStyles({
@@ -125,8 +126,16 @@ var version = "0.1";
 
 //Global Variables
 var flag = 0;
+var splicingreturned = [];
+var splicingcols = [];
+var splicingcc = [];
+var splicingrpsi = [];
+var splicingtrans = "";
+var sendToViewPane = {};
+var keys = {};
 var ui_field_dict;
 var ui_field_range;
+
 var cur_filter_amt = 0;
 var childrenFilters = [];
 var postoncosig = [];
@@ -140,18 +149,12 @@ var sigTranslate;
 var sigFilters;
 var curCancer;
 var cancerQueueMessage;
-var keys = {};
-var sendToViewPane = {};
+
 var displayvalue_userquery = "block";
 var displayvalue_sigquery = "block";
 var displayvalue_defaultquery = "none";
 var displayvalue_geneinput = "none";
 var displayvalue_coordinput = "none";
-var splicingreturned = [];
-var splicingcols = [];
-var splicingcc = [];
-var splicingrpsi = [];
-var splicingtrans = "";
 var current_number_of_events = 0;
 var current_number_of_samples = 0;
 
@@ -192,7 +195,6 @@ function updateQueueBox(cmess, num, arr, sig){
 }
 
 function updateFilterBox(ctype, num, field, range, sig){
-  //console.log("working");
   this.setState({
       cancerType: ctype,
       fieldSet: field,
@@ -202,18 +204,18 @@ function updateFilterBox(ctype, num, field, range, sig){
   });
 }
 
-function updateViewPane(list1, list2, list3, list4, list5){
+function updateViewPane(list1, list2, list3, list4, list5, exp){
   this.setState({
     inData: list1,
     inCols: list2,
     inCC: list3,
     inRPSI: list4,
-    inTRANS: list5
+    inTRANS: list5,
+    export: exp
   });
 }
 
 function removeKey(type, keyval, keys){
-  //console.log("Delete starting...");
   for(var i = 0; i < keys[type].length; i++)
   {
     if(keys[type][i] == keyval)
@@ -224,226 +226,8 @@ function removeKey(type, keyval, keys){
   }
   return keys;
 }
-///material-app
-///ICGS/Oncosplice/build
-function selectfield(name, value, number, filter){
-  //console.log("selectfield starting...");
-  var bodyFormData = new FormData();
-  sendToViewPane["filter"] = [];
-  for(var i = 0; i < keys[filter].length; i++)
-  {
-    var myString = pre_queueboxchildren[keys[filter][i]].props.value;
-    myString = myString.replace(/(\r\n|\n|\r)/gm, "");
-    bodyFormData.append(pre_queueboxchildren[keys[filter][i]].props.name, myString);
-    sendToViewPane["filter"].push((pre_queueboxchildren[keys[filter][i]].props.name.concat("#").concat(myString)));
-  }
-  name = name.replace(/(\r\n|\n|\r)/gm, "");
-  value = value.replace(/(\r\n|\n|\r)/gm, "");
-  bodyFormData.append(("SEL".concat(name)), value);
-  bodyFormData.append("CANCER",curCancer);
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/getsinglemeta.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-    .then(function (response) {
-      //console.log("selectfield response code starting...");
-      var in_criterion = response["data"]["single"];
-      var selected_left = response["data"]["meta"];
-      current_number_of_samples = response["data"]["meta"];
-      console.log("selectfield repsonse: ", response["data"]);
-      queueboxchildren[number] = <QueueMessage key={number} number={number} name={name} get={number} value={value} type={"samples"} total_selected={in_criterion} total_left={selected_left}/>
-      updateQueueBox(curCancer, keys["filter"].length, queueboxchildren, queueboxsignatures);
-      //console.log("selectfield response code finished.");
-  })
-}
-
-function selectsignature(name, number, filter){
-  var bodyFormData = new FormData();
-  sendToViewPane["single"] = [];
-  for(var i = 0; i < keys[filter].length; i++)
-  {
-    var myString = pre_queueboxsignatures[keys[filter][i]].props.name;
-    myString = myString.replace(/(\r\n|\n|\r)/gm, "");
-    if(Object.entries(sigTranslate).length > 0)
-    {
-      console.log("working working");
-      if(sigTranslate[myString] != undefined)
-      {
-        myString = sigTranslate[myString];
-        myString = myString.replace("+", "positive_");
-      }
-      else
-      {
-        //myString = "PSI_".concat(myString);
-        myString = myString.replace(" ", "_");
-      }
-      console.log(myString);
-    }
-    bodyFormData.append(myString, myString);
-    sendToViewPane["single"].push(myString);
-    console.log("SIGBODYFORMDATA1: ", myString);  
-  }
-  if(Object.entries(sigTranslate).length > 0)
-  {
-    if(sigTranslate[name] != undefined)
-    {
-        name = sigTranslate[name];
-        name = name.replace("+", "positive_");
-    }//TMEPORARY FIX
-    else
-    {
-        //name = "PSI_".concat(name);
-        name = name.replace(" ", "_");
-    }
-    name = name.replace(/(\r\n|\n|\r)/gm, "");
-    bodyFormData.append(("SEL".concat(name)), name);
-    console.log("SIGBODYFORMDATA2: ", name);
-  }
-  else
-  {
-    name = name.replace(/(\r\n|\n|\r)/gm, "");
-    bodyFormData.append(("SEL".concat(name)), name);
-    console.log("SIGBODYFORMDATA2: ", name);   
-  }
-  bodyFormData.append("CANCER",curCancer);
-  
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/getsinglesig.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-    .then(function (response) {
-      var in_criterion = response["data"]["single"];
-      var selected_left = response["data"]["meta"];
-      current_number_of_events = response["data"]["meta"];
-      queueboxsignatures[number] = <QueueMessage key={number} number={number} name={"PSI"} get={number} value={name} type={"events"} total_selected={in_criterion} total_left={selected_left}/>
-      updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
-  })
-}
-
-function selectgene(num){
-  var bodyFormData = new FormData();
-  sendToViewPane["single"] = [];
-  for(var i = 0; i < clientgenes.length; i++)
-  {
-    bodyFormData.append(("GENE".concat(clientgenes[i])), ("GENE".concat(clientgenes[i])));
-    sendToViewPane["single"].push(("Gene: ".concat(clientgenes[i])));
-  }
-  bodyFormData.append("CANCER",curCancer);
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/getgene.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-    .then(function (response) {
-      var totalmatch = response["data"]["single"];
-      console.log("1", totalmatch);
-      console.log("2", response["data"]);
-      updateNumberGenes(num, totalmatch);
-  }) 
-}
-
-function selectcoord(num){
-  var bodyFormData = new FormData();
-  sendToViewPane["single"] = [];
-  for(var i = 0; i < clientcoord.length; i++)
-  {
-    bodyFormData.append(("COORD".concat(clientcoord[i])), ("COORD".concat(clientcoord[i])));
-    sendToViewPane["single"].push(("Coord: ".concat(clientcoord[i])));
-  }
-  bodyFormData.append("CANCER",curCancer);
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/getcoord.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-    .then(function (response) {
-      var totalmatch = response["data"]["single"];
-      console.log("1", totalmatch);
-      console.log("2", response["data"]);
-      updateNumberCoord(num, totalmatch);
-  }) 
-}
-
-function DQ_UI_fields(splicingreturned, splicingcols) {
-  var bodyFormData = new FormData();
-  bodyFormData.append("cancer_type", "LAML");
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/ui_fields.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-  .then(function (response) {
-    console.log("DQ_UI_fields", response["data"]);
-    sendToViewPane["cancer"] = "LAML";
-    sendToViewPane["ui_field_dict"] = response["data"]["meta"];
-    sendToViewPane["ui_field_range"] = response["data"]["range"];
-    updateViewPane(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans);
-    document.getElementById("sub").style.display = "none";
-  })
-}
-
-function getfields(cancername) {
-  //console.log(cancername);
-  var bodyFormData = new FormData();
-  bodyFormData.append("cancer_type", cancername);
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/ui_fields.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-  .then(function (response) {
-    // handle success
-    //console.log(response);
-    keys["filter"] = [];
-    keys["single"] = [];
-    queueboxchildren = {};
-    pre_queueboxchildren = {};
-    queueboxsignatures = {};
-    pre_queueboxsignatures = {};
-    var local_ui_field_dict = response["data"]["meta"];
-    var local_ui_field_range = response["data"]["range"];
-    var local_sigFilters = response["data"]["sig"];
-    sigTranslate = response["data"]["sigtranslate"];
-    console.log("ui_fields.php Response", response["data"]);
-    ui_field_dict = local_ui_field_dict;
-    ui_field_range = local_ui_field_range;
-    sigFilters = local_sigFilters;
-    var qcancer_rows = (response["data"]["qbox"]["rows"]).toString();
-    var qcancer_cols = (response["data"]["qbox"]["columns"]).toString();
-    var cmessage = qcancer_rows.concat(" events and ").concat(qcancer_cols).concat(" samples.");
-    current_number_of_events = qcancer_rows;
-    current_number_of_samples = qcancer_cols;
-    curCancer = cancername;
-    sendToViewPane["cancer"] = cancername;
-    sendToViewPane["ui_field_dict"] = response["data"]["meta"];
-    cancerQueueMessage = <QueueMessage key={"c_type_q"} number={0} name={"cancer"} get={0} value={cancername} type={"cancer"} total_selected={cmessage} total_left={cmessage}/>;
-    updateFilterBoxSEF(null);
-    syncQB([], "filter");
-    syncQB([], "single");
-    try {
-      document.getElementById("SEF_id").value = "";
-      updateClientSEF();
-      console.log("Schnoogadoo");
-    } catch (error) {
-      console.error(error);
-    }
-    updateQueueBox(curCancer, 1, queueboxchildren, queueboxsignatures);
-    //console.log(ui_field_dict);
-    updateFilterBox(cancername, 1, local_ui_field_dict, local_ui_field_range, local_sigFilters);
-    //console.log("Finished");
-  })
-}
 
 function regeneratefields(cancername) {
-  //console.log(cancername);
   var bodyFormData = new FormData();
   bodyFormData.append("cancer_type", cancername);
   axios({
@@ -453,8 +237,6 @@ function regeneratefields(cancername) {
     headers: { "Content-Type": "multipart/form-data" },
   })
   .then(function (response) {
-    // handle success
-    //console.log(response);
     var local_ui_field_dict = response["data"]["meta"];
     var local_ui_field_range = response["data"]["range"];
     var local_sigFilters = response["data"]["sig"];
@@ -471,37 +253,8 @@ function regeneratefields(cancername) {
     sendToViewPane["ui_field_dict"] = response["data"]["meta"];
     cancerQueueMessage = <QueueMessage key={"c_type_q"} number={0} name={"cancer"} get={0} value={cancername} type={"cancer"} total_selected={cmessage} total_left={cmessage}/>;
     updateQueueBox(curCancer, 2, queueboxchildren, queueboxsignatures);
-    //console.log(ui_field_dict);
     updateFilterBox(cancername, 2, local_ui_field_dict, local_ui_field_range, local_sigFilters);
   })  
-}
-
-function ajaxdq() {
-  var bodyFormData = new FormData();
-  bodyFormData.append("PSIPsi cbfb gene fusions vs others", "PSIPsi cbfb gene fusions vs others");
-  bodyFormData.append("CANCER","LAML");
-  document.getElementById("sub").style.display = "block";
-  //console.log("RUNNING running");
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/metarequest.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-    .then(function (response) {
-      //console.log(response);
-      //response = JSON.parse(response);
-      document.getElementById(`simple-tab-1`).click();
-      splicingreturned = response["data"]["rr"];
-      splicingcols = response["data"]["col_beds"];
-      splicingcc = response["data"]["cci"];
-      sendToViewPane["filter"] = [];
-      sendToViewPane["cancer"] = "LAML";
-      sendToViewPane["single"] = ["Psi cbfb gene fusions vs others"];
-      splicingrpsi = response["data"]["rpsi"];
-      splicingtrans = response["data"]["oncokey"];
-      DQ_UI_fields(splicingreturned, splicingcols);
-  })
 }
 
 function ajaxviewquery(indata) {
@@ -536,112 +289,9 @@ function ajaxviewquery(indata) {
   })
 }
 
-function ajaxfunc() {
-  document.getElementById("sub").style.display = "block";
-  var bodyFormData = new FormData();
-  var qh_arr = [];
-  var tmp_qh_obj = {};
-  for(var i = 0; i < keys["filter"].length; i++)
-  {
-    var myString = document.getElementById(childrenFilters[keys["filter"][i]].props.egg.concat("_id")).value;
-    myString = myString.replace(/(\r\n|\n|\r)/gm, "");
-    tmp_qh_obj = {};
-    //console.log("bodyFormDataSPLC", ("SPLC".concat(childrenFilters[keys["filter"][i]].props.egg)), myString);
-    bodyFormData.append(("SPLC".concat(childrenFilters[keys["filter"][i]].props.egg)), myString);
-    tmp_qh_obj["key"] = "SPLC".concat(childrenFilters[keys["filter"][i]].props.egg);
-    tmp_qh_obj["val"] = myString;
-    qh_arr.push(tmp_qh_obj);
-  }
-  for(var i = 0; i < keys["single"].length; i++)
-  {
-    var myString = postoncosig[keys["single"][i]].props.egg;
-    myString = myString.replace(/(\r\n|\n|\r)/gm, "");
-    tmp_qh_obj = {};
-    if(Object.entries(sigTranslate).length > 0)
-    {
-      if(sigTranslate[myString] != undefined)
-      {
-        bodyFormData.append(("RPSI".concat(myString)), myString);
-        myString = sigTranslate[myString];
-        myString = myString.replace("+", "positive_");
-      }//TEMPORARY FIX
-      else
-      {
-        //myString = "PSI_".concat(myString);
-        myString = myString.replace(" ", "_");
-      }
-      console.log("Signature added:", myString);
-    }
-    myString = "PSI".concat(myString);
-    tmp_qh_obj["key"] = myString;
-    tmp_qh_obj["val"] = myString;
-    qh_arr.push(tmp_qh_obj);
-    //console.log("bodyFormDataPSI", myString, myString);
-    bodyFormData.append(myString, myString);
-  }
-  for(var i = 0; i < clientgenes.length; i++)
-  {
-    var myString = clientgenes[i];
-    tmp_qh_obj = {};
-    myString = "GENE".concat(myString);
-    tmp_qh_obj["key"] = myString;
-    tmp_qh_obj["val"] = myString;
-    qh_arr.push(tmp_qh_obj);
-    //console.log("bodyFormDataGene", myString, myString);
-    bodyFormData.append(myString, myString);
-  }
-  for(var i = 0; i < clientcoord.length; i++)
-  {
-    var myString = clientcoord[i];
-    tmp_qh_obj = {};
-    myString = "COORD".concat(myString);
-    tmp_qh_obj["key"] = myString;
-    tmp_qh_obj["val"] = myString;
-    qh_arr.push(tmp_qh_obj);
-    //console.log("bodyFormDataGene", myString, myString);
-    bodyFormData.append(myString, myString);
-  }  
-  bodyFormData.append("CANCER",curCancer);
-  tmp_qh_obj = {};
-  tmp_qh_obj["key"] = "CANCER";
-  tmp_qh_obj["val"] = curCancer;
-  qh_arr.push(tmp_qh_obj);
-  var qh_postdata = JSON.stringify(qh_arr)
-  bodyFormData.append("HIST",qh_postdata);
-  bodyFormData.append("USER",GLOBAL_user);
-  //console.log("bodyFormDataCancer", curCancer)
-  if(keys["single"].length == 0 && clientgenes.length == 0 && clientcoord.length == 0)
-  {
-    alert("Please select at least one signature or gene to continue.");
-  }
-  else
-  {
-    axios({
-      method: "post",
-      url: (targeturl.concat("/backend/metarequest.php")),
-      data: bodyFormData,
-      headers: { "Content-Type": "multipart/form-data" },
-    })
-      .then(function (response) {
-        var dateval = response["data"]["date"];
-        var indatatmp = {};
-        //indatatmp["obj"] = qh_arr;
-        //indatatmp["date"] = dateval;
-        //queryhistory_dat.push(indatatmp);
-        //addQueryHistory(indatatmp);
-        console.log("METAREQUEST response:", response["data"]);
-        //response = JSON.parse(response);
-        document.getElementById(`simple-tab-1`).click();
-        splicingreturned = response["data"]["rr"];
-        splicingcols = response["data"]["col_beds"];
-        splicingcc = response["data"]["cci"];
-        splicingrpsi = response["data"]["rpsi"];
-        splicingtrans = response["data"]["oncokey"];
-        updateViewPane(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans);
-        document.getElementById("sub").style.display = "none";
-        changeUser(GLOBAL_user);
-      })
-  }
+function none()
+{
+  return null;
 }
 
 class FilterBox extends React.Component {
@@ -687,6 +337,8 @@ class FilterBox extends React.Component {
 
   render ()
   {
+    const P = this.props;
+    const S = this.state;
     const children = [];
     updateFilterBox = updateFilterBox.bind(this);
     updateFilterBoxSEF = updateFilterBoxSEF.bind(this);
@@ -695,24 +347,27 @@ class FilterBox extends React.Component {
       children.push(<div>
       <div>
       <ClientAddFilter 
-        inheritState={this.state} 
-        parentProps={this.props} 
+        inheritState={S} 
+        parentProps={P} 
         syncQB={syncQB}
         removeKey={removeKey}
-        functioncall={selectfield}
-        keys={keys}
-        sigTranslate={sigTranslate}
-        rangeSet={this.state.rangeSet}
-        chicken={this.state.fieldSet}
+        functioncall={none}
+        keys={P.inherit.keys}
+        sigTranslate={P.inherit.sigTranslate}
+        rangeSet={S.rangeSet}
+        chicken={S.fieldSet}
         egg={childrenFilters}
-        pre_q={this.props.inherit.pre_queueboxvalues}
-        q={this.props.inherit.queuebox_values}
+        pre_q={P.inherit.pre_queueboxvalues}
+        q={P.inherit.queuebox_values}
         type={"filter"}
         filterID={"meta_filter_id"}
         label={"Add Sample Filter"}>
       </ClientAddFilter>
       </div>
-      <ClientSEF sigvalue={this.state.sigSet}/>
+      <ClientSEF
+        inheritState={this.state}
+        parentProps={this.props}
+        sigvalue={this.state.sigSet}/>
       <div>
       {this.state.eventfilterSet}
       </div>
@@ -727,34 +382,19 @@ class FilterBox extends React.Component {
   }
 }
 
-//<ClientAddFilter removeKey={removeKey} functioncall={selectsignature} keys={keys} chicken={this.state.sigSet} egg={postoncosig} pre_q={pre_queueboxsignatures} q={queueboxsignatures} type={"single"} filterID={"sig_filter_id"} label={"Oncosplice Signature Filter"}>
-//</ClientAddFilter>
-//</div>
-//<div>
-//<ClientAddGene egg={clientgenes} filterID={"clientinputgene"}>
-//</ClientAddGene>
-//</div>
+
 function updateFilterBoxSEF(val){
-  //console.log("working");
   this.setState({
       eventfilterSet: val
   });
 }
 
 function updateClientSEF(){
-  //console.log("working");
   this.setState({
       value: '',
       name: 'hai',
   });
 }
-
-//const widgetlabel = makeStyles((theme) => ({
-  //root: {
-    //minWidth: "360px",
-    //fontSize: "16px"
-    //}
-//}));
 
 const widgetlabel4 = makeStyles((theme) => ({
   root: {
@@ -806,46 +446,76 @@ class ClientSEF extends React.Component
         name: 'hai',
     }
     updateClientSEF = updateClientSEF.bind(this);
-    //this.classes = widgetlabel();
   }
 
   handleChange = (event) => {
     const name = event.target.name;
+    const P = this.props;
+    const S = this.state;
     this.setState({
       ...this.state,
       [name]: event.target.value,
     });
     if(event.target.value == "Oncosplice Signature Filter")
     {
-      const obj1 = <ClientAddFilter syncQB={syncQB} removeKey={removeKey} functioncall={selectsignature} keys={keys} sigTranslate={sigTranslate} chicken={this.props.sigvalue} egg={postoncosig} pre_q={pre_queueboxsignatures} q={queueboxsignatures} type={"single"} filterID={"sig_filter_id"} label={"Oncosplice Signature Filter"} />;
+      const obj1 = <ClientAddFilter
+        inheritState={P.inheritState}
+        parentProps={P.parentProps}
+        syncQB={syncQB}
+        removeKey={removeKey}
+        functioncall={none}
+        keys={P.parentProps.inherit.keys}
+        sigTranslate={P.parentProps.inherit.sigTranslate}
+        chicken={P.parentProps.inherit.signatures}
+        egg={postoncosig}
+        pre_q={P.parentProps.inherit.pre_queueboxvalues}
+        q={P.parentProps.inherit.queuebox_values}
+        type={"single"}
+        filterID={"sig_filter_id"}
+        label={"Oncosplice Signature Filter"}
+      />;
       updateFilterBoxSEF(obj1);
       clientgenes = [];
       displayvalue_geneinput = "none";
       displayvalue_coordinput = "none";
       displayvalue_sigquery = "block";
-      updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
+      //updateQueueBox(P.parentProps.inherit.cancer, keys["single"].length, queueboxchildren, queueboxsignatures);
     }
     if(event.target.value == "Gene Symbol Filter")
     {
-      const obj2 = <ClientAddGene egg={clientgenes} filterID={"clientinputgene"} />;
+      const obj2 = <ClientAddGene 
+        egg={clientgenes} 
+        filterID={"clientinputgene"} 
+        clientgenes={P.parentProps.inherit.clientgenes}
+        cancer={P.parentProps.inherit.cancer}
+        export={P.parentProps.inherit.export}
+        callback={P.parentProps.setGene}
+      />;
       updateFilterBoxSEF(obj2);
       keys["single"] = [];
       queueboxsignatures = {};
       displayvalue_geneinput = "block";
       displayvalue_coordinput = "none";
       displayvalue_sigquery = "none";
-      updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
+      //updateQueueBox(P.parentProps.inherit.cancer, keys["single"].length, queueboxchildren, queueboxsignatures);
     }
     if(event.target.value == "Coordinate Filter")
     {
-      const obj3 = <ClientAddCoord egg={clientcoord} filterID={"clientinputcoord"} />;
+      const obj3 = <ClientAddCoord 
+        egg={clientcoord} 
+        filterID={"clientinputcoord"}
+        clientcoord={P.parentProps.inherit.clientcoord}
+        cancer={P.parentProps.inherit.cancer}
+        export={P.parentProps.inherit.export}
+        callback={P.parentProps.setCoord}
+      />;
       updateFilterBoxSEF(obj3);
       keys["single"] = [];
       queueboxsignatures = {};
       displayvalue_geneinput = "none";
       displayvalue_coordinput = "block";
       displayvalue_sigquery = "none";
-      updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
+      //updateQueueBox(P.parentProps.inherit.cancer, keys["single"].length, queueboxchildren, queueboxsignatures);
     }
   };
 
@@ -857,11 +527,10 @@ class ClientSEF extends React.Component
       <ClientSEF_select value={this.state.value} handleChange={this.handleChange}/>   
     </FormControl>
     </div>
-  )
-  }
+  )}
 }
 
-function postCoords()
+function postCoords(cancer, exp, callback)
 {
   var all_coords = document.getElementById("clientinputcoord").value;
   var delimiter = "\n";
@@ -895,13 +564,19 @@ function postCoords()
     pile_of_coords.push(all_coords[i]);
   }
 
-  clientcoord = pile_of_coords;
+  var args = {};
   console.log(pile_of_coords.length);
   console.log(pile_of_coords);
-  selectcoord(pile_of_coords.length);
+  clientcoord = pile_of_coords;
+  args["clientcoord"] = pile_of_coords;
+  args["num"] = pile_of_coords.length;
+  args["cancer"] = cancer;
+  args["export"] = exp;
+  args["setState"] = callback;
+  makeRequest("coord", args);
 }
 
-function postGenes()
+function postGenes(cancer, exp, callback)
 {
   var all_uids = document.getElementById("clientinputgene").value;
   var delimiter = "\n";
@@ -938,7 +613,13 @@ function postGenes()
   clientgenes = pile_of_uids;
   console.log(pile_of_uids.length);
   console.log(pile_of_uids);
-  selectgene(pile_of_uids.length);
+  var args = {};
+  args["clientgenes"] = pile_of_uids;
+  args["num"] = pile_of_uids.length;
+  args["cancer"] = cancer;
+  args["export"] = exp;
+  args["setState"] = callback;
+  makeRequest("gene", args);
 }
 
 function updateNumberGenes(num, tm)
@@ -976,7 +657,7 @@ class ClientAddCoord extends React.Component {
   }
 
   onAddChild = () => {
-    postCoords();
+    postCoords(this.props.cancer, this.props.export, this.props.callback);
   }
 
 }
@@ -1018,7 +699,7 @@ class ClientAddGene extends React.Component {
   }
 
   onAddChild = () => {
-    postGenes();
+    postGenes(this.props.cancer, this.props.export, this.props.callback);
   }
 
 }
@@ -1172,12 +853,12 @@ function QB_SelectedSignature(props)
                 <Grid item xs={1}></Grid>
                 <Grid item>
                 <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5, fontSize: 19}}>
-                {"Selected ".concat(clientgenes.length).concat(" genes.")}
+                {"Selected ".concat(props.numberGenes).concat(" genes.")}
                 </div>
                 </Grid>
                 <Grid item>
                 <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', fontSize: 13}}>
-                {"Selected ".concat(props.totalMatch).concat(" samples.")}
+                {"Selected ".concat(props.numberGenes).concat(" genes.")}
                 </div>
                 </Grid>
             </Grid>
@@ -1189,12 +870,12 @@ function QB_SelectedSignature(props)
                 <Grid item xs={1}></Grid>
                 <Grid item>
                 <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5, fontSize: 19}}>
-                {"Selected ".concat(clientcoord.length).concat(" Coordinates.")}
+                {"Selected ".concat(props.numberCoords).concat(" Coordinates.")}
                 </div>
                 </Grid>
                 <Grid item>
                 <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', fontSize: 13}}>
-                {"Selected ".concat(props.totalMatch).concat(" samples.")}
+                {"Selected ".concat(props.numberCoords).concat(" coordinates.")}
                 </div>
                 </Grid>
             </Grid>
@@ -1293,7 +974,11 @@ class QueueBox extends React.Component {
         targetCancer: this.props.cancerQueueMessage,
         resultamount: this.props.resamt,
         targetArr: ta1,
-        targetSignatures: ta2
+        targetSignatures: ta2,
+        targetArrSelections: this.props.inherit.childrenFilters,
+        targetSigSelections: this.props.inherit.postoncosig,
+        numberGenes: this.props.clientgenes.length,
+        numberCoords: this.props.clientcoord.length
       })
     }
     //console.log("queuebox", this.state, this.props);
@@ -1306,30 +991,52 @@ class QueueBox extends React.Component {
       <Box borderColor="#dbdbdb" {...boxProps} style={{position: 'relative', alignItems: 'center', textAlign: 'center'}}>
       <QB_SelectedCancer targetCancer={this.state.targetCancer}/>
       <QB_SelectedSample targetArrSelections={this.state.targetArrSelections} targetArr={this.state.targetArr}/>
-      <QB_SelectedSignature targetSigSelections={this.state.targetSigSelections} targetSignatures={this.state.targetSignatures} totalMatch={this.state.totalMatch}/>
+      <QB_SelectedSignature 
+        targetSigSelections={this.state.targetSigSelections} 
+        targetSignatures={this.state.targetSignatures} 
+        totalMatch={this.state.totalMatch} 
+        numberGenes={this.state.numberGenes}
+        numberCoords={this.state.numberCoords}
+        />
       <QB_displayEventsSigs amount={this.state.resultamount}/>
       </Box>
       </div>
     );
   }
-
 }
 
 function SubmitButton(props)
 {
-  //console.log("SubmitButton", props);
-  var functionpointer = ajaxfunc;
+  var args = {};
+  var to = "fetchHeatmapData";
+  var functionpointer = makeRequest;
   if(props.defaultQuery == true)
   {
-    functionpointer = ajaxdq;
+    functionpointer = makeRequest;
+    args["setState"] = updateViewPane;
+    args["export"] = props.export;
+    args["cancer"] = props.cancer;
+    args["doc"] = document;
+    to = "defaultQuery";
   }
   else
   {
-    functionpointer = ajaxfunc;
+    functionpointer = makeRequest;
+    args["updateViewPane"] = updateViewPane;
+    args["childrenFilters"] = props.childrenFilters;
+    args["postoncosig"] = props.postoncosig;
+    args["sigTranslate"] = props.sigTranslate;
+    args["export"] = props.export;
+    args["cancer"] = props.cancer;
+    args["keys"] = props.keys;
+    args["clientgenes"] = props.clientgenes;
+    args["clientcoord"] = props.clientcoord;
+    args["document"] = document;
+    to = "fetchHeatmapData";
   }
   const classes = useStyles();
   return(
-    <Button className={classes.myButton} onClick={functionpointer} style={{ textTransform: 'none'}}>Run query</Button>
+    <Button className={classes.myButton} onClick={() => functionpointer(to, args)} style={{ textTransform: 'none'}}>Run query</Button>
   )
 }
 
@@ -1348,17 +1055,12 @@ class DefaultQueryWrapper extends React.Component {
     updateDQW = updateDQW.bind(this)
   }
 
-  componentDidMount() { 
-   // DQ_UI_fields();
-  }
+  componentDidMount() {}
 
-  componentDidUpdate() {
-    //console.log("p","test2");
-  }
+  componentDidUpdate() {}
 
   render()
   {
-    //console.log("p","test3");
     return(
       null
     )
@@ -1366,7 +1068,6 @@ class DefaultQueryWrapper extends React.Component {
 }
 
 function updateBQPane(value) {
-  //console.log("working");
   this.setState({
       defaultQuery: value
   });
@@ -1381,13 +1082,21 @@ class BQPane extends React.Component {
       pre_queueboxvalues: {"children": {}, "signatures": {}},
       eventfilterSet: null,
       resultamount: {"samples": 0, "events": 0},
+      childrenFilters: [],
+      postoncosig: [],
+      queryFilter: {},
+      querySignature: {},
+      clientcoord: [],
+      clientgenes: [],
       keys: {"filter": [], "single": []},
       range: undefined,
       cancer: "",
       ui_fields: {},
+      export: {},
       genes: [],
       coordinates: [],
-      signatures: undefined
+      signatures: undefined,
+      sigTranslate: undefined
     }
     updateBQPane = updateBQPane.bind(this)
   }
@@ -1404,7 +1113,6 @@ class BQPane extends React.Component {
       displayvalue = "none";
     }
     console.log(this.state);
-    //console.log(this.state.defaultQuery);
     return (
     	<div style={{ marginLeft: 40, fontFamily: 'Arial' }}>
     	  <div>
@@ -1421,26 +1129,53 @@ class BQPane extends React.Component {
       	    <Grid container spacing={2}>
       	      <Grid item>
               <CancerSelect	inherit={this.props} prevState={this.state} 
-                setUI={(in_ui_fields, in_cancer, in_qbox, range, sigs, resamt) => this.setState({
+                setUI={(in_ui_fields, in_cancer, in_qbox, range, sigs, resamt, sigT, exp) => this.setState({
                 ui_fields: in_ui_fields, 
                 cancer: in_cancer,
                 queuebox_values: in_qbox,
                 keys: {"filter": [], "single": []},
                 range: range,
                 signatures: sigs,
-                resultamount: resamt
+                resultamount: resamt,
+                sigTranslate: sigT,
+                export: exp
                 })}
                 />
       	      </Grid>
             </Grid>
             <Typography style={{padding: '2px 4px'}} />
-            <FilterBox inherit={this.state} 
-              setMeta={(resamt, qbox, pre_qbox, keys) => this.setState({
+            <FilterBox 
+              inherit={this.state}
+              setChildrenFilters={(cF, egg) => this.setState({
+                childrenFilters: cF,
+                queryFilter: egg
+              })}
+              setPostoncosig={(pO, egg) => this.setState({
+                postoncosig: pO,
+                querySignature: egg
+              })}
+              setMeta={(resamt, qbox, pre_qbox, keys, exp) => this.setState({
                 resultamount: resamt,
                 queuebox_values: qbox,
                 pre_queueboxvalues: pre_qbox,
-                keys: keys
-              })}/>
+                keys: keys,
+                export: exp
+              })}
+              setSig={(resamt, qbox, keys, exp) => this.setState({
+                resultamount: resamt,
+                queuebox_values: qbox,
+                keys: keys,
+                export: exp
+              })}
+              setGene={(cG, exp) => this.setState({
+                clientgenes: cG,
+                export: exp
+              })}
+              setCoord={(cC, exp) => this.setState({
+                clientcoord: cC,
+                export: exp
+              })}
+              />
             </div>
             </div>
           </Grid>
@@ -1458,15 +1193,29 @@ class BQPane extends React.Component {
             </Grid>
             <Grid item xs={4}>
             <div style={{float: 'right', alignItems: 'center'}}>
-              <SubmitButton defaultQuery={this.state.defaultQuery}/>
+              <SubmitButton 
+                defaultQuery={this.state.defaultQuery}
+                keys={this.state.keys}
+                cancer={this.state.cancer}
+                clientgenes={this.state.clientgenes}
+                clientcoord={this.state.clientcoord}
+                childrenFilters={this.state.queryFilter}
+                postoncosig={this.state.querySignature}
+                sigTranslate={this.state.sigTranslate}
+                export={this.state.export}
+              />
             </div>
             </Grid>
             </Grid>
             <div id="QueueBox_div">
-              <QueueBox keys={this.state.keys} cancerQueueMessage={this.state.queuebox_values["cancer"]} 
+              <QueueBox 
+                keys={this.state.keys} 
+                cancerQueueMessage={this.state.queuebox_values["cancer"]} 
                 queueboxchildren={this.state.queuebox_values["children"]} 
                 queueboxsignatures={this.state.queuebox_values["signature"]} 
                 qBDefaultMessage={qBDefaultMessage}
+                clientgenes={this.state.clientgenes}
+                clientcoord={this.state.clientcoord}
                 resamt={this.state.resultamount}
                 inherit={this.state}>
               </QueueBox>
@@ -1489,18 +1238,20 @@ class ViewPaneWrapper extends React.Component {
       inCols: [],
       inCC: [],
       inRPSI: [],
-      inTRANS: []
+      inTRANS: [],
+      export: []
     }
     updateViewPane = updateViewPane.bind(this);
   }
 
   componentDidMount() {   
     this.setState({
-    inData: splicingreturned,
-    inCols: splicingcols,
-    inCC: splicingcc,
-    inRPSI: splicingrpsi,
-    inTRANS: splicingtrans
+    inData: [],
+    inCols: [],
+    inCC: [],
+    inRPSI: [],
+    inTRANS: [],
+    export: []
     });
   }
 
@@ -1509,7 +1260,7 @@ class ViewPaneWrapper extends React.Component {
     return(
       <div>
         {this.state.inData.length > 0 && (
-          <ViewPane css={withStyles(useStyles)} QueryExport={sendToViewPane} Data={this.state.inData} Cols={this.state.inCols} CC={this.state.inCC} RPSI={this.state.inRPSI} TRANS={this.state.inTRANS}/>
+          <ViewPane css={withStyles(useStyles)} QueryExport={this.state.export} Data={this.state.inData} Cols={this.state.inCols} CC={this.state.inCC} RPSI={this.state.inRPSI} TRANS={this.state.inTRANS}/>
         )}
       </div>
     );
@@ -1549,13 +1300,9 @@ function changeUser(user) {
       headers: { "Content-Type": "multipart/form-data" },
       })
       .then(function (response) {
-        //console.log(response);
         var responsedata = response["data"];
         var tmp_array = [];
-        //for(var i = 0; i < responsedata.length)
         console.log("RESPONSE_changeuser", responsedata);
-        //console.log("RESPONSE_TEST", responsedata["date"]);
-        //console.log("RESPONSE_OBJ", responsedata["obj"]);
         updateQueryHistory(responsedata);
     })
     
@@ -1571,7 +1318,6 @@ class QueryHistoryPaneWrapper extends React.Component {
     updateQueryHistory = updateQueryHistory.bind(this);
     removeQueryHistory = removeQueryHistory.bind(this);
     addQueryHistory = addQueryHistory.bind(this);
-    //changeUser = changeUser.bind(this);
   }
 
   componentDidMount() {
@@ -1700,7 +1446,6 @@ const spcTabRoot = makeStyles({
 function tabLabelQH()
 {
   return (
-    //"Query History"
     <LockIcon />
   );
 }
@@ -1769,7 +1514,7 @@ function MainPane() {
 			</div>
 			<div id="tabcontent" style={{display: "block"}}>
 			<TabPanel value={value} index={0}>
-			  <BQPane regeneratefields={regeneratefields} getfields={getfields} queueboxchildren={queueboxchildren} queueboxsignatures={queueboxsignatures} curCancer={curCancer}/>
+			  <BQPane regeneratefields={regeneratefields}/>
 			</TabPanel>
 			<TabPanel value={value} index={1}>
 			  <ViewPaneWrapper />
