@@ -366,7 +366,11 @@ while(! feof($file))
 	$outarr[$i]["proteinpredictions"] = $returned_result[$line[0]]["proteinpredictions"];
 	$outarr[$i]["dpsi"] = $returned_result[$line[0]]["dpsi"];
 	$outarr[$i]["clusterid"] = $returned_result[$line[0]]["clusterid"];
-	$outarr[$i]["coordinates"] = $returned_result[$line[0]]["coordinates"];
+	$outarr[$i]["chromosome"] = $returned_result[$line[0]]["chromosome"];
+	$outarr[$i]["coord1"] = $returned_result[$line[0]]["coord1"];
+	$outarr[$i]["coord2"] = $returned_result[$line[0]]["coord2"];
+	$outarr[$i]["coord3"] = $returned_result[$line[0]]["coord3"];
+	$outarr[$i]["coord4"] = $returned_result[$line[0]]["coord4"];
 	$outarr[$i]["eventannotation"] = $returned_result[$line[0]]["eventannotation"];
 	for($k = 0; $k < count($column_names_initial); $k++)
 	{

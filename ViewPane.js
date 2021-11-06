@@ -51,6 +51,7 @@ var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=de
 
 var localurl = "/material-app";
 var serverurl = "/ICGS/Oncosplice/testing";
+var buildurl = "/ICGS/Oncosplice/build";
 
 var targeturl = serverurl;
 
@@ -111,8 +112,8 @@ function updateStats(id, input){
     });
 }
 
-function makeLinkOuts(instuff){
-  var peach2 = instuff;
+function makeLinkOuts(chrm, c1, c2, c3, c4){
+  /*var peach2 = instuff;
   var peach3 = peach2.replace("|", "<br>");
   var peach = peach2.split("|");
   var chr1 = peach[0];
@@ -122,8 +123,9 @@ function makeLinkOuts(instuff){
   var flatchr1 = twor1[0];
   var flatchr2 = twor2[0];
   var twor1_split = twor1[1].split("-");
-  var twor2_split = twor2[1].split("-");
-
+  var twor2_split = twor2[1].split("-");*/
+  var full1 = chrm.concat(":").concat(c1).concat("-").concat(c2);
+  var full2 = chrm.concat(":").concat(c3).concat("-").concat(c4);
   var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
   var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
 
@@ -133,9 +135,9 @@ function makeLinkOuts(instuff){
 
   return(
     <div>
-    <a href={link1.concat(flatchr1).concat("%3A").concat(twor1_split[0]).concat("%2D").concat(twor1_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG")} target="_blank">{chr1}</a>
+    <a href={link1.concat(chrm).concat("%3A").concat(c1).concat("%2D").concat(c2).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG")} target="_blank">{full1}</a>
     <br />
-    <a href={link2.concat(flatchr2).concat("%3A").concat(twor2_split[0]).concat("%2D").concat(twor2_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG")} target="_blank">{chr2}</a>
+    <a href={link2.concat(chrm).concat("%3A").concat(c3).concat("%2D").concat(c4).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG")} target="_blank">{full2}</a>
     </div>
   );
 
@@ -143,7 +145,12 @@ function makeLinkOuts(instuff){
 
 
 function updateOkmapTable(data){
-  var newcoord = makeLinkOuts(data["coordinates"]);
+  var chrm = data["chromosome"];
+  var c1 = data["coord1"];
+  var c2 = data["coord2"];
+  var c3 = data["coord3"];
+  var c4 = data["coord4"];
+  var newcoord = makeLinkOuts(chrm, c1, c2, c3, c4);
   var new_row = [
   createData("Altexons", data["altexons"]),
   createData("Protein Predictions", data["proteinpredictions"]),

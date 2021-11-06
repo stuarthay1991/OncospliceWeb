@@ -26,6 +26,9 @@ function uiFields(arg)
 {
 	const export_dict = {};
 	const cancername = arg["cancername"];
+	var keys = {};
+	keys["filter"] = [];
+	keys["single"] = [];
   	const bodyFormData = new FormData();
   	bodyFormData.append("cancer_type", cancername);
 	axios({
@@ -202,6 +205,7 @@ function fetchHeatmapData(arg)
     bodyFormData.append(myString, myString);
   }  
   bodyFormData.append("CANCER",curCancer);
+  console.log("curcancer", curCancer);
   tmp_qh_obj = {};
   tmp_qh_obj["key"] = "CANCER";
   tmp_qh_obj["val"] = curCancer;
