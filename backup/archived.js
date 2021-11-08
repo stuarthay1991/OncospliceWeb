@@ -11,6 +11,36 @@ var keys = {};
 var ui_field_dict;
 var ui_field_range;
 
+function regeneratefields(cancername) {
+  var bodyFormData = new FormData();
+  bodyFormData.append("cancer_type", cancername);
+  axios({
+    method: "post",
+    url: (targeturl.concat("/backend/ui_fields.php")),
+    data: bodyFormData,
+    headers: { "Content-Type": "multipart/form-data" },
+  })
+  .then(function (response) {
+    var local_ui_field_dict = response["data"]["meta"];
+    var local_ui_field_range = response["data"]["range"];
+    var local_sigFilters = response["data"]["sig"];
+    sigTranslate = response["data"]["sigtranslate"];
+    console.log("sigTranslate", sigTranslate);
+    ui_field_dict = local_ui_field_dict;
+    ui_field_range = local_ui_field_range;
+    sigFilters = local_sigFilters;
+    var qcancer_rows = (response["data"]["qbox"]["rows"]).toString();
+    var qcancer_cols = (response["data"]["qbox"]["columns"]).toString();
+    var cmessage = qcancer_rows.concat(" events and ").concat(qcancer_cols).concat(" samples.");
+    curCancer = cancername;
+    sendToViewPane["cancer"] = cancername;
+    sendToViewPane["ui_field_dict"] = response["data"]["meta"];
+    cancerQueueMessage = <QueueMessage key={"c_type_q"} number={0} name={"cancer"} get={0} value={cancername} type={"cancer"} total_selected={cmessage} total_left={cmessage}/>;
+    updateQueueBox(curCancer, 2, queueboxchildren, queueboxsignatures);
+    updateFilterBox(cancername, 2, local_ui_field_dict, local_ui_field_range, local_sigFilters);
+  })  
+}
+
 function selectfield(name, value, number, filter){
   //console.log("selectfield starting...");
   var bodyFormData = new FormData();

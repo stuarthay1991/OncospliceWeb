@@ -611,4 +611,39 @@ function resetQueueChildren(queuechildren)
     return queuechildren;
 }
 
+//IMPLEMENT THIS
+/*
+function ajaxviewquery(indata) {
+  var bodyFormData = new FormData();
+  sendToViewPane["filter"] = [];
+  sendToViewPane["single"] = [];
+  for(var i = 0; i < indata.length; i++)
+  {
+    bodyFormData.append(indata[i]["key"], indata[i]["val"]);
+    if(indata[i]["key"].substring(0, 4) == "SPLC")
+    {
+      sendToViewPane["filter"].push(indata[i]["val"]);
+    }
+    if(indata[i]["key"].substring(0, 3) == "PSI")
+    {
+      sendToViewPane["single"].push(indata[i]["val"]);
+    }
+  }
+  axios({
+    method: "post",
+    url: (targeturl.concat("/backend/metarequest.php")),
+    data: bodyFormData,
+    headers: { "Content-Type": "multipart/form-data" },
+  })
+    .then(function (response) {
+      document.getElementById(`simple-tab-1`).click();
+      splicingreturned = response["data"]["rr"];
+      splicingcols = response["data"]["col_beds"];
+      splicingcc = response["data"]["cci"];
+      updateViewPane(splicingreturned, splicingcols, splicingcc);
+      document.getElementById("sub").style.display = "none";
+  })
+}
+*/
+
 //export { makeRequest };

@@ -43,6 +43,7 @@ import PreQueueMessage from './components/PreQueueMessage';
 import ClientAddFilter from './components/ClientAddFilter';
 import SingleItem from './components/SingleItem';
 import CancerSelect from './components/CancerSelect';
+import { makeRequest } from './components/CancerDataManagement.js';
 
 var flag = 0;
 var splicingreturned = [];
@@ -86,6 +87,10 @@ var targeturl = serverurl;
 var queryhistory_dat = [];
 var GLOBAL_user = "Default";
 
+const boxProps = {
+  border: 3,
+};
+
 keys["filter"] = [];
 keys["single"] = [];
 
@@ -124,15 +129,9 @@ function updateFilterBox(ctype, num, field, range, sig){
   });
 }
 
-function updateViewPane(list1, list2, list3, list4, list5, exp){
-  this.setState({
-    inData: list1,
-    inCols: list2,
-    inCC: list3,
-    inRPSI: list4,
-    inTRANS: list5,
-    export: exp
-  });
+function none()
+{
+  return null;
 }
 
 function removeKey(type, keyval, keys){
@@ -145,90 +144,6 @@ function removeKey(type, keyval, keys){
     }
   }
   return keys;
-}
-
-function regeneratefields(cancername) {
-  var bodyFormData = new FormData();
-  bodyFormData.append("cancer_type", cancername);
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/ui_fields.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-  .then(function (response) {
-    var local_ui_field_dict = response["data"]["meta"];
-    var local_ui_field_range = response["data"]["range"];
-    var local_sigFilters = response["data"]["sig"];
-    sigTranslate = response["data"]["sigtranslate"];
-    console.log("sigTranslate", sigTranslate);
-    ui_field_dict = local_ui_field_dict;
-    ui_field_range = local_ui_field_range;
-    sigFilters = local_sigFilters;
-    var qcancer_rows = (response["data"]["qbox"]["rows"]).toString();
-    var qcancer_cols = (response["data"]["qbox"]["columns"]).toString();
-    var cmessage = qcancer_rows.concat(" events and ").concat(qcancer_cols).concat(" samples.");
-    curCancer = cancername;
-    sendToViewPane["cancer"] = cancername;
-    sendToViewPane["ui_field_dict"] = response["data"]["meta"];
-    cancerQueueMessage = <QueueMessage key={"c_type_q"} number={0} name={"cancer"} get={0} value={cancername} type={"cancer"} total_selected={cmessage} total_left={cmessage}/>;
-    updateQueueBox(curCancer, 2, queueboxchildren, queueboxsignatures);
-    updateFilterBox(cancername, 2, local_ui_field_dict, local_ui_field_range, local_sigFilters);
-  })  
-}
-
-function ajaxviewquery(indata) {
-  var bodyFormData = new FormData();
-  sendToViewPane["filter"] = [];
-  sendToViewPane["single"] = [];
-  for(var i = 0; i < indata.length; i++)
-  {
-    bodyFormData.append(indata[i]["key"], indata[i]["val"]);
-    if(indata[i]["key"].substring(0, 4) == "SPLC")
-    {
-      sendToViewPane["filter"].push(indata[i]["val"]);
-    }
-    if(indata[i]["key"].substring(0, 3) == "PSI")
-    {
-      sendToViewPane["single"].push(indata[i]["val"]);
-    }
-  }
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/metarequest.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-    .then(function (response) {
-      document.getElementById(`simple-tab-1`).click();
-      splicingreturned = response["data"]["rr"];
-      splicingcols = response["data"]["col_beds"];
-      splicingcc = response["data"]["cci"];
-      updateViewPane(splicingreturned, splicingcols, splicingcc);
-      document.getElementById("sub").style.display = "none";
-  })
-}
-
-function updateQueryHistory(input) {
-    this.setState({
-    inData: input
-    });
-}
-
-function removeQueryHistory(index) {
-    const newdat = this.state.inData;
-    newdat.splice(index, 1);
-    this.setState({
-    inData: newdat
-    });
-}
-
-function addQueryHistory(input) {
-    const newdat = this.state.inData;
-    newdat.push(input);
-    this.setState({
-    inData: newdat
-    });
 }
 
 class FilterBox extends React.Component {
@@ -979,7 +894,7 @@ function SubmitButton(props)
   if(props.defaultQuery == true)
   {
     functionpointer = makeRequest;
-    args["setState"] = updateViewPane;
+    args["setState"] = props.setViewPane;
     args["export"] = props.export;
     args["cancer"] = props.cancer;
     args["doc"] = document;
@@ -988,7 +903,7 @@ function SubmitButton(props)
   else
   {
     functionpointer = makeRequest;
-    args["updateViewPane"] = updateViewPane;
+    args["updateViewPane"] = props.setViewPane;
     args["childrenFilters"] = props.childrenFilters;
     args["postoncosig"] = props.postoncosig;
     args["sigTranslate"] = props.sigTranslate;
@@ -1178,6 +1093,7 @@ class BQPane extends React.Component {
                 childrenFilters={this.state.queryFilter}
                 postoncosig={this.state.querySignature}
                 sigTranslate={this.state.sigTranslate}
+                setViewPane={this.props.setViewPane}
                 export={this.state.export}
               />
             </div>

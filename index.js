@@ -12,6 +12,7 @@ import TextField from '@material-ui/core/TextField';
 import AppBar from '@material-ui/core/AppBar';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import axios from 'axios';
 import PropTypes from 'prop-types';
 import Divider from '@material-ui/core/Divider';
 import LockIcon from '@material-ui/icons/Lock';
@@ -127,11 +128,6 @@ var GLOBAL_user = "Default";
 keys["filter"] = [];
 keys["single"] = [];
 
-function none()
-{
-  return null;
-}
-
 class ViewPaneWrapper extends React.Component {
   constructor(props) {
     super(props)
@@ -143,7 +139,7 @@ class ViewPaneWrapper extends React.Component {
       inTRANS: [],
       export: []
     }
-    updateViewPane = updateViewPane.bind(this);
+    //updateViewPane = updateViewPane.bind(this);
   }
 
   componentDidMount() {   
@@ -157,6 +153,24 @@ class ViewPaneWrapper extends React.Component {
     });
   }
 
+  componentDidUpdate(prevProps) {  
+    if(prevProps !== this.props)
+    {
+      console.log(this.props.entrydata, "ENTRYDATA");
+      if(this.props.entrydata != undefined)
+      {
+        this.setState({
+        inData: this.props.entrydata["inData"],
+        inCols: this.props.entrydata["inCols"],
+        inCC: this.props.entrydata["inCC"],
+        inRPSI: this.props.entrydata["inRPSI"],
+        inTRANS: this.props.entrydata["inTRANS"],
+        export: this.props.entrydata["export"]
+        });
+      }
+    }
+  }
+
   render()
   {
     return(
@@ -167,6 +181,11 @@ class ViewPaneWrapper extends React.Component {
       </div>
     );
   }
+}
+
+function none()
+{
+  return null;
 }
 
 function changeUser(user) {
@@ -186,6 +205,28 @@ function changeUser(user) {
         updateQueryHistory(responsedata);
     })
     
+}
+
+function updateQueryHistory(input) {
+    this.setState({
+    inData: input
+    });
+}
+
+function removeQueryHistory(index) {
+    const newdat = this.state.inData;
+    newdat.splice(index, 1);
+    this.setState({
+    inData: newdat
+    });
+}
+
+function addQueryHistory(input) {
+    const newdat = this.state.inData;
+    newdat.push(input);
+    this.setState({
+    inData: newdat
+    });
 }
 
 class QueryHistoryPaneWrapper extends React.Component {
@@ -223,7 +264,7 @@ class QueryHistoryPaneWrapper extends React.Component {
     return(
       <div>
         {this.state.inData.length > 0 && (
-        <QueryHistory Data={this.state.inData} removeQueryHistory={removeQueryHistory} goQuery={ajaxviewquery}/>
+        <QueryHistory Data={this.state.inData} removeQueryHistory={removeQueryHistory} goQuery={none}/>
         )}
       </div>
     );
@@ -372,8 +413,8 @@ function MainPane() {
   const classes = useStyles();
   const tabstyle = spcTabStyles();
   const [mpstate, setMpstate] = React.useState({
-    viewpaneobj: {},
-    value: initial_val,
+    viewpaneobj: {"inData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []},
+    value: 0,
   });
 
   const handleChange = (event, newValue) => {
@@ -381,12 +422,14 @@ function MainPane() {
       document.getElementById("aboutpanel").style.display = "none";
       document.getElementById("tabcontent").style.display = "block";
       setMpstate({
-        value: newValue
+        value: newValue,
       });
   };
 
   const setViewPane = (list1, list2, list3, list4, list5, exp) => {
-    stateobj = {};
+    var stateobj = {};
+    console.log("setViewPane called: ", list1);
+    console.log("mpstate called: ", mpstate.viewpaneobj);
     stateobj["inData"] = list1;
     stateobj["inCols"] = list2;
     stateobj["inCC"] = list3;
@@ -394,7 +437,8 @@ function MainPane() {
     stateobj["inTRANS"] = list5;
     stateobj["export"] = exp;
     setMpstate({
-        viewpaneobj: stateobj
+        viewpaneobj: stateobj,
+        value: 1,
     });
   }
 
@@ -405,7 +449,7 @@ function MainPane() {
         <Grid container spacing={0}>
         <Grid item sm={12} md={9}>
         <Typography className={classes.padding} />
-        <Tabs id="tabset" value={value} onChange={handleChange} aria-label="simple tabs example" indicatorColor="primary">
+        <Tabs id="tabset" value={mpstate.value} onChange={handleChange} aria-label="simple tabs example" indicatorColor="primary">
           <Tab classes={tabstyle} label="Build Query" {...a11yProps(0)} style={{ textTransform: 'none'}}/>
           <Tab classes={tabstyle} label="Explore Data" {...a11yProps(1)} style={{ textTransform: 'none'}}/>
           <Tab classes={tabstyle} icon={<LockIcon />} label="Query History" {...a11yProps(2)} style={{ textTransform: 'none'}}></Tab>
@@ -421,13 +465,13 @@ function MainPane() {
         </div>
       </div>
       <div id="tabcontent" style={{display: "block"}}>
-      <TabPanel value={value} index={0}>
-        <BQPane updateViewPane={setViewPane}/>
+      <TabPanel value={mpstate.value} index={0}>
+        <BQPane setViewPane={setViewPane}/>
       </TabPanel>
-      <TabPanel value={value} index={1}>
-        <ViewPaneWrapper />
+      <TabPanel value={mpstate.value} index={1}>
+        <ViewPaneWrapper entrydata={mpstate.viewpaneobj}/>
       </TabPanel>
-      <TabPanel value={value} index={2}>
+      <TabPanel value={mpstate.value} index={2}>
         <QueryHistoryPaneWrapper />
       </TabPanel>
       </div>

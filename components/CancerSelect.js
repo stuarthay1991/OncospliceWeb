@@ -94,7 +94,7 @@ class CancerSelect extends React.Component {
         name: 'hai',
         value: P.curCancer,
       });
-      P.regeneratefields(P.curCancer);
+      //P.regeneratefields(P.curCancer);
     }
   }
 
