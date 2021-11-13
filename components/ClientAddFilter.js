@@ -109,8 +109,6 @@ class ClientAddFilter extends React.Component {
       children.push(P.egg[P.keys[P.type][i]]);
     };
 
-    //P.syncQB(children, P.type);
-
     return(
       <FilterMenuPopulate addChild={this.onAddChild} parentProps={P.parentProps} egg={P.egg} childrenFilters={children} type={P.type} filterID={P.filterID} sigTranslate={P.sigTranslate} label={P.label} chicken={P.chicken} range={P.rangeSet}> 
       </FilterMenuPopulate>

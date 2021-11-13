@@ -41,8 +41,11 @@ import CheckboxForm from './components/CheckboxForm';
 import QueueMessage from './components/QueueMessage';
 import PreQueueMessage from './components/PreQueueMessage';
 import ClientAddFilter from './components/ClientAddFilter';
+import QueueBox from './components/Queuebox';
 import SingleItem from './components/SingleItem';
 import CancerSelect from './components/CancerSelect';
+import ClientAddCoord from './components/ClientAddCoord';
+import ClientAddGene from './components/ClientAddGene';
 import { makeRequest } from './components/CancerDataManagement.js';
 
 var flag = 0;
@@ -59,10 +62,6 @@ var ui_field_range;
 var cur_filter_amt = 0;
 var childrenFilters = [];
 var postoncosig = [];
-var clientgenes = [];
-var clientcoord = [];
-var queueboxchildren = {};
-var pre_queueboxchildren = {};
 var queueboxsignatures = {};
 var pre_queueboxsignatures = {};
 var sigTranslate;
@@ -71,10 +70,7 @@ var curCancer;
 var cancerQueueMessage;
 
 var displayvalue_userquery = "block";
-var displayvalue_sigquery = "block";
 var displayvalue_defaultquery = "none";
-var displayvalue_geneinput = "none";
-var displayvalue_coordinput = "none";
 var current_number_of_events = 0;
 var current_number_of_samples = 0;
 
@@ -93,31 +89,6 @@ const boxProps = {
 
 keys["filter"] = [];
 keys["single"] = [];
-
-function updateQueueBox(cmess, num, arr, sig){
-    const cancer_in = [];
-    const ta1 = [];
-    const ta2 = [];
-
-    cancer_in.push(cancerQueueMessage);
-
-    for(var i = 0; i < keys["filter"].length; i++)
-    {
-      ta1.push(arr[keys["filter"][i]])
-    }
-
-    for(var i = 0; i < keys["single"].length; i++)
-    {
-      ta2.push(sig[keys["single"][i]])
-    }
-
-    this.setState({
-      numChildren: num,
-      targetCancer: cancer_in,
-      targetArr: ta1,
-      targetSignatures: ta2
-    });
-}
 
 function updateFilterBox(ctype, num, field, range, sig){
   this.setState({
@@ -215,7 +186,6 @@ class FilterBox extends React.Component {
       <ClientAddFilter 
         inheritState={S} 
         parentProps={P} 
-        syncQB={syncQB}
         removeKey={removeKey}
         functioncall={none}
         keys={P.inherit.keys}
@@ -329,13 +299,12 @@ class ClientSEF extends React.Component
       const obj1 = <ClientAddFilter
         inheritState={P.inheritState}
         parentProps={P.parentProps}
-        syncQB={syncQB}
         removeKey={removeKey}
         functioncall={none}
         keys={BQstate.keys}
         sigTranslate={BQstate.sigTranslate}
         chicken={BQstate.signatures}
-        egg={postoncosig}
+        egg={BQstate.postoncosig}
         pre_q={BQstate.pre_queueboxvalues}
         q={BQstate.queuebox_values}
         type={"single"}
@@ -345,9 +314,6 @@ class ClientSEF extends React.Component
       //updateFilterBoxSEF(obj1);
       var new_clientgenes = [];
       var new_clientcoord = [];
-      displayvalue_geneinput = "none";
-      displayvalue_coordinput = "none";
-      displayvalue_sigquery = "block";
       P.parentProps.updatePage(BQstate.keys, BQstate.queuebox_values, new_clientgenes, new_clientcoord, "Oncosplice Signature Filter", obj1);
     }
     if(event.target.value == "Gene Symbol Filter")
@@ -365,9 +331,6 @@ class ClientSEF extends React.Component
       var new_Q = BQstate.queuebox_values;
       new_Q["signatures"] = {};
       var new_clientcoord = [];
-      displayvalue_geneinput = "block";
-      displayvalue_coordinput = "none";
-      displayvalue_sigquery = "none";
       P.parentProps.updatePage(new_keys, new_Q, BQstate.clientgenes, new_clientcoord, "Gene Symbol Filter", obj2);
     }
     if(event.target.value == "Coordinate Filter")
@@ -385,9 +348,6 @@ class ClientSEF extends React.Component
       var new_Q = BQstate.queuebox_values;
       new_Q["signatures"] = {};
       var new_clientgenes = [];
-      displayvalue_geneinput = "none";
-      displayvalue_coordinput = "block";
-      displayvalue_sigquery = "none";
       P.parentProps.updatePage(new_keys, new_Q, new_clientgenes, BQstate.clientcoord, "Coordinate Filter", obj3);
     }
   };
@@ -418,482 +378,6 @@ class ClientSEF extends React.Component
     </FormControl>
     </div>
   )}
-}
-
-function postCoords(cancer, exp, callback)
-{
-  var all_coords = document.getElementById("clientinputcoord").value;
-  var delimiter = "\n";
-  if(all_coords.indexOf("\n") != -1 && all_coords.indexOf(",") == -1)
-  {
-    delimiter = "\n";
-  }
-  if(all_coords.indexOf("\n") == -1 && all_coords.indexOf(",") != -1)
-  {
-    delimiter = ",";
-  }
-  if(all_coords.indexOf("\n") != -1 && all_coords.indexOf(",") != -1)
-  {
-    if(all_coords.split(",").length > all_coords.split("\n").length)
-    {
-      delimiter = ",";
-      all_coords = all_coords.replace("\n", "");
-    }
-    else
-    {
-      delimiter = "\n";
-    }
-  }
-
-  all_coords = all_coords.split(delimiter);
-
-  var pile_of_coords = [];
-
-  for(var i=0; i<all_coords.length; i++)
-  {
-    pile_of_coords.push(all_coords[i]);
-  }
-
-  var args = {};
-  console.log(pile_of_coords.length);
-  console.log(pile_of_coords);
-  clientcoord = pile_of_coords;
-  args["clientcoord"] = pile_of_coords;
-  args["num"] = pile_of_coords.length;
-  args["cancer"] = cancer;
-  args["export"] = exp;
-  args["setState"] = callback;
-  makeRequest("coord", args);
-}
-
-function postGenes(cancer, exp, callback)
-{
-  var all_uids = document.getElementById("clientinputgene").value;
-  var delimiter = "\n";
-  if(all_uids.indexOf("\n") != -1 && all_uids.indexOf(",") == -1)
-  {
-    delimiter = "\n";
-  }
-  if(all_uids.indexOf("\n") == -1 && all_uids.indexOf(",") != -1)
-  {
-    delimiter = ",";
-  }
-  if(all_uids.indexOf("\n") != -1 && all_uids.indexOf(",") != -1)
-  {
-    if(all_uids.split(",").length > all_uids.split("\n").length)
-    {
-      delimiter = ",";
-      all_uids = all_uids.replace("\n", "");
-    }
-    else
-    {
-      delimiter = "\n";
-    }
-  }
-
-  all_uids = all_uids.split(delimiter);
-
-  var pile_of_uids = [];
-
-  for(var i=0; i<all_uids.length; i++)
-  {
-    pile_of_uids.push(all_uids[i]);
-  }
-
-  clientgenes = pile_of_uids;
-  console.log(pile_of_uids.length);
-  console.log(pile_of_uids);
-  var args = {};
-  args["clientgenes"] = pile_of_uids;
-  args["num"] = pile_of_uids.length;
-  args["cancer"] = cancer;
-  args["export"] = exp;
-  args["setState"] = callback;
-  makeRequest("gene", args);
-}
-
-function updateNumberGenes(num, tm)
-{
-    displayvalue_geneinput = "block";
-    this.setState({
-      numberGenes: num,
-      totalMatch: tm
-    });
-}
-
-function updateNumberCoord(num, tm)
-{
-    displayvalue_coordinput = "block";
-    this.setState({
-      numberCoords: num,
-      totalMatch: tm
-    });
-}
-
-class ClientAddCoord extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      numChildren: 0
-    };
-  }
-
-  render ()
-  {
-    return(
-      <InputCoord addChild={this.onAddChild}>
-      </InputCoord>
-    )
-  }
-
-  onAddChild = () => {
-    postCoords(this.props.cancer, this.props.export, this.props.callback);
-  }
-
-}
-
-function InputCoord(props) {
-  const classes = useStyles();
-  const stringA = "Enter Coordinates";
-  return(
-    <div>
-    <Grid container spacing={0}>
-    <Grid item xs={3}>
-    <SpcInputLabel label={stringA} />
-    <div style={{display: "flex"}}>
-        <textarea id="clientinputcoord" name="name" placeholder="Enter coordinates here" style={{minWidth: 360, fontSize: 17, minHeight: 60}}/>
-        <IconButton type="submit" className={classes.iconAdd} aria-label="add" onClick={props.addChild}>
-          <AddIcon />
-        </IconButton>
-    </div>
-    </Grid>
-    </Grid>
-    </div>
-  );  
-}
-
-class ClientAddGene extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      numChildren: 0
-    };
-  }
-
-  render ()
-  {
-    return(
-      <InputGenes addChild={this.onAddChild}>
-      </InputGenes>
-    )
-  }
-
-  onAddChild = () => {
-    postGenes(this.props.cancer, this.props.export, this.props.callback);
-  }
-
-}
-
-function InputGenes(props) {
-  const classes = useStyles();
-  const stringA = "Enter Gene(s)";
-  return(
-    <div>
-    <Grid container spacing={0}>
-    <Grid item xs={3}>
-    <SpcInputLabel label={stringA} />
-    <div style={{display: "flex"}}>
-        <textarea id="clientinputgene" name="name" placeholder="TP53,JUN,MYC" style={{minWidth: 360, fontSize: 17, minHeight: 60}}/>
-        <IconButton type="submit" className={classes.iconAdd} aria-label="add" onClick={props.addChild}>
-          <AddIcon />
-        </IconButton>
-    </div>
-    </Grid>
-    </Grid>
-    </div>
-  );  
-}
-
-function qBDefaultMessage(value)
-{
-  if(value)
-  {
-    displayvalue_userquery = "none";
-    displayvalue_defaultquery = "block";
-  }
-  else
-  {
-    displayvalue_defaultquery = "none";
-    displayvalue_userquery = "block";
-  } 
-}
-
-function syncQB(selections, type)
-{
-    if(type == "filter")
-    {
-      this.setState({
-        targetArrSelections: selections
-      });
-    }
-    else
-    {
-      this.setState({
-        targetSigSelections: selections
-      });      
-    }
-}
-
-function QB_SelectedCancer(props)
-{
-  var canc_message = props.targetCancer;
-  if(canc_message == "")
-  {
-    canc_message = "Please select a cancer."
-  }
-  return(
-    <div>
-      <Box>
-        <div id="QueueBoxExampleDiv" style={{display: displayvalue_defaultquery}}>
-          <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', margin: 12}}>
-            <Grid container spacing={2}>
-            <Grid item xs={1}></Grid>
-            <Grid item>
-            <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5, fontSize: 19}}>
-            {"Select 'Run Query' to see example output."}
-            </div>
-            </Grid>
-            </Grid>
-          </div>
-        </div>
-        <div id="QueueBoxContentDiv" style={{display: displayvalue_userquery, position: 'relative', alignItems: 'center', textAlign: 'center'}}>
-          <div style={{color: "#0F6A8B", backgroundColor: "#edf0f5", position: 'relative', minHeight: "40px", minWidth: "40px", alignItems: 'center', textAlign: 'center', marginTop: 2}}>{canc_message}</div>
-        </div>
-      </Box>
-    </div>
-  );
-}
-
-function QB_format(props)
-{
-  var targsel = props.targetArrSelections;
-  var targarr = props.targetArr;
-  var index = props.index;
-  var targarr_obj;
-  if(index < props.targetArr.length)
-  {
-    targarr_obj = props.targetArr[index];
-  }
-  else
-  {
-    targarr_obj = <strong style={{paddingTop: 5}}>None Selected.</strong>;
-  }
-
-  return(
-    <div>
-    <Grid container spacing={2}>
-      <Grid item>
-        {targsel[index]}
-      </Grid>
-      <Grid item>
-        {targarr_obj}
-      </Grid>
-    </Grid>
-    </div>
-  );
-}
-
-function QB_SelectedSample(props)
-{
-  return(
-    <div>
-      <Box>
-      <div style={{display: displayvalue_userquery, position: 'relative', minHeight: "40px", alignItems: 'left', textAlign: 'center', margin: 2}}>
-        {(() => {
-            const target = [];
-            for(var i = 0; i < props.targetArrSelections.length; i++) {
-              target.push(<QB_format targetArrSelections={props.targetArrSelections} targetArr={props.targetArr} index={i}></QB_format>);
-            }
-            return target;
-        })()}
-      </div>
-      </Box>
-    </div>
-  );
-}
-
-function QB_SelectedSignature(props)
-{
-  return(
-    <div>
-      <div style={{display: displayvalue_userquery}}>
-      <Box>
-        <div style={{display: displayvalue_sigquery, position: 'relative', minHeight: "40px", alignItems: 'left', textAlign: 'center', margin: 2}}>
-          {(() => {
-              const target = [];
-              for(var i = 0; i < props.targetSigSelections.length; i++) {
-                target.push(<QB_format targetArrSelections={props.targetSigSelections} targetArr={props.targetSignatures} index={i}></QB_format>);
-              }
-              return target;
-          })()}
-        </div>
-        <div id="QueueBoxGeneDiv" style={{display: displayvalue_geneinput, position: 'relative', alignItems: 'left', textAlign: 'center'}}>
-          <div style={{position: 'relative', minHeight: "40px", alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', margin: 12}}>
-            <Grid container spacing={2}>
-                <Grid item xs={1}></Grid>
-                <Grid item>
-                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5, fontSize: 19}}>
-                {"Selected ".concat(props.numberGenes).concat(" genes.")}
-                </div>
-                </Grid>
-                <Grid item>
-                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', fontSize: 13}}>
-                {"Selected ".concat(props.numberGenes).concat(" genes.")}
-                </div>
-                </Grid>
-            </Grid>
-          </div>
-        </div> 
-        <div id="QueueBoxCoordDiv" style={{display: displayvalue_coordinput, position: 'relative', alignItems: 'left', textAlign: 'center'}}>
-            <div style={{position: 'relative', minHeight: "40px", alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', margin: 12}}>
-            <Grid container spacing={2}>
-                <Grid item xs={1}></Grid>
-                <Grid item>
-                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5, fontSize: 19}}>
-                {"Selected ".concat(props.numberCoords).concat(" Coordinates.")}
-                </div>
-                </Grid>
-                <Grid item>
-                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', fontSize: 13}}>
-                {"Selected ".concat(props.numberCoords).concat(" coordinates.")}
-                </div>
-                </Grid>
-            </Grid>
-            </div>
-        </div>        
-      </Box> 
-      </div> 
-    </div>  
-  );
-}
-
-
-function QB_displayEventsSigs(props)
-{
-  return(
-    <div style={{position: 'relative', fontSize: 16, paddingTop:6, paddingBottom:5, backgroundColor: '#E8E8E8'}}>
-    <Grid container spacing={1}>
-    <Grid item>
-    <div style={{marginLeft: 15, alignItems: 'left', textAlign: 'left'}}>
-    <strong>Prospective Results: </strong>
-    </div>
-    </Grid>
-    <Grid item>
-    <div style={{marginRight: 10, alignItems: 'right', textAlign: 'right'}}>
-    {props.amount["samples"].toString().concat(" samples and ").concat(props.amount["events"].toString()).concat(" events")}
-    </div>
-    </Grid>
-    </Grid>
-    </div>
-  );
-}
-
-class QueueBox extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      numChildren: 0,
-      targetCancer: this.props.cancerQueueMessage,
-      targetArr: [],
-      targetArrSelections: [],
-      targetSignatures: [],
-      targetSigSelections: [],
-      numberGenes: 0,
-      numberCoords: 0,
-      defaultOn: false,
-      totalMatch: 0,
-      resultamount: this.props.resamt
-    }
-    updateQueueBox = updateQueueBox.bind(this);
-    updateNumberGenes = updateNumberGenes.bind(this);
-    updateNumberCoord = updateNumberCoord.bind(this);
-    syncQB = syncQB.bind(this);
-  }
-
-  componentDidMount (){
-    if(this.props.keys["filter"].length > 0 || this.props.keys["single"].length > 0)
-    {
-    var ta1 = [];
-    var ta2 = [];
-    var totalkeylen = this.props.keys["filter"].length + this.props.keys["single"].length;
-    for(var i = 0; i < this.props.keys["filter"].length; i++)
-    {
-      ta1.push(this.props.queueboxchildren[this.props.keys["filter"][i]])
-    }
-
-    for(var i = 0; i < this.props.keys["single"].length; i++)
-    {
-      ta2.push(this.props.queueboxsignatures[this.props.keys["single"][i]])
-    }
-
-    this.setState({
-        numChildren: totalkeylen,
-        targetCancer: this.props.cancerQueueMessage,
-        targetArr: ta1,
-        targetSignatures: ta2
-    });
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if(prevProps !== this.props)
-    {
-      var ta1 = [];
-      var ta2 = [];
-      var arr = this.props.inherit.queuebox_values["children"];
-      var sig = this.props.inherit.queuebox_values["signatures"];
-      for(var i = 0; i < this.props.keys["filter"].length; i++)
-      {
-        ta1.push(arr[this.props.keys["filter"][i]])
-      }
-
-      for(var i = 0; i < this.props.keys["single"].length; i++)
-      {
-        ta2.push(sig[this.props.keys["single"][i]])
-      }
-      this.setState({
-        targetCancer: this.props.cancerQueueMessage,
-        resultamount: this.props.resamt,
-        targetArr: ta1,
-        targetSignatures: ta2,
-        targetArrSelections: this.props.inherit.childrenFilters,
-        targetSigSelections: this.props.inherit.postoncosig,
-        numberGenes: this.props.clientgenes.length,
-        numberCoords: this.props.clientcoord.length
-      })
-    }
-    //console.log("queuebox", this.state, this.props);
-  }
-
-  render (){
-    return(
-      <div>
-      <SpcInputLabel label={"Selected Criteria"}/>
-      <Box borderColor="#dbdbdb" {...boxProps} style={{position: 'relative', alignItems: 'center', textAlign: 'center'}}>
-      <QB_SelectedCancer targetCancer={this.state.targetCancer}/>
-      <QB_SelectedSample targetArrSelections={this.state.targetArrSelections} targetArr={this.state.targetArr}/>
-      <QB_SelectedSignature 
-        targetSigSelections={this.state.targetSigSelections} 
-        targetSignatures={this.state.targetSignatures} 
-        totalMatch={this.state.totalMatch} 
-        numberGenes={this.state.numberGenes}
-        numberCoords={this.state.numberCoords}
-        />
-      <QB_displayEventsSigs amount={this.state.resultamount}/>
-      </Box>
-      </div>
-    );
-  }
 }
 
 function SubmitButton(props)
@@ -1036,7 +520,7 @@ class BQPane extends React.Component {
               </Grid>
             </Grid>
             <div>
-            <CheckboxForm updateBQPane={updateBQPane} qBDefaultMessage={qBDefaultMessage}/>
+            <CheckboxForm updateBQPane={updateBQPane}/>
             <div id="FilterBox_div" style={{display: displayvalue}}>
             <DefaultQueryWrapper value={this.state.defaultQuery} />
             <Grid container spacing={2}>
@@ -1139,8 +623,7 @@ class BQPane extends React.Component {
                 keys={this.state.keys} 
                 cancerQueueMessage={this.state.queuebox_values["cancer"]} 
                 queueboxchildren={this.state.queuebox_values["children"]} 
-                queueboxsignatures={this.state.queuebox_values["signature"]} 
-                qBDefaultMessage={qBDefaultMessage}
+                queueboxsignatures={this.state.queuebox_values["signature"]}
                 clientgenes={this.state.clientgenes}
                 clientcoord={this.state.clientcoord}
                 resamt={this.state.resultamount}

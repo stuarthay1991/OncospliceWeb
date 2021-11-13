@@ -16,7 +16,6 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import Divider from '@material-ui/core/Divider';
 import LockIcon from '@material-ui/icons/Lock';
-import InputBase from '@material-ui/core/InputBase';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { borders } from '@material-ui/system';
 import '@fontsource/roboto';
