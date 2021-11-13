@@ -30,7 +30,7 @@ import GoogleLogin from 'react-google-login';
 import GoogleLogout from 'react-google-login';
 import { useGoogleLogin } from 'react-google-login';
 import { useGoogleLogout } from 'react-google-login';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import './App.css';
 
 //import OKMAP from './ViewPane.js';
@@ -84,49 +84,16 @@ var version = "0.1";
 
 //Global Variables
 var flag = 0;
-var splicingreturned = [];
-var splicingcols = [];
-var splicingcc = [];
-var splicingrpsi = [];
-var splicingtrans = "";
-var sendToViewPane = {};
-var keys = {};
-var ui_field_dict;
-var ui_field_range;
-
-var cur_filter_amt = 0;
-var childrenFilters = [];
-var postoncosig = [];
-var clientgenes = [];
-var clientcoord = [];
-var queueboxchildren = {};
-var pre_queueboxchildren = {};
-var queueboxsignatures = {};
-var pre_queueboxsignatures = {};
-var sigTranslate;
-var sigFilters;
-var curCancer;
-var cancerQueueMessage;
-
-var displayvalue_userquery = "block";
-var displayvalue_sigquery = "block";
-var displayvalue_defaultquery = "none";
-var displayvalue_geneinput = "none";
-var displayvalue_coordinput = "none";
-var current_number_of_events = 0;
-var current_number_of_samples = 0;
 
 var localurl = "/material-app";
 var serverurl = "/ICGS/Oncosplice/testing";
 var buildurl = "/ICGS/Oncosplice/build";
 
 var targeturl = serverurl;
+var routeurl = "/ICGS/Oncosplice/testing/index.html"
 
 var queryhistory_dat = [];
 var GLOBAL_user = "Default";
-
-keys["filter"] = [];
-keys["single"] = [];
 
 class ViewPaneWrapper extends React.Component {
   constructor(props) {
@@ -156,7 +123,6 @@ class ViewPaneWrapper extends React.Component {
   componentDidUpdate(prevProps) {  
     if(prevProps !== this.props)
     {
-      console.log(this.props.entrydata, "ENTRYDATA");
       if(this.props.entrydata != undefined)
       {
         this.setState({
@@ -409,38 +375,104 @@ function updateViewPane(list1, list2, list3, list4, list5, exp){
   });
 }
 
-function MainPane() {
+function MainPane(props){
   const classes = useStyles();
   const tabstyle = spcTabStyles();
+
+  const { match, history } = props;
+  const { params } = match;
+  const { page } = params;
+
+  const tabNameToIndex = {
+    0: "build",
+    1: "explore",
+    2: "history"
+  };
+
+  const indexToTabName = {
+    build: 0,
+    explore: 1,
+    history: 2
+  };
+
   const [mpstate, setMpstate] = React.useState({
     viewpaneobj: {"inData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []},
-    value: 0,
+    value: indexToTabName[page],
+    bqstate: {
+      defaultQuery: false,
+      queuebox_values: {"children": undefined, "signatures": undefined},
+      pre_queueboxvalues: {"children": {}, "signatures": {}},
+      eventfilterSet: null,
+      resultamount: {"samples": 0, "events": 0},
+      childrenFilters: [],
+      postoncosig: [],
+      queryFilter: {},
+      querySignature: {},
+      clientcoord: [],
+      clientgenes: [],
+      keys: {"filter": [], "single": []},
+      range: undefined,
+      cancer: "",
+      ui_fields: {},
+      export: {},
+      genes: [],
+      coordinates: [],
+      signatures: undefined,
+      sigTranslate: undefined,
+      filterboxSEF: ""
+    }
   });
+
+  //console.log("PAGE1", page, mpstate.value);
+
+  var bqstate = mpstate.bqstate;
 
   const handleChange = (event, newValue) => {
       document.getElementById("contactpanel").style.display = "none";
       document.getElementById("aboutpanel").style.display = "none";
       document.getElementById("tabcontent").style.display = "block";
+      history.push(`/ICGS/Oncosplice/testing/index.html/${tabNameToIndex[newValue]}`);
+      //console.log("mpstate", mpstate.bqstate);
+      //console.log("history", history);
       setMpstate({
         value: newValue,
+        bqstate: mpstate.bqstate,
+        viewpaneobj: mpstate.viewpaneobj,
       });
   };
 
-  const setViewPane = (list1, list2, list3, list4, list5, exp) => {
+  const setViewPane = (list1, list2, list3, list4, list5, exp, bqstate) => {
     var stateobj = {};
-    console.log("setViewPane called: ", list1);
-    console.log("mpstate called: ", mpstate.viewpaneobj);
+    //console.log("setViewPane called: ", list1);
+    //console.log("mpstate called: ", mpstate.viewpaneobj);
+    //console.log("bqstate called: ", bqstate);
     stateobj["inData"] = list1;
     stateobj["inCols"] = list2;
     stateobj["inCC"] = list3;
     stateobj["inRPSI"] = list4;
     stateobj["inTRANS"] = list5;
     stateobj["export"] = exp;
+    history.push(`/ICGS/Oncosplice/testing/index.html/${tabNameToIndex[1]}`);
     setMpstate({
         viewpaneobj: stateobj,
         value: 1,
+        bqstate: bqstate,
     });
   }
+
+  //console.log("PAGE2", page, mpstate.value);
+  React.useEffect(() => {
+    if(mpstate.value != indexToTabName[page])
+    {
+        //console.log("WAHOOBA1", bqstate, mpstate.bqstate);
+        setMpstate({
+          value: indexToTabName[page],
+          bqstate: bqstate
+        });
+    }
+    //console.log("WAHOOBA", mpstate);
+    //console.log("USE EFFECT", mpstate.value, indexToTabName[page]);
+  })
 
   return (
     <div className={classes.root} style={{ fontFamily: 'Roboto' }}>
@@ -465,15 +497,9 @@ function MainPane() {
         </div>
       </div>
       <div id="tabcontent" style={{display: "block"}}>
-      <TabPanel value={mpstate.value} index={0}>
-        <BQPane setViewPane={setViewPane}/>
-      </TabPanel>
-      <TabPanel value={mpstate.value} index={1}>
-        <ViewPaneWrapper entrydata={mpstate.viewpaneobj}/>
-      </TabPanel>
-      <TabPanel value={mpstate.value} index={2}>
-        <QueryHistoryPaneWrapper />
-      </TabPanel>
+      {mpstate.value === 0 && <BQPane prevstate={mpstate.bqstate} setViewPane={setViewPane}/>}
+      {mpstate.value === 1 && <ViewPaneWrapper entrydata={mpstate.viewpaneobj}/>}
+      {mpstate.value === 2 && <QueryHistoryPaneWrapper />}
       </div>
       <div id="aboutpanel" style={{display: "none", margin: 15}}>
         <AboutUs />
@@ -515,13 +541,18 @@ function TopNav() {
 
 function App() {
   return (
+    <Router>
     <div style={{ fontFamily: 'Roboto' }}>
     <Helmet>
       <script src="https://d3js.org/d3.v5.js" type="text/javascript" />
     </Helmet>
     <TopNav />
-    <MainPane />
+    <Switch>
+      <Redirect exact from={routeurl} to={routeurl.concat("/build")} />
+      <Route exact path={routeurl.concat("/:page?")} render={props => <MainPane {...props} />} />
+    </Switch>
     </div>
+    </Router>
   );
 
 }

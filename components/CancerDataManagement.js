@@ -39,7 +39,7 @@ function uiFields(arg)
 	})
 	.then(function (response) 
 	{
-		console.log(response);
+		//console.log(response);
 	    var ui_field_dict = response["data"]["meta"];
     	var ui_field_range = response["data"]["range"];
     	var sigFilters = response["data"]["sig"];
@@ -57,9 +57,9 @@ function uiFields(arg)
 		temp_q_obj["signatures"] = {};
 		temp_q_obj["cancer"] = cancerQueueMessage;
 		const callback = arg["setState"];
-		console.log("ham", callback);
+		//console.log("ham", callback);
 		export_dict["cancer"] = cancername;
-	    export_dict["ui_field_dict"] = response["data"]["meta"];
+    export_dict["ui_field_dict"] = response["data"]["meta"];
 		callback(ui_field_dict, cancername, temp_q_obj, ui_field_range, sigFilters, resamt, sigTranslate, export_dict);
 
 
@@ -117,7 +117,7 @@ function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splici
     headers: { "Content-Type": "multipart/form-data" },
   })
   .then(function (response) {
-    console.log("DQ_UI_fields", response["data"]);
+    //console.log("DQ_UI_fields", response["data"]);
     exp["cancer"] = "LAML";
     exp["ui_field_dict"] = response["data"]["meta"];
     exp["ui_field_range"] = response["data"]["range"];
@@ -139,7 +139,7 @@ function fetchHeatmapData(arg)
   const callback = arg["updateViewPane"];
   var GLOBAL_user = "Default";
   var document = arg["document"];
-  console.log("FETCH ARGS", arg)
+  //console.log("FETCH ARGS", arg)
   document.getElementById("sub").style.display = "block";
   var bodyFormData = new FormData();
   var qh_arr = [];
@@ -173,7 +173,7 @@ function fetchHeatmapData(arg)
         //myString = "PSI_".concat(myString);
         myString = myString.replace(" ", "_");
       }
-      console.log("Signature added:", myString);
+      //console.log("Signature added:", myString);
     }
     myString = "PSI".concat(myString);
     tmp_qh_obj["key"] = myString;
@@ -205,7 +205,7 @@ function fetchHeatmapData(arg)
     bodyFormData.append(myString, myString);
   }  
   bodyFormData.append("CANCER",curCancer);
-  console.log("curcancer", curCancer);
+  //console.log("curcancer", curCancer);
   tmp_qh_obj = {};
   tmp_qh_obj["key"] = "CANCER";
   tmp_qh_obj["val"] = curCancer;
@@ -233,7 +233,7 @@ function fetchHeatmapData(arg)
         //indatatmp["date"] = dateval;
         //queryhistory_dat.push(indatatmp);
         //addQueryHistory(indatatmp);
-        console.log("METAREQUEST response:", response["data"]);
+        //console.log("METAREQUEST response:", response["data"]);
         //response = JSON.parse(response);
         document.getElementById(`simple-tab-1`).click();
         var splicingreturned = response["data"]["rr"];
@@ -241,8 +241,8 @@ function fetchHeatmapData(arg)
         var splicingcc = response["data"]["cci"];
         var splicingrpsi = response["data"]["rpsi"];
         var splicingtrans = response["data"]["oncokey"];
-        console.log("EXPORT VIEW", exportView);
-        callback(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exportView);
+        //console.log("EXPORT VIEW", exportView);
+        callback(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exportView, arg["fullstate"]);
         document.getElementById("sub").style.display = "none";
         //changeUser(GLOBAL_user);
       })
@@ -274,8 +274,8 @@ function gene(arg)
   })
     .then(function (response) {
       var totalmatch = response["data"]["single"];
-      console.log("1", totalmatch);
-      console.log("2", response["data"]);
+      //console.log("1", totalmatch);
+      //console.log("2", response["data"]);
       //add totalmatch for gene counter
       callback(clientgenes, exportView);
   })	
@@ -305,8 +305,8 @@ function coord(arg)
   })
     .then(function (response) {
       var totalmatch = response["data"]["single"];
-      console.log("1", totalmatch);
-      console.log("2", response["data"]);
+      //console.log("1", totalmatch);
+      //console.log("2", response["data"]);
       callback(clientcoord, exportView);
   }) 
 }
@@ -334,7 +334,7 @@ function recursiveMetaDataField(arg)
 	let promises = [];
 	//name, value, number, filter
 	//P.functioncall(P.pre_q["children"][P.keys["filter"][i]].props.name, P.pre_q["children"][P.keys["filter"][i]].props.value, P.keys["filter"][i], P.type);
-	console.log("DEBUG", keys, preQ["children"]);
+	//console.log("DEBUG", keys, preQ["children"]);
 	const callback = arg["setState"];
     for(var i = 0; i < keys[filter].length; i++)
     {
@@ -367,10 +367,10 @@ function recursiveMetaDataField(arg)
 			var current_number_of_samples = response["data"]["meta"];
 			resamt = {"samples": selected_left, "events": arg["parentResultAmt"]["events"]};
 			Q["children"][i_number] = <QueueMessage key={i_number} number={i_number} name={i_name} get={i_number} value={i_value} type={"samples"} total_selected={in_criterion} total_left={selected_left}/>
-			console.log("CALLBACK", i);
+			//console.log("CALLBACK", i);
 			if(i == (keys[filter].length-1))
 			{
-			   	console.log("CALLBACK", resamt);
+			   	//console.log("CALLBACK", resamt);
 			    callback(resamt, Q, preQ, keys, exportView);
 			}
 		})
@@ -455,7 +455,7 @@ function signature(arg)
     myString = myString.replace(/(\r\n|\n|\r)/gm, "");
     if(Object.entries(sigTranslate).length > 0)
     {
-      console.log("working working");
+      //console.log("working working");
       if(sigTranslate[myString] != undefined)
       {
         myString = sigTranslate[myString];
@@ -466,11 +466,11 @@ function signature(arg)
         //myString = "PSI_".concat(myString);
         myString = myString.replace(" ", "_");
       }
-      console.log(myString);
+      //console.log(myString);
     }
     bodyFormData.append(myString, myString);
     exportView["single"].push(myString);
-    console.log("SIGBODYFORMDATA1: ", myString);  
+    //console.log("SIGBODYFORMDATA1: ", myString);  
   }
   if(Object.entries(sigTranslate).length > 0)
   {
@@ -486,13 +486,13 @@ function signature(arg)
     }
     name = name.replace(/(\r\n|\n|\r)/gm, "");
     bodyFormData.append(("SEL".concat(name)), name);
-    console.log("SIGBODYFORMDATA2: ", name);
+    //console.log("SIGBODYFORMDATA2: ", name);
   }
   else
   {
     name = name.replace(/(\r\n|\n|\r)/gm, "");
     bodyFormData.append(("SEL".concat(name)), name);
-    console.log("SIGBODYFORMDATA2: ", name);   
+    //console.log("SIGBODYFORMDATA2: ", name);   
   }
   bodyFormData.append("CANCER",cancer);
   
@@ -537,7 +537,7 @@ function recursiveSignature(arg)
     myString = myString.replace(/(\r\n|\n|\r)/gm, "");
     if(Object.entries(sigTranslate).length > 0)
     {
-      console.log("working working");
+      //console.log("working working");
       if(sigTranslate[myString] != undefined)
       {
         myString = sigTranslate[myString];
@@ -548,11 +548,11 @@ function recursiveSignature(arg)
         //myString = "PSI_".concat(myString);
         myString = myString.replace(" ", "_");
       }
-      console.log(myString);
+      //console.log(myString);
     }
     bodyFormData.append(myString, myString);
     //sendToViewPane["single"].push(myString);
-    console.log("SIGBODYFORMDATA1: ", myString);  
+    //console.log("SIGBODYFORMDATA1: ", myString);  
   }
   if(Object.entries(sigTranslate).length > 0)
   {
@@ -568,13 +568,13 @@ function recursiveSignature(arg)
     }
     name = name.replace(/(\r\n|\n|\r)/gm, "");
     bodyFormData.append(("SEL".concat(name)), name);
-    console.log("SIGBODYFORMDATA2: ", name);
+    //console.log("SIGBODYFORMDATA2: ", name);
   }
   else
   {
     name = name.replace(/(\r\n|\n|\r)/gm, "");
     bodyFormData.append(("SEL".concat(name)), name);
-    console.log("SIGBODYFORMDATA2: ", name);   
+    //console.log("SIGBODYFORMDATA2: ", name);   
   }
   bodyFormData.append("CANCER",cancer);
   

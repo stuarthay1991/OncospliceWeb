@@ -79,22 +79,33 @@ class CancerSelect extends React.Component {
   {
     super(props);
     this.state = {
-      value: '',
+      value: this.props.prevState.cancer,
       name: 'hai',
     };
   }
 
   componentDidMount()
   {
-    const P = this.props.inherit;
-    if(P.curCancer != undefined)
+    console.log("CANCERSELECT", this.props.prevState.cancer, this.state.value);
+    if(this.props.prevState.cancer != this.state.value)
     {
-      console.log("2", P.curCancer);
       this.setState({
         name: 'hai',
-        value: P.curCancer,
+        value: this.props.prevState.cancer,
       });
       //P.regeneratefields(P.curCancer);
+    }
+  }
+
+  componentDidUpdate(prevProps)
+  {
+    console.log("CANCERSELECT_update", this.props.prevState.cancer, this.state.value);
+    if(prevProps !== this.props)
+    {
+      this.setState({
+        name: 'hai',
+        value: this.props.prevState.cancer,
+      });
     }
   }
 

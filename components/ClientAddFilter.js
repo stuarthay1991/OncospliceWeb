@@ -359,9 +359,9 @@ function FilterMenuPopulate(props) {
 function ClientSelectedFilter({P, key, number, get, deleteChild, range, chicken, egg, pre_q, functioncall}) {
   const classes = useStyles();
   const widgemidge = widgetlabel5();
-  if(pre_q[get] != undefined)
+  if(pre_q["children"][get] != undefined)
   {
-    var initial_val = pre_q[get].props.value;
+    var initial_val = pre_q["children"][get].props.value;
   }
   else
   {
@@ -385,6 +385,7 @@ function ClientSelectedFilter({P, key, number, get, deleteChild, range, chicken,
     });
     pre_q["children"][get] = <PreQueueMessage key={number} number={number} get={get} name={egg} value={event.target.value}/>
     var args = {};
+    console.log("event.target.value", event.target.value);
 
     //name, value, number, filter
     args["name"] = egg;

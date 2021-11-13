@@ -155,7 +155,7 @@ class FilterBox extends React.Component {
       fieldSet: this.props.inherit.ui_fields,
       sigSet: this.props.inherit.signatures,
       rangeSet: this.props.inherit.range,
-      eventfilterSet: null
+      eventfilterSet: this.props.inherit.SEFobj
     };
     updateFilterBox = updateFilterBox.bind(this);
     updateFilterBoxSEF = updateFilterBoxSEF.bind(this);
@@ -165,16 +165,18 @@ class FilterBox extends React.Component {
   {
     updateFilterBox = updateFilterBox.bind(this);
     updateFilterBoxSEF = updateFilterBoxSEF.bind(this);
-    if(curCancer != undefined)
-    {
-      this.setState({
-        cancerType: curCancer,
-        number: 1,
-      })
-    }
+    this.setState({
+        cancerType: this.props.inherit.cancer,
+        number: 0,
+        fieldSet: this.props.inherit.ui_fields,
+        sigSet: this.props.inherit.signatures,
+        rangeSet: this.props.inherit.range,
+        eventfilterSet: this.props.inherit.SEFobj
+    })
   }
 
   componentDidUpdate(prevProps) {
+    console.log("Look at state", this.state)
     if(prevProps.inherit.cancer != this.props.inherit.cancer)
     {
       this.setState({
@@ -183,7 +185,7 @@ class FilterBox extends React.Component {
         fieldSet: this.props.inherit.ui_fields,
         sigSet: this.props.inherit.signatures,
         rangeSet: this.props.inherit.range,
-        eventfilterSet: null
+        eventfilterSet: this.props.inherit.SEFobj
       })
     }
     else if(prevProps != this.props)
@@ -193,7 +195,8 @@ class FilterBox extends React.Component {
         number: 0,
         fieldSet: this.props.inherit.ui_fields,
         sigSet: this.props.inherit.signatures,
-        rangeSet: this.props.inherit.range
+        rangeSet: this.props.inherit.range,
+        eventfilterSet: this.props.inherit.SEFobj
       })
     }
   }
@@ -305,7 +308,7 @@ class ClientSEF extends React.Component
   constructor(props) {
     super(props);
     this.state = {
-        value: '',
+        value: this.props.parentProps.inherit.filterboxSEF,
         name: 'hai',
     }
     updateClientSEF = updateClientSEF.bind(this);
@@ -339,13 +342,13 @@ class ClientSEF extends React.Component
         filterID={"sig_filter_id"}
         label={"Oncosplice Signature Filter"}
       />;
-      updateFilterBoxSEF(obj1);
+      //updateFilterBoxSEF(obj1);
       var new_clientgenes = [];
       var new_clientcoord = [];
       displayvalue_geneinput = "none";
       displayvalue_coordinput = "none";
       displayvalue_sigquery = "block";
-      P.parentProps.updatePage(BQstate.keys, BQstate.queuebox_values, new_clientgenes, new_clientcoord);
+      P.parentProps.updatePage(BQstate.keys, BQstate.queuebox_values, new_clientgenes, new_clientcoord, "Oncosplice Signature Filter", obj1);
     }
     if(event.target.value == "Gene Symbol Filter")
     {
@@ -356,7 +359,7 @@ class ClientSEF extends React.Component
         export={P.parentProps.inherit.export}
         callback={P.parentProps.setGene}
       />;
-      updateFilterBoxSEF(obj2);
+      //updateFilterBoxSEF(obj2);
       var new_keys = BQstate.keys;
       new_keys["single"] = [];
       var new_Q = BQstate.queuebox_values;
@@ -365,7 +368,7 @@ class ClientSEF extends React.Component
       displayvalue_geneinput = "block";
       displayvalue_coordinput = "none";
       displayvalue_sigquery = "none";
-      P.parentProps.updatePage(new_keys, new_Q, BQstate.clientgenes, new_clientcoord);
+      P.parentProps.updatePage(new_keys, new_Q, BQstate.clientgenes, new_clientcoord, "Gene Symbol Filter", obj2);
     }
     if(event.target.value == "Coordinate Filter")
     {
@@ -376,7 +379,7 @@ class ClientSEF extends React.Component
         export={P.parentProps.inherit.export}
         callback={P.parentProps.setCoord}
       />;
-      updateFilterBoxSEF(obj3);
+      //updateFilterBoxSEF(obj3);
       var new_keys = BQstate.keys;
       new_keys["single"] = [];
       var new_Q = BQstate.queuebox_values;
@@ -385,16 +388,23 @@ class ClientSEF extends React.Component
       displayvalue_geneinput = "none";
       displayvalue_coordinput = "block";
       displayvalue_sigquery = "none";
-      P.parentProps.updatePage(new_keys, new_Q, new_clientgenes, BQstate.clientcoord);
+      P.parentProps.updatePage(new_keys, new_Q, new_clientgenes, BQstate.clientcoord, "Coordinate Filter", obj3);
     }
   };
 
   componentDidUpdate(prevProps) {
+    console.log("update", this.props.parentProps.inherit.filterboxSEF);
     if(prevProps.parentProps.inherit.cancer !== this.props.parentProps.inherit.cancer)
     {
       console.log("ClientSEF", this.state);
       this.setState({
         value: ""
+      })
+    }
+    else if(prevProps !== this.props)
+    {
+      this.setState({
+        value: this.props.parentProps.inherit.filterboxSEF
       })
     }
   }
@@ -912,6 +922,7 @@ function SubmitButton(props)
     args["keys"] = props.keys;
     args["clientgenes"] = props.clientgenes;
     args["clientcoord"] = props.clientcoord;
+    args["fullstate"] = props.fullstate;
     args["document"] = document;
     to = "fetchHeatmapData";
   }
@@ -957,6 +968,7 @@ function updateBQPane(value) {
 class BQPane extends React.Component {
   constructor(props) {
     super(props)
+    var prevstate = this.props.prevstate;
     this.state = {
       defaultQuery: false,
       queuebox_values: {"children": undefined, "signatures": undefined},
@@ -977,9 +989,29 @@ class BQPane extends React.Component {
       genes: [],
       coordinates: [],
       signatures: undefined,
-      sigTranslate: undefined
+      sigTranslate: undefined,
+      filterboxSEF: "",
+      SEFobj: null
     }
     updateBQPane = updateBQPane.bind(this)
+  }
+
+  componentDidMount() 
+  {
+    var prevstate = this.props.prevstate;
+    console.log("mounted_prevstate", this.props);
+    this.setState(prevstate);
+  }
+
+  componentDidUpdate(prevProps)
+  {
+    var prevstate = this.props.prevstate;
+    console.log("prevstate", prevstate);
+    if(prevProps !== this.props)
+    {
+      console.log("prevstate_new", prevstate);
+      this.setState(prevstate);
+    }
   }
 
   render()
@@ -1060,11 +1092,13 @@ class BQPane extends React.Component {
                 clientcoord: cC,
                 export: exp
               })}
-              updatePage={(k,q,cG,cC) => this.setState({
+              updatePage={(k,q,cG,cC,fSEF,SEFobj) => this.setState({
                 keys: k,
                 queuebox_values: q,
                 clientgenes: cG,
-                clientcoord: cC
+                clientcoord: cC,
+                filterboxSEF: fSEF,
+                SEFobj: SEFobj
               })}
               />
             </div>
@@ -1095,6 +1129,7 @@ class BQPane extends React.Component {
                 sigTranslate={this.state.sigTranslate}
                 setViewPane={this.props.setViewPane}
                 export={this.state.export}
+                fullstate={this.state}
               />
             </div>
             </Grid>
