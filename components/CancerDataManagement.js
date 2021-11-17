@@ -126,6 +126,81 @@ function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splici
   })
 }
 
+/*function buildURLandSend(arg)
+{
+  const keys = arg["keys"];
+  var clientcoord = arg["clientcoord"];
+  var clientgenes = arg["clientgenes"];
+  const childrenFilters = arg["childrenFilters"];
+  const postoncosig = arg["postoncosig"];
+  const sigTranslate = arg["sigTranslate"];
+  const exportView = arg["export"];
+  const curCancer = arg["cancer"];
+  const callback = arg["updateViewPane"];
+  var GLOBAL_user = "Default";
+  var document = arg["document"];
+  document.getElementById("sub").style.display = "block";
+  var qh_arr = [];
+  var tmp_qh_obj = {};
+  for(var i = 0; i < keys["filter"].length; i++)
+  {
+    var myString = document.getElementById(childrenFilters[keys["filter"][i]].props.egg.concat("_id")).value;
+    myString = myString.replace(/(\r\n|\n|\r)/gm, "");
+    tmp_qh_obj = {};
+    //console.log("bodyFormDataSPLC", ("SPLC".concat(childrenFilters[keys["filter"][i]].props.egg)), myString);
+    bodyFormData.append(("SPLC".concat(childrenFilters[keys["filter"][i]].props.egg)), myString);
+    tmp_qh_obj["key"] = "SPLC".concat(childrenFilters[keys["filter"][i]].props.egg);
+    tmp_qh_obj["val"] = myString;
+    qh_arr.push(tmp_qh_obj);
+  }
+  for(var i = 0; i < keys["single"].length; i++)
+  {
+    var myString = postoncosig[keys["single"][i]].props.egg;
+    myString = myString.replace(/(\r\n|\n|\r)/gm, "");
+    tmp_qh_obj = {};
+    if(Object.entries(sigTranslate).length > 0)
+    {
+      if(sigTranslate[myString] != undefined)
+      {
+        bodyFormData.append(("RPSI".concat(myString)), myString);
+        myString = sigTranslate[myString];
+        myString = myString.replace("+", "positive_");
+      }//TEMPORARY FIX
+      else
+      {
+        myString = myString.replace(" ", "_");
+      }
+    }
+    myString = "PSI".concat(myString);
+    tmp_qh_obj["key"] = myString;
+    tmp_qh_obj["val"] = myString;
+    qh_arr.push(tmp_qh_obj);
+  }
+  for(var i = 0; i < clientgenes.length; i++)
+  {
+    var myString = clientgenes[i];
+    tmp_qh_obj = {};
+    myString = "GENE".concat(myString);
+    tmp_qh_obj["key"] = myString;
+    tmp_qh_obj["val"] = myString;
+    qh_arr.push(tmp_qh_obj);
+  }
+  for(var i = 0; i < clientcoord.length; i++)
+  {
+    var myString = clientcoord[i];
+    tmp_qh_obj = {};
+    myString = "COORD".concat(myString);
+    tmp_qh_obj["key"] = myString;
+    tmp_qh_obj["val"] = myString;
+    qh_arr.push(tmp_qh_obj);
+  }  
+  tmp_qh_obj = {};
+  tmp_qh_obj["key"] = "CANCER";
+  tmp_qh_obj["val"] = curCancer;
+  qh_arr.push(tmp_qh_obj);
+
+}*/
+
 function fetchHeatmapData(arg)
 {
   const keys = arg["keys"];
@@ -210,7 +285,9 @@ function fetchHeatmapData(arg)
   tmp_qh_obj["key"] = "CANCER";
   tmp_qh_obj["val"] = curCancer;
   qh_arr.push(tmp_qh_obj);
-  var qh_postdata = JSON.stringify(qh_arr)
+  var qh_postdata = JSON.stringify(qh_arr);
+  console.log("QH1", qh_arr);
+  console.log("QH2", qh_postdata);
   bodyFormData.append("HIST",qh_postdata);
   bodyFormData.append("USER",GLOBAL_user);
   //console.log("bodyFormDataCancer", curCancer)
@@ -235,7 +312,7 @@ function fetchHeatmapData(arg)
         //addQueryHistory(indatatmp);
         //console.log("METAREQUEST response:", response["data"]);
         //response = JSON.parse(response);
-        document.getElementById(`simple-tab-1`).click();
+        //document.getElementById(`simple-tab-1`).click();
         var splicingreturned = response["data"]["rr"];
         var splicingcols = response["data"]["col_beds"];
         var splicingcc = response["data"]["cci"];
@@ -427,6 +504,7 @@ function metaDataField(arg)
       //updateQueueBox(curCancer, keys["filter"].length, queueboxchildren, queueboxsignatures);
       const callback = arg["setState"];
       callback(resamt, stateQboxchildren, preQ, keys, exportView);
+      console.log("meta...callback...ended", keys, callback);
       //console.log("selectfield response code finished.");
   	})
 }
@@ -434,6 +512,7 @@ function metaDataField(arg)
 function signature(arg)
 {
   //name, number, filter
+  console.log("callback...started");
   var bodyFormData = new FormData();
   const keys = arg["keys"];
   const preQ = arg["pre_queueboxchildren"];
@@ -509,6 +588,7 @@ function signature(arg)
       Q["signatures"][number] = <QueueMessage key={number} number={number} name={"PSI"} get={number} value={name} type={"events"} total_selected={in_criterion} total_left={selected_left}/>
       resamt = {"samples": arg["parentResultAmt"]["samples"], "events": selected_left};
       callback(resamt, Q, keys, exportView);
+      console.log("sig...callback...ended", keys, callback);
       //updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
   })
 }

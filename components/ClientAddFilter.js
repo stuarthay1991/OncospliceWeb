@@ -172,7 +172,7 @@ class ClientAddFilter extends React.Component {
     const keyval = document.getElementById(P.filterID).value.concat(S.numChildren.toString());
     P.keys[P.type].push(keyval);
     const filterIDvalue = document.getElementById(P.filterID).value;
-    console.log("added value", invalue);
+    console.log("added value", invalue, P);
     var found = false;
     if(P.rangeSet != undefined)
     {

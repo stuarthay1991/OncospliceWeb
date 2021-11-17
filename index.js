@@ -109,14 +109,17 @@ class ViewPaneWrapper extends React.Component {
   }
 
   componentDidMount() {   
-    this.setState({
-    inData: [],
-    inCols: [],
-    inCC: [],
-    inRPSI: [],
-    inTRANS: [],
-    export: []
-    });
+    if(this.props.entrydata != undefined)
+    {
+        this.setState({
+        inData: this.props.entrydata["inData"],
+        inCols: this.props.entrydata["inCols"],
+        inCC: this.props.entrydata["inCC"],
+        inRPSI: this.props.entrydata["inRPSI"],
+        inTRANS: this.props.entrydata["inTRANS"],
+        export: this.props.entrydata["export"]
+        });
+    }
   }
 
   componentDidUpdate(prevProps) {  
@@ -140,7 +143,7 @@ class ViewPaneWrapper extends React.Component {
   {
     return(
       <div>
-        {this.state.inData.length > 0 && (
+        {this.state.inData.length > 0 && this.props.validate == 1 && (
           <ViewPane css={withStyles(useStyles)} QueryExport={this.state.export} Data={this.state.inData} Cols={this.state.inCols} CC={this.state.inCC} RPSI={this.state.inRPSI} TRANS={this.state.inTRANS}/>
         )}
       </div>
@@ -382,6 +385,11 @@ function MainPane(props){
   const { params } = match;
   const { page } = params;
 
+  console.log(match, history, params, page);
+  if(params["options"] != undefined){
+    console.log(params["options"]);
+  }
+
   const tabNameToIndex = {
     0: "build",
     1: "explore",
@@ -425,13 +433,14 @@ function MainPane(props){
   //console.log("PAGE1", page, mpstate.value);
 
   var bqstate = mpstate.bqstate;
+  var estate = mpstate.viewpaneobj;
 
   const handleChange = (event, newValue) => {
       document.getElementById("contactpanel").style.display = "none";
       document.getElementById("aboutpanel").style.display = "none";
       document.getElementById("tabcontent").style.display = "block";
       history.push(`/ICGS/Oncosplice/testing/index.html/${tabNameToIndex[newValue]}`);
-      //console.log("mpstate", mpstate.bqstate);
+      console.log("current history:", history, mpstate);
       //console.log("history", history);
       setMpstate({
         value: newValue,
@@ -466,12 +475,15 @@ function MainPane(props){
         //console.log("WAHOOBA1", bqstate, mpstate.bqstate);
         setMpstate({
           value: indexToTabName[page],
-          bqstate: bqstate
+          bqstate: bqstate,
+          viewpaneobj: estate,
         });
     }
     //console.log("WAHOOBA", mpstate);
     //console.log("USE EFFECT", mpstate.value, indexToTabName[page]);
   })
+
+  console.log(mpstate);
 
   return (
     <div className={classes.root} style={{ fontFamily: 'Roboto' }}>
@@ -481,9 +493,9 @@ function MainPane(props){
         <Grid item sm={12} md={9}>
         <Typography className={classes.padding} />
         <Tabs id="tabset" value={mpstate.value} onChange={handleChange} aria-label="simple tabs example" indicatorColor="primary">
-          <Tab classes={tabstyle} label="Build Query" {...a11yProps(0)} style={{ textTransform: 'none'}}/>
-          <Tab classes={tabstyle} label="Explore Data" {...a11yProps(1)} style={{ textTransform: 'none'}}/>
-          <Tab classes={tabstyle} icon={<LockIcon />} label="Query History" {...a11yProps(2)} style={{ textTransform: 'none'}}></Tab>
+          <Tab classes={tabstyle} label="Build Query" style={{ textTransform: 'none'}}/>
+          <Tab classes={tabstyle} label="Explore Data" style={{ textTransform: 'none'}}/>
+          <Tab classes={tabstyle} icon={<LockIcon />} label="Query History" style={{ textTransform: 'none'}}></Tab>
         </Tabs>
         </Grid>
         <Grid item sm={12} md={3}>
@@ -497,7 +509,7 @@ function MainPane(props){
       </div>
       <div id="tabcontent" style={{display: "block"}}>
       {mpstate.value === 0 && <BQPane prevstate={mpstate.bqstate} setViewPane={setViewPane}/>}
-      {mpstate.value === 1 && <ViewPaneWrapper entrydata={mpstate.viewpaneobj}/>}
+      {mpstate.value === 1 && <ViewPaneWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
       {mpstate.value === 2 && <QueryHistoryPaneWrapper />}
       </div>
       <div id="aboutpanel" style={{display: "none", margin: 15}}>
@@ -539,6 +551,7 @@ function TopNav() {
 }
 
 function App() {
+
   return (
     <Router>
     <div style={{ fontFamily: 'Roboto' }}>
@@ -549,6 +562,7 @@ function App() {
     <Switch>
       <Redirect exact from={routeurl} to={routeurl.concat("/build")} />
       <Route exact path={routeurl.concat("/:page?")} render={props => <MainPane {...props} />} />
+      <Route exact path={routeurl.concat("/:page?/:options?")} render={props => <MainPane {...props} />} />
     </Switch>
     </div>
     </Router>
