@@ -327,29 +327,23 @@ class ClientSEF extends React.Component {
 }
 
 function SubmitButton(props){
+  const BQstate = props.BQstate;
+  const BQprops = props.BQprops;
   var args = {};
   var to = "fetchHeatmapData";
   var functionpointer = makeRequest;
   if(props.defaultQuery == true){
     functionpointer = makeRequest;
-    args["setState"] = props.setViewPane;
-    args["export"] = props.export;
-    args["cancer"] = props.cancer;
+    args["setState"] = BQprops.setViewPane;
+    args["export"] = BQstate.export;
+    args["cancer"] = BQstate.cancer;
     args["doc"] = document;
     to = "defaultQuery";
   }
   else{
     functionpointer = makeRequest;
-    args["updateViewPane"] = props.setViewPane;
-    args["childrenFilters"] = props.childrenFilters;
-    args["postoncosig"] = props.postoncosig;
-    args["sigTranslate"] = props.sigTranslate;
-    args["export"] = props.export;
-    args["cancer"] = props.cancer;
-    args["keys"] = props.keys;
-    args["clientgenes"] = props.clientgenes;
-    args["clientcoord"] = props.clientcoord;
-    args["fullstate"] = props.fullstate;
+    args["BQprops"] = BQprops;
+    args["BQstate"] = BQstate;
     args["document"] = document;
     to = "fetchHeatmapData";
   }
@@ -511,33 +505,15 @@ class BQPane extends React.Component {
             </Grid>
             <Grid item xs={4}>
             <div style={{float: 'right', alignItems: 'center'}}>
-              <SubmitButton 
-                defaultQuery={this.state.defaultQuery}
-                keys={this.state.keys}
-                cancer={this.state.cancer}
-                clientgenes={this.state.clientgenes}
-                clientcoord={this.state.clientcoord}
-                childrenFilters={this.state.queryFilter}
-                postoncosig={this.state.querySignature}
-                sigTranslate={this.state.sigTranslate}
-                setViewPane={this.props.setViewPane}
-                export={this.state.export}
-                fullstate={this.state}
+              <SubmitButton
+                BQstate={this.state}
+                BQprops={this.props}
               />
             </div>
             </Grid>
             </Grid>
             <div id="QueueBox_div">
-              <QueueBox 
-                keys={this.state.keys} 
-                cancerQueueMessage={this.state.queuebox_values["cancer"]} 
-                queueboxchildren={this.state.queuebox_values["children"]} 
-                queueboxsignatures={this.state.queuebox_values["signature"]}
-                clientgenes={this.state.clientgenes}
-                clientcoord={this.state.clientcoord}
-                resamt={this.state.resultamount}
-                inherit={this.state}>
-              </QueueBox>
+              <QueueBox BQstate={this.state}></QueueBox>
             </div>
           </Grid>
           <Grid item sm={12} md={1}>

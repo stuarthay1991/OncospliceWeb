@@ -203,15 +203,17 @@ function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splici
 
 function fetchHeatmapData(arg)
 {
-  const keys = arg["keys"];
-  var clientcoord = arg["clientcoord"];
-  var clientgenes = arg["clientgenes"];
-  const childrenFilters = arg["childrenFilters"];
-  const postoncosig = arg["postoncosig"];
-  const sigTranslate = arg["sigTranslate"];
-  const exportView = arg["export"];
-  const curCancer = arg["cancer"];
-  const callback = arg["updateViewPane"];
+  const BQstate = arg["BQstate"];
+  const BQprops = arg["BQprops"];
+  const keys = BQstate.keys;
+  var clientcoord = BQstate.clientcoord;
+  var clientgenes = BQstate.clientgenes;
+  const childrenFilters = BQstate.queryFilter;
+  const postoncosig = BQstate.querySignature;
+  const sigTranslate = BQstate.sigTranslate;
+  const exportView = BQstate.export;
+  const curCancer = BQstate.cancer;
+  const callback = BQprops.setViewPane;
   var GLOBAL_user = "Default";
   var document = arg["document"];
   //console.log("FETCH ARGS", arg)
@@ -319,7 +321,7 @@ function fetchHeatmapData(arg)
         var splicingrpsi = response["data"]["rpsi"];
         var splicingtrans = response["data"]["oncokey"];
         //console.log("EXPORT VIEW", exportView);
-        callback(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exportView, arg["fullstate"]);
+        callback(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exportView, BQstate);
         document.getElementById("sub").style.display = "none";
         //changeUser(GLOBAL_user);
       })

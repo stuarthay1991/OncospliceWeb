@@ -177,26 +177,21 @@ class ClientAddFilter extends React.Component {
     if(P.rangeSet != undefined)
     {
       for (const [newkey, newvalue] of Object.entries(P.rangeSet)) {
-        if(newkey == filterIDvalue)
-        {
+        if(newkey == filterIDvalue){
           found = true;
           break;
         }
       }
     }
-    if(P.type == "filter")
-    {
-      if(found)
-      {
+    if(P.type == "filter"){
+      if(found){
         P.egg[keyval] = <ClientSelectedFilter P={P} functioncall={P.functioncall} key={keyval} number={S.numChildren} get={keyval} deleteChild={this.onDeleteChild} range={P.rangeSet} chicken={P.rangeSet} egg={filterIDvalue} pre_q={P.pre_q}/>;
       }
-      else
-      {
+      else{
         P.egg[keyval] = <ClientSelectedFilter P={P} functioncall={P.functioncall} key={keyval} number={S.numChildren} get={keyval} deleteChild={this.onDeleteChild} range={P.rangeSet} chicken={P.chicken} egg={filterIDvalue} pre_q={P.pre_q}/>;
       }
     }
-    if(P.type == "single")
-    {
+    if(P.type == "single"){
       var args = {};
       args["filter"] = "single";
       args["keys"] = P.keys;

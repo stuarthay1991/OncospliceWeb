@@ -208,9 +208,10 @@ function QB_displayEventsSigs(props)
 class QueueBox extends React.Component {
   constructor(props) {
     super(props)
+    const BQstate = this.props.BQstate;
     this.state = {
       numChildren: 0,
-      targetCancer: this.props.cancerQueueMessage,
+      targetCancer: BQstate.queuebox_values["cancer"],
       targetArr: [],
       targetArrSelections: [],
       targetSignatures: [],
@@ -219,29 +220,30 @@ class QueueBox extends React.Component {
       numberCoords: 0,
       defaultOn: false,
       totalMatch: 0,
-      resultamount: this.props.resamt
+      resultamount: BQstate.resultamount
     }
   }
 
   componentDidMount (){
-    if(this.props.keys["filter"].length > 0 || this.props.keys["single"].length > 0)
+    const BQstate = this.props.BQstate;
+    if(BQstate.keys["filter"].length > 0 || BQstate.keys["single"].length > 0)
     {
     var ta1 = [];
     var ta2 = [];
-    var totalkeylen = this.props.keys["filter"].length + this.props.keys["single"].length;
-    for(var i = 0; i < this.props.keys["filter"].length; i++)
+    var totalkeylen = BQstate.keys["filter"].length + BQstate.keys["single"].length;
+    for(var i = 0; i < BQstate.keys["filter"].length; i++)
     {
-      ta1.push(this.props.queueboxchildren[this.props.keys["filter"][i]])
+      ta1.push(BQstate.queuebox_values["children"][BQstate.keys["filter"][i]])
     }
 
-    for(var i = 0; i < this.props.keys["single"].length; i++)
+    for(var i = 0; i < BQstate.keys["single"].length; i++)
     {
-      ta2.push(this.props.queueboxsignatures[this.props.keys["single"][i]])
+      ta2.push(BQstate.queuebox_values["signature"][BQstate.keys["single"][i]])
     }
 
     this.setState({
         numChildren: totalkeylen,
-        targetCancer: this.props.cancerQueueMessage,
+        targetCancer: BQstate.queuebox_values["cancer"],
         targetArr: ta1,
         targetSignatures: ta2
     });
@@ -249,50 +251,52 @@ class QueueBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    const BQstate = this.props.BQstate;
     if(prevProps !== this.props)
     {
       var ta1 = [];
       var ta2 = [];
-      var arr = this.props.inherit.queuebox_values["children"];
-      var sig = this.props.inherit.queuebox_values["signatures"];
-      for(var i = 0; i < this.props.keys["filter"].length; i++)
+      var arr = BQstate.queuebox_values["children"];
+      var sig = BQstate.queuebox_values["signatures"];
+      for(var i = 0; i < BQstate.keys["filter"].length; i++)
       {
-        ta1.push(arr[this.props.keys["filter"][i]])
+        ta1.push(arr[BQstate.keys["filter"][i]])
       }
 
-      for(var i = 0; i < this.props.keys["single"].length; i++)
+      for(var i = 0; i < BQstate.keys["single"].length; i++)
       {
-        ta2.push(sig[this.props.keys["single"][i]])
+        ta2.push(sig[BQstate.keys["single"][i]])
       }
       this.setState({
-        targetCancer: this.props.cancerQueueMessage,
-        resultamount: this.props.resamt,
+        targetCancer: BQstate.queuebox_values["cancer"],
+        resultamount: BQstate.resultamount,
         targetArr: ta1,
         targetSignatures: ta2,
-        targetArrSelections: this.props.inherit.childrenFilters,
-        targetSigSelections: this.props.inherit.postoncosig,
-        numberGenes: this.props.clientgenes.length,
-        numberCoords: this.props.clientcoord.length
+        targetArrSelections: BQstate.childrenFilters,
+        targetSigSelections: BQstate.postoncosig,
+        numberGenes: BQstate.clientgenes.length,
+        numberCoords: BQstate.clientcoord.length
       })
     }
     //console.log("queuebox", this.state, this.props);
   }
 
   render (){
+    const BQstate = this.props.BQstate;
     return(
       <div>
       <SpcInputLabel label={"Selected Criteria"}/>
       <Box borderColor="#dbdbdb" {...boxProps} style={{position: 'relative', alignItems: 'center', textAlign: 'center'}}>
-      <QB_SelectedCancer targetCancer={this.state.targetCancer} defaultvalue={this.props.inherit.defaultQuery}/>
-      <QB_SelectedSample targetArrSelections={this.state.targetArrSelections} targetArr={this.state.targetArr} defaultvalue={this.props.inherit.defaultQuery}/>
+      <QB_SelectedCancer targetCancer={this.state.targetCancer} defaultvalue={BQstate.defaultQuery}/>
+      <QB_SelectedSample targetArrSelections={this.state.targetArrSelections} targetArr={this.state.targetArr} defaultvalue={BQstate.defaultQuery}/>
       <QB_SelectedSignature 
         targetSigSelections={this.state.targetSigSelections} 
         targetSignatures={this.state.targetSignatures} 
-        totalMatch={this.state.totalMatch} 
+        totalMatch={this.state.totalMatch}
         numberGenes={this.state.numberGenes}
         numberCoords={this.state.numberCoords}
-        displayvalue={this.props.inherit.filterboxSEF}
-        defaultvalue={this.props.inherit.defaultQuery}
+        displayvalue={BQstate.filterboxSEF}
+        defaultvalue={BQstate.defaultQuery}
         />
       <QB_displayEventsSigs amount={this.state.resultamount}/>
       </Box>
