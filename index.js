@@ -381,11 +381,16 @@ function MainPane(props){
   const classes = useStyles();
   const tabstyle = spcTabStyles();
 
+  console.log("MAIN PANE props: ", props);
   const { match, history } = props;
   const { params } = match;
   const { page } = params;
 
-  console.log(match, history, params, page);
+  props.addPage(page);
+  if(props.pagelist.length > 1 && page=="build")
+  {
+    window.location.reload(true);
+  }
   if(params["options"] != undefined){
     console.log(params["options"]);
   }
@@ -442,10 +447,15 @@ function MainPane(props){
       history.push(`/ICGS/Oncosplice/testing/index.html/${tabNameToIndex[newValue]}`);
       console.log("current history:", history, mpstate);
       //console.log("history", history);
+      if(newValue == 0)
+      {
+        var temp_view_obj = {"inData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []};
+        window.location.reload(true);
+      }
       setMpstate({
         value: newValue,
         bqstate: mpstate.bqstate,
-        viewpaneobj: mpstate.viewpaneobj,
+        viewpaneobj: temp_view_obj,
       });
   };
 
@@ -468,22 +478,25 @@ function MainPane(props){
     });
   }
 
+  //useLayoutEffect = componentDidMount
+  //useEffect = componentDidUpdate
   //console.log("PAGE2", page, mpstate.value);
   React.useEffect(() => {
     if(mpstate.value != indexToTabName[page])
     {
         //console.log("WAHOOBA1", bqstate, mpstate.bqstate);
+        //var temp_view_obj = {"inData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []};
         setMpstate({
+          ...mpstate,
           value: indexToTabName[page],
-          bqstate: bqstate,
-          viewpaneobj: estate,
         });
     }
     //console.log("WAHOOBA", mpstate);
     //console.log("USE EFFECT", mpstate.value, indexToTabName[page]);
-  })
+  }, [mpstate.value])
 
   console.log(mpstate);
+  // prev_page = page;
 
   return (
     <div className={classes.root} style={{ fontFamily: 'Roboto' }}>
@@ -508,7 +521,7 @@ function MainPane(props){
         </div>
       </div>
       <div id="tabcontent" style={{display: "block"}}>
-      {mpstate.value === 0 && <BQPane prevstate={mpstate.bqstate} setViewPane={setViewPane}/>}
+      {mpstate.value === 0 && <BQPane setViewPane={setViewPane}/>}
       {mpstate.value === 1 && <ViewPaneWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
       {mpstate.value === 2 && <QueryHistoryPaneWrapper />}
       </div>
@@ -551,6 +564,11 @@ function TopNav() {
 }
 
 function App() {
+  var pages = [];
+
+  const onAddPage = (invalue) => {
+    pages.push(invalue);
+  }
 
   return (
     <Router>
@@ -561,8 +579,8 @@ function App() {
     <TopNav />
     <Switch>
       <Redirect exact from={routeurl} to={routeurl.concat("/build")} />
-      <Route exact path={routeurl.concat("/:page?")} render={props => <MainPane {...props} />} />
-      <Route exact path={routeurl.concat("/:page?/:options?")} render={props => <MainPane {...props} />} />
+      <Route exact path={routeurl.concat("/:page?")} render={props => <MainPane {...props} addPage={onAddPage} pagelist={pages}/>} />
+      <Route exact path={routeurl.concat("/:page?/:options?")} render={props => <MainPane {...props} addPage={onAddPage} pagelist={pages}/>} />
     </Switch>
     </div>
     </Router>

@@ -294,7 +294,13 @@ for($i = 0; $i < $total_cols; $i++)
 {
 	$cur_name = pg_field_name($result, $i);
 	$first_4_chars = substr($cur_name, 0, 4);
+	$last_4_chars = substr($cur_name, -4);
 	if($first_4_chars == "tcga")
+	{
+		$col_beds[$col_beds_i] = $cur_name;
+		$col_beds_i = $col_beds_i + 1;
+	}
+	else if($last_4_chars == "_bed")
 	{
 		$col_beds[$col_beds_i] = $cur_name;
 		$col_beds_i = $col_beds_i + 1;

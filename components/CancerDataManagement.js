@@ -312,7 +312,7 @@ function fetchHeatmapData(arg)
         //indatatmp["date"] = dateval;
         //queryhistory_dat.push(indatatmp);
         //addQueryHistory(indatatmp);
-        //console.log("METAREQUEST response:", response["data"]);
+        console.log("METAREQUEST response:", response["data"]);
         //response = JSON.parse(response);
         //document.getElementById(`simple-tab-1`).click();
         var splicingreturned = response["data"]["rr"];
@@ -529,10 +529,11 @@ function signature(arg)
   const exportView = arg["export"];
   exportView["single"] = [];
   //sendToViewPane["single"] = [];
+  console.log(preQ)
   
   for(var i = 0; i < keys[filter].length; i++)
   {
-    var myString = preQ[keys[filter][i]].props.name;
+    var myString = preQ["signatures"][keys[filter][i]].props.name;
     myString = myString.replace(/(\r\n|\n|\r)/gm, "");
     if(Object.entries(sigTranslate).length > 0)
     {
@@ -589,8 +590,8 @@ function signature(arg)
       var current_number_of_events = response["data"]["meta"];
       Q["signatures"][number] = <QueueMessage key={number} number={number} name={"PSI"} get={number} value={name} type={"events"} total_selected={in_criterion} total_left={selected_left}/>
       resamt = {"samples": arg["parentResultAmt"]["samples"], "events": selected_left};
+      console.log("sig...callback...ended", response["data"]);
       callback(resamt, Q, keys, exportView);
-      console.log("sig...callback...ended", keys, callback);
       //updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
   })
 }

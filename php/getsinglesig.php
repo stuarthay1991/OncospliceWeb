@@ -67,7 +67,7 @@ foreach ($_POST as $key => $value) {
 //First query for sample ids. Will need to be changed to be contructed in depth.
 $metaresult = pg_query($conn, $meta_base_query);
 if (!$metaresult) {
-    echo "An error occurred1.\n";
+    echo $meta_base_query;
     exit;
 }
 

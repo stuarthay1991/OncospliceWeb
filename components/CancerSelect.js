@@ -54,6 +54,7 @@ function CancerSelectWidget(props)
             options.push(<option value={"HNSCC"}>{"HNSCC"}</option>);
             options.push(<option value={"SKCM"}>{"SKCM"}</option>);
             options.push(<option value={"COAD"}>{"COAD"}</option>);
+            options.push(<option value={"AML_Leucegene"}>{"AML_Leucegene"}</option>);
             return options;
           })()}
         </Select>

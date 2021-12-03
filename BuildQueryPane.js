@@ -81,13 +81,14 @@ function removeKey(type, keyval, keys){
 class FilterBox extends React.Component {
   constructor(props) {
     super(props);
+    const BQstate = this.props.BQstate;
     this.state = {
-      cancerType: this.props.inherit.cancer,
+      cancerType: BQstate.cancer,
       number: 0,
-      fieldSet: this.props.inherit.ui_fields,
-      sigSet: this.props.inherit.signatures,
-      rangeSet: this.props.inherit.range,
-      eventfilterSet: this.props.inherit.SEFobj
+      fieldSet: BQstate.ui_fields,
+      sigSet: BQstate.signatures,
+      rangeSet: BQstate.range,
+      eventfilterSet: BQstate.SEFobj
     };
     updateFilterBox = updateFilterBox.bind(this);
     updateFilterBoxSEF = updateFilterBoxSEF.bind(this);
@@ -96,36 +97,38 @@ class FilterBox extends React.Component {
   componentDidMount (){
     updateFilterBox = updateFilterBox.bind(this);
     updateFilterBoxSEF = updateFilterBoxSEF.bind(this);
+    const BQstate = this.props.BQstate;
     this.setState({
-        cancerType: this.props.inherit.cancer,
+        cancerType: BQstate.cancer,
         number: 0,
-        fieldSet: this.props.inherit.ui_fields,
-        sigSet: this.props.inherit.signatures,
-        rangeSet: this.props.inherit.range,
-        eventfilterSet: this.props.inherit.SEFobj
+        fieldSet: BQstate.ui_fields,
+        sigSet: BQstate.signatures,
+        rangeSet: BQstate.range,
+        eventfilterSet: BQstate.SEFobj
     })
   }
 
   componentDidUpdate(prevProps) {
     console.log("Look at state", this.state)
-    if(prevProps.inherit.cancer != this.props.inherit.cancer){
+    const BQstate = this.props.BQstate;
+    if(prevProps.inherit.cancer != BQstate.cancer){
       this.setState({
-        cancerType: this.props.inherit.cancer,
+        cancerType: BQstate.cancer,
         number: 0,
-        fieldSet: this.props.inherit.ui_fields,
-        sigSet: this.props.inherit.signatures,
-        rangeSet: this.props.inherit.range,
-        eventfilterSet: this.props.inherit.SEFobj
+        fieldSet: BQstate.ui_fields,
+        sigSet: BQstate.signatures,
+        rangeSet: BQstate.range,
+        eventfilterSet: BQstate.SEFobj
       })
     }
     else if(prevProps != this.props){
       this.setState({
-        cancerType: this.props.inherit.cancer,
+        cancerType: BQstate.cancer,
         number: 0,
-        fieldSet: this.props.inherit.ui_fields,
-        sigSet: this.props.inherit.signatures,
-        rangeSet: this.props.inherit.range,
-        eventfilterSet: this.props.inherit.SEFobj
+        fieldSet: BQstate.ui_fields,
+        sigSet: BQstate.signatures,
+        rangeSet: BQstate.range,
+        eventfilterSet: BQstate.SEFobj
       })
     }
   }
@@ -133,6 +136,7 @@ class FilterBox extends React.Component {
   render (){
     const P = this.props;
     const S = this.state;
+    const BQstate = this.props.BQstate;
     const children = [];
     updateFilterBox = updateFilterBox.bind(this);
     updateFilterBoxSEF = updateFilterBoxSEF.bind(this);
@@ -140,23 +144,21 @@ class FilterBox extends React.Component {
       children.push(<div>
       <div>
       <ClientAddFilter 
+        BQstate={BQstate}
         inheritState={S} 
         parentProps={P} 
         removeKey={removeKey}
         functioncall={none}
-        keys={P.inherit.keys}
-        sigTranslate={P.inherit.sigTranslate}
         rangeSet={S.rangeSet}
         chicken={S.fieldSet}
-        egg={P.inherit.childrenFilters}
-        pre_q={P.inherit.pre_queueboxvalues}
-        q={P.inherit.queuebox_values}
+        egg={BQstate.childrenFilters}
         type={"filter"}
         filterID={"meta_filter_id"}
         label={"Add Sample Filter"}>
       </ClientAddFilter>
       </div>
       <ClientSEF
+        BQstate={BQstate}
         inheritState={this.state}
         parentProps={this.props}
         sigvalue={this.state.sigSet}/>
@@ -231,8 +233,9 @@ function ClientSEF_select(props){
 class ClientSEF extends React.Component {
   constructor(props) {
     super(props);
+    const BQstate = this.props.BQstate;
     this.state = {
-        value: this.props.parentProps.inherit.filterboxSEF,
+        value: BQstate.filterboxSEF,
         name: 'hai',
     }
     updateClientSEF = updateClientSEF.bind(this);
@@ -243,23 +246,20 @@ class ClientSEF extends React.Component {
     const P = this.props;
     const parentProps = P.parentProps;
     const S = this.state;
-    const BQstate = P.parentProps.inherit;
+    const BQstate = this.props.BQstate;
     this.setState({
       ...this.state,
       [name]: event.target.value,
     });
     if(event.target.value == "Oncosplice Signature Filter"){
       const obj1 = <ClientAddFilter
+        BQstate={BQstate}
         inheritState={P.inheritState}
         parentProps={P.parentProps}
         removeKey={removeKey}
         functioncall={none}
-        keys={BQstate.keys}
-        sigTranslate={BQstate.sigTranslate}
         chicken={BQstate.signatures}
         egg={BQstate.postoncosig}
-        pre_q={BQstate.pre_queueboxvalues}
-        q={BQstate.queuebox_values}
         type={"single"}
         filterID={"sig_filter_id"}
         label={"Oncosplice Signature Filter"}
@@ -271,9 +271,9 @@ class ClientSEF extends React.Component {
     if(event.target.value == "Gene Symbol Filter"){
       const obj2 = <ClientAddGene
         filterID={"clientinputgene"} 
-        clientgenes={P.parentProps.inherit.clientgenes}
-        cancer={P.parentProps.inherit.cancer}
-        export={P.parentProps.inherit.export}
+        clientgenes={BQstate.clientgenes}
+        cancer={BQstate.cancer}
+        export={BQstate.export}
         callback={P.parentProps.setGene}
       />;
       var new_keys = BQstate.keys;
@@ -286,9 +286,9 @@ class ClientSEF extends React.Component {
     if(event.target.value == "Coordinate Filter"){
       const obj3 = <ClientAddCoord
         filterID={"clientinputcoord"}
-        clientcoord={P.parentProps.inherit.clientcoord}
-        cancer={P.parentProps.inherit.cancer}
-        export={P.parentProps.inherit.export}
+        clientcoord={BQstate.clientcoord}
+        cancer={BQstate.cancer}
+        export={BQstate.export}
         callback={P.parentProps.setCoord}
       />;
       var new_keys = BQstate.keys;
@@ -390,6 +390,7 @@ class BQPane extends React.Component {
     updateBQPane = updateBQPane.bind(this)
   }
 
+  /*
   componentDidMount() {
     var prevstate = this.props.prevstate;
     console.log("mounted_prevstate", this.props);
@@ -403,7 +404,7 @@ class BQPane extends React.Component {
       console.log("prevstate_new", prevstate);
       this.setState(prevstate);
     }
-  }
+  }*/
 
   render(){
     var displayvalue = "block";
@@ -448,7 +449,8 @@ class BQPane extends React.Component {
               </Grid>
             </Grid>
             <Typography style={{padding: '2px 4px'}} />
-            <FilterBox 
+            <FilterBox
+              BQstate={this.state}
               inherit={this.state}
               setChildrenFilters={(cF, egg) => this.setState({
                 childrenFilters: cF,

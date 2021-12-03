@@ -92,48 +92,61 @@ class ClientAddFilter extends React.Component {
   constructor(props) {
     super(props);
     const P = this.props;
+    const BQstate = P.BQstate;
     //const callback = P.parentProps.setMeta;
     //const callback = P.parentProps.setSig;
     this.state = {
-      numChildren: P.keys[P.type].length
+      numChildren: BQstate.keys[P.type].length
     };
   }
 
   render (){
     const P = this.props;
+    const BQstate = P.BQstate;
     const children = [];
 
-    console.log("ClientAddFilter: RENDER: ", P.keys[P.type]);
-    for(var i = 0; i < P.keys[P.type].length; i += 1) 
+    console.log("ClientAddFilter: RENDER: ", BQstate.keys[P.type]);
+    for(var i = 0; i < BQstate.keys[P.type].length; i += 1) 
     {
-      children.push(P.egg[P.keys[P.type][i]]);
+      children.push(P.egg[BQstate.keys[P.type][i]]);
     };
 
     return(
-      <FilterMenuPopulate addChild={this.onAddChild} parentProps={P.parentProps} egg={P.egg} childrenFilters={children} type={P.type} filterID={P.filterID} sigTranslate={P.sigTranslate} label={P.label} chicken={P.chicken} range={P.rangeSet}> 
+      <FilterMenuPopulate 
+        BQstate={BQstate} 
+        addChild={this.onAddChild} 
+        parentProps={P.parentProps} 
+        egg={P.egg} 
+        childrenFilters={children} 
+        type={P.type} 
+        filterID={P.filterID}
+        label={P.label} 
+        chicken={P.chicken} 
+        range={P.rangeSet}> 
       </FilterMenuPopulate>
     )
   }
 
   onDeleteChild = (keyval) => {
     const P = this.props;
-    P.keys = P.removeKey(P.type, keyval, P.keys);
+    const BQstate = P.BQstate;
+    BQstate.keys = P.removeKey(P.type, keyval, BQstate.keys);
     P.egg[keyval] = "";
     console.log(this.state.numChildren);
     this.setState(state => ({...state, numChildren: state.numChildren - 1}));
     console.log(this.state.numChildren);
     if(P.type == "filter")
     {
-      P.pre_q["children"][keyval] = undefined;
-      P.q["children"][keyval] = "";
+      BQstate.pre_queueboxvalues["children"][keyval] = undefined;
+      BQstate.queuebox_values["children"][keyval] = "";
       var args = {};
       //args["name"] = P.pre_q["children"][P.keys["filter"][i]].props.name;
       //args["value"] = P.pre_q["children"][P.keys["filter"][i]].props.value;
       //args["number"] = P.keys["filter"][i];
       args["filter"] = "filter";
-      args["keys"] = P.keys;
-      args["pre_queueboxchildren"] = P.pre_q;
-      args["queueboxchildren"] = P.q;
+      args["keys"] = BQstate.keys;
+      args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
+      args["queueboxchildren"] = BQstate.queuebox_values;
       args["cancer"] = P.inheritState.cancerType;
       args["parentResultAmt"] = P.parentProps.inherit.resultamount;
       args["setState"] = P.parentProps.setMeta;
@@ -147,17 +160,17 @@ class ClientAddFilter extends React.Component {
     }
     if(P.type == "single")
     {
-      P.pre_q[keyval] = undefined;
-      P.q[keyval] = "";
+      BQstate.pre_queueboxvalues[keyval] = undefined;
+      BQstate.queuebox_values[keyval] = "";
       var args = {};
       args["filter"] = "single";
-      args["keys"] = P.keys;
-      args["pre_queueboxchildren"] = P.pre_q;
-      args["queueboxchildren"] = P.q;
-      args["cancer"] = P.inheritState.cancerType;
-      args["parentResultAmt"] = P.parentProps.inherit.resultamount;
+      args["keys"] = BQstate.keys;
+      args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
+      args["queueboxchildren"] = BQstate.queuebox_values;
+      args["cancer"] = BQstate.cancer;
+      args["parentResultAmt"] = BQstate.resultamount;
       args["setState"] = P.parentProps.setSig;
-      args["export"] = P.parentProps.inherit.export;
+      args["export"] = BQstate.export;
       makeRequest("recursiveSignature", args);
       //for(var i = 0; i < P.keys["single"].length; i++)
       //{
@@ -169,8 +182,9 @@ class ClientAddFilter extends React.Component {
   onAddChild = (invalue) => {
     const P = this.props;
     const S = this.state;
+    const BQstate = P.BQstate;
     const keyval = document.getElementById(P.filterID).value.concat(S.numChildren.toString());
-    P.keys[P.type].push(keyval);
+    BQstate.keys[P.type].push(keyval);
     const filterIDvalue = document.getElementById(P.filterID).value;
     console.log("added value", invalue, P);
     var found = false;
@@ -185,29 +199,62 @@ class ClientAddFilter extends React.Component {
     }
     if(P.type == "filter"){
       if(found){
-        P.egg[keyval] = <ClientSelectedFilter P={P} functioncall={P.functioncall} key={keyval} number={S.numChildren} get={keyval} deleteChild={this.onDeleteChild} range={P.rangeSet} chicken={P.rangeSet} egg={filterIDvalue} pre_q={P.pre_q}/>;
+        P.egg[keyval] = <ClientSelectedFilter
+                          BQstate={BQstate}
+                          P={P} 
+                          functioncall={P.functioncall} 
+                          key={keyval} 
+                          number={S.numChildren} 
+                          get={keyval} 
+                          deleteChild={this.onDeleteChild} 
+                          range={P.rangeSet} 
+                          chicken={P.rangeSet} 
+                          egg={filterIDvalue} 
+                          pre_q={BQstate.pre_queueboxvalues}/>;
       }
       else{
-        P.egg[keyval] = <ClientSelectedFilter P={P} functioncall={P.functioncall} key={keyval} number={S.numChildren} get={keyval} deleteChild={this.onDeleteChild} range={P.rangeSet} chicken={P.chicken} egg={filterIDvalue} pre_q={P.pre_q}/>;
+        P.egg[keyval] = <ClientSelectedFilter
+                          BQstate={BQstate} 
+                          P={P} 
+                          functioncall={P.functioncall} 
+                          key={keyval} 
+                          number={S.numChildren} 
+                          get={keyval} 
+                          deleteChild={this.onDeleteChild} 
+                          range={P.rangeSet} 
+                          chicken={P.chicken} 
+                          egg={filterIDvalue} 
+                          pre_q={BQstate.pre_queueboxvalues}/>;
       }
     }
     if(P.type == "single"){
       var args = {};
+      BQstate.pre_queueboxvalues["signatures"][keyval] = <PreQueueMessage 
+                                                            key={keyval} 
+                                                            number={S.numChildren} 
+                                                            get={keyval} 
+                                                            name={invalue}/>
       args["filter"] = "single";
-      args["keys"] = P.keys;
-      args["pre_queueboxchildren"] = P.pre_q;
-      args["queueboxchildren"] = P.q;
-      args["cancer"] = P.inheritState.cancerType;
-      args["parentResultAmt"] = P.parentProps.inherit.resultamount;
-      args["sigTranslate"] = P.parentProps.inherit.sigTranslate;
+      args["keys"] = BQstate.keys;
+      args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
+      args["queueboxchildren"] = BQstate.queuebox_values;
+      args["cancer"] = BQstate.cancer;
+      args["parentResultAmt"] = BQstate.resultamount;
+      args["sigTranslate"] = BQstate.sigTranslate;
       args["setState"] = P.parentProps.setSig;
       args["name"] = invalue;
       args["keyval"] = keyval;
       args["type"] = P.type;
-      args["export"] = P.parentProps.inherit.export;
+      args["export"] = BQstate.export;
       //name, number, filter
-      P.egg[keyval] = <SingleItem key={keyval} number={S.numChildren} get={keyval} deleteChild={this.onDeleteChild} chicken={P.chicken} egg={invalue}/>;
-      P.pre_q[keyval] = <PreQueueMessage key={keyval} number={S.numChildren} get={keyval} name={invalue}/>
+      P.egg[keyval] = <SingleItem 
+                        key={keyval} 
+                        number={S.numChildren} 
+                        get={keyval} 
+                        deleteChild={this.onDeleteChild} 
+                        chicken={P.chicken} 
+                        egg={invalue}/>;
+      
       makeRequest("signature", args);
       //P.functioncall(invalue, keyval, P.type);
     }
@@ -226,6 +273,7 @@ function AddButton(props) {
 
 function FilterMenuPopulate(props) {
   const classes = useStyles();
+  const BQstate = props.BQstate;
   const widgetlabel = widgetlabel3();
   const [state, setState] = React.useState({
     value: '',
@@ -249,14 +297,14 @@ function FilterMenuPopulate(props) {
   
   if(props.type == "filter")
   {
-    if(props.childrenFilters.length != props.parentProps.inherit.childrenFilters.length)
+    if(props.childrenFilters.length != BQstate.childrenFilters.length)
     {
       props.parentProps.setChildrenFilters(props.childrenFilters, props.egg);
     }
   }
   if(props.type == "single")
   {
-    if(props.childrenFilters.length != props.parentProps.inherit.postoncosig.length)
+    if(props.childrenFilters.length != BQstate.postoncosig.length)
     {
       props.parentProps.setPostoncosig(props.childrenFilters, props.egg);
     }
@@ -299,11 +347,11 @@ function FilterMenuPopulate(props) {
             {
             for(var i = 0; i < props.chicken.length; i++) {
               var name_selected = props.chicken[i];
-              if((Object.entries(props.sigTranslate)).length > 0)
+              if((Object.entries(BQstate.sigTranslate)).length > 0)
               {
-                if(props.sigTranslate[name_selected] != undefined)
+                if(BQstate.sigTranslate[name_selected] != undefined)
                 {
-                  final_name_selected = props.sigTranslate[name_selected];
+                  final_name_selected = BQstate.sigTranslate[name_selected];
                   viewDict[final_name_selected] = final_name_selected;
                 }
                 else
@@ -349,12 +397,12 @@ function FilterMenuPopulate(props) {
   );
 }
 
-function ClientSelectedFilter({P, key, number, get, deleteChild, range, chicken, egg, pre_q, functioncall}) {
+function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range, chicken, egg, functioncall}) {
   const classes = useStyles();
   const widgemidge = widgetlabel5();
-  if(pre_q["children"][get] != undefined)
+  if(BQstate.pre_queueboxvalues["children"][get] != undefined)
   {
-    var initial_val = pre_q["children"][get].props.value;
+    var initial_val = BQstate.pre_queueboxvalues["children"][get].props.value;
   }
   else
   {
@@ -376,7 +424,12 @@ function ClientSelectedFilter({P, key, number, get, deleteChild, range, chicken,
       ...state,
       [name]: event.target.value,
     });
-    pre_q["children"][get] = <PreQueueMessage key={number} number={number} get={get} name={egg} value={event.target.value}/>
+    BQstate.pre_queueboxvalues["children"][get] = <PreQueueMessage 
+                                                    key={number} 
+                                                    number={number} 
+                                                    get={get} 
+                                                    name={egg} 
+                                                    value={event.target.value}/>
     var args = {};
     console.log("event.target.value", event.target.value);
 
@@ -385,12 +438,12 @@ function ClientSelectedFilter({P, key, number, get, deleteChild, range, chicken,
     args["value"] = event.target.value;
     args["number"] = get;
     args["filter"] = "filter";
-    args["keys"] = P.keys;
-    args["pre_queueboxchildren"] = pre_q;
-    args["queueboxchildren"] = P.q;
-    args["cancer"] = P.inheritState.cancerType;
-    args["parentResultAmt"] = P.parentProps.inherit.resultamount;
-    args["export"] = P.parentProps.inherit.export;
+    args["keys"] = BQstate.keys;
+    args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
+    args["queueboxchildren"] = BQstate.queuebox_values;
+    args["cancer"] = BQstate.cancer;
+    args["parentResultAmt"] = BQstate.resultamount;
+    args["export"] = BQstate.export;
     args["setState"] = P.parentProps.setMeta;
     makeRequest("metaDataField", args);
     //functioncall(egg, event.target.value, get, "filter");

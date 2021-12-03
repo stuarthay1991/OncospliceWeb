@@ -112,6 +112,37 @@ function updateStats(id, input){
     });
 }
 
+function oldLinkOuts(instuff){
+  console.log("OLD CLICK", instuff);
+  var peach2 = instuff;
+  var peach3 = peach2.replace("|", "<br>");
+  var peach = peach2.split("|");
+  var chr1 = peach[0];
+  var chr2 = peach[1];
+  var twor1 = chr1.split(":");
+  var twor2 = chr2.split(":");
+  var flatchr1 = twor1[0];
+  var flatchr2 = twor2[0];
+  var twor1_split = twor1[1].split("-");
+  var twor2_split = twor2[1].split("-");
+
+  var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
+  var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
+
+  //link1 = "<a href=".concat(link1).concat(flatchr1).concat("%3A").concat(twor1_split[0]).concat("%2D").concat(twor1_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG").concat(">").concat(chr1).concat("</a>");
+
+  //link1 = link1.concat("<br>").concat("<a href=").concat(link2).concat(flatchr2).concat("%3A").concat(twor2_split[0]).concat("%2D").concat(twor2_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG").concat(">").concat(chr2).concat("</a>");
+
+  return(
+    <div>
+    <a href={link1.concat(flatchr1).concat("%3A").concat(twor1_split[0]).concat("%2D").concat(twor1_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG")} target="_blank">{chr1}</a>
+    <br />
+    <a href={link2.concat(flatchr2).concat("%3A").concat(twor2_split[0]).concat("%2D").concat(twor2_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG")} target="_blank">{chr2}</a>
+    </div>
+  );
+
+}
+
 function makeLinkOuts(chrm, c1, c2, c3, c4){
   /*var peach2 = instuff;
   var peach3 = peach2.replace("|", "<br>");
@@ -146,21 +177,40 @@ function makeLinkOuts(chrm, c1, c2, c3, c4){
 
 function updateOkmapTable(data){
   var chrm = data["chromosome"];
-  var c1 = data["coord1"];
-  var c2 = data["coord2"];
-  var c3 = data["coord3"];
-  var c4 = data["coord4"];
-  var newcoord = makeLinkOuts(chrm, c1, c2, c3, c4);
-  var new_row = [
-  createData("Altexons", data["altexons"]),
-  createData("Protein Predictions", data["proteinpredictions"]),
-  createData("Cluster ID", data["clusterid"]),
-  createData("Coordinates", newcoord),
-  createData("Event Annotation", data["eventannotation"]),
-  ];
-  this.setState({
-    curAnnots: new_row
-  });
+  if(chrm == undefined)
+  {
+    var c = data["coordinates"];
+    console.log("ALL DATA", data);
+    var newcoord = oldLinkOuts(c);
+    var new_row = [
+    createData("Altexons", data["altexons"]),
+    createData("Protein Predictions", data["proteinpredictions"]),
+    createData("Cluster ID", data["clusterid"]),
+    createData("Coordinates", newcoord),
+    createData("Event Annotation", data["eventannotation"]),
+    ];
+    this.setState({
+      curAnnots: new_row
+    });
+  }
+  else
+  {
+    var c1 = data["coord1"];
+    var c2 = data["coord2"];
+    var c3 = data["coord3"];
+    var c4 = data["coord4"];
+    var newcoord = makeLinkOuts(chrm, c1, c2, c3, c4);
+    var new_row = [
+    createData("Altexons", data["altexons"]),
+    createData("Protein Predictions", data["proteinpredictions"]),
+    createData("Cluster ID", data["clusterid"]),
+    createData("Coordinates", newcoord),
+    createData("Event Annotation", data["eventannotation"]),
+    ];
+    this.setState({
+      curAnnots: new_row
+    });
+  }
 }
 
 function updateOkmapLabel(data){
@@ -301,7 +351,7 @@ class Heatmap extends React.Component {
     document.getElementById("HEATMAP_0").style.width = escale.toString().concat("px");
     //console.log("DATA", this.props.data);
     //console.log("COLS", this.props.cols);
-
+    console.log("ONCOSPLICE CLUSTER BUILD:", this.props.cols, this.props.rpsi);
     this.setState({
       output: <OKMAP dataset={this.props.data} column_names={this.props.cols} len={this.props.data.length} doc={document} target_div_id={"HEATMAP_0"} xscale={xscale} yscale={y_scaling} norm={1}></OKMAP>,
       label: <OKMAP_LABEL target_div_id={"HEATMAP_LABEL"} column_names={this.props.cols} doc={document} xscale={xscale}/>,
