@@ -1,45 +1,38 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import Icon from '@material-ui/core/Icon';
 import { AccessAlarm, ExpandMore, OpenInNew, Timeline, GetApp, ChevronRight, Add } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import PropTypes from 'prop-types';
-import InputBase from '@material-ui/core/InputBase';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { borders } from '@material-ui/system';
 import '@fontsource/roboto';
 import axios from 'axios';
 import {Helmet} from "react-helmet";
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import { createMuiTheme } from '@material-ui/core/styles';
-import GoogleLogin from 'react-google-login';
-import GoogleLogout from 'react-google-login';
-import { useGoogleLogin } from 'react-google-login';
-import { useGoogleLogout } from 'react-google-login';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import './App.css';
-import useStyles from './useStyles.js';
-import TabPanel from './components/TabPanel';
-import SpcInputLabel from './components/SpcInputLabel';
-import CheckboxForm from './components/CheckboxForm';
-import QueueMessage from './components/QueueMessage';
-import PreQueueMessage from './components/PreQueueMessage';
-import ClientAddFilter from './components/ClientAddFilter';
-import QueueBox from './components/Queuebox';
-import SingleItem from './components/SingleItem';
-import CancerSelect from './components/CancerSelect';
-import ClientAddCoord from './components/ClientAddCoord';
-import ClientAddGene from './components/ClientAddGene';
-import { makeRequest } from './components/CancerDataManagement.js';
+import '../../App.css';
+import useStyles from '../../useStyles.js';
 
+//General components
+import TabPanel from '../../components/TabPanel';
+import SpcInputLabel from '../../components/SpcInputLabel';
+import CheckboxForm from '../../components/CheckboxForm';
+import QueueMessage from '../../components/QueueMessage';
+import PreQueueMessage from '../../components/PreQueueMessage';
+import SingleItem from '../../components/SingleItem';
+
+//Page specific components
+import SubmitButton from './SubmitButton';
+import QueueBox from './Queuebox';
+import ClientAddFilter from './ClientAddFilter';
+import CancerSelect from './CancerSelect';
+import ClientAddCoord from './ClientAddCoord';
+import ClientAddGene from './ClientAddGene';
+import ClientSEF from './ClientSEF';
+
+//Server interface
+import { makeRequest } from '../../request/CancerDataManagement.js';
+
+//Paths
 var localurl = "/material-app";
 var serverurl = "/ICGS/Oncosplice/testing";
 var buildurl = "/ICGS/Oncosplice/build";
@@ -88,7 +81,8 @@ class FilterBox extends React.Component {
       fieldSet: BQstate.ui_fields,
       sigSet: BQstate.signatures,
       rangeSet: BQstate.range,
-      eventfilterSet: BQstate.SEFobj
+      eventfilterSet: BQstate.SEFobj,
+      BQstate: BQstate
     };
     updateFilterBox = updateFilterBox.bind(this);
     updateFilterBoxSEF = updateFilterBoxSEF.bind(this);
@@ -104,12 +98,13 @@ class FilterBox extends React.Component {
         fieldSet: BQstate.ui_fields,
         sigSet: BQstate.signatures,
         rangeSet: BQstate.range,
-        eventfilterSet: BQstate.SEFobj
+        eventfilterSet: BQstate.SEFobj,
+        BQstate: BQstate
     })
   }
 
   componentDidUpdate(prevProps) {
-    console.log("Look at state", this.state)
+    //console.log("Look at state", this.state)
     const BQstate = this.props.BQstate;
     if(prevProps.inherit.cancer != BQstate.cancer){
       this.setState({
@@ -118,7 +113,8 @@ class FilterBox extends React.Component {
         fieldSet: BQstate.ui_fields,
         sigSet: BQstate.signatures,
         rangeSet: BQstate.range,
-        eventfilterSet: BQstate.SEFobj
+        eventfilterSet: BQstate.SEFobj,
+        BQstate: BQstate
       })
     }
     else if(prevProps != this.props){
@@ -128,7 +124,8 @@ class FilterBox extends React.Component {
         fieldSet: BQstate.ui_fields,
         sigSet: BQstate.signatures,
         rangeSet: BQstate.range,
-        eventfilterSet: BQstate.SEFobj
+        eventfilterSet: BQstate.SEFobj,
+        BQstate: BQstate
       })
     }
   }
@@ -136,7 +133,7 @@ class FilterBox extends React.Component {
   render (){
     const P = this.props;
     const S = this.state;
-    const BQstate = this.props.BQstate;
+    const BQstate = this.state.BQstate;
     const children = [];
     updateFilterBox = updateFilterBox.bind(this);
     updateFilterBoxSEF = updateFilterBoxSEF.bind(this);
@@ -146,7 +143,7 @@ class FilterBox extends React.Component {
       <ClientAddFilter 
         BQstate={BQstate}
         inheritState={S} 
-        parentProps={P} 
+        parentProps={P}
         removeKey={removeKey}
         functioncall={none}
         rangeSet={S.rangeSet}
@@ -159,11 +156,29 @@ class FilterBox extends React.Component {
       </div>
       <ClientSEF
         BQstate={BQstate}
-        inheritState={this.state}
-        parentProps={this.props}
-        sigvalue={this.state.sigSet}/>
+        FilterBoxState={this.state}
+        FilterBoxProps={this.props}
+        sigvalue={this.state.sigSet}
+        removeKey={removeKey}
+        />
       <div>
       {this.state.eventfilterSet}
+      <div id="signature_repository" style={{display: BQstate.sigdisplay}}>
+      <ClientAddFilter
+            BQstate={BQstate}
+            inheritState={S}
+            parentProps={P}
+            removeKey={removeKey}
+            functioncall={none}
+            chicken={BQstate.signatures}
+            egg={BQstate.postoncosig}
+            type={"single"}
+            filterID={"sig_filter_id"}
+            label={"Oncosplice Signature Filter"}
+            compared_cancer={BQstate.compared_cancer}
+            sigtranslate={BQstate.sigTranslate}
+      />
+      </div>
       </div>
       </div>);
     }
@@ -176,181 +191,10 @@ class FilterBox extends React.Component {
   }
 }
 
-
 function updateFilterBoxSEF(val){
   this.setState({
       eventfilterSet: val
   });
-}
-
-function updateClientSEF(){
-  this.setState({
-      value: '',
-      name: 'hai',
-  });
-}
-
-const widgetlabel4 = makeStyles((theme) => ({
-  root: {
-    fontSize: "16px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  },
-  select: {
-    fontSize: "16px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  }
-}));
-
-function ClientSEF_select(props){
-  const wla4 = widgetlabel4();
-  return(
-    <Select
-          native
-          classes={wla4}
-          value={props.value}
-          onChange={props.handleChange}
-          inputProps={{
-            name: 'value',
-            id: "SEF_id",
-          }}
-    >
-    <option value=""></option>
-    {(() => {
-            const options = [];
-            options.push(<option value={"Oncosplice Signature Filter"}>{"Oncosplice Signature Filter"}</option>);
-            options.push(<option value={"Gene Symbol Filter"}>{"Gene Symbol Filter"}</option>);
-            options.push(<option value={"Coordinate Filter"}>{"Coordinate Filter"}</option>);
-            return options;
-    })()}
-    </Select>
-  )
-}
-
-class ClientSEF extends React.Component {
-  constructor(props) {
-    super(props);
-    const BQstate = this.props.BQstate;
-    this.state = {
-        value: BQstate.filterboxSEF,
-        name: 'hai',
-    }
-    updateClientSEF = updateClientSEF.bind(this);
-  }
-
-  handleChange = (event) => {
-    const name = event.target.name;
-    const P = this.props;
-    const parentProps = P.parentProps;
-    const S = this.state;
-    const BQstate = this.props.BQstate;
-    this.setState({
-      ...this.state,
-      [name]: event.target.value,
-    });
-    if(event.target.value == "Oncosplice Signature Filter"){
-      const obj1 = <ClientAddFilter
-        BQstate={BQstate}
-        inheritState={P.inheritState}
-        parentProps={P.parentProps}
-        removeKey={removeKey}
-        functioncall={none}
-        chicken={BQstate.signatures}
-        egg={BQstate.postoncosig}
-        type={"single"}
-        filterID={"sig_filter_id"}
-        label={"Oncosplice Signature Filter"}
-      />;
-      var new_clientgenes = [];
-      var new_clientcoord = [];
-      P.parentProps.updatePage(BQstate.keys, BQstate.queuebox_values, new_clientgenes, new_clientcoord, "Oncosplice Signature Filter", obj1);
-    }
-    if(event.target.value == "Gene Symbol Filter"){
-      const obj2 = <ClientAddGene
-        filterID={"clientinputgene"} 
-        clientgenes={BQstate.clientgenes}
-        cancer={BQstate.cancer}
-        export={BQstate.export}
-        callback={P.parentProps.setGene}
-      />;
-      var new_keys = BQstate.keys;
-      new_keys["single"] = [];
-      var new_Q = BQstate.queuebox_values;
-      new_Q["signatures"] = {};
-      var new_clientcoord = [];
-      P.parentProps.updatePage(new_keys, new_Q, BQstate.clientgenes, new_clientcoord, "Gene Symbol Filter", obj2);
-    }
-    if(event.target.value == "Coordinate Filter"){
-      const obj3 = <ClientAddCoord
-        filterID={"clientinputcoord"}
-        clientcoord={BQstate.clientcoord}
-        cancer={BQstate.cancer}
-        export={BQstate.export}
-        callback={P.parentProps.setCoord}
-      />;
-      var new_keys = BQstate.keys;
-      new_keys["single"] = [];
-      var new_Q = BQstate.queuebox_values;
-      new_Q["signatures"] = {};
-      var new_clientgenes = [];
-      P.parentProps.updatePage(new_keys, new_Q, new_clientgenes, BQstate.clientcoord, "Coordinate Filter", obj3);
-    }
-  };
-
-  componentDidUpdate(prevProps) {
-    console.log("update", this.props.parentProps.inherit.filterboxSEF);
-    if(prevProps.parentProps.inherit.cancer !== this.props.parentProps.inherit.cancer){
-      console.log("ClientSEF", this.state);
-      this.setState({
-        value: ""
-      })
-    }
-    else if(prevProps !== this.props){
-      this.setState({
-        value: this.props.parentProps.inherit.filterboxSEF
-      })
-    }
-  }
-
-  render(){
-  return(
-    <div style={{marginTop: 18, marginBottom: 26}}>
-    <SpcInputLabel label={"Select Event Filter"}/>
-    <FormControl>
-      <ClientSEF_select value={this.state.value} handleChange={this.handleChange}/>   
-    </FormControl>
-    </div>
-  )}
-}
-
-function SubmitButton(props){
-  const BQstate = props.BQstate;
-  const BQprops = props.BQprops;
-  var args = {};
-  var to = "fetchHeatmapData";
-  var functionpointer = makeRequest;
-  if(props.defaultQuery == true){
-    functionpointer = makeRequest;
-    args["setState"] = BQprops.setViewPane;
-    args["export"] = BQstate.export;
-    args["cancer"] = BQstate.cancer;
-    args["doc"] = document;
-    to = "defaultQuery";
-  }
-  else{
-    functionpointer = makeRequest;
-    args["BQprops"] = BQprops;
-    args["BQstate"] = BQstate;
-    args["document"] = document;
-    to = "fetchHeatmapData";
-  }
-  const classes = useStyles();
-  return(
-    <Button className={classes.myButton} onClick={() => functionpointer(to, args)} style={{ textTransform: 'none'}}>Run query</Button>
-  )
 }
 
 function updateBQPane(value) {
@@ -369,7 +213,7 @@ class BQPane extends React.Component {
       pre_queueboxvalues: {"children": {}, "signatures": {}},
       eventfilterSet: null,
       resultamount: {"samples": 0, "events": 0},
-      childrenFilters: [],
+      childrenFilters: {},
       postoncosig: [],
       queryFilter: {},
       querySignature: {},
@@ -385,7 +229,9 @@ class BQPane extends React.Component {
       signatures: undefined,
       sigTranslate: undefined,
       filterboxSEF: "",
-      SEFobj: null
+      SEFobj: null,
+      compared_cancer: null,
+      sigdisplay: "none"
     }
     updateBQPane = updateBQPane.bind(this)
   }
@@ -395,16 +241,11 @@ class BQPane extends React.Component {
     var prevstate = this.props.prevstate;
     console.log("mounted_prevstate", this.props);
     this.setState(prevstate);
-  }
+  }*/
 
   componentDidUpdate(prevProps){
-    var prevstate = this.props.prevstate;
-    console.log("prevstate", prevstate);
-    if(prevProps !== this.props){
-      console.log("prevstate_new", prevstate);
-      this.setState(prevstate);
-    }
-  }*/
+    console.log("CDU STATE", this.state);
+  }
 
   render(){
     var displayvalue = "block";
@@ -414,7 +255,7 @@ class BQPane extends React.Component {
     else{
       displayvalue = "none";
     }
-    console.log("CURRENT_LOADING_STATE", this.state);
+    //console.log("CURRENT_LOADING_STATE", this.state);
     return (
       <div style={{ marginLeft: 40, fontFamily: 'Arial' }}>
         <div>
@@ -443,7 +284,12 @@ class BQPane extends React.Component {
                 childrenFilters: [],
                 postoncosig: [],
                 clientgenes: [],
-                clientcoord: []
+                clientcoord: [],
+                filterboxSEF: "",
+                SEFobj: null,
+                sigdisplay: "none",
+                compared_cancer_signature: {},
+                compared_cancer: null                
                 })}
                 />
               </Grid>
@@ -452,13 +298,10 @@ class BQPane extends React.Component {
             <FilterBox
               BQstate={this.state}
               inherit={this.state}
-              setChildrenFilters={(cF, egg) => this.setState({
+              setChildrenFilters={(cF, egg, keys) => this.setState({
                 childrenFilters: cF,
-                queryFilter: egg
-              })}
-              setPostoncosig={(pO, egg) => this.setState({
-                postoncosig: pO,
-                querySignature: egg
+                queryFilter: egg,
+                keys: keys
               })}
               setMeta={(resamt, qbox, pre_qbox, keys, exp) => this.setState({
                 resultamount: resamt,
@@ -467,11 +310,13 @@ class BQPane extends React.Component {
                 keys: keys,
                 export: exp
               })}
-              setSig={(resamt, qbox, keys, exp) => this.setState({
+              setSig={(resamt, qbox, keys, exp, pO) => this.setState({
                 resultamount: resamt,
                 queuebox_values: qbox,
                 keys: keys,
-                export: exp
+                export: exp,
+                postoncosig: pO,
+                querySignature: pO
               })}
               setGene={(cG, exp) => this.setState({
                 clientgenes: cG,
@@ -481,13 +326,26 @@ class BQPane extends React.Component {
                 clientcoord: cC,
                 export: exp
               })}
-              updatePage={(k,q,cG,cC,fSEF,SEFobj) => this.setState({
+              updateTargetSignature={(canc, sigs, sigT, keys, tsobj) => this.setState({
+                signatures: sigs,
+                sigTranslate: sigT,
+                keys: keys,
+                compared_cancer: canc,
+                postoncosig: [],
+                clientgenes: [],
+                clientcoord: [],
+                querySignature: {},
+                queuebox_values: {"children": {}, "signatures": {}},
+                pre_queueboxvalues: {"children": {}, "signatures": {}}
+              })}
+              updatePage={(k,q,cG,cC,fSEF,SEFobj,disp) => this.setState({
                 keys: k,
                 queuebox_values: q,
                 clientgenes: cG,
                 clientcoord: cC,
                 filterboxSEF: fSEF,
-                SEFobj: SEFobj
+                SEFobj: SEFobj,
+                sigdisplay: disp
               })}
               />
             </div>

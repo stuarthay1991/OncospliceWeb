@@ -18,13 +18,13 @@ $TABLE_DICT["LAML"]["SIG"]["QUERY"] = "SELECT * FROM TCGA_LAML_SIGNATURE";
 $TABLE_DICT["LAML"]["SIG"]["COLUMNS"] = "LAML/oncofields.txt";
 $TABLE_DICT["LAML"]["SPLC"]["QUERY"] = " FROM TCGA_LAML_SPLICE ";
 
-$TABLE_DICT["LGG"]["META"]["COLUMNS"] = "LGG/Columns";
+/*$TABLE_DICT["LGG"]["META"]["COLUMNS"] = "LGG/Columns";
 $TABLE_DICT["LGG"]["META"]["QUERY"] = "SELECT * FROM meta";
 $TABLE_DICT["LGG"]["SIG"]["QUERY"] = "SELECT * FROM signature";
 $TABLE_DICT["LGG"]["SIG"]["COLUMNS"] = "LGG/oncofields.txt";
-$TABLE_DICT["LGG"]["SPLC"]["QUERY"] = " FROM gasm ";
+$TABLE_DICT["LGG"]["SPLC"]["QUERY"] = " FROM gasm ";*/
 
-if($cancertype != "LAML" && $cancertype != "LGG")
+if($cancertype != "LAML")
 {
 	$TABLE_DICT[$cancertype]["META"]["COLUMNS"] = $cancertype . "/Columns";
 	$TABLE_DICT[$cancertype]["META"]["RANGE"] = $cancertype . "/Range";

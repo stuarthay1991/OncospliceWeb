@@ -4,8 +4,10 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Grid from '@material-ui/core/Grid';
-import SpcInputLabel from "./SpcInputLabel";
-import { makeRequest } from './CancerDataManagement.js';
+
+import SpcInputLabel from "../../components/SpcInputLabel";
+
+import { makeRequest } from '../../request/CancerDataManagement.js';
 
 const widgetlabel = makeStyles((theme) => ({
   root: {

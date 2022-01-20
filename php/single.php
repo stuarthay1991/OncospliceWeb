@@ -20,15 +20,26 @@ $TABLE_DICT["LAML"]["SIG"]["COLUMNS"] = "LAML/oncofields.txt";
 $TABLE_DICT["LAML"]["SPLC"]["QUERY"] = " FROM TCGA_LAML_SPLICE ";
 $TABLE_DICT["LAML"]["META"]["SPC"] = "submitter_id_samples";
 
-$TABLE_DICT["LGG"]["META"]["COLUMNS"] = "LGG/Columns";
+/*$TABLE_DICT["LGG"]["META"]["COLUMNS"] = "LGG/Columns";
 $TABLE_DICT["LGG"]["META"]["RANGE"] = "LGG/Range";
 $TABLE_DICT["LGG"]["META"]["QUERY"] = "SELECT * FROM meta";
 $TABLE_DICT["LGG"]["SIG"]["QUERY"] = "SELECT * FROM signature";
 $TABLE_DICT["LGG"]["SIG"]["COLUMNS"] = "LGG/oncofields.txt";
 $TABLE_DICT["LGG"]["SPLC"]["QUERY"] = " FROM gasm ";
-$TABLE_DICT["LGG"]["META"]["SPC"] = "submitter_id_samples";
-
-if($cancertype != "LAML" && $cancertype != "LGG")
+$TABLE_DICT["LGG"]["META"]["SPC"] = "submitter_id_samples";*/
+if($cancertype == "AML_Leucegene")
+{
+  $TABLE_DICT[$cancertype]["META"]["COLUMNS"] = $cancertype . "/Columns";
+  $TABLE_DICT[$cancertype]["META"]["RANGE"] = $cancertype . "/Range";
+  $TABLE_DICT[$cancertype]["META"]["QUERY"] = "SELECT * FROM " . $cancertype . "_META";
+  $TABLE_DICT[$cancertype]["SIG"]["QUERY"] = "SELECT * FROM " . $cancertype . "_SIGNATURE";
+  $TABLE_DICT[$cancertype]["SIG"]["COLUMNS"] = $cancertype . "/oncofields.txt";
+  $TABLE_DICT[$cancertype]["SPLC"]["QUERY"] = " FROM " . $cancertype . "_SPLICE ";
+  $TABLE_DICT[$cancertype]["SPLC"]["ROWNUM"] = 999;
+  $TABLE_DICT[$cancertype]["SPLC"]["COLNUM"] = 999;
+  $TABLE_DICT[$cancertype]["META"]["SPC"] = "uid";
+}
+else if($cancertype != "LAML")
 {
   $TABLE_DICT[$cancertype]["META"]["COLUMNS"] = $cancertype . "/Columns";
   $TABLE_DICT[$cancertype]["META"]["RANGE"] = $cancertype . "/Range";
@@ -84,7 +95,7 @@ for($i = 2; $i < count($rangefiles); $i++)
   
 }
 
-
+$beigecount = 0;
 $returned_result = array();
 $i_set = 0;
 if($range_on == false)
@@ -94,6 +105,7 @@ if($range_on == false)
     $str_edit = str_replace("-", "_", $str_edit);
     $str_edit = strtolower($str_edit);
     $returned_result[$str_edit] = $row[strtolower($NAME)];
+    $beigecount += 1;
     $found_flag = 0;
     for($k = 0; $k < count($set); $k++)
     {
@@ -127,6 +139,7 @@ else
         }
       }
       $returned_result[$str_edit] = $newval;
+      $beigecount += 1;
     }
     $set = $range_of;
 }
@@ -142,6 +155,7 @@ $output["range"]["2"] = $rangefiles;
 $output["range"]["3"] = $range_on;
 $output["range"]["4"] = $exmp;
 $output["set"] = $set;
+$output["beigecount"] = $beigecount;
 $output["out"] = $returned_result;
 $output["color"] = $color_push;
 echo json_encode($output);

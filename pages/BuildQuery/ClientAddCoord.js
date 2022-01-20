@@ -9,9 +9,11 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
-import SpcInputLabel from './SpcInputLabel';
 import AddIcon from '@material-ui/icons/Add';
-import { makeRequest } from './CancerDataManagement.js';
+
+import SpcInputLabel from '../../components/SpcInputLabel';
+
+import { makeRequest } from '../../request/CancerDataManagement.js';
 
 class ClientAddCoord extends React.Component {
   constructor(props) {

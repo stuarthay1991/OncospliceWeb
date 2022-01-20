@@ -15,6 +15,7 @@ if (!$conn) {
     exit;
 }
 $cancertype = $_POST["CANCER"];
+$compcancertype = $_POST["COMPCANCER"];
 date_default_timezone_set('UTC');
 $TABLE_DICT = array();
 
@@ -27,27 +28,43 @@ $TABLE_DICT["LAML"]["SPLC"]["QUERY"] = " FROM TCGA_LAML_SPLICE ";
 $TABLE_DICT["LAML"]["SPLC"]["EXT"] = "";
 $TABLE_DICT["LAML"]["META"]["SPC"] = "submitter_id_samples";
 
-$TABLE_DICT["LGG"]["META"]["COLUMNS"] = "LGG/Columns";
-$TABLE_DICT["LGG"]["META"]["QUERY"] = "SELECT * FROM meta";
-$TABLE_DICT["LGG"]["SIG"]["QUERY"] = "SELECT * FROM signature";
-$TABLE_DICT["LGG"]["SIG"]["COLUMNS"] = "LGG/oncofields.txt";
-$TABLE_DICT["LGG"]["SPLC"]["QUERY"] = " FROM gasm ";
-$TABLE_DICT["LGG"]["SPLC"]["EXT"] = "_bed";
-$TABLE_DICT["LGG"]["META"]["SPC"] = "submitter_id_samples";
-
-if($cancertype != "LAML" && $cancertype != "LGG")
+//$TABLE_DICT["LGG"]["META"]["COLUMNS"] = "LGG/Columns";
+//$TABLE_DICT["LGG"]["META"]["QUERY"] = "SELECT * FROM meta";
+//$TABLE_DICT["LGG"]["SIG"]["QUERY"] = "SELECT * FROM signature";
+//$TABLE_DICT["LGG"]["SIG"]["COLUMNS"] = "LGG/oncofields.txt";
+//$TABLE_DICT["LGG"]["SPLC"]["QUERY"] = " FROM gasm ";
+//$TABLE_DICT["LGG"]["SPLC"]["EXT"] = "_bed";
+//$TABLE_DICT["LGG"]["META"]["SPC"] = "submitter_id_samples";
+if($cancertype == "AML_Leucegene")
 {
 	$TABLE_DICT[$cancertype]["RPSI"] = $cancertype . "/MergedResult.txt";
 	$TABLE_DICT[$cancertype]["META"]["COLUMNS"] = $cancertype . "/Columns";
 	$TABLE_DICT[$cancertype]["META"]["RANGE"] = $cancertype . "/Range";
-	$TABLE_DICT[$cancertype]["META"]["QUERY"] = "SELECT * FROM " . $cancertype . "_TCGA_META";
-	$TABLE_DICT[$cancertype]["SIG"]["QUERY"] = "SELECT * FROM " . $cancertype . "_TCGA_SIGNATURE";
-	$TABLE_DICT[$cancertype]["SIG"]["COLUMNS"] = $cancertype . "/oncofields.txt";
+	$TABLE_DICT[$cancertype]["SPLC"]["QUERY"] = " FROM " . $cancertype . "_SPLICE ";
+	$TABLE_DICT[$cancertype]["SPLC"]["ROWNUM"] = 999;
+	$TABLE_DICT[$cancertype]["SPLC"]["COLNUM"] = 999;
+	$TABLE_DICT[$cancertype]["SPLC"]["EXT"] = "";
+	$TABLE_DICT[$cancertype]["META"]["SPC"] = "uid";	
+}
+else if($cancertype != "LAML")
+{
+	$TABLE_DICT[$cancertype]["RPSI"] = $cancertype . "/MergedResult.txt";
+	$TABLE_DICT[$cancertype]["META"]["COLUMNS"] = $cancertype . "/Columns";
+	$TABLE_DICT[$cancertype]["META"]["RANGE"] = $cancertype . "/Range";
 	$TABLE_DICT[$cancertype]["SPLC"]["QUERY"] = " FROM " . $cancertype . "_TCGA_SPLICE ";
 	$TABLE_DICT[$cancertype]["SPLC"]["ROWNUM"] = 999;
 	$TABLE_DICT[$cancertype]["SPLC"]["COLNUM"] = 999;
 	$TABLE_DICT[$cancertype]["SPLC"]["EXT"] = "";
 	$TABLE_DICT[$cancertype]["META"]["SPC"] = "uid";
+}
+
+if($compcancertype == "AML_Leucegene")
+{
+	$TABLE_DICT[$cancertype]["SIG"]["COLUMNS"] = $compcancertype . "/oncofields.txt";
+}
+else if($compcancertype != "LAML")
+{
+	$TABLE_DICT[$compcancertype]["SIG"]["COLUMNS"] = $compcancertype . "/oncofields.txt";
 }
 
 $TABLE_DICT["BLCA"]["META"]["SPC"] = "uid";
@@ -70,6 +87,8 @@ $oncosig_base_count = $posted->Signatures->getCounter();
 $cligene_base_count = $posted->Genes->getCounter();
 $coord_base_count = $posted->Coords->getCounter();
 
+//$querydata = new QueryData($posted, $conn);
+
 //Find file for cluster positions (if exists) and write corresponding dictionary
 $rpsi_dict = array();
 if(file_exists($TABLE_DICT[$cancertype]["RPSI"]))
@@ -86,6 +105,19 @@ if(file_exists($TABLE_DICT[$cancertype]["RPSI"]))
 			$rpsi_index = $i;
 			break;
 		}
+	}
+	if($rpsi_index == "NA")
+	{
+		$newkey = str_replace("_", " ", $onco_merged_result_key);
+		for($i = 0; $i < count($rpsi_header); $i++)
+		{
+			$current_r_h = $rpsi_header[$i];
+			if($current_r_h == $newkey)
+			{
+				$rpsi_index = $i;
+				break;
+			}
+		}		
 	}
 	if($rpsi_index != "NA")
 	{
@@ -124,9 +156,13 @@ if(isset($_POST["USER"]))
 //First query for sample UIDS.
 if($oncosig_base_count > 0)
 {
+	$oncosig_base_query = str_replace("-", "_", $oncosig_base_query);
+	$oncosig_base_query = str_replace("(", "_", $oncosig_base_query);
+	$oncosig_base_query = str_replace(")", "_", $oncosig_base_query);
 	$oncosigresult = pg_query($conn, $oncosig_base_query);
 	if (!$oncosigresult) {
-	    echo "An error occurred1.\n";
+	    //echo "error occurred1";
+	    echo $oncosig_base_query;
 	    exit;
 	}
 
@@ -136,13 +172,15 @@ if($oncosig_base_count > 0)
 	$uidsub_makequery = " WHERE (";
 	for($i = 0; $i < $pgarr_size; $i++)
 	{
+		//$pizza  = "piece1 piece2 piece3 piece4 piece5 piece6";
+		//$pieces = explode("|", $pgarr[$i]);
 		if($i != ($pgarr_size - 1))
 		{
-			$uidsub_makequery = $uidsub_makequery . "uid = " . "'" . $pgarr[$i] . "' OR ";
+			$uidsub_makequery = $uidsub_makequery . "pancanceruid = " . "'" . $pgarr[$i] . "' OR ";
 		}
 		else
 		{
-			$uidsub_makequery = $uidsub_makequery . "uid = " . "'" . $pgarr[$i] . "')";
+			$uidsub_makequery = $uidsub_makequery . "pancanceruid = " . "'" . $pgarr[$i] . "')";
 		}
 	}
 }
@@ -166,9 +204,9 @@ if($meta_base_count > 0)
 }
 
 //Hardcoded query for annotations for signatures
-if($cancertype != "LAML" && $cancertype != "LGG")
+if($cancertype != "LAML")
 {
-	$makequery = "SELECT symbol, description, examined_Junction, background_major_junction, altexons, proteinpredictions, dpsi, clusterid, uid, chromosome, coord1, coord2, coord3, coord4, eventannotation, ";
+	$makequery = "SELECT symbol, description, examined_Junction, background_major_junction, altexons, proteinpredictions, dpsi, clusterid, uid, pancanceruid, chromosome, coord1, coord2, coord3, coord4, eventannotation, ";
 }
 else
 {
@@ -219,11 +257,11 @@ if(count($m_arr) > 0)
 			{
 				$makequery = $makequery . $uidsub_makequery;
 			}
-			if($cligene_base_count > 0)//Check for 
+			else if($cligene_base_count > 0)//Check for 
 			{
 				$makequery = $makequery . $cligene_base_query;
 			}
-			if($coord_base_count > 0)//
+			else if($coord_base_count > 0)//
 			{
 				$makequery = $makequery . $coord_base_query;
 			}
@@ -253,11 +291,11 @@ else
 	{
 		$makequery = $makequery . $uidsub_makequery;
 	}
-	if($cligene_base_count > 0)
+	else if($cligene_base_count > 0)
 	{
 		$makequery = $makequery . $cligene_base_query;
 	}
-	if($coord_base_count > 0)
+	else if($coord_base_count > 0)
 	{
 		$makequery = $makequery . $coord_base_query;
 	}
@@ -274,6 +312,8 @@ $makequery = str_replace("\r", "", $makequery);
 
 $result = pg_query($conn, $makequery);
 if (!$result) {
+	//echo "error3";
+    //echo $uidsub_makequery;
     echo $makequery;
     exit;
 }
@@ -364,6 +404,7 @@ while(! feof($file))
 	if(count($line) > 1)
 	{
 	$outarr[$i]["uid"] = $line[0];
+	$outarr[$i]["pancanceruid"] = $line[0];
 	$outarr[$i]["symbol"] = $returned_result[$line[0]]["symbol"];
 	$outarr[$i]["description"] = $returned_result[$line[0]]["description"];
 	$outarr[$i]["examined_junction"] = $returned_result[$line[0]]["examined_junction"];
@@ -392,8 +433,12 @@ date_default_timezone_set('UTC');
 
 //Set up output
 $pull_array = array();
+$pull_array["cluster_status"] = $oncosig_base_query;
+$pull_array["cancer"] = $cancertype;
+$pull_array["compcancer"] = $compcancertype;
 $pull_array["oncokey"] = $onco_merged_result_key;
 $pull_array["rpsi"] = $rpsi_dict;
+$pull_array["rpsi_annot"] = file_exists($TABLE_DICT[$cancertype]["RPSI"]);
 $pull_array["rr"] = $outarr;
 $pull_array["cci"] = $column_cluster_index;
 $pull_array["col_beds"] = $column_names_initial;

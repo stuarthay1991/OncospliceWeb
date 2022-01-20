@@ -9,16 +9,25 @@ $TABLE_DICT["LAML"]["SPLC"]["QUERY"] = "SELECT * FROM TCGA_LAML_SPLICE";
 $TABLE_DICT["LAML"]["SPLC"]["ROWNUM"] = 96975;
 $TABLE_DICT["LAML"]["SPLC"]["COLNUM"] = 180;
 
-$TABLE_DICT["LGG"]["META"]["COLUMNS"] = "LGG/Columns";
+/*$TABLE_DICT["LGG"]["META"]["COLUMNS"] = "LGG/Columns";
 $TABLE_DICT["LGG"]["META"]["RANGE"] = "LGG/Range";
 $TABLE_DICT["LGG"]["SIG"]["QUERY"] = "SELECT * FROM signature";
 $TABLE_DICT["LGG"]["SIG"]["COLUMNS"] = "LGG/oncofields.txt";
 $TABLE_DICT["LGG"]["SIG"]["TRANSLATE"] = "LGG/OncoSplice-translation.txt";
-$TABLE_DICT["LGG"]["SPLC"]["QUERY"] = "SELECT * FROM gasm";
+$TABLE_DICT["LGG"]["SPLC"]["QUERY"] = "SELECT * FROM gasm";*/
 $TABLE_DICT["LGG"]["SPLC"]["ROWNUM"] = 106894;
 $TABLE_DICT["LGG"]["SPLC"]["COLNUM"] = 530;
-
-if($selected_cancer_type != "LAML" && $selected_cancer_type != "LGG")
+if($selected_cancer_type == "AML_Leucegene")
+{
+	$TABLE_DICT[$selected_cancer_type]["META"]["COLUMNS"] = $selected_cancer_type . "/Columns";
+	$TABLE_DICT[$selected_cancer_type]["META"]["RANGE"] = $selected_cancer_type . "/Range";
+	$TABLE_DICT[$selected_cancer_type]["META"]["QUERY"] = "SELECT * FROM " . $selected_cancer_type . "_META";
+	$TABLE_DICT[$selected_cancer_type]["SIG"]["QUERY"] = "SELECT * FROM " . $selected_cancer_type . "_SIGNATURE";
+	$TABLE_DICT[$selected_cancer_type]["SIG"]["COLUMNS"] = $selected_cancer_type . "/oncofields.txt";
+	$TABLE_DICT[$selected_cancer_type]["SIG"]["TRANSLATE"] = $selected_cancer_type . "/OncoSplice-translation.txt";
+	$TABLE_DICT[$selected_cancer_type]["SPLC"]["QUERY"] = "SELECT * FROM " . $selected_cancer_type . "_SPLICE";
+}
+else if($selected_cancer_type != "LAML")
 {
 	$TABLE_DICT[$selected_cancer_type]["META"]["COLUMNS"] = $selected_cancer_type . "/Columns";
 	$TABLE_DICT[$selected_cancer_type]["META"]["RANGE"] = $selected_cancer_type . "/Range";

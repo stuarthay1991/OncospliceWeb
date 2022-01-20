@@ -77,6 +77,7 @@ class PostData {
     function __construct($post_variable){
         $this->post = $post_variable;
         $this->Cancer = $this->post["CANCER"];
+        $this->CompCancer = $this->post["COMPCANCER"];
         $this->Coords = new PostType("Query");
         $this->Genes = new PostType("Query");
         $this->Signatures = new PostType("Query");
@@ -89,21 +90,30 @@ class PostData {
 
     function setBaseQueries(){
         //Special base query cases
-        if($this->Cancer == "LGG")
-        {
-            $this->SplicingQueries->setBaseQuery(("SELECT * FROM " . "meta"));
-            $this->Signatures->setBaseQuery(("SELECT * FROM " . "signature"));
-        }
-        else if($this->Cancer == "LAML")
+        if($this->Cancer == "LAML")
         {
             $this->SplicingQueries->setBaseQuery(("SELECT * FROM TCGA_" . $this->Cancer . "_META"));
-            $this->Signatures->setBaseQuery(("SELECT * FROM TCGA_" . $this->Cancer . "_SIGNATURE"));            
-        }//All other cases
+            $this->Signatures->setBaseQuery(("SELECT * FROM TCGA_" . $this->CompCancer . "_SIGNATURE"));
+        }
+        else if($this->Cancer == "AML_Leucegene")
+        {
+            $this->SplicingQueries->setBaseQuery(("SELECT * FROM " . $this->Cancer . "_META"));
+        }
+        //All other cases
         else
         {
             $this->SplicingQueries->setBaseQuery(("SELECT * FROM " . $this->Cancer . "_TCGA_META"));
-            $this->Signatures->setBaseQuery(("SELECT * FROM " . $this->Cancer . "_TCGA_SIGNATURE"));
         }
+
+        if($this->CompCancer == "AML_Leucegene")
+        {
+            $this->Signatures->setBaseQuery(("SELECT * FROM " . $this->CompCancer . "_SIGNATURE"));
+        }
+        else
+        {
+            $this->Signatures->setBaseQuery(("SELECT * FROM " . $this->CompCancer . "_TCGA_SIGNATURE"));
+        }
+
         $this->Genes->setBaseQuery(" WHERE (");
         $this->Coords->setBaseQuery(" WHERE ");
     }
@@ -223,7 +233,44 @@ class PostData {
                     break;
             }
     	}
-
+        //$this->Genes->addToQuery(")");
     }
 }
+
+class QueryData {
+    public $uid_sub_makequery;
+    public $postdata;
+    public $conn;
+    function __construct($posted, $connection){
+        $this->postdata = $posted;
+        $this->conn = $connection;
+    }
+    function acquireSignatureUIDs(){
+        if($this->postdata->Signatures->getCounter() > 0){
+            $oncosigresult = pg_query($this->conn, $this->postdata->Signatures->getQuery());
+            if (!$oncosigresult) {
+                echo "An error occurred1.\n";
+                exit;
+            }
+
+            $pgarr = pg_fetch_all_columns($oncosigresult, 0);
+            $pgarr_size = count($pgarr);
+
+            $uidsub_makequery = " WHERE (";
+            for($i = 0; $i < $pgarr_size; $i++)
+            {
+                if($i != ($pgarr_size - 1))
+                {
+                    $uidsub_makequery = $uidsub_makequery . "uid = " . "'" . $pgarr[$i] . "' OR ";
+                }
+                else
+                {
+                    $uidsub_makequery = $uidsub_makequery . "uid = " . "'" . $pgarr[$i] . "')";
+                }
+            }
+            $this->uid_sub_makequery = $uidsub_makequery;
+        }
+    }
+}
+
 ?>

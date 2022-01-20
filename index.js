@@ -32,16 +32,19 @@ import { useGoogleLogout } from 'react-google-login';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import './App.css';
 
+
+import BQPane from './pages/BuildQuery/BuildQueryPane.js';
+
 //import OKMAP from './ViewPane.js';
 import useStyles from './useStyles.js';
-import BQPane from './BuildQueryPane.js';
 import ViewPane from './ViewPane.js';
 import QueryHistory from './QueryHistory';
 import TabPanel from './components/TabPanel';
 import SpcInputLabel from './components/SpcInputLabel';
 import CheckboxForm from './components/CheckboxForm';
 import AboutUs from './components/AboutUs';
-import { makeRequest } from './components/CancerDataManagement.js';
+
+import { makeRequest } from './request/CancerDataManagement.js';
 //import ClientAddFilter from './ClientAddFilter.js'
 
 const theme = createMuiTheme({
@@ -169,7 +172,7 @@ function changeUser(user) {
       .then(function (response) {
         var responsedata = response["data"];
         var tmp_array = [];
-        console.log("RESPONSE_changeuser", responsedata);
+        //console.log("RESPONSE_changeuser", responsedata);
         updateQueryHistory(responsedata);
     })
     
@@ -221,7 +224,7 @@ class QueryHistoryPaneWrapper extends React.Component {
       .then(function (response) {
         var responsedata = response["data"];
         var tmp_array = [];
-        console.log("RESPONSE", responsedata);
+        //console.log("RESPONSE", responsedata);
         updateQueryHistory(responsedata);
     })
 
@@ -240,7 +243,7 @@ class QueryHistoryPaneWrapper extends React.Component {
 }
 
 const responseGoogle = response => {
-  console.log("Google response: ", response);
+  //console.log("Google response: ", response);
   var user = response["Ys"]["Ve"];
   updateAuthentication(user);
 };
@@ -381,7 +384,7 @@ function MainPane(props){
   const classes = useStyles();
   const tabstyle = spcTabStyles();
 
-  console.log("MAIN PANE props: ", props);
+  //console.log("MAIN PANE props: ", props);
   const { match, history } = props;
   const { params } = match;
   const { page } = params;
@@ -445,7 +448,7 @@ function MainPane(props){
       document.getElementById("aboutpanel").style.display = "none";
       document.getElementById("tabcontent").style.display = "block";
       history.push(`/ICGS/Oncosplice/testing/index.html/${tabNameToIndex[newValue]}`);
-      console.log("current history:", history, mpstate);
+      //console.log("current history:", history, mpstate);
       //console.log("history", history);
       if(newValue == 0)
       {
@@ -495,7 +498,7 @@ function MainPane(props){
     //console.log("USE EFFECT", mpstate.value, indexToTabName[page]);
   }, [mpstate.value])
 
-  console.log(mpstate);
+  //console.log(mpstate);
   // prev_page = page;
 
   return (

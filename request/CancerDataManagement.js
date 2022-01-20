@@ -1,11 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import QueueMessage from './QueueMessage';
+import QueueMessage from '../components/QueueMessage';
+import ClientAddFilter from '../pages/BuildQuery/ClientAddFilter';
 import axios from 'axios';
 
 //GLOBALS
 const localurl = "/material-app";
 const serverurl = "/ICGS/Oncosplice/testing";
+var buildurl = "/ICGS/Oncosplice/build";
 const targeturl = serverurl;
 const exportToViewPane = {};
 
@@ -20,6 +22,7 @@ export function makeRequest(to, arg)
 	if(to == "gene"){ gene(arg);}
 	if(to == "coord"){ coord(arg);}
 	if(to == "defaultQuery"){ defaultQuery(arg);}
+  if(to == "updateSignature"){ updateSignature(arg);}
 }
 
 function uiFields(arg)
@@ -39,7 +42,7 @@ function uiFields(arg)
 	})
 	.then(function (response) 
 	{
-		//console.log(response);
+		console.log("CANCER RESPONSE", response);
 	    var ui_field_dict = response["data"]["meta"];
     	var ui_field_range = response["data"]["range"];
     	var sigFilters = response["data"]["sig"];
@@ -71,6 +74,58 @@ function uiFields(arg)
 		export_dict["sigTranslate"] = sigTranslate;
 		return export_dict;*/
 	})
+}
+
+function updateSignature(arg)
+{
+  const export_dict = {};
+  const cancername = arg["cancername"];
+  const callback = arg["setState"];
+  const BQstate = arg["BQstate"];
+  const P = arg["P"];
+  const none = arg["none"];
+  const targetsigobj = BQstate.compared_cancer_signature;
+  console.log("updateSignature_1", callback);
+  var keys = arg["keys"];
+  keys["single"] = [];
+  const bodyFormData = new FormData();
+  bodyFormData.append("cancer_type", cancername);
+  let promises = [];
+  var sigFilters;
+  var sigTranslate;
+  axios({
+        method: "post",
+        url: (targeturl.concat("/backend/update_signature_ui_fields.php")),
+        data: bodyFormData,
+        headers: { "Content-Type": "multipart/form-data" },
+    })
+  .then(function (response) 
+  {
+      console.log("CANCER RESPONSE", response);
+      console.log("cancername", cancername);
+      /*
+      targetsigobj["obj"] = <ClientAddFilter
+            BQstate={BQstate}
+            inheritState={P.FilterBoxState}
+            parentProps={P.FilterBoxProps}
+            removeKey={P.removeKey}
+            functioncall={none}
+            chicken={response["data"]["sig"]}
+            egg={BQstate.postoncosig}
+            type={"single"}
+            filterID={"sig_filter_id"}
+            label={"Oncosplice Signature Filter"}
+            compared_cancer={cancername}
+            sigtranslate={response["data"]["sigtranslate"]}
+      />;*/
+      callback(cancername, response["data"]["sig"], response["data"]["sigtranslate"], keys);
+      //sigFilters = response["data"]["sig"];
+      //sigTranslate = response["data"]["sigtranslate"];
+
+      //console.log("ham", callback);
+      //callback(cancername, sigFilters, sigTranslate, keys);
+
+  });
 }
 
 function defaultQuery(arg)
@@ -213,6 +268,7 @@ function fetchHeatmapData(arg)
   const sigTranslate = BQstate.sigTranslate;
   const exportView = BQstate.export;
   const curCancer = BQstate.cancer;
+  const compCancer = BQstate.compared_cancer;
   const callback = BQprops.setViewPane;
   var GLOBAL_user = "Default";
   var document = arg["document"];
@@ -282,14 +338,15 @@ function fetchHeatmapData(arg)
     bodyFormData.append(myString, myString);
   }  
   bodyFormData.append("CANCER",curCancer);
+  bodyFormData.append("COMPCANCER",compCancer);
   //console.log("curcancer", curCancer);
   tmp_qh_obj = {};
   tmp_qh_obj["key"] = "CANCER";
   tmp_qh_obj["val"] = curCancer;
   qh_arr.push(tmp_qh_obj);
   var qh_postdata = JSON.stringify(qh_arr);
-  console.log("QH1", qh_arr);
-  console.log("QH2", qh_postdata);
+  //console.log("QH1", qh_arr);
+  //console.log("QH2", qh_postdata);
   bodyFormData.append("HIST",qh_postdata);
   bodyFormData.append("USER",GLOBAL_user);
   //console.log("bodyFormDataCancer", curCancer)
@@ -517,6 +574,7 @@ function signature(arg)
   console.log("callback...started");
   var bodyFormData = new FormData();
   const keys = arg["keys"];
+  const egg = arg["egg"];
   const preQ = arg["pre_queueboxchildren"];
   const Q = arg["queueboxchildren"];
   const cancer = arg["cancer"];
@@ -588,10 +646,11 @@ function signature(arg)
       var in_criterion = response["data"]["single"];
       var selected_left = response["data"]["meta"];
       var current_number_of_events = response["data"]["meta"];
+      console.log("1234", Q, number)
       Q["signatures"][number] = <QueueMessage key={number} number={number} name={"PSI"} get={number} value={name} type={"events"} total_selected={in_criterion} total_left={selected_left}/>
       resamt = {"samples": arg["parentResultAmt"]["samples"], "events": selected_left};
       console.log("sig...callback...ended", response["data"]);
-      callback(resamt, Q, keys, exportView);
+      callback(resamt, Q, keys, exportView, egg);
       //updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
   })
 }
