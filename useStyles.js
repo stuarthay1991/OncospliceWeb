@@ -38,18 +38,18 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   mainpane: {
-    paddingTop: "35px",
-    paddingBottom: "35px",
+    paddingTop: "5px",
+    paddingBottom: "5px",
     flexGrow: 1,
-    backgroundColor: '#0F6A8B',
-    color: 'white',
+    backgroundColor: 'white',
+    color: '#0F6A8B',
   },
   mainpane_margin: {
     marginLeft: 50,
     marginRight: 100,
   },  
   myButton: {
-  backgroundColor:'#1CBBC1',
+  backgroundColor:'#EFAD18',
   borderRadius:'8px',
   display:'inline-block',
   cursor:'pointer',

@@ -135,8 +135,10 @@ function defaultQuery(arg)
   const document = arg["doc"];
 
   var bodyFormData = new FormData();
-  bodyFormData.append("PSIPsi cbfb gene fusions vs others", "PSIPsi cbfb gene fusions vs others");
-  bodyFormData.append("CANCER","LAML");
+  bodyFormData.append("PSIPsi er negative r1 v24 vs others", "PSIPsi er negative r1 v24 vs others");
+  bodyFormData.append("RPSIR1-V24 (ER Negative Splice Enriched)", "R1-V24 (ER Negative Splice Enriched)");
+  bodyFormData.append("CANCER","BRCA");
+  bodyFormData.append("COMPCANCER","BRCA");
   document.getElementById("sub").style.display = "block";
   //console.log("RUNNING running");
   axios({
@@ -148,13 +150,13 @@ function defaultQuery(arg)
     .then(function (response) {
       //console.log(response);
       //response = JSON.parse(response);
-      document.getElementById(`simple-tab-1`).click();
+      //document.getElementById(`simple-tab-1`).click();
       var splicingreturned = response["data"]["rr"];
       var splicingcols = response["data"]["col_beds"];
       var splicingcc = response["data"]["cci"];
       exportView["filter"] = [];
-      exportView["cancer"] = "LAML";
-      exportView["single"] = ["Psi cbfb gene fusions vs others"];
+      exportView["cancer"] = "BRCA";
+      exportView["single"] = ["PSI er negative r1 v24 vs others"];
       var splicingrpsi = response["data"]["rpsi"];
       var splicingtrans = response["data"]["oncokey"];
       defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exportView, callback, document);
@@ -164,7 +166,7 @@ function defaultQuery(arg)
 function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exp, callback, doc)
 {
   var bodyFormData = new FormData();
-  bodyFormData.append("cancer_type", "LAML");
+  bodyFormData.append("cancer_type", "BRCA");
   axios({
     method: "post",
     url: (targeturl.concat("/backend/ui_fields.php")),
@@ -173,7 +175,7 @@ function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splici
   })
   .then(function (response) {
     //console.log("DQ_UI_fields", response["data"]);
-    exp["cancer"] = "LAML";
+    exp["cancer"] = "BRCA";
     exp["ui_field_dict"] = response["data"]["meta"];
     exp["ui_field_range"] = response["data"]["range"];
     callback(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exp);
@@ -298,6 +300,7 @@ function fetchHeatmapData(arg)
       if(sigTranslate[myString] != undefined)
       {
         bodyFormData.append(("RPSI".concat(myString)), myString);
+        console.log("RPSI SUBMIT", myString);
         myString = sigTranslate[myString];
         myString = myString.replace("+", "positive_");
       }//TEMPORARY FIX

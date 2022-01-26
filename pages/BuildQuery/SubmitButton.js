@@ -14,7 +14,7 @@ function SubmitButton(props){
   var args = {};
   var to = "fetchHeatmapData";
   var functionpointer = makeRequest;
-  if(props.defaultQuery == true){
+  if(BQstate.defaultQuery == true){
     functionpointer = makeRequest;
     args["setState"] = BQprops.setViewPane;
     args["export"] = BQstate.export;

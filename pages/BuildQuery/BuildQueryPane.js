@@ -22,6 +22,7 @@ import SingleItem from '../../components/SingleItem';
 
 //Page specific components
 import SubmitButton from './SubmitButton';
+import ResetButton from './ResetButton';
 import QueueBox from './Queuebox';
 import ClientAddFilter from './ClientAddFilter';
 import CancerSelect from './CancerSelect';
@@ -335,7 +336,7 @@ class BQPane extends React.Component {
                 clientgenes: [],
                 clientcoord: [],
                 querySignature: {},
-                queuebox_values: {"children": {}, "signatures": {}},
+                queuebox_values: {"children": {}, "signatures": {}, "cancer": this.state.queuebox_values["cancer"]},
                 pre_queueboxvalues: {"children": {}, "signatures": {}}
               })}
               updatePage={(k,q,cG,cC,fSEF,SEFobj,disp) => this.setState({
@@ -357,13 +358,19 @@ class BQPane extends React.Component {
           </Grid>
           <Grid item sm={12} md={5}>
             <Grid container spacing={0}>
-            <Grid item xs={7}></Grid>
+            <Grid item xs={6}></Grid>
             <Grid item xs={1}>
             <div id="sub" style={{display: "none"}}>
               <img src={(targeturl.concat("/backend/gifmax.gif"))} width="50" height="50"/>
             </div>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={2}>
+            <div style={{float: 'right', alignItems: 'center'}}>
+              <ResetButton
+              />
+            </div>
+            </Grid>
+            <Grid item xs={3}>
             <div style={{float: 'right', alignItems: 'center'}}>
               <SubmitButton
                 BQstate={this.state}

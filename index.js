@@ -508,7 +508,7 @@ function MainPane(props){
         <Grid container spacing={0}>
         <Grid item sm={12} md={9}>
         <Typography className={classes.padding} />
-        <Tabs id="tabset" value={mpstate.value} onChange={handleChange} aria-label="simple tabs example" indicatorColor="primary">
+        <Tabs id="tabset" value={mpstate.value} onChange={handleChange} aria-label="simple tabs example" TabIndicatorProps={{style: {background:'#EFAD18'}}}>
           <Tab classes={tabstyle} label="Build Query" style={{ textTransform: 'none'}}/>
           <Tab classes={tabstyle} label="Explore Data" style={{ textTransform: 'none'}}/>
           <Tab classes={tabstyle} icon={<LockIcon />} label="Query History" style={{ textTransform: 'none'}}></Tab>
@@ -551,14 +551,14 @@ function TopNav() {
   return (
     <div className={classes.mainpane} style={{ fontFamily: 'Roboto' }}>
       <div className={classes.mainpane_margin}>
-      <Grid container spacing={3}>    
+      <Grid container spacing={1}>   
         <Grid item xs={5}>
-          <div className={classes.cntr_special}>OncoSplice: Cancer Genomics Browser</div>
+        </Grid> 
+        <Grid item xs={2}>
+          <div className={classes.cntr_special}><img src="/ICGS/Oncosplice/testing/OncoLOGO.png" alt="Logo" width="177" height="148"></img></div>
         </Grid>
-        <Grid item xs={3}>
-        </Grid>
-        <Grid item xs={4}>
-          <div className={classes.cntr_generic}><a style={{cursor: "pointer"}}>My Account</a> | <a onClick={loadAbout} style={{cursor: "pointer"}}>What is OncoSplice?</a> | <a href="mailto: altanalyze@gmail.com" style={{cursor: "pointer", color: "white", textDecoration: "none"}}>Contact</a></div>
+        <Grid item xs={5}>
+          <div className={classes.cntr_generic}><a style={{cursor: "pointer"}}>My Account</a> | <a onClick={loadAbout} style={{cursor: "pointer"}}>What is OncoSplice?</a> | <a href="mailto: altanalyze@gmail.com" style={{cursor: "pointer", color: "#0F6A8B", textDecoration: "none"}}>Contact</a></div>
         </Grid>
       </Grid>
       </div>

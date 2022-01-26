@@ -24,7 +24,7 @@ function CheckboxForm(props)
 	  const handleChange = (event) => {
 	    setState({ ...state, [event.target.name]: event.target.checked });
 	    props.updateBQPane(event.target.checked);
-	    props.qBDefaultMessage(event.target.checked);
+	    //props.qBDefaultMessage(event.target.checked);
 	    console.log(event.target.checked);
 	  };
 

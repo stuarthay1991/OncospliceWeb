@@ -47,16 +47,15 @@ function CancerSelectWidget(props)
           <option value=""></option>
           {(() => {
             const options = [];
-            options.push(<option value={"LGG"}>{"LGG"}</option>);
-            options.push(<option value={"LAML"}>{"LAML"}</option>);
-            options.push(<option value={"LUAD"}>{"LUAD"}</option>);
-            options.push(<option value={"BRCA"}>{"BRCA"}</option>);
-            options.push(<option value={"BLCA"}>{"BLCA"}</option>);
-            options.push(<option value={"GBM"}>{"GBM"}</option>);
-            options.push(<option value={"HNSCC"}>{"HNSCC"}</option>);
-            options.push(<option value={"SKCM"}>{"SKCM"}</option>);
-            options.push(<option value={"COAD"}>{"COAD"}</option>);
-            options.push(<option value={"AML_Leucegene"}>{"AML_Leucegene"}</option>);
+            options.push(<option value={"LGG"}>{"Low-Grade Glioma (TCGA)"}</option>);
+            options.push(<option value={"LUAD"}>{"Lung Adenocarcinoma (TCGA)"}</option>);
+            options.push(<option value={"BRCA"}>{"Breast Invasive Carcinoma (TCGA)"}</option>);
+            options.push(<option value={"BLCA"}>{"Bladder Cancer (TCGA)"}</option>);
+            options.push(<option value={"GBM"}>{"Glioblastoma (TCGA)"}</option>);
+            options.push(<option value={"HNSCC"}>{"Head and Neck Squamous Cell Carcinoma (TCGA)"}</option>);
+            options.push(<option value={"SKCM"}>{"Skin Cutaneous Melanoma (TCGA)"}</option>);
+            options.push(<option value={"COAD"}>{"Colon Adenocarcinoma (TCGA)"}</option>);
+            options.push(<option value={"AML_Leucegene"}>{"Acute Myeloid Leukemia (Leucgene)"}</option>);
             return options;
           })()}
         </Select>

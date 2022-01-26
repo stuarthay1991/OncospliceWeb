@@ -109,7 +109,6 @@ function SelectCancerSignature({P, parentProps, S, BQstate}){
     {(() => {
             const options = [];
             options.push(<option value={"LGG"}>{"LGG signatures"}</option>);
-            options.push(<option value={"LAML"}>{"LAML signatures"}</option>);
             options.push(<option value={"LUAD"}>{"LUAD signatures"}</option>);
             options.push(<option value={"BRCA"}>{"BRCA signatures"}</option>);
             options.push(<option value={"BLCA"}>{"BLCA signatures"}</option>);
