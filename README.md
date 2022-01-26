@@ -9,7 +9,11 @@ KNOWN ISSUES
 <br>
 <br>
 -Selecting a sample filter does not default to a selection. When a signature filter is selected and a sample filter has been added, but not selected, the screen whites out.
--Selecting LUAD signatures results in errors clustering, LUAD_Signatures table is faulted
+<br>
+-Selecting LUAD signatures results in errors clustering, LUAD_Signatures table is faulted.
+<br>
 -Full screen for heatmap view breaks after initial selection, defaults to very small size.
+<br>
 -Query History is not properly implemented on the server side.
+<br>
 -Selecting a blank selection sometimes results in a broken submission.
