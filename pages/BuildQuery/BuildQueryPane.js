@@ -11,6 +11,7 @@ import {Helmet} from "react-helmet";
 import { createMuiTheme } from '@material-ui/core/styles';
 import '../../App.css';
 import useStyles from '../../useStyles.js';
+import Tooltip from '@material/Tooltip';
 
 //General components
 import TabPanel from '../../components/TabPanel';
@@ -290,7 +291,7 @@ class BQPane extends React.Component {
                 SEFobj: null,
                 sigdisplay: "none",
                 compared_cancer_signature: {},
-                compared_cancer: null                
+                compared_cancer: in_cancer
                 })}
                 />
               </Grid>
@@ -319,9 +320,10 @@ class BQPane extends React.Component {
                 postoncosig: pO,
                 querySignature: pO
               })}
-              setGene={(cG, exp) => this.setState({
+              setGene={(cG, exp, resamt) => this.setState({
                 clientgenes: cG,
-                export: exp
+                export: exp,
+                resultamount: resamt
               })}
               setCoord={(cC, exp) => this.setState({
                 clientcoord: cC,

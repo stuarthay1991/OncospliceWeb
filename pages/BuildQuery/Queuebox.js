@@ -138,6 +138,13 @@ function QB_SelectedSignature(props)
     displayvalue_userquery = "none";
   }
 
+  var number_e = props.resamt["events"];
+  var g_message = "No matches found!";
+  if(number_e > 0 && parseInt(props.numberGenes) > 0)
+  {
+    g_message = "Matches found in database!";
+  }
+
   var target = [];
   for(var i = 0; i < Object.entries(props.targetSigSelections).length; i++) {
     target.push(<QB_format targetArrSelections={props.targetSigSelections} targetArr={props.targetSignatures} value={Object.entries(props.targetSigSelections)[i][0]} index={i}></QB_format>);
@@ -172,7 +179,7 @@ function QB_SelectedSignature(props)
                 </Grid>
                 <Grid item>
                 <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', fontSize: 13}}>
-                {"Selected ".concat(props.numberGenes).concat(" genes.")}
+                {g_message}
                 </div>
                 </Grid>
             </Grid>
@@ -302,6 +309,7 @@ class QueueBox extends React.Component {
         numberCoords={S.BQstate.clientcoord.length}
         displayvalue={S.BQstate.filterboxSEF}
         defaultvalue={S.BQstate.defaultQuery}
+        resamt={S.BQstate.resultamount}
         />
       <QB_displayEventsSigs amount={S.BQstate.resultamount}/>
       </Box>

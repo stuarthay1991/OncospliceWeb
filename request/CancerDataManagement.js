@@ -8,7 +8,8 @@ import axios from 'axios';
 const localurl = "/material-app";
 const serverurl = "/ICGS/Oncosplice/testing";
 var buildurl = "/ICGS/Oncosplice/build";
-const targeturl = serverurl;
+var hoturl = "/ICGS/Oncosplice/hotload";
+const targeturl = hoturl;
 const exportToViewPane = {};
 
 export function makeRequest(to, arg)
@@ -23,6 +24,7 @@ export function makeRequest(to, arg)
 	if(to == "coord"){ coord(arg);}
 	if(to == "defaultQuery"){ defaultQuery(arg);}
   if(to == "updateSignature"){ updateSignature(arg);}
+  if(to == "GTex"){ GTex(arg);}
 }
 
 function uiFields(arg)
@@ -74,6 +76,32 @@ function uiFields(arg)
 		export_dict["sigTranslate"] = sigTranslate;
 		return export_dict;*/
 	})
+}
+
+function GTex(arg)
+{
+  const exportUID = arg["UID"];
+  const exportTISSUE = arg["TISSUE"];
+
+  var bodyFormData = new FormData();
+
+  bodyFormData.append("UID",exportUID);
+  bodyFormData.append("TISSUE","Lung");
+  axios({
+    method: "post",
+    url: (targeturl.concat("/backend/GTex.php")),
+    data: bodyFormData,
+    headers: { "Content-Type": "multipart/form-data" },
+  })
+    .then(function (response) {
+      //var totalmatch = response["data"]["single"];
+      console.log(response["data"]);
+
+      //console.log("1", totalmatch);
+      //console.log("2", response["data"]);
+      //add totalmatch for gene counter
+      //callback(clientgenes, exportView);
+  })  
 }
 
 function updateSignature(arg)
@@ -356,6 +384,12 @@ function fetchHeatmapData(arg)
   if(keys["single"].length == 0 && clientgenes.length == 0 && clientcoord.length == 0)
   {
     alert("Please select at least one signature or gene to continue.");
+    document.getElementById("sub").style.display = "none";
+  }
+  else if(clientgenes.length > 0 && parseInt(BQstate.resultamount["events"]) == 0)
+  {
+    alert("These gene(s) have no matches in database. Please try different gene(s), remember to not use Ensembl IDs.");
+    document.getElementById("sub").style.display = "none";
   }
   else
   {
@@ -396,6 +430,7 @@ function gene(arg)
   const curCancer = arg["cancer"];
   const num = arg["num"];
   const callback = arg["setState"];
+  var resamt = arg["resamt"];
 
   var bodyFormData = new FormData();
   exportView["single"] = [];
@@ -413,10 +448,11 @@ function gene(arg)
   })
     .then(function (response) {
       var totalmatch = response["data"]["single"];
+      var outmatch = {"samples": resamt["samples"], "events": totalmatch};
       //console.log("1", totalmatch);
       //console.log("2", response["data"]);
       //add totalmatch for gene counter
-      callback(clientgenes, exportView);
+      callback(clientgenes, exportView, outmatch);
   })	
 }
 

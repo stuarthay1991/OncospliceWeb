@@ -111,7 +111,6 @@ for($i = 0; $i < count($nonmatchers); $i++)
 	$strnum[$strstrcount] = $nonmatchers[$i];
 }
 
-$output_arr["qbox"]["rows"] = $numrows;
 $output_arr["sig"] = $strnum;
 $output_arr["sigtranslate"] = $sigtranslater;
 echo json_encode($output_arr);

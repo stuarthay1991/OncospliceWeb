@@ -90,8 +90,9 @@ var flag = 0;
 var localurl = "/material-app";
 var serverurl = "/ICGS/Oncosplice/testing";
 var buildurl = "/ICGS/Oncosplice/build";
+var hoturl = "/ICGS/Oncosplice/hotload";
+const targeturl = serverurl;
 
-var targeturl = serverurl;
 var routeurl = "/ICGS/Oncosplice/testing/index.html"
 
 var queryhistory_dat = [];

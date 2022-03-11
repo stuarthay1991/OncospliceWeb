@@ -32,7 +32,7 @@ function SelectCancerSignature({P, parentProps, S, BQstate}){
   const wla4 = widgetlabel4();
 
   const [state, setState] = React.useState({
-    value: BQstate.compared_cancer,
+    value: '',
     name: 'hai',
     selection: BQstate.signatures
   });
@@ -42,6 +42,7 @@ function SelectCancerSignature({P, parentProps, S, BQstate}){
     setState({
       ...state,
       [name]: event.target.value,
+      value: event.target.value
     });
     var args = {};
     args["BQstate"] = BQstate;
@@ -66,7 +67,7 @@ function SelectCancerSignature({P, parentProps, S, BQstate}){
         console.log("Use effect 1");
         setState({
           ...state,
-          value: BQstate.compared_cancer,
+          value: state.value,
           selection: BQstate.signatures
         });
     }
@@ -74,6 +75,16 @@ function SelectCancerSignature({P, parentProps, S, BQstate}){
     console.log("Use effect 3", BQstate.signatures, state.selection);
 
   }, [state.value])
+
+  React.useEffect(() => {
+    if(state.value == "")   
+    {
+        setState({
+          ...state,
+          value: BQstate.compared_cancer,
+        });
+    }
+  })
   /*if()
   {
 
@@ -98,7 +109,7 @@ function SelectCancerSignature({P, parentProps, S, BQstate}){
     <Select
           native
           classes={wla4}
-          value={BQstate.compared_cancer}
+          value={state.value}
           onChange={handleChange}
           inputProps={{
             name: 'value',

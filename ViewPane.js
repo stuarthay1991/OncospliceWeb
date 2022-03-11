@@ -14,6 +14,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import ZoomInIcon from '@material-ui/icons/ZoomIn';
 import ZoomOutIcon from '@material-ui/icons/ZoomOut';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { borders } from '@material-ui/system';
@@ -28,7 +30,9 @@ import CustomizedTables from './components/CustomizedTables';
 import LabelHeatmap from './components/LabelHeatmap';
 import downloadHeatmapText from './components/downloadHeatmapText';
 import axios from 'axios';
+import tooltip from './tooltip.css';
 
+import Plot from 'react-plotly.js';
 import * as d3 from 'd3';
 import useStyles from './useStyles.js';
 
@@ -42,6 +46,9 @@ var global_trans = "";
 var global_cols = [];
 var global_cc = [];
 var global_rpsi = [];
+var global_exon_blob = undefined;
+var global_genemodel_blob = undefined;
+var global_junc_blob = undefined;
 var global_colors = ["#0096FF", "Yellow", "#FF7F7F", "#44D62C", "Purple", "Orange", "Grey", "#32a852", "#8e7be3", "#e6b035", "#b5109f", "#8bab59", "#782b51", "#366fd9", "#f0b3ff", "#5d1ca3", "#d94907", "#32a8a6", "#ada50c", "#bf1b28", "#0000b3", "#ffc61a", "#336600"];
 var global_Y = "";
 var global_adj_height = "";
@@ -75,13 +82,120 @@ function metarepost(name) {
       //var retval = response["data"]["out"];
       //var retset = response["data"]["set"];
       var ret = response["data"];
-      console.log("RET RET RET", ret, global_cancer);
+      //console.log("RET RET RET", ret, global_cancer);
       updateOkmapLabel(ret);
+      supFilterUpdate(ret);
       //console.log(retval);
       //console.log(retset);
       //console.log(global_cols);
       //var okheader = new OKMAP_LABEL("HEATMAP_LABEL",global_cols,retval,document,);
     })
+}
+
+function oneUIDrequest(UID) {
+  var bodyFormData = new FormData();
+  bodyFormData.append("UID",UID);
+  bodyFormData.append("CANCER",global_cancer);
+  axios({
+    method: "post",
+    url: (targeturl.concat("/backend/one_uid_retrieve.php")),
+    data: bodyFormData,
+    headers: { "Content-Type": "multipart/form-data" },
+  })
+    .then(function (response) {
+      //var totalmatch = response["data"]["single"];
+      //console.log("oneuid", response["data"]);
+      plotUIDupdate(response["data"]["result"][0])
+      //var new_vec = response["data"];
+      //plot4update(new_vec);
+      //console.log("1", totalmatch);
+      //console.log("2", response["data"]);
+      //add totalmatch for gene counter
+      //callback(clientgenes, exportView);
+  })  
+}
+
+function exonRequest(GENE, in_data) {
+  var bodyFormData = new FormData();
+  console.log("EXON_IN", GENE);
+  bodyFormData.append("GENE",GENE);
+  axios({
+    method: "post",
+    url: (targeturl.concat("/backend/exon_retrieve.php")),
+    data: bodyFormData,
+    headers: { "Content-Type": "multipart/form-data" },
+  })
+    .then(function (response) {
+      console.log("response_exon", response["data"]);
+      var resp = response["data"];
+      updateExPlot(resp["gene"], resp["trans"], resp["junc"], in_data);
+      global_exon_blob = resp["blob"]["trans"];
+      global_genemodel_blob = resp["blob"]["genemodel"];
+      global_junc_blob = resp["blob"]["junc"];
+      //var totalmatch = response["data"]["single"];
+      //console.log("oneuid", response["data"]);
+      //plotUIDupdate(response["data"]["result"][0])
+      //var new_vec = response["data"];
+      //plot4update(new_vec);
+      //console.log("1", totalmatch);
+      //console.log("2", response["data"]);
+      //add totalmatch for gene counter
+      //callback(clientgenes, exportView);
+  })
+}
+
+function GTexSend(UID) {
+  //const exportUID = arg["UID"];
+  //const exportTISSUE = arg["TISSUE"];
+
+  var bodyFormData = new FormData();
+  //console.log("GTEXsend", UID);
+  bodyFormData.append("UID",UID);
+  axios({
+    method: "post",
+    url: (targeturl.concat("/backend/GTex.php")),
+    data: bodyFormData,
+    headers: { "Content-Type": "multipart/form-data" },
+  })
+    .then(function (response) {
+      //var totalmatch = response["data"]["single"];
+      /*
+      console.log("GTEXreceive", response["data"]);
+      for (const [key, value] of Object.entries(response["data"]["result"][0])) {
+          console.log(key, value);
+      }
+      */
+      var new_vec = response["data"]["result"][0];
+      gtexupdate(new_vec);
+      //var new_vec = response["data"];
+      //plot4update(new_vec);
+      //console.log("1", totalmatch);
+      //console.log("2", response["data"]);
+      //add totalmatch for gene counter
+      //callback(clientgenes, exportView);
+  })  
+}
+
+function gtexupdate(vec)
+{
+  this.setState({
+    gtex: vec
+  })  
+}
+
+function plotUIDupdate(dat)
+{
+  //console.log(dat);
+  this.setState({
+    fulldat: dat
+  })    
+}
+
+function plot4update(vec)
+{
+  this.setState({
+    plot4: vec
+  })  
 }
 
 const defaultProps = {
@@ -173,6 +287,7 @@ function makeLinkOuts(chrm, c1, c2, c3, c4){
   );
 
 }
+
 
 
 function updateOkmapTable(data){
@@ -317,6 +432,33 @@ class Stats extends React.Component {
   }
 
 }
+
+/*
+class SupplementaryPlot extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+
+    }
+  }
+
+  componentDidMount() {
+
+  }
+
+  componentDidUpdate(prevProps) {
+
+  }
+
+  render()
+  {
+    return(
+      <div>
+      </div>
+    );
+  } 
+
+}*/
 
 class Heatmap extends React.Component {
   constructor(props) {
@@ -1074,6 +1216,11 @@ class OKMAP extends React.Component {
       .text(converteduid)
       .on("click", function(){
           updateOkmapTable(data);
+          selectionToSup(data);
+          GTexSend(data["examined_junction"]);
+          var toex = data["examined_junction"].split(":");
+          exonRequest(toex[0], data);
+          oneUIDrequest(data["uid"]);
           parent.setSelected(converteduid);
           //updateStats(y_point, data);
       })
@@ -1238,6 +1385,1468 @@ class OKMAP extends React.Component {
 
 }
 
+const spboxProps = {
+  border: 3,
+};
+
+function selectionToSup(selection){
+  this.setState({
+    selection: selection
+  })
+}
+
+function loopThroughGene(ss, s, col, cc, rpsi, trans){
+  var Selection = s;
+  var myArray1 = [];
+  var myArray2 = [];
+  for(var i = 0; i < col.length; i++)
+  {
+    var curcol = col[i];
+    if(rpsi[curcol] == "0")
+    {
+      myArray1.push(ss[curcol]);
+    }
+  }
+  for(var i = 0; i < col.length; i++)
+  {
+    var curcol = col[i];
+    if(rpsi[curcol] == "1")
+    {
+      myArray2.push(ss[curcol]);
+    }
+  }
+  var output = {};
+  output["arr1"] = myArray1;
+  output["arr2"] = myArray2;
+  var plotobj = <Plot
+            data={[
+              {
+                x: "Group1",
+                y: output["arr1"],
+                type: 'violin',
+                name: "Others",
+                mode: 'lines+markers',
+                marker: {color: 'grey'},
+              },
+              {
+                x: "Group2",
+                y: output["arr2"],
+                type: 'violin',
+                name: trans,
+                mode: 'lines+markers',
+                marker: {color: 'black'},
+              }
+            ]}
+
+            layout={ {width: 535,
+                      margin: {
+                          l: 48,
+                          r: 48,
+                          b: 48,
+                          t: 40
+                      },
+                      title: {
+                          text: s["pancanceruid"],
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                            }
+                      },
+                      yaxis:{
+                        range: [0, 1],
+                        title: {
+                          text: 'PSI Value',
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                          }
+                        },
+                      },
+                      xaxis:{
+                        title: {
+                          text: 'Clusters',
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                          }
+                        }
+                      },
+                      height: 200} }
+  />;
+  return plotobj;
+}
+
+function loopThroughHC(ss, s, col, cc, rpsi){
+  //console.log("cc_run", cc)
+  var Selection = s;
+  var myArray1 = [];
+  var myArray2 = [];
+  var myArray3 = [];
+  for(var i = 0; i < col.length; i++)
+  {
+    var curcol = col[i];
+    if(cc[i] == "1")
+    {
+      myArray1.push(ss[curcol]);
+    }
+    if(cc[i] == "2")
+    {
+      myArray2.push(ss[curcol]);
+    }
+    if(cc[i] == "3")
+    {
+      myArray3.push(ss[curcol]);
+    }
+  }
+  var output = {};
+  output["arr1"] = myArray1;
+  output["arr2"] = myArray2;
+  output["arr3"] = myArray3;
+  if(output["arr3"].length > 0)
+  {
+    var plotobj = <Plot
+              data={[
+                {
+                  y: output["arr1"],
+                  type: 'violin',
+                  mode: 'lines+markers',
+                  name: "Cluster 1",
+                  marker: {color: 'orange'},
+                },
+                {
+                  y: output["arr2"],
+                  type: 'violin',
+                  mode: 'lines+markers',
+                  name: "Cluster 2",
+                  marker: {color: 'blue'},
+                },
+                {
+                  y: output["arr3"],
+                  type: 'violin',
+                  mode: 'lines+markers',
+                  name: "Cluster 3",
+                  marker: {color: 'green'},
+                }
+              ]}
+              layout={ {width: 535,
+                        height: 200,
+                        margin: {
+                          l: 48,
+                          r: 48,
+                          b: 48,
+                          t: 40
+                        },
+                        title: {
+                          text: s["pancanceruid"],
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                            }
+                        },   
+                        yaxis:{
+                        range: [0, 1],
+                        title: {
+                          text: 'PSI Value',
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                          }
+                        },
+                        },
+                        xaxis:{
+                        title: {
+                          text: 'Clusters',
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                          }
+                        }
+                      }} }
+    />;    
+  }
+  else
+  {
+    var plotobj = <Plot
+              data={[
+                {
+                  y: output["arr1"],
+                  type: 'violin',
+                  mode: 'lines+markers',
+                  name: "Cluster 1",
+                  marker: {color: 'orange'},
+                },
+                {
+                  y: output["arr2"],
+                  type: 'violin',
+                  mode: 'lines+markers',
+                  name: "Cluster 2",
+                  marker: {color: 'blue'},
+                }
+              ]}
+              xaxis={{
+                title: {
+                  text: 'x Axis',
+                  font: {
+                    family: 'Courier New, monospace',
+                    size: 18,
+                    color: '#7f7f7f'
+                  }
+                },
+              }}
+              layout={ {width: 535,
+                        height: 200,
+                        margin: {
+                          l: 48,
+                          r: 48,
+                          b: 48,
+                          t: 40
+                        },
+                        title: {
+                          text: s["pancanceruid"],
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                            }
+                        }, 
+                        yaxis:{
+                        range: [0, 1],
+                        title: {
+                          text: 'PSI Value',
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                          }
+                        }},
+                        xaxis:{
+                        title: {
+                          text: 'Clusters',
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                          }
+                        }
+                      }} }
+    />;     
+  }
+
+  return plotobj;
+}
+
+function loopThroughFilter(ss, s, col, cc, rpsi, out, set){
+  var datarray = [];
+  //console.log("lTF", out);
+  //console.log("set", set);
+  for(var i = 0; i < set.length; i++)
+  {   
+
+      var curstack = [];
+      for(var k = 0; k < col.length; k++)
+      {
+        if(out[col[k]] == set[i])
+        {
+          curstack.push(ss[col[k]]);
+        }
+      }
+      var name = set[i];
+      var curcolor = global_colors[i];
+      datarray.push({
+        y: curstack,
+        type: 'violin',
+        mode: 'lines+markers',
+        name: name,
+        marker: {color: curcolor},
+      });
+  }
+  var plotobj = <Plot
+              data={datarray}
+              layout={ {width: 535, 
+                        height: 300,
+                        margin: {
+                          l: 48,
+                          r: 48,
+                          b: 100,
+                          t: 40
+                        },
+                        title: {
+                          text: s["pancanceruid"],
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                            }
+                        },
+                        yaxis:{
+                        range: [0, 1],
+                        title: {
+                          text: 'PSI Value',
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                          }
+                        }},
+                        xaxis:{
+                        title: {
+                          text: 'Filters',
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                          }
+                        }
+                      }} }
+  />;
+  return plotobj;
+}
+
+function loopThroughGtex(vec){
+  var datarray = [];
+  var counter = 0;
+  for (const [key, value] of Object.entries(vec)) {
+          if(key != "uid")
+          {
+          //console.log(key, value);
+          var tmparr = value.split("|");
+          
+          var curcolor = global_colors[counter];
+          datarray.push({
+            y: tmparr,
+            type: 'violin',
+            mode: 'lines+markers',
+            name: key,
+            marker: {color: curcolor},
+          });
+
+          counter = counter + 1;
+          }
+  }
+
+  var plotobj = <Plot
+              data={datarray}
+              layout={ {width: 525, 
+                        height: 450,
+                        margin: {
+                          l: 48,
+                          r: 32,
+                          b: 200,
+                          t: 40
+                        },
+                        showlegend: false,
+                        title: {
+                          text: "GTEX",
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                            }
+                        },
+                        yaxis:{
+                        range: [0, 1],
+                        title: {
+                          text: 'PSI Value',
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                          }
+                        }},
+                        xaxis:{
+                        title: {
+                          text: 'GTEX',
+                          font: {
+                            family: 'Courier New, monospace',
+                            size: 16,
+                            color: '#7f7f7f'
+                          }
+                        }
+                      }} }
+  />;
+  return plotobj;
+}
+
+
+function supFilterUpdate(data)
+{
+  this.setState({
+    filters: data["out"],
+    filterset: data["set"]
+  })  
+}
+
+class SupplementaryPlot extends React.Component {
+  constructor(props) 
+  {
+    super(props);
+    this.state = {
+      selection: null,
+      filters: null,
+      filterset: null,
+      matches: null,
+      fulldat: null,
+      gtex: null
+    };
+    //var other_gene_matches = [];
+    selectionToSup = selectionToSup.bind(this);
+    supFilterUpdate = supFilterUpdate.bind(this);
+    plot4update = plot4update.bind(this);
+    gtexupdate = gtexupdate.bind(this);
+    plotUIDupdate = plotUIDupdate.bind(this);
+  }
+
+  componentDidMount(){
+      var Data = this.props.Data;
+      console.log("DATA MOUNT:", Data[0]);
+      updateOkmapTable(Data[0]);
+      selectionToSup(Data[0]);
+  }
+
+  render(){
+    var Data = this.props.Data;
+    var Cols = this.props.Cols;
+    var Selection = this.state.selection;
+    var set = null;
+    var plotobj1 = null;
+    var plotobj2 = null;
+    var plotobj3 = null;
+    //console.log("current state", this.state.filterset, this.state.filters);
+    var elm1 = this.state.filters;
+    var elm2 = this.state.filterset;
+    if(Selection != null && this.state.filterset != null && this.state.fulldat != null)
+    {
+      var plotobj1 = loopThroughGene(this.state.fulldat, Selection, this.props.Cols, this.props.CC, this.props.RPSI, this.props.TRANS);
+      var plotobj2 = loopThroughHC(this.state.fulldat, Selection, this.props.Cols, this.props.CC, this.props.RPSI, this.props.TRANS);
+      var plotobj3 = loopThroughFilter(this.state.fulldat, Selection, this.props.Cols, this.props.CC, this.props.RPSI, elm1, elm2);
+    }
+    else
+    {
+      var plotobj1 = <h4>No selection set</h4>;
+      var plotobj2 = <h4>No selection set</h4>;
+      var plotobj3 = <h4>No selection set</h4>;
+    }
+
+    if(Selection != null && this.state.gtex != null)
+    {
+      var plotobj4 = loopThroughGtex(this.state.gtex);
+    }
+    else
+    {
+      if(this.state.fulldat == null)
+      {
+        var plotobj4 = <h4>No selection set</h4>;
+      }
+      else
+      {
+        var plotobj4 = <h4>No GTEX available for given UID</h4>;
+      }
+    }
+
+    //var plotdata = [trace1, trace2];
+    //Plotly.newPlot('supp1', plotdata); 
+    return(
+      <>
+      <div style={{marginBottom: 10}}>
+      <SpcInputLabel label={"OncoClusters"} />
+      <Box borderColor="#dbdbdb" {...spboxProps}>
+        <div>
+          {plotobj1}
+        </div>
+      </Box>
+      </div>
+      <div style={{marginBottom: 10}}>
+      <SpcInputLabel label={"HierarchyClusters"} />
+      <Box borderColor="#dbdbdb" {...spboxProps}>
+        <div>
+          {plotobj2}
+        </div>
+      </Box>
+      </div>
+      <div style={{marginBottom: 10}}>
+      <SpcInputLabel label={"Filters"} />
+      <Box borderColor="#dbdbdb" {...spboxProps}>
+        <div>
+          {plotobj3}
+        </div>
+      </Box>
+      </div>
+      <div style={{marginBottom: 10}}>
+      <SpcInputLabel label={"GTEX"} />
+      <Box borderColor="#dbdbdb" {...spboxProps}>
+        <div>
+          {plotobj4}
+        </div>
+      </Box>
+      </div>
+      </>
+    )
+  }
+}
+
+function updateExPlot(exons, transcripts, junctions, in_data){
+  this.setState({
+      exons: exons,
+      transcripts: transcripts,
+      junctions: junctions,
+      in_data: in_data
+  });
+}
+
+class SetExonPlot extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      input: null,
+    };
+  }
+  componentDidMount() { 
+    //console.log("ComponentMounted");
+    var base_re_wid = window.innerWidth;
+    var base_re_high = window.innerHeight;
+    var standard_width = 1438;
+    var standard_height = 707;
+    var adjust_width = (base_re_wid / standard_width) * 0.40;
+    var adjust_height = (base_re_high / standard_height) * 0.40;
+    var y_start = 0;
+
+    this.setState({
+      input: <EXON_PLOT doc={document} target_div_id={"supp1"}></EXON_PLOT>
+    })
+  }
+
+  render()
+  {
+    //console.log("ComponentRendered", this.state);
+    return(
+      <div>
+      {this.state.input}
+      </div>
+    );
+  }
+}
+
+
+class EXON_PLOT extends React.Component {
+  constructor(props)
+  {
+    super(props);
+    this.target_div = this.props.target_div_id;
+    this.SVG_main_group = null;
+    this.xscale = 0.05;
+    this.doc = this.props.doc;
+    this.div = null;
+    this.ens_map = {};
+    this.state = {
+      exons: null,
+      transcripts: null,
+      junctions: null,
+      in_data: null,
+      scaled: false
+    };
+    updateExPlot = updateExPlot.bind(this)
+    setScaling = setScaling.bind(this)
+  }
+
+  baseSVG(w="100%", h=2000) 
+  {
+    this.SVG = d3.select("#".concat(this.target_div))
+      .append("svg")
+      .attr("width", w)
+      .attr("height", h)
+      .attr("id", (this.target_div.concat("_svg")));
+
+    this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
+      
+    this.SVG_main_group.append("rect")
+      .attr("width", w)
+      .attr("height", h)
+      .style("stroke", "White")
+      .attr("stroke-width", 0)
+      .attr("type", "canvas")
+      .attr("fill", "White");    
+  }
+
+  writeBase()
+  {
+    this.SVG_main_group.append("rect")
+      .attr("width", "100%")
+      .attr("height", 2000)
+      .style("opacity", 1.0)
+      .attr("fill", "White");
+
+    this.rect = d3.select("body").append("rect") 
+      .attr("width", 30)
+      .attr("height", 30)
+      .style("opacity", 1.0)
+      .attr("type", "canvas")
+      .attr("fill", "red");
+
+  }
+
+  tempTextAdd(name, originX, originY, id_in)
+  {
+    this.SVG_main_group.append("text")
+      .attr("x", originX)
+      .attr("y", (originY - 30))
+      .attr("text-anchor", "start")
+      .attr("id", "TEMPORARY_HIGHLIGHT") 
+      .style("font-size", "16px")
+      .style('fill', 'red')
+      .text(name);
+  }
+
+  tempTextRemove()
+  {
+    var text_to_remove = document.getElementById("TEMPORARY_HIGHLIGHT");
+    d3.select(text_to_remove).remove();
+  }
+
+  tempOnHover(in_x, in_y, in_text, flag)
+  {
+
+    if(flag == "add")
+    {
+      var h_adj = 0;
+
+      if(in_text.length == 2)
+      {
+        h_adj = 40;
+      }
+      else
+      {
+        h_adj = 80;
+      }
+
+      this.SVG_hover_group = this.SVG.append("g").attr("id", "Ubaid".concat(in_x.toString()));
+        
+
+
+      if(in_text.length == 2)
+      {
+        var set_y = in_y-h_adj;
+        var set_x = in_x+65;
+
+        var set_y_text = in_y-21;
+        var set_x_text = in_x+95;
+
+
+        if(set_y < 10)
+        {
+          set_y = 10;
+          set_x = in_x + 105;
+
+          set_y_text = set_y + 20;
+          set_x_text = set_x + 20;
+        }
+
+        this.SVG_hover_group.append("rect")
+          .attr("x", set_x)
+          .attr("y", set_y)
+          .attr("width", 120)
+          .attr("height", 50)
+          .style("stroke-width", 3)
+          .style("stroke", "black")
+          .attr("fill", "black");
+
+        this.SVG_hover_group.append("text")
+          .attr("x", set_x_text)
+          .attr("y", set_y_text)
+          .attr("text-anchor", "start")
+          .style("font-size", "10px")
+          .style('fill', 'white')
+
+          .text(in_text[0]);
+
+        this.SVG_hover_group.append("text")
+          .attr("x", set_x_text)
+          .attr("y", set_y_text+18)
+          .attr("text-anchor", "start")
+          .style("font-size", "10px")
+          .style('fill', 'white')
+
+          .text((in_text[1].concat(" bp")));
+      }
+      else
+      {
+
+        this.SVG_hover_group.append("rect")
+          .attr("x", in_x+65)
+          .attr("y", in_y-h_adj)
+          .attr("width", 93)
+          .attr("height", 80)
+          .style("stroke-width", 3)
+          .style("stroke", "black")
+          .attr("fill", "black");
+
+        for(var i_k = 0; i_k < in_text.length; i_k++)
+        {
+          this.SVG_hover_group.append("text")
+            .attr("x", in_x+95)
+            .attr("y", ((in_y-64 + (i_k * 18))))
+            .attr("text-anchor", "start")
+            .style("font-size", "10px")
+            .style('fill', 'white')
+            .text(in_text[i_k]);
+        }
+      }
+
+    }
+    else
+    {
+      var tunabi = document.getElementById("Ubaid".concat(in_x.toString()));
+      d3.select(tunabi).remove();
+    }
+  }
+
+
+  writeTranscripts(trans_input)
+  {
+    var parent = this;
+    var y_start = 110;
+    console.log("ENS MAP", this.ens_map);
+    for (const [key, value] of Object.entries(trans_input)) 
+    {
+      console.log("Trans input key:", trans_input[key]);
+      
+      var cur_obj = this.SVG_main_group.append("text")
+          .attr("x", 8)
+          .attr("y", (y_start + 15))
+          .attr("text-anchor", "start")
+          .style("font-size", "13px")
+          .style("opacity", 1.0)
+          .attr("fill", "black")
+          .text(key);
+
+      var current_start = 10000000;
+      var current_end = 0;
+
+      for(var i = 0; i < (trans_input[key].length); i++)
+      {
+        try{
+        var cur_ens_id = trans_input[key][i];
+
+        const cur_u = this.ens_map[cur_ens_id];
+        if(cur_u["x"] < current_start)
+        {
+          current_start = cur_u["x"];
+        } 
+        if(cur_u["x"] > current_end)
+        {
+          current_end = cur_u["x"];
+        }
+        }
+        catch(error)
+        {
+          console.log("FAIL", trans_input[key][i]);
+        }        
+      }
+
+      this.SVG_main_group.append("rect")
+        .attr("x", current_start)
+        .attr("y", y_start + 9)
+        .attr("width", (current_end - current_start))
+        .attr("height", 2)
+        .attr("fill", "grey");
+
+      for(var i = 0; i < (trans_input[key].length); i++)
+      {
+        try{
+        var cur_ens_id = trans_input[key][i];
+
+        const current_unit = this.ens_map[cur_ens_id];
+
+        const hard_start = "Start: ".concat(current_unit["h_start"].toString()).concat(" bp");
+        const hard_stop = "Stop: ".concat(current_unit["h_stop"].toString()).concat(" bp");
+
+        const hard_width = Math.abs(current_unit["h_stop"] - current_unit["h_start"]);
+        const hard_width_string = "Width: ".concat(hard_width.toString()).concat(" bp");
+
+
+        var cur_obj = this.SVG_main_group.append("rect")
+          .attr("x", current_unit["x"])
+          .attr("y", (y_start + 5))
+          .attr("width", current_unit["width"])
+          .attr("height", 10)
+          .attr("t_ens_name", current_unit["name"])
+          .attr("transcript", key)
+          .style("stroke", "grey")
+          .style("stroke-width", "1")
+          .style("opacity", 1.0)
+          .attr("fill", "#e6e6e6")
+          .on("mouseover", function() {
+              //console.log(cur_obj);
+              var pretg = d3.select(this);
+              var gmos = pretg["_groups"][0][0]["attributes"]["t_ens_name"]["nodeValue"];
+              var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
+              var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
+              //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
+              parent.tempOnHover(temp_x, temp_y, [current_unit["name"], hard_start, hard_stop, hard_width_string], "add")
+              })          
+          .on("mouseout", function(d) {   
+              //parent.tempTextRemove();
+              var pretg = d3.select(this);
+              var gmos = pretg["_groups"][0][0]["attributes"]["t_ens_name"]["nodeValue"];
+              var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
+              var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
+              parent.tempOnHover(temp_x, temp_y, [current_unit["name"], hard_start, hard_stop, hard_width_string], "remove")
+          });
+        }
+        catch(error)
+        {
+          console.log("FAIL", trans_input[key][i]);
+        }
+      }
+      y_start = y_start + 20;
+
+    }
+  }
+
+  tempCircleAdd(flag, x, y)
+  {
+    if(flag == "add")
+    {
+      /*var j_id_t = document.getElementById(j_id);
+      console.log("CIRCLE_GET", j_id_t);
+      var temp_x_1 = parseFloat(j_id_t["attributes"]["cx"]["nodeValue"]);
+      var temp_y_1 = parseFloat(j_id_t["attributes"]["cy"]["nodeValue"]);
+      var temp_r = parseFloat(j_id_t["attributes"]["r"]["nodeValue"]);*/
+
+      this.SVG_main_group.append('circle')
+        .attr('cx', x)
+        .attr('cy', y)
+        .attr('r', 7)
+        .attr('id', "TEMP_CIRCLE_ID")
+        .style('fill', '#e60000');
+    }
+    else
+    {
+      var circ_to_remove = document.getElementById("TEMP_CIRCLE_ID");
+      d3.select(circ_to_remove).remove();
+    }
+  }
+
+  tempBorderHighlight(flag, g1, g2, m1, m2)
+  {
+    if(flag == "add")
+    {
+      d3.select(g1)
+        .style('fill', '#e60000')
+        .style('stroke', '#e60000');
+
+      d3.select(g2)
+        .style('fill', '#e60000')
+        .style('stroke', '#e60000');
+
+      const f1 = "no";
+      const f2 = "no";
+
+      d3.selectAll("rect").each(function(d, i){
+        const cur_make = d3.select(this);
+        if(cur_make.attr("t_ens_name") == m1){
+          cur_make.style('fill', '#e60000')
+          .style('stroke', '#e60000');
+        }
+        if(cur_make.attr("t_ens_name") == m2){
+          cur_make.style('fill', '#e60000')
+          .style('stroke', '#e60000');
+        }
+      })
+      /*
+      var gmos_1 = g1["attributes"]["exname"]["nodeValue"];
+      var temp_x_1 = parseFloat(g1["attributes"]["x"]["nodeValue"]);
+      var temp_y_1 = parseFloat(g1["attributes"]["y"]["nodeValue"]);
+      var temp_wid_1 = parseFloat(g1["attributes"]["width"]["nodeValue"]);
+
+      var gmos_2 = g2["attributes"]["exname"]["nodeValue"];
+      var temp_x_2 = parseFloat(g2["attributes"]["x"]["nodeValue"]);
+      var temp_y_2 = parseFloat(g2["attributes"]["y"]["nodeValue"]);
+      var temp_wid_2 = parseFloat(g2["attributes"]["width"]["nodeValue"]);*/
+
+    }
+    else
+    {
+      d3.select(g1)
+        .style("fill", "#e6e6e6")
+        .style('stroke', 'grey');
+
+      d3.select(g2)
+        .style("fill", "#e6e6e6")
+        .style('stroke', 'grey');
+
+      d3.selectAll("rect").each(function(d, i){
+        const cur_make = d3.select(this);
+        if(cur_make.attr("t_ens_name") == m1){
+          cur_make.style('fill', '#e6e6e6')
+          .style('stroke', 'grey');
+        }
+        if(cur_make.attr("t_ens_name") == m2){
+          cur_make.style('fill', '#e6e6e6')
+          .style('stroke', 'grey');
+        }
+      })
+
+    }
+  }
+
+  writeJunctions(junc_input, in_data)
+  {
+    var parent = this;
+    const curve = d3.line().curve(d3.curveNatural);
+    var juncpointset = [];
+    var juncpointset8 = [];
+    var juncpointset12 = [];
+    for(var i = 0; i < junc_input.length; i++)
+    {
+      try {
+      var junc_iter = junc_input[i];
+      const cur_junc = junc_iter["junction"];
+      var sign = junc_iter["strand"];
+      if(sign == "+")
+      {
+        var parse = cur_junc.split("-");
+        var starting_exon = parse[0];
+        var finishing_exon = parse[1];
+      }
+      else
+      {
+        var parse = cur_junc.split("-");
+        var starting_exon = parse[1];
+        var finishing_exon = parse[0];
+      }
+
+      const get_1 = document.getElementById(starting_exon.concat("_global_id"));
+      const get_2 = document.getElementById(finishing_exon.concat("_global_id"));
+
+      //console.log(get_2["_groups"])
+      //console.log(get_2["attributes"])
+      //console.log(get_2["_groups"]["exname"])
+
+      const gmos_1 = get_1["attributes"]["exname"]["nodeValue"];
+      var temp_x_1 = parseFloat(get_1["attributes"]["x"]["nodeValue"]);
+      var temp_y_1 = parseFloat(get_1["attributes"]["y"]["nodeValue"]);
+      var temp_wid_1 = parseFloat(get_1["attributes"]["width"]["nodeValue"]);
+
+      const gmos_2 = get_2["attributes"]["exname"]["nodeValue"];
+      var temp_x_2 = parseFloat(get_2["attributes"]["x"]["nodeValue"]);
+      var temp_y_2 = parseFloat(get_2["attributes"]["y"]["nodeValue"]);
+      var temp_wid_2 = parseFloat(get_2["attributes"]["width"]["nodeValue"]);
+
+      var junctions_matched = 0;
+
+      var junc2_start = get_2["attributes"]["start"]["nodeValue"];
+      var junc1_end = get_1["attributes"]["stop"]["nodeValue"];
+      const junclength = "Junction length: ".concat((parseInt(get_2["attributes"]["start"]["nodeValue"]) - parseInt(get_1["attributes"]["stop"]["nodeValue"])).toString());
+
+      if(in_data["coord1"] == junc1_end && in_data["coord2"] == junc2_start){junctions_matched = 2;}
+      if(in_data["coord2"] == junc1_end && in_data["coord1"] == junc2_start){junctions_matched = 2;}
+      if(in_data["coord3"] == junc1_end && in_data["coord4"] == junc2_start){junctions_matched = 2;}
+      if(in_data["coord4"] == junc1_end && in_data["coord3"] == junc2_start){junctions_matched = 2;}
+
+      if(junctions_matched >= 2){
+        var junction_color = "orange";
+        var circle_color = "#ff9933";
+      }
+      else
+      {
+        var junction_color = "#008080";
+        var circle_color = "black";
+      }
+
+      var potent_end = (temp_x_1+temp_wid_1);
+      var curve_s_x = potent_end + ((temp_x_2 - potent_end) / 2);
+
+      var t_x_s = curve_s_x;
+      var y_adj = 0;
+
+      for(var ted = 0; ted < juncpointset.length; ted++)
+      {
+        var iter_ted = juncpointset[ted];
+        if(Math.abs((iter_ted - t_x_s)) < 10)
+        {
+          y_adj = 12;
+        }
+      }
+
+      if(y_adj == 12)
+      {
+        for(var ted = 0; ted < juncpointset8.length; ted++)
+        {
+          var iter_ted = juncpointset8[ted];
+          if(Math.abs((iter_ted - t_x_s)) < 10)
+          {
+            y_adj = 24;
+          }
+        }        
+      }
+
+      if(y_adj == 24)
+      {
+        for(var ted = 0; ted < juncpointset12.length; ted++)
+        {
+          var iter_ted = juncpointset12[ted];
+          if(Math.abs((iter_ted - t_x_s)) < 10)
+          {
+            y_adj = 36;
+          }
+        }        
+      }
+
+      var points = [[potent_end, 90], [t_x_s, (65 - y_adj)], [temp_x_2, 90]];
+
+      if(y_adj == 0)
+      {
+        juncpointset.push(t_x_s);
+      }
+      if(y_adj == 12)
+      {
+        juncpointset8.push(t_x_s);
+      }
+      if(y_adj == 24)
+      {
+        juncpointset12.push(t_x_s);
+      }
+      var finy = (65 - y_adj);
+      this.SVG_main_group.append('path')
+        .attr('d', curve(points))
+        .attr('stroke', junction_color)
+        // with multiple points defined, if you leave out fill:none,
+        // the overlapping space defined by the points is filled with
+        // the default value of 'black'
+        .attr('fill', 'none');
+      //#4d0000
+      var burger = this.SVG_main_group.append('circle')
+        .attr('cx', t_x_s)
+        .attr('cy', finy)
+        .attr('r', 5)
+        .attr('id', cur_junc.concat("_global_id"))
+        .style('fill', circle_color)
+        .on("mouseover", function() {
+              var pretg = d3.select(this);
+              var temp_x = pretg["_groups"][0][0]["attributes"]["cx"]["nodeValue"];
+              var temp_y = pretg["_groups"][0][0]["attributes"]["cy"]["nodeValue"];
+
+              parent.tempCircleAdd("add", temp_x, temp_y)
+              parent.tempBorderHighlight("add", get_1, get_2, gmos_1, gmos_2)
+
+              parent.tempOnHover(temp_x, temp_y, [cur_junc, junclength], "add")
+            })          
+        .on("mouseout", function(d) {
+              var pretg = d3.select(this);
+              var temp_x = pretg["_groups"][0][0]["attributes"]["cx"]["nodeValue"];
+              var temp_y = pretg["_groups"][0][0]["attributes"]["cy"]["nodeValue"];
+
+              parent.tempCircleAdd("remove", (cur_junc.concat("_global_id")))
+              parent.tempBorderHighlight("remove", get_1, get_2, gmos_1, gmos_2)
+
+              parent.tempOnHover(temp_x, temp_y, [cur_junc, junclength], "remove")
+        });
+      }
+      catch (error) {
+        console.log("ERROR:", error);
+        continue;
+      }
+
+    }
+  }
+
+  writeExons(exon_input)
+  {
+    var parent = this;
+    var starting_point = exon_input[0]["start"];
+    var scale_exon_stop = 0;
+    var to_x_scale = 0;
+    var min_exon_length = 3;
+    var max_exon_length = 20;
+    var x_offset = 150;
+    for(var i = 0; i < exon_input.length; i++)
+    {
+      var exname = exon_input[i]["exon_name"];
+
+      if(i == 0)
+      {
+        var x_pos_1 = exon_input[i]["start"] - starting_point;
+        var x_pos_2 = exon_input[i]["stop"] - starting_point;
+        if(this.state.scaled == false)
+        {
+          if((x_pos_2 - x_pos_1) > 20)
+          {
+            scale_exon_stop = 20;
+          }
+          else if((x_pos_2 - x_pos_1) < 3)
+          {
+            scale_exon_stop = 3;
+          }
+          else
+          {
+            scale_exon_stop = x_pos_2;
+          }
+        }
+        else
+        {
+          scale_exon_stop = x_pos_2;
+        }
+      }
+      else
+      {
+        if(exname.charAt(0) == "I")
+        {
+          scale_exon_stop = scale_exon_stop + 20;
+          continue;
+        }
+        else
+        {
+          var x_pos_1 = scale_exon_stop;
+          var x_pos_2 = scale_exon_stop + (exon_input[i]["stop"] - exon_input[i]["start"]);
+          if(this.state.scaled == false)
+          {
+            if((exon_input[i]["stop"] - exon_input[i]["start"]) < 3)
+            {
+              scale_exon_stop = scale_exon_stop + 3;
+            }
+            else if((exon_input[i]["stop"] - exon_input[i]["start"]) > 20)
+            {
+              scale_exon_stop = scale_exon_stop + 20;
+            }
+            else
+            {
+              scale_exon_stop = x_pos_2;
+            }
+          }
+          else
+          {
+            scale_exon_stop = x_pos_2;
+          }
+        }
+      }
+    }
+
+    to_x_scale = (window.innerWidth / 1.25) / scale_exon_stop;
+
+    var last_exon_stop = 0;
+    for(var i = 0; i < exon_input.length; i++)
+    {
+      const exname = exon_input[i]["exon_name"];
+      const hard_start = "Start: ".concat(exon_input[i]["start"].toString()).concat(" bp");
+      const hard_stop = "Stop: ".concat(exon_input[i]["stop"].toString()).concat(" bp");
+
+      const hard_width = Math.abs(exon_input[i]["stop"] - exon_input[i]["start"]);
+      const hard_width_string = "Width: ".concat(hard_width.toString()).concat(" bp");
+
+      if(i == 0)
+      {
+        var x_pos_1 = exon_input[i]["start"] - starting_point;
+        var x_pos_2 = exon_input[i]["stop"] - starting_point;
+        if(this.state.scaled == false)
+        {
+          if((x_pos_2 - x_pos_1) > 20)
+          {
+            x_pos_2 = x_pos_1 + 20;
+            last_exon_stop = 20;
+          }
+          else if((x_pos_2 - x_pos_1) < 3)
+          {
+            x_pos_2 = x_pos_1 + 3;
+            last_exon_stop = 3;
+          }
+          else
+          {
+            last_exon_stop = x_pos_2;
+          }
+        }
+        else
+        {
+          last_exon_stop = x_pos_2;
+        }
+      }
+      else
+      {
+        if(exname.charAt(0) == "I")
+        {
+          last_exon_stop = last_exon_stop + 20;
+          continue;
+        }
+        else
+        {
+          var x_pos_1 = last_exon_stop;
+          var x_pos_2 = last_exon_stop + (exon_input[i]["stop"] - exon_input[i]["start"]);
+          if(this.state.scaled == false)
+          {
+            if((exon_input[i]["stop"] - exon_input[i]["start"]) < 3)
+            {
+              x_pos_2 = x_pos_1 + 3;
+              last_exon_stop = last_exon_stop + 3;
+            }
+            else if((exon_input[i]["stop"] - exon_input[i]["start"]) > 20)
+            {
+              x_pos_2 = x_pos_1 + 20;
+              last_exon_stop = last_exon_stop + 20;
+            }
+            else
+            {
+              last_exon_stop = x_pos_2;
+            }
+          }
+          else
+          {
+            last_exon_stop = x_pos_2;
+          }
+        }
+      }
+
+      x_pos_1 = x_pos_1 * to_x_scale;
+      x_pos_2 = x_pos_2 * to_x_scale;
+
+      var higs = this.div;
+
+      var cur_obj = this.SVG_main_group.append("rect")
+        .attr("x", (x_offset + x_pos_1))
+        .attr("y", 90)
+        .attr("width", (x_pos_2 - x_pos_1))
+        .attr("height", 10)
+        .style("stroke", "grey")
+        .style("stroke-width", "1")
+        .style("opacity", 1.0)
+        .attr("fill", "#e6e6e6")
+        .attr("id", exname.concat("_global_id"))
+        .attr("exname", exname)
+        .attr("ensembl_exon_id", exon_input[i]["ensembl_exon_id"])
+        .attr("start", exon_input[i]["start"])
+        .attr("stop", exon_input[i]["stop"])
+        .on("mouseover", function() {
+            //console.log(cur_obj);
+            var pretg = d3.select(this);
+            var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
+            var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
+            var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
+            const pip = exname.concat("_global_id")
+            //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
+            parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "add")
+            })          
+        .on("mouseout", function(d) {   
+            //parent.tempTextRemove();
+            var pretg = d3.select(this);
+            var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
+            var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
+            var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
+            parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "remove")
+        });
+
+      //var ens_id = exon_input[i]["ensembl_exon_id"];
+      //var ens_id_split = ens_id.split("|");
+
+      //for(var k = 0; k < ens_id_split.length; k++)
+      //{
+      this.ens_map[exon_input[i]["start"]] = {};
+      this.ens_map[exon_input[i]["start"]]["name"] = exname;
+      this.ens_map[exon_input[i]["start"]]["x"] = x_offset + x_pos_1;
+      this.ens_map[exon_input[i]["start"]]["width"] = (x_pos_2 - x_pos_1);
+      this.ens_map[exon_input[i]["start"]]["h_start"] = exon_input[i]["start"];
+      this.ens_map[exon_input[i]["start"]]["h_stop"] = exon_input[i]["stop"];
+      //}
+
+    }
+    
+  }
+
+  /*
+  componentDidUpdate (prevProps){
+    if(this.props !== prevProps)
+    {
+      if(this.state.exons != null && this.state.exons != null && this.state.exons != null)
+      {
+        
+      }
+    }
+  }*/
+
+  render (){
+    //console.log("NEW OKMAP RENDER", this.props.column_names);
+
+    //var map1 = new OKMAP("HEATMAP_0", cbeds, document, ((400/cbeds.length) * adjust_width), rr.length);
+    //var tempnode = document.getElementById(this.target_div);
+    var y_start = 0;
+    var tempnode = document.getElementById(this.target_div);
+    while (tempnode.firstChild) {
+        tempnode.removeChild(tempnode.firstChild);
+    }
+    this.baseSVG();
+    this.writeBase();
+    if(this.state.exons != null && this.state.transcripts != null && this.state.junctions != null)
+    {
+      var sorted_exons = this.state.exons.sort((a, b)=>{return Number(a["start"])-Number(b["start"])})
+      console.log(sorted_exons);
+      this.writeExons(sorted_exons);
+      this.writeJunctions(this.state.junctions, this.state.in_data);
+      this.writeTranscripts(this.state.transcripts)
+    }
+    return(
+      null
+    );
+  }
+
+}
+
+const SpcCheckbox = withStyles({
+  root: {
+    color: "#0F6A8B",
+    '&$checked': {
+      color: "#0F6A8B",
+    },
+  },
+  checked: {},
+})((props) => <Checkbox color="default" {...props} />);
+
+function setScaling(boolean_val)
+{
+  this.setState({
+    scaled: boolean_val
+  });
+}
+
+function ScalingCheckbox(props)
+{
+  const [state, setState] = React.useState({
+      checkedB: false,
+    });
+
+    const handleChange = (event) => {
+      setState({ ...state, [event.target.name]: event.target.checked });
+      //props.updateBQPane(event.target.checked);
+      //props.qBDefaultMessage(event.target.checked);
+      setScaling(event.target.checked);
+      console.log(event.target.checked);
+    };
+
+  return(
+  <div style={{marginLeft: 3}}>
+  <FormControlLabel
+      control={
+          <SpcCheckbox
+              checked={state.checkedB}
+              onChange={handleChange}
+              name="checkedB"
+          />
+          }
+      label="Use Unscaled"
+  />
+  </div>
+  );
+}
+
+
+function downloadTranscript(){
+  console.log(global_exon_blob);
+  var blob_text = "";
+  for (const [key, value] of Object.entries(global_exon_blob[0])) {
+        blob_text = blob_text.concat(key);
+        blob_text = blob_text.concat(",");
+  }
+
+  blob_text = blob_text.slice(0, -1);
+  blob_text = blob_text.concat("\n");
+
+  for(var i = 0; i < global_exon_blob.length; i++)
+  {
+    for (const [key, value] of Object.entries(global_exon_blob[i])) {
+          blob_text = blob_text.concat(value);
+          blob_text = blob_text.concat(",");
+    }
+    blob_text = blob_text.slice(0, -1);
+    blob_text = blob_text.concat("\n");
+  }
+
+  var filename;
+  filename = "transcript.csv";
+
+  var uri = "data:application/octet-stream," + encodeURIComponent(blob_text);
+  var link = document.createElement("a");
+  link.download = filename;
+  link.href = uri;
+
+  document.body.appendChild(link);
+  link.click();
+  // Cleanup the DOM
+  document.body.removeChild(link);
+}
+
+function downloadGeneModel(){
+  console.log(global_genemodel_blob);
+  var blob_text = "";
+  for (const [key, value] of Object.entries(global_genemodel_blob[0])) {
+        blob_text = blob_text.concat(key);
+        blob_text = blob_text.concat(",");
+  }
+
+  blob_text = blob_text.slice(0, -1);
+  blob_text = blob_text.concat("\n");
+
+  for(var i = 0; i < global_genemodel_blob.length; i++)
+  {
+    for (const [key, value] of Object.entries(global_genemodel_blob[i])) {
+          blob_text = blob_text.concat(value);
+          blob_text = blob_text.concat(",");
+    }
+    blob_text = blob_text.slice(0, -1);
+    blob_text = blob_text.concat("\n");
+  }
+
+  var filename;
+  filename = "genemodel.csv";
+
+  var uri = "data:application/octet-stream," + encodeURIComponent(blob_text);
+  var link = document.createElement("a");
+  link.download = filename;
+  link.href = uri;
+
+  document.body.appendChild(link);
+  link.click();
+  // Cleanup the DOM
+  document.body.removeChild(link);
+}
+
+function downloadJunctions(){
+  console.log(global_junc_blob);
+  var blob_text = "";
+  for (const [key, value] of Object.entries(global_junc_blob[0])) {
+        blob_text = blob_text.concat(key);
+        blob_text = blob_text.concat(",");
+  }
+
+  blob_text = blob_text.slice(0, -1);
+  blob_text = blob_text.concat("\n");
+
+  for(var i = 0; i < global_junc_blob.length; i++)
+  {
+    for (const [key, value] of Object.entries(global_junc_blob[i])) {
+          blob_text = blob_text.concat(value);
+          blob_text = blob_text.concat(",");
+    }
+    blob_text = blob_text.slice(0, -1);
+    blob_text = blob_text.concat("\n");
+  }
+
+  var filename;
+  filename = "junctions.csv";
+
+  var uri = "data:application/octet-stream," + encodeURIComponent(blob_text);
+  var link = document.createElement("a");
+  link.download = filename;
+  link.href = uri;
+
+  document.body.appendChild(link);
+  link.click();
+  // Cleanup the DOM
+  document.body.removeChild(link);
+}
+
+
 function ViewPane(props) {
   const classes = useStyles();
   global_meta = props.Cols;
@@ -1262,9 +2871,35 @@ function ViewPane(props) {
         <ViewPane_Main Data={props.Data} Cols={props.Cols} CC={props.CC} RPSI={props.RPSI} QueryExport={props.QueryExport}/>
       </Grid>
       <Grid item xs={4}>
-        <ViewPane_Side QueryExport={props.QueryExport}/>
+        <ViewPane_Side Data={props.Data} Cols={props.Cols} CC={props.CC} RPSI={props.RPSI} TRANS={props.TRANS} QueryExport={props.QueryExport}/>
       </Grid>
     </Grid>
+    <div style={{margin: 10}}>
+      <Grid container spacing={1}>
+      <Grid item xs={2}>
+      <SpcInputLabel label={"ExonPlot"} />
+      </Grid>
+      <Grid item>
+        <ScalingCheckbox />
+      </Grid>
+      <Grid item>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={downloadTranscript}>Download Transcript</Button>
+      </Grid>
+      <Grid item>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={downloadGeneModel}>Download Gene Model</Button>
+      </Grid>
+      <Grid item>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={downloadJunctions}>Download Junctions</Button>
+      </Grid>
+      <Grid item>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}}>Download PDF</Button>
+      </Grid>
+      </Grid>
+      <Box borderColor="#dbdbdb" {...spboxProps}>
+        <div style={{marginLeft: 20, marginTop: 10, marginBottom: 10}} id="supp1">
+        </div>
+      </Box>
+    </div>
     </div>
   );
 }
@@ -1298,7 +2933,9 @@ function ViewPane_Side(props) {
     <div>
     <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
     <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
+    <SupplementaryPlot title={"OncoClusters"} function={loopThroughGene} CC={props.CC} RPSI={props.RPSI} TRANS={props.TRANS} Data={props.Data} Cols={props.Cols}></SupplementaryPlot>
     <Stats></Stats>
+    <SetExonPlot></SetExonPlot>
     </div>
   )
 }

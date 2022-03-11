@@ -7,102 +7,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "BuildQueryPane.js",
-			"settings":
-			{
-				"buffer_size": 11642,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "CancerSelect.js",
-			"settings":
-			{
-				"buffer_size": 3926,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "ClientAddCoord.js",
-			"settings":
-			{
-				"buffer_size": 2769,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "ClientAddFilter.js",
-			"settings":
-			{
-				"buffer_size": 7748,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "ClientAddGene.js",
-			"settings":
-			{
-				"buffer_size": 2705,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "ClientSEF.js",
-			"settings":
-			{
-				"buffer_size": 4317,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "ClientSelectedFilter.js",
-			"settings":
-			{
-				"buffer_size": 4344,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "FilterMenuPopulate.js",
-			"settings":
-			{
-				"buffer_size": 4781,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "Queuebox.js",
-			"settings":
-			{
-				"buffer_size": 10522,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "ResetButton.js",
-			"settings":
-			{
-				"buffer_size": 511,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "SelectCancerSignature.js",
-			"settings":
-			{
-				"buffer_size": 4024,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "SubmitButton.js",
-			"settings":
-			{
-				"buffer_size": 1056,
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -140,17 +44,37 @@
 	},
 	"file_history":
 	[
-		"/Users/haym4b/Desktop/oncobuild/preprocessingV3.py",
+		"/Users/haym4b/Desktop/oncobuild/makeComparison.py",
 		"/Users/haym4b/Desktop/oncobuild/clean.py",
+		"/Users/haym4b/Desktop/oncobuild/preprocessingV3.py",
+		"/Users/haym4b/Desktop/oncobuild/start.py",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/BuildQueryPane.js",
+		"/Users/haym4b/Desktop/gittoken.txt",
+		"/Users/haym4b/Desktop/material-app/src/index.js",
+		"/Users/haym4b/Desktop/material-app/src/useStyles.js",
+		"/Users/haym4b/Desktop/material-app/src/README.md",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/SubmitButton.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/SelectCancerSignature.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ResetButton.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/Queuebox.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/FilterMenuPopulate.js",
+		"/Users/haym4b/Desktop/material-app/src/components/CheckboxForm.js",
+		"/Users/haym4b/Desktop/material-app/src/request/CancerDataManagement.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ClientSelectedFilter.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ClientSEF.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ClientAddGene.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ClientAddFilter.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ClientAddCoord.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/CancerSelect.js",
+		"/Users/haym4b/Desktop/material-app/src/heatmap/KNOWN_ISSUES.txt",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ONCO-BQPANE.sublime-project",
 		"/Users/haym4b/Desktop/oncobuild/metaquery.py",
 		"/Users/haym4b/Desktop/oncobuild/metaset.py",
-		"/Users/haym4b/Desktop/oncobuild/start.py",
 		"/Users/haym4b/Desktop/material-app/src/php/getgene.php",
 		"/Users/haym4b/Desktop/material-app/src/php/getcoord.php",
 		"/Users/haym4b/Desktop/material-app/src/php/main_parse.php",
 		"/Users/haym4b/Desktop/oncobuild/signmatch_finish.py",
 		"/Users/haym4b/Desktop/material-app/src/token2",
-		"/Users/haym4b/Desktop/material-app/src/index.js",
 		"/Users/haym4b/Desktop/material-app/src/index.php",
 		"/Users/haym4b/Desktop/material-app/src/BuildQueryPane.js",
 		"/Users/haym4b/Desktop/material-app/src/components/CancerDataManagement.js",
@@ -159,7 +83,6 @@
 		"/Users/haym4b/Desktop/material-app/src/components/Queuebox.js",
 		"/Users/haym4b/Desktop/material-app/src/QueryHistory.js",
 		"/Users/haym4b/Desktop/material-app/src/ViewPane.js",
-		"/Users/haym4b/Desktop/material-app/src/useStyles.js",
 		"/Users/haym4b/Desktop/material-app/src/10-06notes",
 		"/Users/haym4b/Desktop/material-app/src/components/ClientAddFilter.js",
 		"/Users/haym4b/Desktop/material-app/src/php/ui_fields.php",
@@ -248,30 +171,11 @@
 		"/Users/haym4b/Desktop/singlecellexplorer/referencefiles/UI.js",
 		"/Users/haym4b/Downloads/lung_tpm_non_immuneCells_v5.h5ad",
 		"/Users/haym4b/singleCell/singleCellApp_for_release/config.json",
-		"/Users/haym4b/Desktop/matrador/expression_viewer_vue_v0.01.html",
-		"/Users/haym4b/Desktop/matrador/index.html",
-		"/Users/haym4b/Desktop/AltAnalyzeViewerRemake/altanalyze-master/build_scripts/setup_binary.py",
-		"/Users/haym4b/Desktop/AltAnalyzeViewerRemake/altanalyze-master/export.py",
-		"/Users/haym4b/Desktop/AltAnalyzeViewerRemake/altanalyze-master/unique.py",
-		"/Users/haym4b/Desktop/lungmap/app/src/BreathEntityPage.php",
-		"/Users/haym4b/Desktop/Old/untitled folder/index.php",
-		"/Users/haym4b/Desktop/Grimes6Fluidigm/d3write_4way4.js",
-		"/Users/haym4b/Desktop/G4ViewNew/rough/DM1/DM1_ticks_new.txt",
-		"/Users/haym4b/Desktop/G4ViewNew/rough/DM1/DM1_ticks.txt",
-		"/Users/haym4b/Desktop/G4ViewNew/TickWriter.js",
-		"/Users/haym4b/Desktop/Grimes6Fluidigm/Viewer.php",
-		"/Users/haym4b/Desktop/Grimes6Fluidigm/Colors.js",
-		"/Users/haym4b/Desktop/Grimes6Fluidigm/User8.php",
-		"/private/var/folders/qy/3_rmtmcx5h9ch04brf63z9h0zrdb2l/T/94693437-b525-494b-90f8-7b2d89279f06/data/altanalyzeweb/AltAnalyze/ICGS/Grimes4View/Colors.js",
-		"/Users/haym4b/Desktop/Krathik/Backup/DragSelect.js",
-		"/Users/haym4b/Desktop/Krathik/cols.js",
-		"/Users/haym4b/Desktop/Krathik/K2.php",
-		"/Users/haym4b/Desktop/BMCB_reconfig/d3write_BMCB_R2.js",
-		"/Users/haym4b/Desktop/Krathik/K.php"
+		"/Users/haym4b/Desktop/matrador/expression_viewer_vue_v0.01.html"
 	],
 	"find":
 	{
-		"height": 23.0
+		"height": 39.0
 	},
 	"find_in_files":
 	{
@@ -285,6 +189,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"spcTabRoot"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -302,367 +207,8 @@
 	"groups":
 	[
 		{
-			"selected": 6,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "BuildQueryPane.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 11642,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 11,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "CancerSelect.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3926,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 10,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "ClientAddCoord.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2769,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 9,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "ClientAddFilter.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7748,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 8,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "ClientAddGene.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2705,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "ClientSEF.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4317,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "ClientSelectedFilter.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4344,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "FilterMenuPopulate.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4781,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "Queuebox.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10522,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "ResetButton.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 511,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 10,
-					"file": "SelectCancerSignature.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4024,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 11,
-					"file": "SubmitButton.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1056,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				}
 			]
 		}
 	],

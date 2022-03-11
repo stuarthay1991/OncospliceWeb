@@ -91,7 +91,8 @@ class ClientSEF extends React.Component {
     }
     if(event.target.value == "Gene Symbol Filter"){
       const obj2 = <ClientAddGene
-        filterID={"clientinputgene"} 
+        filterID={"clientinputgene"}
+        BQstate={BQstate}
         clientgenes={BQstate.clientgenes}
         cancer={BQstate.cancer}
         export={BQstate.export}

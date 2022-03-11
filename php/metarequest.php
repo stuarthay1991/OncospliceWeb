@@ -40,6 +40,7 @@ if($cancertype == "AML_Leucegene")
 	$TABLE_DICT[$cancertype]["RPSI"] = $cancertype . "/MergedResult.txt";
 	$TABLE_DICT[$cancertype]["META"]["COLUMNS"] = $cancertype . "/Columns";
 	$TABLE_DICT[$cancertype]["META"]["RANGE"] = $cancertype . "/Range";
+	$TABLE_DICT[$cancertype]["META"]["QUERY"] = "SELECT * FROM " . $cancertype . "_META";
 	$TABLE_DICT[$cancertype]["SPLC"]["QUERY"] = " FROM " . $cancertype . "_SPLICE ";
 	$TABLE_DICT[$cancertype]["SPLC"]["ROWNUM"] = 999;
 	$TABLE_DICT[$cancertype]["SPLC"]["COLNUM"] = 999;
@@ -51,6 +52,7 @@ else if($cancertype != "LAML")
 	$TABLE_DICT[$cancertype]["RPSI"] = $cancertype . "/MergedResult.txt";
 	$TABLE_DICT[$cancertype]["META"]["COLUMNS"] = $cancertype . "/Columns";
 	$TABLE_DICT[$cancertype]["META"]["RANGE"] = $cancertype . "/Range";
+	$TABLE_DICT[$cancertype]["META"]["QUERY"] = "SELECT * FROM " . $cancertype . "_TCGA_META";
 	$TABLE_DICT[$cancertype]["SPLC"]["QUERY"] = " FROM " . $cancertype . "_TCGA_SPLICE ";
 	$TABLE_DICT[$cancertype]["SPLC"]["ROWNUM"] = 999;
 	$TABLE_DICT[$cancertype]["SPLC"]["COLNUM"] = 999;
@@ -60,10 +62,12 @@ else if($cancertype != "LAML")
 
 if($compcancertype == "AML_Leucegene")
 {
+	$TABLE_DICT[$cancertype]["SIG"]["QUERY"] = "SELECT * FROM " . $compcancertype . "_SIGNATURE";
 	$TABLE_DICT[$cancertype]["SIG"]["COLUMNS"] = $compcancertype . "/oncofields.txt";
 }
 else if($compcancertype != "LAML")
 {
+	$TABLE_DICT[$compcancertype]["SIG"]["QUERY"] = "SELECT * FROM " . $compcancertype . "_TCGA_SIGNATURE";
 	$TABLE_DICT[$compcancertype]["SIG"]["COLUMNS"] = $compcancertype . "/oncofields.txt";
 }
 

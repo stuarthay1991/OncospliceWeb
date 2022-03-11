@@ -15,7 +15,7 @@ import SpcInputLabel from '../../components/SpcInputLabel';
 
 import { makeRequest } from '../../request/CancerDataManagement.js';
 
-function postGenes(cancer, exp, callback)
+function postGenes(cancer, exp, callback, resamt)
 {
   var all_uids = document.getElementById("clientinputgene").value;
   var delimiter = "\n";
@@ -58,6 +58,7 @@ function postGenes(cancer, exp, callback)
   args["cancer"] = cancer;
   args["export"] = exp;
   args["setState"] = callback;
+  args["resamt"] = resamt;
   makeRequest("gene", args);
 }
 
@@ -79,7 +80,7 @@ class ClientAddGene extends React.Component {
   }
 
   onAddChild = () => {
-    postGenes(this.props.cancer, this.props.export, this.props.callback);
+    postGenes(this.props.cancer, this.props.export, this.props.callback, this.props.BQstate.resultamount);
   }
 
 }
@@ -92,10 +93,7 @@ function InputGenes(props) {
     <Grid item xs={3}>
     <SpcInputLabel label={stringA} />
     <div style={{display: "flex"}}>
-        <textarea id="clientinputgene" name="name" placeholder="TP53,JUN,MYC" style={{minWidth: 360, fontSize: 17, minHeight: 60}}/>
-        <IconButton type="submit" aria-label="add" onClick={props.addChild}>
-          <AddIcon />
-        </IconButton>
+        <textarea id="clientinputgene" name="name" placeholder="TP53,JUN,MYC" onChange={props.addChild} style={{minWidth: 360, fontSize: 17, minHeight: 60}}/>
     </div>
     </Grid>
     </Grid>

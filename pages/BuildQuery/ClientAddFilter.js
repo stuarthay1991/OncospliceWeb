@@ -67,8 +67,8 @@ class ClientAddFilter extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log("prev:", prevProps);
-    console.log("cur", this.props);
+    //console.log("prev:", prevProps);
+    //console.log("cur", this.props);
     if(prevProps !== this.props)
     {
       this.setState(state => ({...state, BQstate: this.props.BQstate}));

@@ -61,8 +61,8 @@ const useStyles = makeStyles((theme) => ({
 var localurl = "/material-app";
 var serverurl = "/ICGS/Oncosplice/testing";
 var buildurl = "/ICGS/Oncosplice/build";
-
-var targeturl = serverurl;
+var hoturl = "/ICGS/Oncosplice/hotload";
+const targeturl = serverurl;
 
 function CustomizedInputBase() {
   const classes = useStyles();
