@@ -11,7 +11,7 @@ import {Helmet} from "react-helmet";
 import { createMuiTheme } from '@material-ui/core/styles';
 import '../../App.css';
 import useStyles from '../../useStyles.js';
-import Tooltip from '@material/Tooltip';
+import Tooltip from '@material-ui/core/Tooltip';
 
 //General components
 import TabPanel from '../../components/TabPanel';

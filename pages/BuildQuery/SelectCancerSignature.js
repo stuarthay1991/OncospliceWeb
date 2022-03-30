@@ -7,6 +7,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ClientAddFilter from './ClientAddFilter';
 import SpcInputLabel from "../../components/SpcInputLabel";
 import { makeRequest } from '../../request/CancerDataManagement.js';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const widgetlabel4 = makeStyles((theme) => ({
   root: {
@@ -106,6 +107,7 @@ function SelectCancerSignature({P, parentProps, S, BQstate}){
   return(
   	<>
     <SpcInputLabel label={"Cancer Signature Selection"}/>
+    <Tooltip title="Select a cancer signature. Default is that of the currently selected cancer. Signatures from any cancer can be matched with any other cancer listed in the database.">
     <Select
           native
           classes={wla4}
@@ -131,6 +133,7 @@ function SelectCancerSignature({P, parentProps, S, BQstate}){
             return options;
     })()}
     </Select>
+    </Tooltip>
 	</>
   )
 }

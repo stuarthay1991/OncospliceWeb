@@ -3,6 +3,7 @@ import Grid from '@material-ui/core/Grid';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from "../../components/SpcInputLabel";
 
@@ -69,6 +70,7 @@ function FilterMenuPopulate(props) {
         <Grid container spacing={0}>
         <Grid item>
         <FormControl>
+        <Tooltip title="Select option from the menu. Filters will correspond to patient data for each cancer, while signatures/coordinates/genes correspond to events.">
         <Select
           native
           classes={widgetlabel}
@@ -137,6 +139,7 @@ function FilterMenuPopulate(props) {
             return options;
           })()}
         </Select>
+        </Tooltip>
         </FormControl>
         </Grid>
         </Grid>

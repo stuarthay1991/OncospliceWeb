@@ -8,6 +8,7 @@ import ClientAddFilter from './ClientAddFilter';
 import ClientAddCoord from './ClientAddCoord';
 import ClientAddGene from './ClientAddGene';
 import SelectCancerSignature from './SelectCancerSignature';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from "../../components/SpcInputLabel";
 
@@ -34,6 +35,7 @@ function none()
 function ClientSEF_select(props){
   const wla4 = widgetlabel4();
   return(
+    <Tooltip title="Select the event filtration type. Events can be matched by genomic coordinates, gene symbols or cancer signatures.">
     <Select
           native
           classes={wla4}
@@ -53,6 +55,7 @@ function ClientSEF_select(props){
             return options;
     })()}
     </Select>
+    </Tooltip>
   )
 }
 

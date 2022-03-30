@@ -4,6 +4,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Grid from '@material-ui/core/Grid';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from "../../components/SpcInputLabel";
 
@@ -34,6 +35,7 @@ function CancerSelectWidget(props)
 {
   const classes = widgetlabel();
   return (
+        <Tooltip title="Select a cancer. All filters and signatures subsequently selected will be matched with this cancer data.">
         <Select
           native
           classes={classes}
@@ -59,6 +61,7 @@ function CancerSelectWidget(props)
             return options;
           })()}
         </Select>
+        </Tooltip>
   );
 }
 

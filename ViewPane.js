@@ -31,6 +31,7 @@ import LabelHeatmap from './components/LabelHeatmap';
 import downloadHeatmapText from './components/downloadHeatmapText';
 import axios from 'axios';
 import tooltip from './tooltip.css';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import Plot from 'react-plotly.js';
 import * as d3 from 'd3';
@@ -126,21 +127,13 @@ function exonRequest(GENE, in_data) {
     headers: { "Content-Type": "multipart/form-data" },
   })
     .then(function (response) {
-      console.log("response_exon", response["data"]);
+      //console.log("response_exon", response["data"]);
       var resp = response["data"];
       updateExPlot(resp["gene"], resp["trans"], resp["junc"], in_data);
       global_exon_blob = resp["blob"]["trans"];
       global_genemodel_blob = resp["blob"]["genemodel"];
       global_junc_blob = resp["blob"]["junc"];
-      //var totalmatch = response["data"]["single"];
-      //console.log("oneuid", response["data"]);
-      //plotUIDupdate(response["data"]["result"][0])
-      //var new_vec = response["data"];
-      //plot4update(new_vec);
-      //console.log("1", totalmatch);
-      //console.log("2", response["data"]);
-      //add totalmatch for gene counter
-      //callback(clientgenes, exportView);
+
   })
 }
 
@@ -176,11 +169,47 @@ function GTexSend(UID) {
   })  
 }
 
+function survivalSend(data, cols) {
+
+  var post = "";
+  for (const [newkey, newvalue] of Object.entries(data)) {
+    post = post.concat(newkey);
+    post = post.concat("#");
+    post = post.concat(newvalue);
+    post = post.concat("%");
+  }
+  post = post.slice(0, -1);
+  var bodyFormData = new FormData();
+  //console.log("GTEXsend", UID);
+  bodyFormData.append("UID", data["uid"]);
+  bodyFormData.append("CANC", global_cancer);
+  bodyFormData.append("EXP", post);
+  //bodyFormData = JSON.stringify(bodyFormData);
+  axios({
+    method: "post",
+    url: (targeturl.concat("/backend/survplot.php")),
+    data: bodyFormData,
+    headers: { "Content-Type": "application/json",
+    "Data-Type": "json" },
+  })
+    .then(function (response) {
+      console.log("surv_receive", response["data"]);
+      survupdate(data["uid"]);
+  })  
+}
+
 function gtexupdate(vec)
 {
   this.setState({
     gtex: vec
   })  
+}
+
+function survupdate(dat)
+{
+  this.setState({
+    surv: dat
+  })
 }
 
 function plotUIDupdate(dat)
@@ -288,10 +317,19 @@ function makeLinkOuts(chrm, c1, c2, c3, c4){
 
 }
 
+function setUpBioportalIframe(selection)
+{
+  var canc = global_cancer.toLowerCase();
+  canc = canc.concat("_tcga");
+  var srcstr = "https://www.cbioportal.org/ln?cancer_study_id=".concat(canc).concat("&q=").concat(selection["symbol"]);
+  //console.log("srcstr", srcstr)
+  return srcstr;
+}
 
 
 function updateOkmapTable(data){
   var chrm = data["chromosome"];
+  var biolink = setUpBioportalIframe(data);
   if(chrm == undefined)
   {
     var c = data["coordinates"];
@@ -303,6 +341,7 @@ function updateOkmapTable(data){
     createData("Cluster ID", data["clusterid"]),
     createData("Coordinates", newcoord),
     createData("Event Annotation", data["eventannotation"]),
+    createData("cBioportal Analysis", biolink),
     ];
     this.setState({
       curAnnots: new_row
@@ -321,6 +360,7 @@ function updateOkmapTable(data){
     createData("Cluster ID", data["clusterid"]),
     createData("Coordinates", newcoord),
     createData("Event Annotation", data["eventannotation"]),
+    createData("cBioportal Analysis", biolink),
     ];
     this.setState({
       curAnnots: new_row
@@ -379,6 +419,7 @@ function FilterHeatmapSelect(props) {
     <div>
       <SpcInputLabel label={"Show Sample"} />
       <FormControl variant="outlined" className={classes.formControl}>
+        <Tooltip title="Filter heatmap columns by categories of patient data.">
         <Select
           native
           value={state.value}
@@ -399,6 +440,7 @@ function FilterHeatmapSelect(props) {
             return options;
           })()}
         </Select>
+        </Tooltip>
       </FormControl>
     </div>
   );
@@ -1221,6 +1263,7 @@ class OKMAP extends React.Component {
           var toex = data["examined_junction"].split(":");
           exonRequest(toex[0], data);
           oneUIDrequest(data["uid"]);
+          survivalSend(data, this.col_names);
           parent.setSelected(converteduid);
           //updateStats(y_point, data);
       })
@@ -1448,8 +1491,8 @@ function loopThroughGene(ss, s, col, cc, rpsi, trans){
                       title: {
                           text: s["pancanceruid"],
                           font: {
-                            family: 'Courier New, monospace',
-                            size: 16,
+                            family: 'Arial, monospace',
+                            size: 11,
                             color: '#7f7f7f'
                             }
                       },
@@ -1458,7 +1501,7 @@ function loopThroughGene(ss, s, col, cc, rpsi, trans){
                         title: {
                           text: 'PSI Value',
                           font: {
-                            family: 'Courier New, monospace',
+                            family: 'Arial, monospace',
                             size: 16,
                             color: '#7f7f7f'
                           }
@@ -1468,7 +1511,7 @@ function loopThroughGene(ss, s, col, cc, rpsi, trans){
                         title: {
                           text: 'Clusters',
                           font: {
-                            family: 'Courier New, monospace',
+                            family: 'Arial, monospace',
                             size: 16,
                             color: '#7f7f7f'
                           }
@@ -1542,8 +1585,8 @@ function loopThroughHC(ss, s, col, cc, rpsi){
                         title: {
                           text: s["pancanceruid"],
                           font: {
-                            family: 'Courier New, monospace',
-                            size: 16,
+                            family: 'Arial, monospace',
+                            size: 11,
                             color: '#7f7f7f'
                             }
                         },   
@@ -1552,7 +1595,7 @@ function loopThroughHC(ss, s, col, cc, rpsi){
                         title: {
                           text: 'PSI Value',
                           font: {
-                            family: 'Courier New, monospace',
+                            family: 'Arial, monospace',
                             size: 16,
                             color: '#7f7f7f'
                           }
@@ -1562,7 +1605,7 @@ function loopThroughHC(ss, s, col, cc, rpsi){
                         title: {
                           text: 'Clusters',
                           font: {
-                            family: 'Courier New, monospace',
+                            family: 'Arial, monospace',
                             size: 16,
                             color: '#7f7f7f'
                           }
@@ -1610,8 +1653,8 @@ function loopThroughHC(ss, s, col, cc, rpsi){
                         title: {
                           text: s["pancanceruid"],
                           font: {
-                            family: 'Courier New, monospace',
-                            size: 16,
+                            family: 'Arial, monospace',
+                            size: 11,
                             color: '#7f7f7f'
                             }
                         }, 
@@ -1620,7 +1663,7 @@ function loopThroughHC(ss, s, col, cc, rpsi){
                         title: {
                           text: 'PSI Value',
                           font: {
-                            family: 'Courier New, monospace',
+                            family: 'Arial, monospace',
                             size: 16,
                             color: '#7f7f7f'
                           }
@@ -1629,7 +1672,7 @@ function loopThroughHC(ss, s, col, cc, rpsi){
                         title: {
                           text: 'Clusters',
                           font: {
-                            family: 'Courier New, monospace',
+                            family: 'Arial, monospace',
                             size: 16,
                             color: '#7f7f7f'
                           }
@@ -1679,8 +1722,8 @@ function loopThroughFilter(ss, s, col, cc, rpsi, out, set){
                         title: {
                           text: s["pancanceruid"],
                           font: {
-                            family: 'Courier New, monospace',
-                            size: 16,
+                            family: 'Arial, monospace',
+                            size: 11,
                             color: '#7f7f7f'
                             }
                         },
@@ -1689,7 +1732,7 @@ function loopThroughFilter(ss, s, col, cc, rpsi, out, set){
                         title: {
                           text: 'PSI Value',
                           font: {
-                            family: 'Courier New, monospace',
+                            family: 'Arial, monospace',
                             size: 16,
                             color: '#7f7f7f'
                           }
@@ -1698,7 +1741,7 @@ function loopThroughFilter(ss, s, col, cc, rpsi, out, set){
                         title: {
                           text: 'Filters',
                           font: {
-                            family: 'Courier New, monospace',
+                            family: 'Arial, monospace',
                             size: 16,
                             color: '#7f7f7f'
                           }
@@ -1744,8 +1787,8 @@ function loopThroughGtex(vec){
                         title: {
                           text: "GTEX",
                           font: {
-                            family: 'Courier New, monospace',
-                            size: 16,
+                            family: 'Arial, monospace',
+                            size: 11,
                             color: '#7f7f7f'
                             }
                         },
@@ -1754,7 +1797,7 @@ function loopThroughGtex(vec){
                         title: {
                           text: 'PSI Value',
                           font: {
-                            family: 'Courier New, monospace',
+                            family: 'Arial, monospace',
                             size: 16,
                             color: '#7f7f7f'
                           }
@@ -1763,7 +1806,7 @@ function loopThroughGtex(vec){
                         title: {
                           text: 'GTEX',
                           font: {
-                            family: 'Courier New, monospace',
+                            family: 'Arial, monospace',
                             size: 16,
                             color: '#7f7f7f'
                           }
@@ -1792,7 +1835,8 @@ class SupplementaryPlot extends React.Component {
       filterset: null,
       matches: null,
       fulldat: null,
-      gtex: null
+      gtex: null,
+      surv: null
     };
     //var other_gene_matches = [];
     selectionToSup = selectionToSup.bind(this);
@@ -1800,6 +1844,7 @@ class SupplementaryPlot extends React.Component {
     plot4update = plot4update.bind(this);
     gtexupdate = gtexupdate.bind(this);
     plotUIDupdate = plotUIDupdate.bind(this);
+    survupdate = survupdate.bind(this);
   }
 
   componentDidMount(){
@@ -1849,6 +1894,11 @@ class SupplementaryPlot extends React.Component {
       }
     }
 
+
+    if(this.state.surv != null)
+    {
+      var plotobj5 = <img src="/ICGS/Oncosplice/testing/backend/survivalplot.png" alt="Logo" width="177" height="148"></img>;
+    }
     //var plotdata = [trace1, trace2];
     //Plotly.newPlot('supp1', plotdata); 
     return(
@@ -1882,6 +1932,14 @@ class SupplementaryPlot extends React.Component {
       <Box borderColor="#dbdbdb" {...spboxProps}>
         <div>
           {plotobj4}
+        </div>
+      </Box>
+      </div>
+      <div style={{marginBottom: 10}}>
+      <SpcInputLabel label={"Survival"} />
+      <Box borderColor="#dbdbdb" {...spboxProps}>
+        <div>
+          {plotobj5}
         </div>
       </Box>
       </div>
@@ -2110,10 +2168,10 @@ class EXON_PLOT extends React.Component {
   {
     var parent = this;
     var y_start = 110;
-    console.log("ENS MAP", this.ens_map);
+    //console.log("ENS MAP", this.ens_map);
     for (const [key, value] of Object.entries(trans_input)) 
     {
-      console.log("Trans input key:", trans_input[key]);
+      //console.log("Trans input key:", trans_input[key]);
       
       var cur_obj = this.SVG_main_group.append("text")
           .attr("x", 8)
@@ -2449,7 +2507,7 @@ class EXON_PLOT extends React.Component {
         });
       }
       catch (error) {
-        console.log("ERROR:", error);
+        //console.log("ERROR:", error);
         continue;
       }
 
@@ -2473,7 +2531,7 @@ class EXON_PLOT extends React.Component {
       {
         var x_pos_1 = exon_input[i]["start"] - starting_point;
         var x_pos_2 = exon_input[i]["stop"] - starting_point;
-        if(this.state.scaled == false)
+        if(this.state.scaled == true)
         {
           if((x_pos_2 - x_pos_1) > 20)
           {
@@ -2497,14 +2555,22 @@ class EXON_PLOT extends React.Component {
       {
         if(exname.charAt(0) == "I")
         {
-          scale_exon_stop = scale_exon_stop + 20;
-          continue;
+          if(this.state.scaled == true)
+          {
+            scale_exon_stop = scale_exon_stop + 20;
+            continue;
+          }
+          else
+          {
+            scale_exon_stop = scale_exon_stop + 200;
+            continue;            
+          }
         }
         else
         {
           var x_pos_1 = scale_exon_stop;
           var x_pos_2 = scale_exon_stop + (exon_input[i]["stop"] - exon_input[i]["start"]);
-          if(this.state.scaled == false)
+          if(this.state.scaled == true)
           {
             if((exon_input[i]["stop"] - exon_input[i]["start"]) < 3)
             {
@@ -2543,7 +2609,7 @@ class EXON_PLOT extends React.Component {
       {
         var x_pos_1 = exon_input[i]["start"] - starting_point;
         var x_pos_2 = exon_input[i]["stop"] - starting_point;
-        if(this.state.scaled == false)
+        if(this.state.scaled == true)
         {
           if((x_pos_2 - x_pos_1) > 20)
           {
@@ -2569,14 +2635,21 @@ class EXON_PLOT extends React.Component {
       {
         if(exname.charAt(0) == "I")
         {
-          last_exon_stop = last_exon_stop + 20;
-          continue;
+          if(this.state.scaled == true)
+          {
+            last_exon_stop = last_exon_stop + 20;
+            continue;
+          }
+          else{
+            last_exon_stop = last_exon_stop + 200;
+            continue;            
+          }
         }
         else
         {
           var x_pos_1 = last_exon_stop;
           var x_pos_2 = last_exon_stop + (exon_input[i]["stop"] - exon_input[i]["start"]);
-          if(this.state.scaled == false)
+          if(this.state.scaled == true)
           {
             if((exon_input[i]["stop"] - exon_input[i]["start"]) < 3)
             {
@@ -2681,7 +2754,7 @@ class EXON_PLOT extends React.Component {
     if(this.state.exons != null && this.state.transcripts != null && this.state.junctions != null)
     {
       var sorted_exons = this.state.exons.sort((a, b)=>{return Number(a["start"])-Number(b["start"])})
-      console.log(sorted_exons);
+      //console.log(sorted_exons);
       this.writeExons(sorted_exons);
       this.writeJunctions(this.state.junctions, this.state.in_data);
       this.writeTranscripts(this.state.transcripts)
@@ -2721,10 +2794,11 @@ function ScalingCheckbox(props)
       //props.updateBQPane(event.target.checked);
       //props.qBDefaultMessage(event.target.checked);
       setScaling(event.target.checked);
-      console.log(event.target.checked);
+      //console.log(event.target.checked);
     };
 
   return(
+  <Tooltip title="Show exon lengths in raw format---no width changes.">
   <div style={{marginLeft: 3}}>
   <FormControlLabel
       control={
@@ -2734,15 +2808,16 @@ function ScalingCheckbox(props)
               name="checkedB"
           />
           }
-      label="Use Unscaled"
+      label="Use Scaled"
   />
   </div>
+  </Tooltip>
   );
 }
 
 
 function downloadTranscript(){
-  console.log(global_exon_blob);
+  //console.log(global_exon_blob);
   var blob_text = "";
   for (const [key, value] of Object.entries(global_exon_blob[0])) {
         blob_text = blob_text.concat(key);
@@ -2917,10 +2992,18 @@ function ViewPane_Top(props) {
         </Grid>
         <Grid item xs={5}>
           <span className={classes.cntr_btn}>
+          <Tooltip title="Increase row height of heatmap and font size for labels.">
           <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomInIcon onClick={zoomInHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          </Tooltip>
+          <Tooltip title="Decrease row height of heatmap and font size for labels.">
           <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomOutIcon onClick={zoomOutHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          </Tooltip>
+          <Tooltip title="Fit all rows in the heatmap to the window size.">
           <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          </Tooltip>
+          <Tooltip title="Download heatmap in text format.">
           <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          </Tooltip>
           </span>
         </Grid>
       </Grid>
@@ -2931,6 +3014,7 @@ function ViewPane_Top(props) {
 function ViewPane_Side(props) {
   return(
     <div>
+    <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>{"Cancer: ".concat(props.QueryExport["cancer"])}</h3>
     <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
     <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
     <SupplementaryPlot title={"OncoClusters"} function={loopThroughGene} CC={props.CC} RPSI={props.RPSI} TRANS={props.TRANS} Data={props.Data} Cols={props.Cols}></SupplementaryPlot>

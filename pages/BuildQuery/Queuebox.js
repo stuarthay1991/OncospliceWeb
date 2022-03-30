@@ -7,6 +7,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Select from '@material-ui/core/Select';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from '../../components/SpcInputLabel';
 
@@ -212,6 +213,8 @@ function QB_SelectedSignature(props)
 function QB_displayEventsSigs(props)
 {
   return(
+    <Tooltip title="This section describes the matches found for your current filter/signature selections in the database. Samples denote columns, while events denote rows.
+     In order to run a query, your number of prospective samples and events must be above zero.">
     <div style={{position: 'relative', fontSize: 16, paddingTop:6, paddingBottom:5, backgroundColor: '#E8E8E8'}}>
     <Grid container spacing={1}>
     <Grid item>
@@ -226,6 +229,7 @@ function QB_displayEventsSigs(props)
     </Grid>
     </Grid>
     </div>
+    </Tooltip>
   );
 }
 
@@ -298,7 +302,9 @@ class QueueBox extends React.Component {
 
     return(
       <div>
+      <Tooltip title="This section displays the current queries you have selected.">
       <SpcInputLabel label={"Selected Criteria"}/>
+      </Tooltip>
       <Box borderColor="#dbdbdb" {...boxProps} style={{position: 'relative', alignItems: 'center', textAlign: 'center'}}>
       <QB_SelectedCancer targetCancer={S.BQstate.queuebox_values["cancer"]} defaultvalue={S.BQstate.defaultQuery}/>
       <QB_SelectedSample targetArrSelections={S.BQstate.childrenFilters} targetArr={S.targetFilters} defaultvalue={S.BQstate.defaultQuery}/>
