@@ -1,9 +1,12 @@
 import React from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
-function downloadHeatmapText(data,cols,QueryExport)
+function downloadHeatmapText(data,cols,QueryExport,CC,RPSI)
 {
-  var content = "uid";
+  console.log("cols", cols);
+  console.log("CC", CC);
+  console.log("RPSI", RPSI);
+  var content = "";
   var local_data = data;
   var local_cols = cols;
   var local_QE = QueryExport;
@@ -15,8 +18,27 @@ function downloadHeatmapText(data,cols,QueryExport)
   var filename;
   filename = local_QE["cancer"];
   filename = filename.concat("_").concat(local_QE["single"]).concat(".csv");
-  content = content.concat(",altexons,clusterid,dpsi,symbol");
 
+  content = content.concat("Hierarchical Clusters,-,-,-,-");
+  var content_line = "";
+  for(var i = 0; i < CC.length; i++)
+  {
+    content_line = content_line.concat(",").concat(CC[i]);
+  }
+  content = content.concat(content_line);
+  content = content.concat("\n");
+
+  content = content.concat("Oncosplice Clusters,-,-,-,-");
+  var content_line = "";
+  for(var i = 0; i < local_cols.length; i++)
+  {
+    content_line = content_line.concat(",").concat(RPSI[local_cols[i]]);
+  }
+  content = content.concat(content_line);
+  content = content.concat("\n");
+
+  content = content.concat("uid,altexons,clusterid,dpsi,symbol");
+  
   for(var i = 0; i < local_cols.length; i++)
   {
   	content = content.concat(",").concat(local_cols[i]);
@@ -34,7 +56,7 @@ function downloadHeatmapText(data,cols,QueryExport)
   	{
   		content_line = content_line.concat(",").concat(local_data[i][local_cols[k]]);
   	}
-  	content_line = content_line.concat("\n");
+  	//content_line = content_line.concat("\n");
   	content = content.concat(content_line);
   }
 
