@@ -66,7 +66,7 @@ $TABLE_DICT["GBM"]["SPLC"]["ROWNUM"] = 80369;
 
 $conn = pg_pconnect("dbname=oncocasen");
 if (!$conn) {
-    echo "An error occurred1.\n";
+    echo "An error occurred, the database was not able to connect.\n";
     exit;
 }
 $metaresult = pg_query($conn, $TABLE_DICT[$selected_cancer_type]["META"]["QUERY"]);
