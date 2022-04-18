@@ -15,7 +15,7 @@ function SubmitButton(props){
   var args = {};
   var to = "fetchHeatmapData";
   var functionpointer = makeRequest;
-  if(BQstate.defaultQuery == true){
+  if(BQstate.defaultQuery === true){
     functionpointer = makeRequest;
     args["setState"] = BQprops.setViewPane;
     args["export"] = BQstate.export;
@@ -33,7 +33,19 @@ function SubmitButton(props){
   const classes = useStyles();
   return(
     <Tooltip title="Retrieve the results from the database and visualize them">
-    <Button className={classes.myButton} onClick={() => functionpointer(to, args)} style={{ textTransform: 'none'}}>Run query</Button>
+    <Button uppercase={false} onClick={() => functionpointer(to, args)} 
+    style={{backgroundColor:'#EFAD18',
+    borderRadius:'8px',
+    display:'inline-block',
+    cursor:'pointer',
+    color:'#ffffff',
+    fontFamily: 'Roboto',
+    fontSize:'16px',
+    fontWeight:'bold',
+    padding:'13px 32px',
+    textDecoration:'none',
+    textShadow:'0px 1px 0px #3d768a',
+    textTransform: 'none'}}>Run query</Button>
     </Tooltip>
   )
 }

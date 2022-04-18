@@ -14,9 +14,20 @@ function ResetButton(){
   const classes = useStyles();
   return(
   	<Tooltip title="Remove all queries.">
-    <Button className={classes.myButton} onClick={() => reload()} style={{ textTransform: 'none'}}>Reset</Button>
+    <Button onClick={() => reload()} uppercase={false} style={{  backgroundColor:'#EFAD18',
+  																			borderRadius:'8px',
+																			display:'inline-block',
+																			cursor:'pointer',
+																			color:'#ffffff',
+																			fontFamily: 'Roboto',
+																			fontSize:'16px',
+																			fontWeight:'bold',
+																			padding:'13px 32px',
+																			textDecoration:'none',
+																			textShadow:'0px 1px 0px #3d768a',
+																			textTransform: 'none'}}>Reset</Button>
     </Tooltip>
   )
 }
-
+//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
 export default ResetButton;
