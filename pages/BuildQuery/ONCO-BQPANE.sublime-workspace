@@ -1,0 +1,297 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"instal",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/haym4b/Desktop/oncobuild/makeComparison.py",
+		"/Users/haym4b/Desktop/oncobuild/clean.py",
+		"/Users/haym4b/Desktop/oncobuild/preprocessingV3.py",
+		"/Users/haym4b/Desktop/oncobuild/start.py",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/BuildQueryPane.js",
+		"/Users/haym4b/Desktop/gittoken.txt",
+		"/Users/haym4b/Desktop/material-app/src/index.js",
+		"/Users/haym4b/Desktop/material-app/src/useStyles.js",
+		"/Users/haym4b/Desktop/material-app/src/README.md",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/SubmitButton.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/SelectCancerSignature.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ResetButton.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/Queuebox.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/FilterMenuPopulate.js",
+		"/Users/haym4b/Desktop/material-app/src/components/CheckboxForm.js",
+		"/Users/haym4b/Desktop/material-app/src/request/CancerDataManagement.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ClientSelectedFilter.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ClientSEF.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ClientAddGene.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ClientAddFilter.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ClientAddCoord.js",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/CancerSelect.js",
+		"/Users/haym4b/Desktop/material-app/src/heatmap/KNOWN_ISSUES.txt",
+		"/Users/haym4b/Desktop/material-app/src/pages/BuildQuery/ONCO-BQPANE.sublime-project",
+		"/Users/haym4b/Desktop/oncobuild/metaquery.py",
+		"/Users/haym4b/Desktop/oncobuild/metaset.py",
+		"/Users/haym4b/Desktop/material-app/src/php/getgene.php",
+		"/Users/haym4b/Desktop/material-app/src/php/getcoord.php",
+		"/Users/haym4b/Desktop/material-app/src/php/main_parse.php",
+		"/Users/haym4b/Desktop/oncobuild/signmatch_finish.py",
+		"/Users/haym4b/Desktop/material-app/src/token2",
+		"/Users/haym4b/Desktop/material-app/src/index.php",
+		"/Users/haym4b/Desktop/material-app/src/BuildQueryPane.js",
+		"/Users/haym4b/Desktop/material-app/src/components/CancerDataManagement.js",
+		"/Users/haym4b/Desktop/material-app/src/php/metarequest.php",
+		"/Users/haym4b/Desktop/material-app/src/components/CancerSelect.js",
+		"/Users/haym4b/Desktop/material-app/src/components/Queuebox.js",
+		"/Users/haym4b/Desktop/material-app/src/QueryHistory.js",
+		"/Users/haym4b/Desktop/material-app/src/ViewPane.js",
+		"/Users/haym4b/Desktop/material-app/src/10-06notes",
+		"/Users/haym4b/Desktop/material-app/src/components/ClientAddFilter.js",
+		"/Users/haym4b/Desktop/material-app/src/php/ui_fields.php",
+		"/Users/haym4b/Desktop/material-app/src/components/ClientAddGene.js",
+		"/Users/haym4b/Desktop/material-app/src/components/ClientAddCoord.js",
+		"/Users/haym4b/Desktop/material-app/src/backup/index_11-02-2021.js",
+		"/Users/haym4b/Desktop/material-app/src/App.js",
+		"/Users/haym4b/Desktop/material-app/src/php/postdata.php",
+		"/Users/haym4b/Desktop/material-app/src/backup/archived.js",
+		"/Users/haym4b/Desktop/material-app/src/backup/index_11-04-2021.js",
+		"/Users/haym4b/Desktop/material-app/src/archived.js",
+		"/Users/haym4b/Desktop/material-app/src/Router.js",
+		"/Users/haym4b/Desktop/material-app/src/CancerDataManagement.js",
+		"/Users/haym4b/Desktop/version2/splicequery.py",
+		"/Users/haym4b/Desktop/material-app/src/php/single.php",
+		"/Users/haym4b/Desktop/material-app/src/php/tolkien",
+		"/Users/haym4b/Desktop/coordinatestest.txt",
+		"/Users/haym4b/Desktop/version2/upload.py",
+		"/Users/haym4b/Desktop/version2/enumerateSetOfFilters.py",
+		"/Users/haym4b/Desktop/version2/preprocessingV2.py",
+		"/Users/haym4b/Desktop/version2/start.py",
+		"/Users/haym4b/Desktop/version2/metaquery.py",
+		"/Users/haym4b/Desktop/version2/signmatch_pgr.py",
+		"/Users/haym4b/Desktop/material-app/build/index.html",
+		"/Users/haym4b/Desktop/version2/metaset.py",
+		"/Users/haym4b/Desktop/build 3/index.html",
+		"/private/var/folders/qy/3_rmtmcx5h9ch04brf63z9h0zrdb2l/T/a66ae131-d44d-40f9-8658-09c93532376c/data/altanalyzeweb/AltAnalyze/OKMAP/OKMAP/index.php",
+		"/private/var/folders/qy/3_rmtmcx5h9ch04brf63z9h0zrdb2l/T/a66ae131-d44d-40f9-8658-09c93532376c/data/altanalyzeweb/AltAnalyze/OKMAP/OKMAP/hcreq.php",
+		"/Users/haym4b/Desktop/atomize-master/index.js",
+		"/Users/haym4b/Desktop/atom_app/src/index.js",
+		"/Users/haym4b/Desktop/atomize-master/src/atoms/button/Button.js",
+		"/Users/haym4b/Desktop/cwl/altanalyze/testing/README.txt",
+		"/Users/haym4b/Desktop/cwl/altanalyze/testing/altanalyze_workflow0.2.cwl",
+		"/Users/haym4b/Desktop/cwl/altanalyze/testing/altanalyze_dbfetch0.2.cwl",
+		"/Users/haym4b/Desktop/cwl/altanalyze/testing/altanalyze_test0.2.cwl",
+		"/Users/haym4b/my-app/src/index.css",
+		"/Users/haym4b/my-app/src/index.js",
+		"/Users/haym4b/my-app/src/App.js",
+		"/Users/haym4b/my-app/src/App.test.js",
+		"/Users/haym4b/Desktop/github/workflows/tools/dockerfiles/altanalyze-Dockerfile",
+		"/Users/haym4b/Desktop/github/workflows/tools/dockerfiles/requirements/altanalyze_requirements.txt",
+		"/private/var/folders/qy/3_rmtmcx5h9ch04brf63z9h0zrdb2l/T/6e20fb38-fab1-4658-bf7c-bc3c97fdc627/data/altanalyzeweb/AltAnalyze/ICGS/Oncosplice/Clustergrammer/source/clustergrammer-master/js/load_clustergram.js",
+		"/Users/haym4b/Desktop/ONCO/clustgram/load_clustergram.js",
+		"/Users/haym4b/Desktop/ONCO/clustgram/smpl.json",
+		"/Users/haym4b/Desktop/docker_917/scidap_AA/Dockerfile",
+		"/Users/haym4b/tmp/workflows/tools/dockerfiles/altanalyze-Dockerfile",
+		"/Users/haym4b/Desktop/ngchm/Data_and_Scripts/clustrgramr/clustergrammer_example.json",
+		"/private/var/folders/qy/3_rmtmcx5h9ch04brf63z9h0zrdb2l/T/aaf4c926-4c5b-48a6-b698-e4448041c40c/data/altanalyzeweb/AltAnalyze/ICGS/Oncosplice/bird.json",
+		"/Users/haym4b/Desktop/Krathik/new_Mm_splicing_files/test_onco/default.php",
+		"/Users/haym4b/Desktop/ngchm/page3.php",
+		"/Users/haym4b/Desktop/docker_917/dockercommands.txt",
+		"/Users/haym4b/Desktop/SoupX0.90.R",
+		"/Users/haym4b/Desktop/cwl/echo-job.yml",
+		"/Users/haym4b/Desktop/cwl/1st-tool.cwl",
+		"/Users/haym4b/Desktop/ngchm/page7.php",
+		"/Users/haym4b/Desktop/ngchm/ngchmCreate.r",
+		"/Users/haym4b/Desktop/ngchm/Data_and_Scripts/scrap/mk.php",
+		"/Users/haym4b/Desktop/ngchm/page6.html",
+		"/Users/haym4b/Desktop/CustomViewers/Godhev/FMH_gcm.txt",
+		"/Users/haym4b/Desktop/ngchm/ngChmApp.html",
+		"/Users/haym4b/Desktop/ngchm/page4.html",
+		"/private/tmp/rstudio/test-chm.ngchm",
+		"/Users/haym4b/Desktop/AssemblyLineNew/Placeholder/old/d3write_EXP.js",
+		"/Users/haym4b/Desktop/AssemblyLineNew/Placeholder/current/User.php",
+		"/Users/haym4b/Desktop/AssemblyLineNew/Placeholder/miscFunc_EXP.js",
+		"/Users/haym4b/Desktop/AssemblyLineNew/Placeholder/User.php",
+		"/Users/haym4b/Desktop/AssemblyLineNew/User.php",
+		"/private/var/folders/qy/3_rmtmcx5h9ch04brf63z9h0zrdb2l/T/1067682d-9d29-4e46-9330-f6db88278083/data/altanalyzeweb/AltAnalyze/ICGS/Neutrophil/Viewer.php",
+		"/private/var/folders/qy/3_rmtmcx5h9ch04brf63z9h0zrdb2l/T/010a5c49-dff2-4869-962c-6c6421dda229/data/altanalyzeweb/AltAnalyze/ICGS/Public/Lung-BOS/User.php",
+		"/Users/haym4b/Desktop/AssemblyLineNew/app/SQLiteInsert.php",
+		"/Users/haym4b/Desktop/AssemblyLineNew/PHP_DATABASE_CREATE2.php",
+		"/private/var/folders/qy/3_rmtmcx5h9ch04brf63z9h0zrdb2l/T/8f93ca41-fff2-45a9-94be-0a2aae2e8d36/data/altanalyzeweb/AltAnalyze/ICGS/AArnaSC/PHP_DATABASE_CREATE4.php",
+		"/Users/haym4b/Desktop/AssemblyLineNew/DATABASE_FUNCTIONS.php",
+		"/Users/haym4b/Desktop/AssemblyLineNew/Script.js",
+		"/Users/haym4b/Desktop/AssemblyLineNew/main.css",
+		"/Users/haym4b/Desktop/AssemblyLineNew/AssemblyLine.html",
+		"/Users/haym4b/Desktop/TemporaryCode/gene_desc.json",
+		"/private/var/folders/qy/3_rmtmcx5h9ch04brf63z9h0zrdb2l/T/19c4f9f3-a43c-44c3-acfe-1183276725b3/data/altanalyzeweb/AltAnalyze/ICGS/Public/SuperPan_v3/User.php",
+		"/private/var/folders/qy/3_rmtmcx5h9ch04brf63z9h0zrdb2l/T/6a711add-db52-44a5-ad0f-b70f3c46c903/data/altanalyzeweb/AltAnalyze/ICGS/SuperPan/User.php",
+		"/Users/haym4b/Desktop/d3write4.js",
+		"/Users/haym4b/Desktop/TemporaryCode/N-code.php",
+		"/Users/haym4b/Desktop/LUNGMAP_SuperView/Stuart/d3write_BMCB_LUNG.js",
+		"/private/var/folders/qy/3_rmtmcx5h9ch04brf63z9h0zrdb2l/T/270f755e-d6df-49bc-b0ee-07480aaefee6/data/altanalyzeweb/AltAnalyze/ICGS/Neutrophil/Viewer.php",
+		"/Users/haym4b/Desktop/Grimes6Fluidigm/PHP_FUNCTIONS.php",
+		"/Users/haym4b/Desktop/Grimes6Fluidigm/download.html",
+		"/Users/haym4b/Desktop/singlecellexplorer/referencefiles/UI.js",
+		"/Users/haym4b/Downloads/lung_tpm_non_immuneCells_v5.h5ad",
+		"/Users/haym4b/singleCell/singleCellApp_for_release/config.json",
+		"/Users/haym4b/Desktop/matrador/expression_viewer_vue_v0.01.html"
+	],
+	"find":
+	{
+		"height": 39.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"spcTabRoot"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "ONCO-BQPANE.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
