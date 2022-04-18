@@ -2940,7 +2940,7 @@ function ViewPane(props) {
     <div style={{ fontFamily: 'Arial' }}>
     <Grid container spacing={1}>
       <Grid item xs={8}>
-        <ViewPane_Top Data={props.Data} Cols={props.Cols} CC={props.CC} QueryExport={props.QueryExport}/>
+        <ViewPane_Top Data={props.Data} Cols={props.Cols} CC={props.CC} RPSI={props.RPSI} QueryExport={props.QueryExport}/>
         <Typography className={classes.padding} />
         <ViewPane_Hidden />
         <ViewPane_Main Data={props.Data} Cols={props.Cols} CC={props.CC} RPSI={props.RPSI} QueryExport={props.QueryExport}/>
@@ -3002,7 +3002,7 @@ function ViewPane_Top(props) {
           <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
           </Tooltip>
           <Tooltip title="Download heatmap in text format.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.RPSI)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
           </Tooltip>
           </span>
         </Grid>
