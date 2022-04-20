@@ -1,28 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import useStyles from './useStyles.js';
-import ViewPane from './ViewPane.js';
-import QueryHistory from './QueryHistory';
 import AboutUs from './components/AboutUs';
 import '@fontsource/roboto';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import Icon from '@material-ui/core/Icon';
 import Grid from '@material-ui/core/Grid';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import LockIcon from '@material-ui/icons/Lock';
-import axios from 'axios';
-import GoogleLogin from 'react-google-login';
-import GoogleLogout from 'react-google-login';
-import { useGoogleLogin } from 'react-google-login';
-import { useGoogleLogout } from 'react-google-login';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import './App.css';
 import BQPane from './pages/BuildQuery/BuildQueryPane.js';
+import ViewPaneWrapper from './ViewPaneWrapper.js';
+import Authentication from './Authentication.js';
+import QueryHistoryPaneWrapper from './QueryHistoryPaneWrapper.js';
 
 const spcTabStyles = makeStyles({
   root: {
@@ -55,220 +49,6 @@ var GLOBAL_user = "Default";
 function none()
 {
   return null;
-}
-
-//This function changes which user is logged in, retrieving their history as needed.
-function changeUser(user) {
-    GLOBAL_user = user;
-    var bodyFormData = new FormData();
-    bodyFormData.append("user",user);
-    axios({
-      method: "post",
-      url: (targeturl.concat("/backend/queryhistoryaccess.php")),
-      data: bodyFormData,
-      headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then(function (response) {
-        var responsedata = response["data"];
-        var tmp_array = [];
-        //console.log("RESPONSE_changeuser", responsedata);
-        updateQueryHistory(responsedata);
-    })
-    
-}
-//This is part of the Authentication class.
-const responseGoogle = response => {
-  //console.log("Google response: ", response);
-  var user = response["Ys"]["Ve"];
-  updateAuthentication(user);
-};
-
-//Simple global function to update the state of the Authentication object whenever a new user logs in.
-function updateAuthentication(value) {
-  this.setState({
-      user: value
-  });
-
-  changeUser(value);
-}
-//QnP0q95cm5LOxDO1FHkM44I8
-
-//This function is used to display the name of the logged in user. It was working fine locally, but on the server it's parent class is broken,
-//so unfortunately right now it is unused.
-function UsernameDisplay(props) {
-  
-  return(
-    <div>
-    <Grid container spacing={3}>
-      <Grid item>
-    <div style={{marginTop: 6, fontSize: 20}}>Hello, <strong>{props.user}</strong> ! </div>
-    </Grid>
-    <Grid item>
-    <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white", fontSize: 12, margin: 2}} onClick={() => updateAuthentication("Default")}>Logout</Button>
-    </Grid>
-    </Grid>
-    </div>
-  );
-}
-
-//This class object is used specifically for the google authentication. It is currently broken, and it is vital in the future to fix it.
-class Authentication extends React.Component {
-  constructor(props) {
-      super(props)
-      this.state = {
-        user: "Default",
-      }
-      updateAuthentication = updateAuthentication.bind(this);
-  }
-
-  render()
-  {
-  return(
-      <div>
-        {this.state.user != "Default" && (
-        <div>
-          <UsernameDisplay user={this.state.user}/>
-        </div>
-        )}
-        {this.state.user == "Default" && (
-        <div>
-          <GoogleLogin clientId="113946767130-k3hs8dhjbctc9dtaamubobdftphlr60q.apps.googleusercontent.com" onSuccess={responseGoogle} onFailure={responseGoogle}/>
-        </div> 
-        )}
-      </div>
-    );
-  }
-
-}
-
-
-function updateQueryHistory(input) {
-    this.setState({
-    inData: input
-    });
-}
-
-function removeQueryHistory(index) {
-    const newdat = this.state.inData;
-    newdat.splice(index, 1);
-    this.setState({
-    inData: newdat
-    });
-}
-
-function addQueryHistory(input) {
-    const newdat = this.state.inData;
-    newdat.push(input);
-    this.setState({
-    inData: newdat
-    });
-}
-
-//This whole section is likely to be removed in the future. Originally, this was supposed to be a way for users to click back to old
-//queries they've made and see the results of those queries. In practice, this is impractical for queries with a large amount of genes
-//and/or coordinates.
-class QueryHistoryPaneWrapper extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      inData: [],
-      user: "Default"
-    }
-    updateQueryHistory = updateQueryHistory.bind(this);
-    removeQueryHistory = removeQueryHistory.bind(this);
-    addQueryHistory = addQueryHistory.bind(this);
-  }
-
-  componentDidMount() {
-    var bodyFormData = new FormData();
-    bodyFormData.append("user",this.state.user);
-    axios({
-      method: "post",
-      url: (targeturl.concat("/backend/queryhistoryaccess.php")),
-      data: bodyFormData,
-      headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then(function (response) {
-        var responsedata = response["data"];
-        var tmp_array = [];
-        //console.log("RESPONSE", responsedata);
-        updateQueryHistory(responsedata);
-    })
-
-  }
-
-  render()
-  {
-    return(
-      <div>
-        {this.state.inData.length > 0 && (
-        <QueryHistory Data={this.state.inData} removeQueryHistory={removeQueryHistory} goQuery={none}/>
-        )}
-      </div>
-    );
-  }
-}
-
-
-//This is a hacky way to transition into the view pane; it is currently vital and in use, but will need to be changed in the future.
-//There should be a more simple and streamlined way to do this; but basically the point of this is that I need to wait for the request
-//to the server to finish before the Data Exploration tab is loaded, otherwise React will load asynchrously. That's what this object
-//currently accomplishes.
-class ViewPaneWrapper extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      inData: [],
-      inCols: [],
-      inCC: [],
-      inRPSI: [],
-      inTRANS: [],
-      export: []
-    }
-    //updateViewPane = updateViewPane.bind(this);
-  }
-
-  componentDidMount() {   
-    if(this.props.entrydata != undefined)
-    {
-        this.setState({
-        inData: this.props.entrydata["inData"],
-        inCols: this.props.entrydata["inCols"],
-        inCC: this.props.entrydata["inCC"],
-        inRPSI: this.props.entrydata["inRPSI"],
-        inTRANS: this.props.entrydata["inTRANS"],
-        export: this.props.entrydata["export"]
-        });
-    }
-  }
-
-  componentDidUpdate(prevProps) {  
-    if(prevProps !== this.props)
-    {
-      if(this.props.entrydata != undefined)
-      {
-        this.setState({
-        inData: this.props.entrydata["inData"],
-        inCols: this.props.entrydata["inCols"],
-        inCC: this.props.entrydata["inCC"],
-        inRPSI: this.props.entrydata["inRPSI"],
-        inTRANS: this.props.entrydata["inTRANS"],
-        export: this.props.entrydata["export"]
-        });
-      }
-    }
-  }
-
-  render()
-  {
-    return(
-      <div>
-        {this.state.inData.length > 0 && this.props.validate == 1 && (
-          <ViewPane css={withStyles(useStyles)} QueryExport={this.state.export} Data={this.state.inData} Cols={this.state.inCols} CC={this.state.inCC} RPSI={this.state.inRPSI} TRANS={this.state.inTRANS}/>
-        )}
-      </div>
-    );
-  }
 }
 
 function MainPanel(props){
@@ -318,6 +98,11 @@ function MainPanel(props){
     viewpaneobj: {"inData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []},
     //"value" dictates what page we are currently viewing.
     value: indexToTabName[page],
+    //Currently logged in user.
+    authentication: {
+      user: "Default",
+      data: []
+    },
     //"bqstate" describes what will be shown on the "build query" tab. This is where most of the problems lie. It is needlessly complicated at present and could
     //use redesign, but currently it is too risky to move anything.
     bqstate: {
@@ -364,6 +149,7 @@ function MainPanel(props){
         window.location.reload(true);
       }
       setMpstate({
+        ...mpstate,
         value: newValue,
         bqstate: mpstate.bqstate,
         viewpaneobj: temp_view_obj,
@@ -382,9 +168,21 @@ function MainPanel(props){
     history.push(`/ICGS/Oncosplice/testing/index.html/${tabNameToIndex[1]}`);
     setMpstate({
         viewpaneobj: stateobj,
+        authentication: mpstate.authentication,
         value: 1,
         bqstate: bqstate,
     });
+  }
+
+  //update query history function
+  const updateQH = (new_user, data) => {
+        setMpstate({
+          ...mpstate,
+          authentication: {
+            user: new_user,
+            data: data
+          }
+        });    
   }
 
   //This is a hack I useed. For whatever reason, I would sometimes have issues getting the correct tab to show up. This function fixed it, ahd while
@@ -418,7 +216,7 @@ function MainPanel(props){
         <Grid item sm={12} md={3}>
         <Typography className={classes.padding} />
         <div style={{float: "right"}}>
-          <Authentication />
+          <Authentication updateQH={updateQH}/>
         </div>
         </Grid>
         </Grid>
@@ -427,7 +225,7 @@ function MainPanel(props){
       <div id="tabcontent" style={{display: "block"}}>
       {mpstate.value === 0 && <BQPane setViewPane={setViewPane}/>}
       {mpstate.value === 1 && <ViewPaneWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
-      {mpstate.value === 2 && <QueryHistoryPaneWrapper />}
+      {mpstate.value === 2 && <QueryHistoryPaneWrapper user={mpstate.authentication.user} data={mpstate.authentication.data}/>}
       </div>
       <div id="aboutpanel" style={{display: "none", margin: 15}}>
         <AboutUs />
