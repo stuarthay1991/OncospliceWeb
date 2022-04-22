@@ -2,12 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import QueryHistory from './QueryHistory';
 import axios from 'axios';
-
-var localurl = "/material-app";
-var serverurl = "/ICGS/Oncosplice/testing";
-var buildurl = "/ICGS/Oncosplice/build";
-var hoturl = "/ICGS/Oncosplice/hotload";
-const targeturl = serverurl;
+import targeturl from './targeturl.js';
 
 function none()
 {

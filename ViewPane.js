@@ -32,6 +32,7 @@ import downloadHeatmapText from './components/downloadHeatmapText';
 import axios from 'axios';
 import tooltip from './tooltip.css';
 import Tooltip from '@material-ui/core/Tooltip';
+import targeturl from './targeturl.js';
 
 import Plot from 'react-plotly.js';
 import * as d3 from 'd3';
@@ -56,12 +57,6 @@ var global_adj_height = "";
 var global_heat_len = "";
 var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
 var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
-
-var localurl = "/material-app";
-var serverurl = "/ICGS/Oncosplice/testing";
-var buildurl = "/ICGS/Oncosplice/build";
-
-var targeturl = serverurl;
 
 function metarepost(name) {
   var bodyFormData = new FormData();

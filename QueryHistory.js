@@ -21,6 +21,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import DirectionsIcon from '@material-ui/icons/Directions';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import Button from '@material-ui/core/Button';
+import targeturl from './targeturl.js';
 import axios from 'axios';
 
 const BlueRadio = withStyles({
@@ -58,11 +59,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-var localurl = "/material-app";
-var serverurl = "/ICGS/Oncosplice/testing";
-var buildurl = "/ICGS/Oncosplice/build";
-var hoturl = "/ICGS/Oncosplice/hotload";
-const targeturl = serverurl;
 
 function CustomizedInputBase() {
   const classes = useStyles();

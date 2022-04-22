@@ -9,6 +9,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import targeturl from './targeturl.js';
 import LockIcon from '@material-ui/icons/Lock';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
@@ -39,11 +40,6 @@ const spcTabStyles = makeStyles({
   }
 });
 
-var localurl = "/material-app";
-var serverurl = "/ICGS/Oncosplice/testing";
-var buildurl = "/ICGS/Oncosplice/build";
-var hoturl = "/ICGS/Oncosplice/hotload";
-const targeturl = serverurl;
 var GLOBAL_user = "Default";
 
 function none()

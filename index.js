@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import targeturl from './targeturl.js';
 import '@fontsource/roboto';
 import {Helmet} from "react-helmet";
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
@@ -7,16 +8,11 @@ import './App.css';
 
 import MainPanel from './MainPanel.js';
 import TopNav from './TopNav.js';
-//Versioning
+//Versioninga
+console.log('process.argv', process.argv);
 var version = "0.1";
 
-var localurl = "/material-app";
-var serverurl = "/ICGS/Oncosplice/testing";
-var buildurl = "/ICGS/Oncosplice/build";
-var hoturl = "/ICGS/Oncosplice/hotload";
-const targeturl = serverurl;
-
-var routeurl = "/ICGS/Oncosplice/testing/index.html"
+var routeurl = targeturl.concat("/index.html");
 
 //App function is the top level function, all components are underneath this function. At this level the routing is controlled.
 function App() {

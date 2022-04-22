@@ -5,14 +5,9 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import GoogleLogin from 'react-google-login';
 import GoogleLogout from 'react-google-login';
+import targeturl from './targeturl.js';
 import { useGoogleLogin } from 'react-google-login';
 import { useGoogleLogout } from 'react-google-login';
-
-var localurl = "/material-app";
-var serverurl = "/ICGS/Oncosplice/testing";
-var buildurl = "/ICGS/Oncosplice/build";
-var hoturl = "/ICGS/Oncosplice/hotload";
-const targeturl = serverurl;
 
 function none()
 {

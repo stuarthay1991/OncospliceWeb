@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import QueueMessage from '../components/QueueMessage';
 import ClientAddFilter from '../pages/BuildQuery/ClientAddFilter';
+import targeturl from '../targeturl.js';
 import axios from 'axios';
 
 import uiFields from './uiFields.js';
@@ -17,11 +18,6 @@ import signature from './signature.js';
 import updateSignature from './updateSignature.js';
 
 //GLOBALS
-const localurl = "/material-app";
-const serverurl = "/ICGS/Oncosplice/testing";
-var buildurl = "/ICGS/Oncosplice/build";
-var hoturl = "/ICGS/Oncosplice/hotload";
-const targeturl = hoturl;
 const exportToViewPane = {};
 
 export function makeRequest(to, arg)
