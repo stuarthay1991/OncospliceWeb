@@ -1,18 +1,18 @@
-console.log('process.argv', process.argv);
+//console.log('process.argv', process);
 
-if(process.argv[2] == "local")
+/*if(process.argv[2] == "local")
 {
-	const targeturl = "/material-app";
+	var targeturl = "/build";
 }
 else
 {
-	const targeturl = "/ICGS/Oncosplice/testing";
-}
+	var targeturl = "/ICGS/Oncosplice/testing";
+}*/
 /*var localurl = "/material-app";
 var serverurl = "/ICGS/Oncosplice/testing";
 var buildurl = "/ICGS/Oncosplice/build";
 var hoturl = "/ICGS/Oncosplice/hotload";
 const targeturl = serverurl;*/
-
+var targeturl = "/app";
 
 export default targeturl;

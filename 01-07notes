@@ -1,4 +1,0 @@
-1. Create new column that only has half the UID. (split on the pipe char and only take index 0)
-2. Use this column to search for signatures from other cancers.
-3. Select oncosplice signature from ClientSEF. Then select either the same cancer or a different cancer.
-4. Signatures will be populated in the ClientSEF combobox in the same way as they did previously.

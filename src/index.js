@@ -9,10 +9,10 @@ import './App.css';
 import MainPanel from './MainPanel.js';
 import TopNav from './TopNav.js';
 //Versioninga
-console.log('process.argv', process.argv);
+//console.log('process.argv', process.argv);
 var version = "0.1";
 
-var routeurl = targeturl.concat("/index.html");
+var routeurl = "/dist/index.html";
 
 //App function is the top level function, all components are underneath this function. At this level the routing is controlled.
 function App() {
