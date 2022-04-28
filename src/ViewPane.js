@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
@@ -19,7 +18,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { borders } from '@material-ui/system';
-import Paper from '@material-ui/core/Paper';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
@@ -30,7 +28,6 @@ import CustomizedTables from './components/CustomizedTables';
 import LabelHeatmap from './components/LabelHeatmap';
 import downloadHeatmapText from './components/downloadHeatmapText';
 import axios from 'axios';
-import tooltip from './tooltip.css';
 import Tooltip from '@material-ui/core/Tooltip';
 import targeturl from './targeturl.js';
 
