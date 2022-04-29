@@ -15,7 +15,7 @@ module.exports = function(_env, argv) {
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: "app.js",
-      publicPath: path.resolve(__dirname, "/assets/js") 
+      publicPath: "http://localhost:8080/assets/js"
     },
     module: {
       rules: [
@@ -67,8 +67,8 @@ module.exports = function(_env, argv) {
     plugins: [
       isProduction &&
         new MiniCssExtractPlugin({
-          filename: "assets/css/[name].[contenthash:8].css",
-          chunkFilename: "assets/css/[name].[contenthash:8].chunk.css"
+          filename: "http://localhost:8080/assets/css/[name].[contenthash:8].css",
+          chunkFilename: "http://localhost:8080/assets/css/[name].[contenthash:8].chunk.css"
         }),
       new HtmlWebpackPlugin({
         filename: "./index.html",

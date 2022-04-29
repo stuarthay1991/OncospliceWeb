@@ -13,6 +13,6 @@ var serverurl = "/ICGS/Oncosplice/testing";
 var buildurl = "/ICGS/Oncosplice/build";
 var hoturl = "/ICGS/Oncosplice/hotload";
 const targeturl = serverurl;*/
-var targeturl = "/app";
+var targeturl = "http://localhost:8888/materialapp";
 
 export default targeturl;
