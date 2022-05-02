@@ -1,4 +1,5 @@
 <?php
+include 'config.php';
 $selected_cancer_type = $_POST["cancer_type"];
 $TABLE_DICT = array();
 $TABLE_DICT["LAML"]["SIG"]["QUERY"] = "SELECT * FROM TCGA_LAML_SIGNATURE";
@@ -16,11 +17,7 @@ else if($selected_cancer_type != "LAML")
 	$TABLE_DICT[$selected_cancer_type]["SIG"]["TRANSLATE"] = $selected_cancer_type . "/OncoSplice-translation.txt";
 }
 
-$conn = pg_pconnect("dbname=oncocasen");
-if (!$conn) {
-    echo "An error occurred1.\n";
-    exit;
-}
+$conn = makePDO();
 
 $sigtranslater = array();
 //$strnum = array();

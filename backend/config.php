@@ -13,7 +13,7 @@ try {
 	$pdo = new PDO($dsn, $user, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 
 	if ($pdo) {
-		echo "woohoo";
+		echo "";
 
 		/*$sql = "SELECT * FROM GBM_TCGA_SPLICE LIMIT 2;";
         foreach($pdo->query($sql) as $row) {

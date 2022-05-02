@@ -1,29 +1,14 @@
 <?php
+//This script retrieves values from the database responsible for populating the UI on the "Build Query" page of the application. 
 include 'config.php';
-
-header("Access-Control-Allow-Origin: *");
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 $selected_cancer_type = $_POST["cancer_type"];
 $TABLE_DICT = array();
-$TABLE_DICT["LAML"]["META"]["COLUMNS"] = "LAML/Columns";
-$TABLE_DICT["LAML"]["META"]["RANGE"] = "LAML/Range";
-$TABLE_DICT["LAML"]["SIG"]["QUERY"] = "SELECT * FROM TCGA_LAML_SIGNATURE";
-$TABLE_DICT["LAML"]["SIG"]["COLUMNS"] = "LAML/oncofields.txt";
-$TABLE_DICT["LAML"]["SPLC"]["QUERY"] = "SELECT * FROM TCGA_LAML_SPLICE";
-$TABLE_DICT["LAML"]["SPLC"]["ROWNUM"] = 96975;
-$TABLE_DICT["LAML"]["SPLC"]["COLNUM"] = 180;
 
-/*$TABLE_DICT["LGG"]["META"]["COLUMNS"] = "LGG/Columns";
-$TABLE_DICT["LGG"]["META"]["RANGE"] = "LGG/Range";
-$TABLE_DICT["LGG"]["SIG"]["QUERY"] = "SELECT * FROM signature";
-$TABLE_DICT["LGG"]["SIG"]["COLUMNS"] = "LGG/oncofields.txt";
-$TABLE_DICT["LGG"]["SIG"]["TRANSLATE"] = "LGG/OncoSplice-translation.txt";
-$TABLE_DICT["LGG"]["SPLC"]["QUERY"] = "SELECT * FROM gasm";*/
-$TABLE_DICT["LGG"]["SPLC"]["ROWNUM"] = 106894;
-$TABLE_DICT["LGG"]["SPLC"]["COLNUM"] = 530;
+//TO DO: Make a gereralized function to get the cancer type as the parameter, standardize calls to the database.
 if($selected_cancer_type == "AML_Leucegene")
 {
 	$TABLE_DICT[$selected_cancer_type]["META"]["COLUMNS"] = $selected_cancer_type . "/Columns";
@@ -34,8 +19,9 @@ if($selected_cancer_type == "AML_Leucegene")
 	$TABLE_DICT[$selected_cancer_type]["SIG"]["TRANSLATE"] = $selected_cancer_type . "/OncoSplice-translation.txt";
 	$TABLE_DICT[$selected_cancer_type]["SPLC"]["QUERY"] = "SELECT * FROM " . $selected_cancer_type . "_SPLICE";
 }
-else if($selected_cancer_type != "LAML")
+else
 {
+	//Columns and range specify supplementary information directories, NOT database calls.
 	$TABLE_DICT[$selected_cancer_type]["META"]["COLUMNS"] = $selected_cancer_type . "/Columns";
 	$TABLE_DICT[$selected_cancer_type]["META"]["RANGE"] = $selected_cancer_type . "/Range";
 	$TABLE_DICT[$selected_cancer_type]["META"]["QUERY"] = "SELECT * FROM " . $selected_cancer_type . "_TCGA_META";
@@ -46,6 +32,10 @@ else if($selected_cancer_type != "LAML")
 	$TABLE_DICT[$selected_cancer_type]["SPLC"]["ROWNUM"] = 1506;
 	$TABLE_DICT[$selected_cancer_type]["SPLC"]["COLNUM"] = 999;
 }
+
+//TO DO: Get rid of hardcoded row/cols, automate the procedure.
+$TABLE_DICT["LGG"]["SPLC"]["ROWNUM"] = 106894;
+$TABLE_DICT["LGG"]["SPLC"]["COLNUM"] = 530;
 
 $TABLE_DICT["LUAD"]["SPLC"]["ROWNUM"] = 162393;
 $TABLE_DICT["LUAD"]["SPLC"]["COLNUM"] = 605;
@@ -71,22 +61,22 @@ $TABLE_DICT["AML_Leucegene"]["SPLC"]["ROWNUM"] = 138754;
 $TABLE_DICT["GBM"]["SPLC"]["COLNUM"] = 185;
 $TABLE_DICT["GBM"]["SPLC"]["ROWNUM"] = 80369;
 
+//PDO is PHP Data Object
 $conn = makePDO();
 
 $metaresult = $conn->query($TABLE_DICT[$selected_cancer_type]["META"]["QUERY"]);
-$output_arr = "";
+$i = $metaresult->columnCount();
 
-$conn = null;
-//$i = pg_num_fields($metaresult);
-/*
 $output_arr = array();
 for ($j = 1; $j < $i; $j++) {
-	$fieldname = pg_field_name($metaresult, $j);
+	$fieldname = $metaresult->getColumnMeta($j)['name'];
 	$fieldname = str_replace("_", " ", $fieldname);
 	$fieldname = preg_replace("/\r|\n/", "", $fieldname);
 	$output_arr["meta"][$fieldname] = "";
 }
+
 //Code for building UI
+
 $pok = scandir($TABLE_DICT[$selected_cancer_type]["META"]["COLUMNS"]);
 $file_arr = $pok;
 
@@ -220,6 +210,6 @@ $numsamples = $TABLE_DICT[$selected_cancer_type]["SPLC"]["COLNUM"];
 $output_arr["sigtranslate"] = $sigtranslater;
 $output_arr["qbox"]["columns"] = $numsamples;
 $output_arr["qbox"]["rows"] = $numrows;
-*/
+
 echo json_encode($output_arr);
 ?>

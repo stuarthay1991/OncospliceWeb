@@ -2,18 +2,16 @@
 //ini_set('display_errors', 1);
 //ini_set('display_startup_errors', 1);
 //error_reporting(E_ALL);
+include 'config.php';
 include 'postdata.php';
+
 //Connect to postgres db
 //include 'queryhistoryaccess.php'; 
 
-//ini_set('display_errors', 1);
-//ini_set('display_startup_errors', 1);
-//error_reporting(E_ALL);
-$conn = pg_pconnect("dbname=oncocasen");
-if (!$conn) {
-    echo "An error occurred1.\n";
-    exit;
-}
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+$conn = makePDO();
 $cancertype = $_POST["CANCER"];
 $compcancertype = $_POST["COMPCANCER"];
 date_default_timezone_set('UTC');
@@ -163,17 +161,19 @@ if($oncosig_base_count > 0)
 	$oncosig_base_query = str_replace("-", "_", $oncosig_base_query);
 	$oncosig_base_query = str_replace("(", "_", $oncosig_base_query);
 	$oncosig_base_query = str_replace(")", "_", $oncosig_base_query);
-	$oncosigresult = pg_query($conn, $oncosig_base_query);
-	if (!$oncosigresult) {
-	    //echo "error occurred1";
-	    echo $oncosig_base_query;
-	    exit;
-	}
-
-	$pgarr = pg_fetch_all_columns($oncosigresult, 0);
-	$pgarr_size = count($pgarr);
 
 	$uidsub_makequery = " WHERE (";
+	$pgarr = array();
+	$count = 0;
+
+	foreach($conn->query($oncosig_base_query) as $row) 
+	{
+        	$pgarr[$count] = $row["uid"];
+        	$count = $count + 1;
+    }
+
+    $pgarr_size = count($pgarr);
+
 	for($i = 0; $i < $pgarr_size; $i++)
 	{
 		//$pizza  = "piece1 piece2 piece3 piece4 piece5 piece6";
@@ -195,13 +195,9 @@ $m_arr_count = 0;
 //First query for sample ids. Will need to be changed to be contructed in depth.
 if($meta_base_count > 0)
 {
-	$metaresult = pg_query($conn, $meta_base_query);
-	if (!$metaresult) {
-	    echo "An error occurred2.\n";
-	    exit;
-	}
 
-	while ($mrow = pg_fetch_assoc($metaresult)) {
+	foreach($conn->query($meta_base_query) as $mrow) 
+	{
 	  $m_arr[$m_arr_count] = $mrow[$TABLE_DICT[$cancertype]["META"]["SPC"]];
 	  $m_arr_count = $m_arr_count + 1;
 	}
@@ -314,13 +310,9 @@ $makequery = str_replace("\r", "", $makequery);
 //Connect and send the query
 //echo $makequery;
 
-$result = pg_query($conn, $makequery);
-if (!$result) {
-	//echo "error3";
-    //echo $uidsub_makequery;
-    echo $makequery;
-    exit;
-}
+
+
+$result = $conn->query($makequery);
 
 //Set up result
 $rr = "";
@@ -329,14 +321,14 @@ $returned_result = array();
 $col_beds = array();
 $col_beds_i = 0;
 //This line takes the number of columns
-$total_cols = pg_num_fields($result);
+$total_cols = $result->columnCount();
 
 $resultboxfile = fopen("resultboxfile.txt", "w");
 fwrite($resultboxfile, "uid");
 fwrite($resultboxfile, "\t");
 for($i = 0; $i < $total_cols; $i++)
 {
-	$cur_name = pg_field_name($result, $i);
+	$cur_name = $result->getColumnMeta($i)['name'];
 	$first_4_chars = substr($cur_name, 0, 4);
 	$last_4_chars = substr($cur_name, -4);
 	if($first_4_chars == "tcga")
@@ -364,7 +356,7 @@ fwrite($resultboxfile, "\n");
 
 $ic = 0;
 //Get data
-while ($row = pg_fetch_assoc($result)) {
+while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
   if($ic > 5000)
   {
   	break;

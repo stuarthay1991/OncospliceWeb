@@ -28,11 +28,7 @@ function TopNav() {
         <Grid item xs={5}>
         </Grid> 
         <Grid item xs={2}>
-          <div className={classes.cntr_special}><img src="./OncoLOGO.png" alt="Logo" width="177" height="148"></img></div>
-          <div>Examples</div>
-        </Grid>
-        <Grid item xs={2}>
-          <div className={classes.cntr_special}><img src="./OncoLOGO.png" alt="Logo" width="177" height="148"></img></div>
+          <div className={classes.cntr_special}><img src="OncoLOGO.png" alt="Logo" width="177" height="148"></img></div>
           <div>Examples</div>
         </Grid>
         <Grid item xs={5}>
