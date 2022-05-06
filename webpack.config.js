@@ -40,23 +40,20 @@ module.exports = function(_env, argv) {
         },
         {
           test: /\.svg$/,
-          use: ["@svgr/webpack"]
-        },
-        {
-          test: /\.(png|jpg|gif)$/i,
           use: {
-            loader: "url-loader",
+            loader: "@svgr/webpack",
             options: {
-              limit: 8192,
-              name: "static/media/[name].[hash:8].[ext]"
+              name: '[name].[ext]'
             }
           }
         },
         {
-          test: /\.(eot|otf|ttf|woff|woff2)$/,
-          loader: require.resolve("file-loader"),
-          options: {
-            name: "static/media/[name].[hash:8].[ext]"
+          test: /\.(png|jpg|gif)$/i,
+          use: {
+            loader: "file-loader",
+            options: {
+              name: '[name].[ext]'
+            }
           }
         }
       ]
@@ -88,7 +85,14 @@ module.exports = function(_env, argv) {
     },
     devServer: {
       compress: true,
-      historyApiFallback: true,
+      historyApiFallback: {
+        rewrites: [
+          { from: /^\/$/, to: '/dist/index.html' },
+          { from: /^\/app/, to: '/dist/index.html' },
+          { from: /^\/app\/.*$/, to: '/dist/index.html' },
+          { from: /./, to: '/dist/404.html' },
+        ],
+      },
       open: true,
       overlay: true
     }

@@ -137,7 +137,7 @@ function MainPanel(props){
       //The tabcontent div should always be displayed when a tab is selected.
       document.getElementById("tabcontent").style.display = "block";
       //This is currently not useful; for previous purposes of cache history, the page selected is pushed into the history array.
-      history.push(`/ICGS/Oncosplice/testing/index.html/${tabNameToIndex[newValue]}`);
+      history.push(`/app/${tabNameToIndex[newValue]}`);
       //This is a hack. If the "build query" tab is re-selected, the page reloads in order to prevent bugs.
       if(newValue == 0)
       {
@@ -161,7 +161,7 @@ function MainPanel(props){
     stateobj["inRPSI"] = list4;
     stateobj["inTRANS"] = list5;
     stateobj["export"] = exp;
-    history.push(`/ICGS/Oncosplice/testing/index.html/${tabNameToIndex[1]}`);
+    history.push(`/app/${tabNameToIndex[1]}`);
     setMpstate({
         viewpaneobj: stateobj,
         authentication: mpstate.authentication,
