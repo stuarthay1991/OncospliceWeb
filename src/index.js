@@ -12,7 +12,7 @@ import TopNav from './TopNav.js';
 //console.log('process.argv', process.argv);
 var version = "0.1";
 
-var routeurl = "/dist/index.html";
+var routeurl = "/app";
 
 //App function is the top level function, all components are underneath this function. At this level the routing is controlled.
 function App() {

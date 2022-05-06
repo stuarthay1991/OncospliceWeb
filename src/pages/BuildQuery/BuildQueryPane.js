@@ -12,6 +12,7 @@ import { createMuiTheme } from '@material-ui/core/styles';
 import '../../App.css';
 import useStyles from '../../useStyles.js';
 import Tooltip from '@material-ui/core/Tooltip';
+import loadinggif from './gifmax.gif';
 
 //General components
 import TabPanel from '../../components/TabPanel';
@@ -363,7 +364,7 @@ class BQPane extends React.Component {
             <Grid item xs={6}></Grid>
             <Grid item xs={1}>
             <div id="sub" style={{display: "none"}}>
-              <img src={(targeturl.concat("/backend/gifmax.gif"))} width="50" height="50"/>
+              <img src={loadinggif} width="50" height="50"/>
             </div>
             </Grid>
             <Grid item xs={2}>
