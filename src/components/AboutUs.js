@@ -1,15 +1,18 @@
 import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
+import { isBuild } from '../constants.js';
 import workflow from './workflow.png';
 
 function AboutUs() {
+    var workflowimg = isBuild ? <img src={"/ICGS/Oncosplice/testing/workflow.png"} alt="workflow" /> : <img src={workflow} alt="workflow" />;
+
 	return(
     <div style={{color: "#0f6a8b", margin: 6, textAlign: "left"}}>
         <div style={{textAlign: "left"}}>
         <strong><p style={{fontSize: 28}}>What is OncoSplice?</p></strong>
         </div>
-        <img src={workflow} alt="workflow" />
+        <img src={workflowimg} alt="workflow" />
         <Box>
         <div style={{marginLeft: 15, marginTop: 20, fontSize: 18, textAlign: "left"}}>
 

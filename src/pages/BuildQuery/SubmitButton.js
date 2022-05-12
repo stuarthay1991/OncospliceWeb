@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Button from '@material-ui/core/Button';
+import Button from 'react-bootstrap/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { makeRequest } from '../../request/CancerDataManagement.js';
@@ -39,6 +39,7 @@ function SubmitButton(props){
     display:'inline-block',
     cursor:'pointer',
     color:'#ffffff',
+    borderColor: 'white',
     fontFamily: 'Roboto',
     fontSize:'16px',
     fontWeight:'bold',

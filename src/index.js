@@ -12,11 +12,29 @@ import TopNav from './TopNav.js';
 //console.log('process.argv', process.argv);
 var version = "0.1";
 
-var routeurl = "/app";
-
 //App function is the top level function, all components are underneath this function. At this level the routing is controlled.
 function App() {
-
+  if(module.hot){
+    module.hot.accept()
+  }
+  if(process.env.NODE_ENV == "build")
+  {
+    var routeurl = "/ICGS/Oncosplice/testing/index.html";
+  }
+  else
+  {
+    var routeurl = "/app"
+  }
+  console.log(process.env.NODE_ENV)
+  /*
+  if(process.env.NODE_ENV == "production")
+  {
+    console.log("Let's go")
+  }
+  else
+  {
+    console.log("Let's stop")
+  }*/
   //This is a list of pages visited on this website on the cache. It is not in use now but could be useful later.
   var pages = [];
 
@@ -45,5 +63,6 @@ function App() {
   );
 
 }
+
 
 ReactDOM.render(<App />, document.getElementById("root"));

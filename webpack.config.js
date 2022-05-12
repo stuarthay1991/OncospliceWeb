@@ -78,6 +78,7 @@ module.exports = function(_env, argv) {
         )
       }),
       new webpack.ProvidePlugin({ React: "react", }),
+      new webpack.HotModuleReplacementPlugin(),
     ].filter(Boolean),
     stats: {
       errorDetails: true,
@@ -85,6 +86,7 @@ module.exports = function(_env, argv) {
     },
     devServer: {
       compress: true,
+      openPage: 'app',
       historyApiFallback: {
         rewrites: [
           { from: /^\/$/, to: '/dist/index.html' },
@@ -94,7 +96,8 @@ module.exports = function(_env, argv) {
         ],
       },
       open: true,
-      overlay: true
+      overlay: true,
+      hot: true
     }
   };
 };

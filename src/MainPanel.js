@@ -16,7 +16,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 import './App.css';
 import BQPane from './pages/BuildQuery/BuildQueryPane.js';
 import ViewPaneWrapper from './ViewPaneWrapper.js';
-import Authentication from './Authentication.js';
+//import Authentication from './Authentication.js';
 import QueryHistoryPaneWrapper from './QueryHistoryPaneWrapper.js';
 
 const spcTabStyles = makeStyles({
@@ -128,7 +128,14 @@ function MainPanel(props){
       sigdisplay: "none" //This informs whether or not to display the signatures div. It's a sloppy solution that I may change quite soon.
     }
   });
-
+  if(process.env.NODE_ENV == "build")
+  {
+    var routeurl = "/ICGS/Oncosplice/testing/index.html/";
+  }
+  else
+  {
+    var routeurl = "/app/"
+  }
   //Whenever a Tab is selected, this function is triggered.
   const handleChange = (event, newValue) => {
       //Since the contact & about panel are not strictly part of the tabs, they should always be hidden.
@@ -137,7 +144,7 @@ function MainPanel(props){
       //The tabcontent div should always be displayed when a tab is selected.
       document.getElementById("tabcontent").style.display = "block";
       //This is currently not useful; for previous purposes of cache history, the page selected is pushed into the history array.
-      history.push(`/app/${tabNameToIndex[newValue]}`);
+      history.push(routeurl.concat(`${tabNameToIndex[newValue]}`));
       //This is a hack. If the "build query" tab is re-selected, the page reloads in order to prevent bugs.
       if(newValue == 0)
       {
@@ -161,7 +168,7 @@ function MainPanel(props){
     stateobj["inRPSI"] = list4;
     stateobj["inTRANS"] = list5;
     stateobj["export"] = exp;
-    history.push(`/app/${tabNameToIndex[1]}`);
+    history.push(routeurl.concat(`${tabNameToIndex[1]}`));
     setMpstate({
         viewpaneobj: stateobj,
         authentication: mpstate.authentication,
@@ -196,6 +203,9 @@ function MainPanel(props){
   //This is the layout of the main pane in action.
   //It's important to note that the "Tabs" element informs the UI for the Tabs, while further down the "tabcontent" div informs the actual substance of those tab selections.
   //"Authentication" informs the currently broken google authentication feature, which will be crucial to implementing the UUID based routing framework.
+  /*      <div style={{float: "right"}}>
+          <Authentication updateQH={updateQH}/>
+        </div>*/
   return (
     <div className={classes.root} style={{ fontFamily: 'Roboto' }}>
       <div className={classes.demo2}>
@@ -211,9 +221,7 @@ function MainPanel(props){
         </Grid>
         <Grid item sm={12} md={3}>
         <Typography className={classes.padding} />
-        <div style={{float: "right"}}>
-          <Authentication updateQH={updateQH}/>
-        </div>
+
         </Grid>
         </Grid>
         </div>
