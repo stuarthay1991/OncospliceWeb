@@ -21,6 +21,7 @@ import CheckboxForm from '../../components/CheckboxForm';
 import QueueMessage from '../../components/QueueMessage';
 import PreQueueMessage from '../../components/PreQueueMessage';
 import SingleItem from '../../components/SingleItem';
+import { isBuild } from '../../constants.js';
 
 //Page specific components
 import SubmitButton from './SubmitButton';
@@ -35,15 +36,10 @@ import ClientSEF from './ClientSEF';
 //Server interface
 import { makeRequest } from '../../request/CancerDataManagement.js';
 
-//Paths
-var localurl = "/material-app";
-var serverurl = "/ICGS/Oncosplice/testing";
-var buildurl = "/ICGS/Oncosplice/build";
-
-var targeturl = serverurl;
-
 var queryhistory_dat = [];
 var GLOBAL_user = "Default";
+
+var gifimg = isBuild ? <img src={"/ICGS/Oncosplice/testing/gifmax.gif"} width="50" height="50"/> : <img src={loadinggif} width="50" height="50"/>;
 
 const boxProps = {
   border: 3,
@@ -364,7 +360,7 @@ class BQPane extends React.Component {
             <Grid item xs={6}></Grid>
             <Grid item xs={1}>
             <div id="sub" style={{display: "none"}}>
-              <img src={loadinggif} width="50" height="50"/>
+              {gifimg}
             </div>
             </Grid>
             <Grid item xs={2}>

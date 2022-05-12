@@ -13,9 +13,9 @@ module.exports = function(_env, argv) {
     devtool: isDevelopment && "cheap-module-source-map",
     entry: "./src/index.js",
     output: {
-      path: path.resolve(__dirname, 'dist'),
+      path: path.resolve(__dirname, 'build'),
       filename: "app.js",
-      publicPath: "http://localhost:8080/assets/js"
+      publicPath: "/ICGS/Oncosplice/testing"
     },
     module: {
       rules: [
@@ -64,8 +64,8 @@ module.exports = function(_env, argv) {
     plugins: [
       isProduction &&
         new MiniCssExtractPlugin({
-          filename: "http://localhost:8080/assets/css/[name].[contenthash:8].css",
-          chunkFilename: "http://localhost:8080/assets/css/[name].[contenthash:8].chunk.css"
+          filename: "[name].[contenthash:8].css",
+          chunkFilename: "[name].[contenthash:8].chunk.css"
         }),
       new HtmlWebpackPlugin({
         filename: "./index.html",
@@ -74,30 +74,14 @@ module.exports = function(_env, argv) {
       }),
       new webpack.DefinePlugin({
         "process.env.NODE_ENV": JSON.stringify(
-          isProduction ? "production" : "development"
+          "build"
         )
       }),
-      new webpack.ProvidePlugin({ React: "react", }),
-      new webpack.HotModuleReplacementPlugin(),
+      new webpack.ProvidePlugin({ React: "react", })
     ].filter(Boolean),
     stats: {
       errorDetails: true,
       children: true
-    },
-    devServer: {
-      compress: true,
-      openPage: 'app',
-      historyApiFallback: {
-        rewrites: [
-          { from: /^\/$/, to: '/dist/index.html' },
-          { from: /^\/app/, to: '/dist/index.html' },
-          { from: /^\/app\/.*$/, to: '/dist/index.html' },
-          { from: /./, to: '/dist/404.html' },
-        ],
-      },
-      open: true,
-      overlay: true,
-      hot: true
     }
   };
 };
