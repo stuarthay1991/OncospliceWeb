@@ -21,7 +21,7 @@ function sendSamplesRetrieveURL(props)
 		{
 			var stredit = tempdata[k];
 			stredit = stredit.split("_");
-			lendat.push((stredit[0].concat("-").concat(stredit[1]).concat("-").concat(stredit[2]).concat("-").concat(stredit[3])).toUpperCase());
+			lendat.push((stredit[0].concat("-").concat(stredit[1]).concat("-").concat(stredit[2]).concat("-").concat(stredit[3].slice(0, -1))).toUpperCase());
 		}
 		if(lendat.length > 0)
 		{
@@ -54,10 +54,13 @@ function sendSamplesRetrieveURL(props)
 	datobj["groups"][1]["studies"][0]["samples"] = senddata[1];
 	datobj["groups"][1]["studies"][0]["patients"] = senddata[1];
 	datobj["groups"][1]["origin"] = [];
-	datobj["groups"][1]["origin"][0] = "brca_tcga";
+	datobj["groups"][1]["origin"][0] = "summit_2018";
 	datobj["groups"][1]["uid"] = "62665b9404dc35387469649a";
 	datobj["groups"][1]["isSharedGroup"] = false;
 	datobj["groups"][1]["nonExistentSamples"] = [];
+
+	datobj["origin"] = [];
+	datobj["origin"][0] = "brca_tcga";
 
 	bodyFormData.append("DATA",JSON.stringify(datobj));
 	axios({
