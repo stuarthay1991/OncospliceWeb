@@ -4,6 +4,7 @@ import targeturl from './targeturl.js';
 import '@fontsource/roboto';
 import {Helmet} from "react-helmet";
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
+import { isBuild } from './constants.js';
 import './App.css';
 
 import MainPanel from './MainPanel.js';
@@ -17,14 +18,8 @@ function App() {
   if(module.hot){
     module.hot.accept()
   }
-  if(process.env.NODE_ENV == "build")
-  {
-    var routeurl = "/ICGS/Oncosplice/testing/index.html";
-  }
-  else
-  {
-    var routeurl = "/app"
-  }
+
+  var routeurl = isBuild ? "/ICGS/Oncosplice/testing/index.html" : "/app";
   console.log(process.env.NODE_ENV)
   /*
   if(process.env.NODE_ENV == "production")

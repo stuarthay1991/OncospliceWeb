@@ -29,11 +29,13 @@ import LabelHeatmap from './components/LabelHeatmap';
 import downloadHeatmapText from './components/downloadHeatmapText';
 import axios from 'axios';
 import Tooltip from '@material-ui/core/Tooltip';
+import CBioportalLinkout from './components/CBioportalLinkout';
 import targeturl from './targeturl.js';
 
 import Plot from 'react-plotly.js';
 import * as d3 from 'd3';
 import useStyles from './useStyles.js';
+//import cBioportalLinkout from './components/cBioportalLinkout';
 
 var global_meta = [];
 var global_sig = [];
@@ -1515,34 +1517,44 @@ function loopThroughGene(ss, s, col, cc, rpsi, trans){
 }
 
 function loopThroughHC(ss, s, col, cc, rpsi){
-  //console.log("cc_run", cc)
   var Selection = s;
+  var toCBio = [];
   var myArray1 = [];
   var myArray2 = [];
   var myArray3 = [];
+  var col1 = [];
+  var col2 = [];
+  var col3 = [];
   for(var i = 0; i < col.length; i++)
   {
     var curcol = col[i];
     if(cc[i] == "1")
     {
       myArray1.push(ss[curcol]);
+      col1.push(curcol);
     }
     if(cc[i] == "2")
     {
       myArray2.push(ss[curcol]);
+      col2.push(curcol);
     }
     if(cc[i] == "3")
     {
       myArray3.push(ss[curcol]);
+      col3.push(curcol);
     }
   }
   var output = {};
   output["arr1"] = myArray1;
   output["arr2"] = myArray2;
   output["arr3"] = myArray3;
+  toCBio.push(col1);
+  toCBio.push(col2);
+  toCBio.push(col3);
+  console.log("myarrays", toCBio, toCBio.length);
   if(output["arr3"].length > 0)
   {
-    var plotobj = <Plot
+    var plotobj = <><Plot
               data={[
                 {
                   y: output["arr1"],
@@ -1603,11 +1615,13 @@ function loopThroughHC(ss, s, col, cc, rpsi){
                           }
                         }
                       }} }
-    />;    
+    />
+    <CBioportalLinkout data={toCBio}/>
+    </>;
   }
   else
   {
-    var plotobj = <Plot
+    var plotobj = <><Plot
               data={[
                 {
                   y: output["arr1"],
@@ -1670,7 +1684,9 @@ function loopThroughHC(ss, s, col, cc, rpsi){
                           }
                         }
                       }} }
-    />;     
+    />
+    <CBioportalLinkout data={toCBio}/>
+    </>;     
   }
 
   return plotobj;
