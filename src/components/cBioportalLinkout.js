@@ -4,9 +4,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import axios from 'axios';
 import targeturl from '../targeturl.js';
 
-function openNewURL(props)
+function openNewURL(id)
 {
-
+	window.open(("https://www.cbioportal.org/comparison/survival?comparisonId=".concat(id)), "_blank");
 }
 
 function sendSamplesRetrieveURL(props)
@@ -31,36 +31,26 @@ function sendSamplesRetrieveURL(props)
 	var bodyFormData = new FormData();
 	var datobj = {};
 	datobj["groups"] = [];
-	datobj["groups"][0] = {};
-	datobj["groups"][0]["name"] = "Breast";
-	datobj["groups"][0]["description"] = "";
-	datobj["groups"][0]["studies"] = [];
-	datobj["groups"][0]["studies"][0] = {};
-	datobj["groups"][0]["studies"][0]["id"] = "brca_tcga";
-	datobj["groups"][0]["studies"][0]["samples"] = senddata[0];
-	datobj["groups"][0]["studies"][0]["patients"] = senddata[0];
-	datobj["groups"][0]["origin"] = [];
-	datobj["groups"][0]["origin"][0] = "brca_tcga";
-	datobj["groups"][0]["uid"] = "62665b890934121b56df06b5";
-	datobj["groups"][0]["isSharedGroup"] = false;
-	datobj["groups"][0]["nonExistentSamples"] = [];
 
-	datobj["groups"][1] = {};
-	datobj["groups"][1]["name"] = "Breast";
-	datobj["groups"][1]["description"] = "";
-	datobj["groups"][1]["studies"] = [];
-	datobj["groups"][1]["studies"][0] = {};
-	datobj["groups"][1]["studies"][0]["id"] = "brca_tcga";
-	datobj["groups"][1]["studies"][0]["samples"] = senddata[1];
-	datobj["groups"][1]["studies"][0]["patients"] = senddata[1];
-	datobj["groups"][1]["origin"] = [];
-	datobj["groups"][1]["origin"][0] = "summit_2018";
-	datobj["groups"][1]["uid"] = "62665b9404dc35387469649a";
-	datobj["groups"][1]["isSharedGroup"] = false;
-	datobj["groups"][1]["nonExistentSamples"] = [];
-
+	for(var i = 0; i < senddata.length; i++)
+	{
+		datobj["groups"][i] = {};
+		datobj["groups"][i]["name"] = props.label[i];
+		datobj["groups"][i]["description"] = "";
+		datobj["groups"][i]["studies"] = [];
+		datobj["groups"][i]["studies"][0] = {};
+		datobj["groups"][i]["studies"][0]["id"] = (props.cancer.toLowerCase()).concat("_tcga");
+		datobj["groups"][i]["studies"][0]["samples"] = senddata[i];
+		datobj["groups"][i]["studies"][0]["patients"] = senddata[i];
+		datobj["groups"][i]["origin"] = [];
+		datobj["groups"][i]["origin"][0] = (props.cancer.toLowerCase()).concat("_tcga");
+		datobj["groups"][i]["uid"] = "62665b890934121b56df06b5".concat(i.toString());
+		datobj["groups"][i]["isSharedGroup"] = false;
+		datobj["groups"][i]["nonExistentSamples"] = [];
+	}
+	
 	datobj["origin"] = [];
-	datobj["origin"][0] = "brca_tcga";
+	datobj["origin"][0] = (props.cancer.toLowerCase()).concat("_tcga");
 
 	bodyFormData.append("DATA",JSON.stringify(datobj));
 	axios({
@@ -71,16 +61,16 @@ function sendSamplesRetrieveURL(props)
 	})
 	    .then(function (response) {
 	      //console.log("response_exon", response["data"]);
-	      var resp = response["data"];
-	      console.log("CBIO", resp);
+	      var resp = response["data"]["id"];
+	      openNewURL(resp);
 	})
 }
 
-function CBioportalLinkout(data)
+function CBioportalLinkout(props)
 {
 	return(
 		<Tooltip title="View cBioportal analysis">
-		<Button uppercase={false} onClick={() => sendSamplesRetrieveURL(data)} 
+		<Button uppercase={false} onClick={() => sendSamplesRetrieveURL(props)} 
 		    style={{backgroundColor:'#EFAD18',
 		    borderRadius:'8px',
 		    display:'inline-block',

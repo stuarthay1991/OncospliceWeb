@@ -1436,12 +1436,16 @@ function loopThroughGene(ss, s, col, cc, rpsi, trans){
   var Selection = s;
   var myArray1 = [];
   var myArray2 = [];
+  var toCBio = [];
+  var curcol1 = [];
+  var curcol2 = [];
   for(var i = 0; i < col.length; i++)
   {
     var curcol = col[i];
     if(rpsi[curcol] == "0")
     {
       myArray1.push(ss[curcol]);
+      curcol1.push(curcol);
     }
   }
   for(var i = 0; i < col.length; i++)
@@ -1450,12 +1454,16 @@ function loopThroughGene(ss, s, col, cc, rpsi, trans){
     if(rpsi[curcol] == "1")
     {
       myArray2.push(ss[curcol]);
+      curcol2.push(curcol);
     }
   }
   var output = {};
   output["arr1"] = myArray1;
   output["arr2"] = myArray2;
-  var plotobj = <Plot
+  toCBio.push(curcol1);
+  toCBio.push(curcol2);
+  var toCBioLabels = ["others", trans];
+  var plotobj = <><Plot
             data={[
               {
                 x: "Group1",
@@ -1512,7 +1520,9 @@ function loopThroughGene(ss, s, col, cc, rpsi, trans){
                         }
                       },
                       height: 200} }
-  />;
+  />
+  <CBioportalLinkout cancer={global_cancer} label={toCBioLabels} data={toCBio}/>
+  </>;
   return plotobj;
 }
 
@@ -1525,6 +1535,7 @@ function loopThroughHC(ss, s, col, cc, rpsi){
   var col1 = [];
   var col2 = [];
   var col3 = [];
+  console.log("RPSI_TO_CBIO", rpsi);
   for(var i = 0; i < col.length; i++)
   {
     var curcol = col[i];
@@ -1551,9 +1562,10 @@ function loopThroughHC(ss, s, col, cc, rpsi){
   toCBio.push(col1);
   toCBio.push(col2);
   toCBio.push(col3);
-  console.log("myarrays", toCBio, toCBio.length);
+  //console.log("myarrays", toCBio, toCBio.length);
   if(output["arr3"].length > 0)
   {
+    var toCBioLabels = ["Cluster1", "Cluster2", "Cluster3"];
     var plotobj = <><Plot
               data={[
                 {
@@ -1616,11 +1628,12 @@ function loopThroughHC(ss, s, col, cc, rpsi){
                         }
                       }} }
     />
-    <CBioportalLinkout data={toCBio}/>
+    <CBioportalLinkout cancer={global_cancer} label={toCBioLabels} data={toCBio}/>
     </>;
   }
   else
   {
+    var toCBioLabels = ["Cluster1", "Cluster2"];
     var plotobj = <><Plot
               data={[
                 {
@@ -1685,7 +1698,7 @@ function loopThroughHC(ss, s, col, cc, rpsi){
                         }
                       }} }
     />
-    <CBioportalLinkout data={toCBio}/>
+    <CBioportalLinkout cancer={global_cancer} label={toCBioLabels} data={toCBio}/>
     </>;     
   }
 
@@ -1694,19 +1707,24 @@ function loopThroughHC(ss, s, col, cc, rpsi){
 
 function loopThroughFilter(ss, s, col, cc, rpsi, out, set){
   var datarray = [];
+  var toCBio = [];
+  var toCBioLabels = [];
   //console.log("lTF", out);
   //console.log("set", set);
   for(var i = 0; i < set.length; i++)
-  {   
-
+  {
       var curstack = [];
+      var curcol = [];
       for(var k = 0; k < col.length; k++)
       {
         if(out[col[k]] == set[i])
         {
           curstack.push(ss[col[k]]);
+          curcol.push(col[k]);
         }
       }
+      toCBioLabels.push(set[i]);
+      toCBio.push(curcol);
       var name = set[i];
       var curcolor = global_colors[i];
       datarray.push({
@@ -1717,7 +1735,7 @@ function loopThroughFilter(ss, s, col, cc, rpsi, out, set){
         marker: {color: curcolor},
       });
   }
-  var plotobj = <Plot
+  var plotobj = <><Plot
               data={datarray}
               layout={ {width: 535, 
                         height: 300,
@@ -1755,7 +1773,9 @@ function loopThroughFilter(ss, s, col, cc, rpsi, out, set){
                           }
                         }
                       }} }
-  />;
+  />
+  <CBioportalLinkout cancer={global_cancer} label={toCBioLabels} data={toCBio}/>
+  </>;
   return plotobj;
 }
 
