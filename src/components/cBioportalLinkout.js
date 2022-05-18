@@ -9,6 +9,18 @@ function openNewURL(id)
 	window.open(("https://www.cbioportal.org/comparison/survival?comparisonId=".concat(id)), "_blank");
 }
 
+const cancerCodeTranslate = {
+	"BRCA": "brca_tcga",
+	"BLCA": "blca_tcga",
+	"LGG": "lgg_tcga",
+	"LUAD": "luad_tcga",
+	"SKCM": "skcm_tcga",
+	"GBM": "gbm_tcga",
+	"HNSCC": "hnsc_tcga",
+	"COAD": "coadread_tcga",
+	"AML_Leucegene": null
+}
+
 function sendSamplesRetrieveURL(props)
 {
 	var data = props.data;
@@ -31,6 +43,7 @@ function sendSamplesRetrieveURL(props)
 	var bodyFormData = new FormData();
 	var datobj = {};
 	datobj["groups"] = [];
+	var studyID = cancerCodeTranslate[props.cancer];
 
 	for(var i = 0; i < senddata.length; i++)
 	{
@@ -39,18 +52,18 @@ function sendSamplesRetrieveURL(props)
 		datobj["groups"][i]["description"] = "";
 		datobj["groups"][i]["studies"] = [];
 		datobj["groups"][i]["studies"][0] = {};
-		datobj["groups"][i]["studies"][0]["id"] = (props.cancer.toLowerCase()).concat("_tcga");
+		datobj["groups"][i]["studies"][0]["id"] = studyID;
 		datobj["groups"][i]["studies"][0]["samples"] = senddata[i];
 		datobj["groups"][i]["studies"][0]["patients"] = senddata[i];
 		datobj["groups"][i]["origin"] = [];
-		datobj["groups"][i]["origin"][0] = (props.cancer.toLowerCase()).concat("_tcga");
+		datobj["groups"][i]["origin"][0] = studyID;
 		datobj["groups"][i]["uid"] = "62665b890934121b56df06b5".concat(i.toString());
 		datobj["groups"][i]["isSharedGroup"] = false;
 		datobj["groups"][i]["nonExistentSamples"] = [];
 	}
 	
 	datobj["origin"] = [];
-	datobj["origin"][0] = (props.cancer.toLowerCase()).concat("_tcga");
+	datobj["origin"][0] = studyID;
 
 	bodyFormData.append("DATA",JSON.stringify(datobj));
 	axios({
@@ -68,16 +81,20 @@ function sendSamplesRetrieveURL(props)
 
 function CBioportalLinkout(props)
 {
+	var isDisabled = cancerCodeTranslate[props.cancer] == null ? true : false;
+	var buttonstyles = isDisabled == false ? {"cursor":'pointer', "backgroundColor":'#EFAD18', "opacity":1} : {"cursor":'not-allowed', "backgroundColor":'grey', "opacity":0.5};
+	var tooltipmessage = isDisabled == false ? "View cBioportal analysis" : "cBioportal analysis not available for this cancer";
 	return(
-		<Tooltip title="View cBioportal analysis">
-		<Button uppercase={false} onClick={() => sendSamplesRetrieveURL(props)} 
-		    style={{backgroundColor:'#EFAD18',
+		<Tooltip title={tooltipmessage}>
+		<Button uppercase={false} disabled={isDisabled} onClick={() => sendSamplesRetrieveURL(props)} 
+		    style={{backgroundColor:buttonstyles["backgroundColor"],
 		    borderRadius:'8px',
 		    display:'inline-block',
-		    cursor:'pointer',
+		    cursor:buttonstyles["cursor"],
 		    color:'#ffffff',
 		    borderColor: 'white',
 		    fontFamily: 'Roboto',
+		    opacity:buttonstyles["opacity"],
 		    fontSize:'16px',
 		    fontWeight:'bold',
 		    padding:'13px 32px',
