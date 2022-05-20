@@ -29,13 +29,16 @@ import LabelHeatmap from './components/LabelHeatmap';
 import downloadHeatmapText from './components/downloadHeatmapText';
 import axios from 'axios';
 import Tooltip from '@material-ui/core/Tooltip';
-import CBioportalLinkout from './components/CBioportalLinkout';
 import targeturl from './targeturl.js';
 
 import Plot from 'react-plotly.js';
 import * as d3 from 'd3';
 import useStyles from './useStyles.js';
-//import cBioportalLinkout from './components/cBioportalLinkout';
+import { global_colors } from './constants.js';
+
+import oncospliceClusterViolinPlotPanel from './plots/oncospliceClusterViolinPlotPanel';
+import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterViolinPlotPanel';
+import sampleFilterViolinPlotPanel from './plots/sampleFilterViolinPlotPanel';
 
 var global_meta = [];
 var global_sig = [];
@@ -50,7 +53,6 @@ var global_rpsi = [];
 var global_exon_blob = undefined;
 var global_genemodel_blob = undefined;
 var global_junc_blob = undefined;
-var global_colors = ["#0096FF", "Yellow", "#FF7F7F", "#44D62C", "Purple", "Orange", "Grey", "#32a852", "#8e7be3", "#e6b035", "#b5109f", "#8bab59", "#782b51", "#366fd9", "#f0b3ff", "#5d1ca3", "#d94907", "#32a8a6", "#ada50c", "#bf1b28", "#0000b3", "#ffc61a", "#336600"];
 var global_Y = "";
 var global_adj_height = "";
 var global_heat_len = "";
@@ -59,7 +61,6 @@ var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=de
 
 function metarepost(name) {
   var bodyFormData = new FormData();
-  //box = [];
   if(name != "age range")
   {
     name = name.replaceAll("  ", "__");
@@ -74,16 +75,9 @@ function metarepost(name) {
     headers: { "Content-Type": "multipart/form-data" },
   })
     .then(function (response) {
-      //var retval = response["data"]["out"];
-      //var retset = response["data"]["set"];
       var ret = response["data"];
-      //console.log("RET RET RET", ret, global_cancer);
       updateOkmapLabel(ret);
       supFilterUpdate(ret);
-      //console.log(retval);
-      //console.log(retset);
-      //console.log(global_cols);
-      //var okheader = new OKMAP_LABEL("HEATMAP_LABEL",global_cols,retval,document,);
     })
 }
 
@@ -98,15 +92,7 @@ function oneUIDrequest(UID) {
     headers: { "Content-Type": "multipart/form-data" },
   })
     .then(function (response) {
-      //var totalmatch = response["data"]["single"];
-      //console.log("oneuid", response["data"]);
       plotUIDupdate(response["data"]["result"][0])
-      //var new_vec = response["data"];
-      //plot4update(new_vec);
-      //console.log("1", totalmatch);
-      //console.log("2", response["data"]);
-      //add totalmatch for gene counter
-      //callback(clientgenes, exportView);
   })  
 }
 
@@ -121,7 +107,6 @@ function exonRequest(GENE, in_data) {
     headers: { "Content-Type": "multipart/form-data" },
   })
     .then(function (response) {
-      //console.log("response_exon", response["data"]);
       var resp = response["data"];
       updateExPlot(resp["gene"], resp["trans"], resp["junc"], in_data);
       global_exon_blob = resp["blob"]["trans"];
@@ -132,11 +117,7 @@ function exonRequest(GENE, in_data) {
 }
 
 function GTexSend(UID) {
-  //const exportUID = arg["UID"];
-  //const exportTISSUE = arg["TISSUE"];
-
   var bodyFormData = new FormData();
-  //console.log("GTEXsend", UID);
   bodyFormData.append("UID",UID);
   axios({
     method: "post",
@@ -145,21 +126,8 @@ function GTexSend(UID) {
     headers: { "Content-Type": "multipart/form-data" },
   })
     .then(function (response) {
-      //var totalmatch = response["data"]["single"];
-      /*
-      console.log("GTEXreceive", response["data"]);
-      for (const [key, value] of Object.entries(response["data"]["result"][0])) {
-          console.log(key, value);
-      }
-      */
       var new_vec = response["data"]["result"][0];
       gtexupdate(new_vec);
-      //var new_vec = response["data"];
-      //plot4update(new_vec);
-      //console.log("1", totalmatch);
-      //console.log("2", response["data"]);
-      //add totalmatch for gene counter
-      //callback(clientgenes, exportView);
   })  
 }
 
@@ -281,25 +249,10 @@ function oldLinkOuts(instuff){
 }
 
 function makeLinkOuts(chrm, c1, c2, c3, c4){
-  /*var peach2 = instuff;
-  var peach3 = peach2.replace("|", "<br>");
-  var peach = peach2.split("|");
-  var chr1 = peach[0];
-  var chr2 = peach[1];
-  var twor1 = chr1.split(":");
-  var twor2 = chr2.split(":");
-  var flatchr1 = twor1[0];
-  var flatchr2 = twor2[0];
-  var twor1_split = twor1[1].split("-");
-  var twor2_split = twor2[1].split("-");*/
   var full1 = chrm.concat(":").concat(c1).concat("-").concat(c2);
   var full2 = chrm.concat(":").concat(c3).concat("-").concat(c4);
   var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
   var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
-
-  //link1 = "<a href=".concat(link1).concat(flatchr1).concat("%3A").concat(twor1_split[0]).concat("%2D").concat(twor1_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG").concat(">").concat(chr1).concat("</a>");
-
-  //link1 = link1.concat("<br>").concat("<a href=").concat(link2).concat(flatchr2).concat("%3A").concat(twor2_split[0]).concat("%2D").concat(twor2_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG").concat(">").concat(chr2).concat("</a>");
 
   return(
     <div>
@@ -316,7 +269,6 @@ function setUpBioportalIframe(selection)
   var canc = global_cancer.toLowerCase();
   canc = canc.concat("_tcga");
   var srcstr = "https://www.cbioportal.org/ln?cancer_study_id=".concat(canc).concat("&q=").concat(selection["symbol"]);
-  //console.log("srcstr", srcstr)
   return srcstr;
 }
 
@@ -387,10 +339,6 @@ function createData(name, value) {
 var rows = [
   createData('-none selected-', '-none selected-'),
 ];
-
-/*function updateFHS(props){
-  const [state, setState] = React.useState
-}*/
 
 function FilterHeatmapSelect(props) {
   const classes = useStyles();
@@ -468,33 +416,6 @@ class Stats extends React.Component {
   }
 
 }
-
-/*
-class SupplementaryPlot extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-
-    }
-  }
-
-  componentDidMount() {
-
-  }
-
-  componentDidUpdate(prevProps) {
-
-  }
-
-  render()
-  {
-    return(
-      <div>
-      </div>
-    );
-  } 
-
-}*/
 
 class Heatmap extends React.Component {
   constructor(props) {
@@ -600,10 +521,6 @@ function zoomInHeatmap()
 
     var captain_burgerpants = temp_y_set / 15;
 
-    //document.getElementById("HEATMAP_1").style.display = "none";
-    //document.getElementById("HEATMAP_0").style.display = "block";
-    //document.getElementById("HEATMAP_2").style.display = "none";
-
     document.getElementById("HEATMAP_0").style.transformOrigin = "0 0";
     document.getElementById("HEATMAP_0").style.overflowY = "visible";
     document.getElementById("HEATMAP_0").style.height = document.getElementById("HEATMAP_0").style.height * captain_burgerpants;
@@ -618,18 +535,15 @@ function zoomOutHeatmap()
 {
   if(global_Y < ((400 * global_adj_height) / global_heat_len))
   {
-    //loading_gif("off");
     return;
   }
   else
   {
-    //zoom_on_off = "off";
     var temp_y_set = global_Y / 1.5;
 
     var captain_burgerpants = temp_y_set / 15;
 
     var magic_bob = document.getElementById("HEATMAP_0").style.height;
-    //console.log("boogie bob extreme", magic_bob);
     var fantastic_fred = magic_bob.substring(0, (magic_bob.length - 2));
     var wacky_winston = parseFloat(fantastic_fred) * captain_burgerpants;
     wacky_winston = (wacky_winston.toString()).concat("px");
@@ -1432,353 +1346,6 @@ function selectionToSup(selection){
   })
 }
 
-function loopThroughGene(ss, s, col, cc, rpsi, trans){
-  var Selection = s;
-  var myArray1 = [];
-  var myArray2 = [];
-  var toCBio = [];
-  var curcol1 = [];
-  var curcol2 = [];
-  for(var i = 0; i < col.length; i++)
-  {
-    var curcol = col[i];
-    if(rpsi[curcol] == "0")
-    {
-      myArray1.push(ss[curcol]);
-      curcol1.push(curcol);
-    }
-  }
-  for(var i = 0; i < col.length; i++)
-  {
-    var curcol = col[i];
-    if(rpsi[curcol] == "1")
-    {
-      myArray2.push(ss[curcol]);
-      curcol2.push(curcol);
-    }
-  }
-  var output = {};
-  output["arr1"] = myArray1;
-  output["arr2"] = myArray2;
-  toCBio.push(curcol1);
-  toCBio.push(curcol2);
-  var toCBioLabels = ["others", trans];
-  var plotobj = <><Plot
-            data={[
-              {
-                x: "Group1",
-                y: output["arr1"],
-                type: 'violin',
-                name: "Others",
-                mode: 'lines+markers',
-                marker: {color: 'grey'},
-              },
-              {
-                x: "Group2",
-                y: output["arr2"],
-                type: 'violin',
-                name: trans,
-                mode: 'lines+markers',
-                marker: {color: 'black'},
-              }
-            ]}
-
-            layout={ {width: 535,
-                      margin: {
-                          l: 48,
-                          r: 48,
-                          b: 48,
-                          t: 40
-                      },
-                      title: {
-                          text: s["pancanceruid"],
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 11,
-                            color: '#7f7f7f'
-                            }
-                      },
-                      yaxis:{
-                        range: [0, 1],
-                        title: {
-                          text: 'PSI Value',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        },
-                      },
-                      xaxis:{
-                        title: {
-                          text: 'Clusters',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }
-                      },
-                      height: 200} }
-  />
-  <CBioportalLinkout cancer={global_cancer} label={toCBioLabels} data={toCBio}/>
-  </>;
-  return plotobj;
-}
-
-function loopThroughHC(ss, s, col, cc, rpsi){
-  var Selection = s;
-  var toCBio = [];
-  var myArray1 = [];
-  var myArray2 = [];
-  var myArray3 = [];
-  var col1 = [];
-  var col2 = [];
-  var col3 = [];
-  console.log("RPSI_TO_CBIO", rpsi);
-  for(var i = 0; i < col.length; i++)
-  {
-    var curcol = col[i];
-    if(cc[i] == "1")
-    {
-      myArray1.push(ss[curcol]);
-      col1.push(curcol);
-    }
-    if(cc[i] == "2")
-    {
-      myArray2.push(ss[curcol]);
-      col2.push(curcol);
-    }
-    if(cc[i] == "3")
-    {
-      myArray3.push(ss[curcol]);
-      col3.push(curcol);
-    }
-  }
-  var output = {};
-  output["arr1"] = myArray1;
-  output["arr2"] = myArray2;
-  output["arr3"] = myArray3;
-  toCBio.push(col1);
-  toCBio.push(col2);
-  toCBio.push(col3);
-  //console.log("myarrays", toCBio, toCBio.length);
-  if(output["arr3"].length > 0)
-  {
-    var toCBioLabels = ["Cluster1", "Cluster2", "Cluster3"];
-    var plotobj = <><Plot
-              data={[
-                {
-                  y: output["arr1"],
-                  type: 'violin',
-                  mode: 'lines+markers',
-                  name: "Cluster 1",
-                  marker: {color: 'orange'},
-                },
-                {
-                  y: output["arr2"],
-                  type: 'violin',
-                  mode: 'lines+markers',
-                  name: "Cluster 2",
-                  marker: {color: 'blue'},
-                },
-                {
-                  y: output["arr3"],
-                  type: 'violin',
-                  mode: 'lines+markers',
-                  name: "Cluster 3",
-                  marker: {color: 'green'},
-                }
-              ]}
-              layout={ {width: 535,
-                        height: 200,
-                        margin: {
-                          l: 48,
-                          r: 48,
-                          b: 48,
-                          t: 40
-                        },
-                        title: {
-                          text: s["pancanceruid"],
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 11,
-                            color: '#7f7f7f'
-                            }
-                        },   
-                        yaxis:{
-                        range: [0, 1],
-                        title: {
-                          text: 'PSI Value',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        },
-                        },
-                        xaxis:{
-                        title: {
-                          text: 'Clusters',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }
-                      }} }
-    />
-    <CBioportalLinkout cancer={global_cancer} label={toCBioLabels} data={toCBio}/>
-    </>;
-  }
-  else
-  {
-    var toCBioLabels = ["Cluster1", "Cluster2"];
-    var plotobj = <><Plot
-              data={[
-                {
-                  y: output["arr1"],
-                  type: 'violin',
-                  mode: 'lines+markers',
-                  name: "Cluster 1",
-                  marker: {color: 'orange'},
-                },
-                {
-                  y: output["arr2"],
-                  type: 'violin',
-                  mode: 'lines+markers',
-                  name: "Cluster 2",
-                  marker: {color: 'blue'},
-                }
-              ]}
-              xaxis={{
-                title: {
-                  text: 'x Axis',
-                  font: {
-                    family: 'Courier New, monospace',
-                    size: 18,
-                    color: '#7f7f7f'
-                  }
-                },
-              }}
-              layout={ {width: 535,
-                        height: 200,
-                        margin: {
-                          l: 48,
-                          r: 48,
-                          b: 48,
-                          t: 40
-                        },
-                        title: {
-                          text: s["pancanceruid"],
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 11,
-                            color: '#7f7f7f'
-                            }
-                        }, 
-                        yaxis:{
-                        range: [0, 1],
-                        title: {
-                          text: 'PSI Value',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }},
-                        xaxis:{
-                        title: {
-                          text: 'Clusters',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }
-                      }} }
-    />
-    <CBioportalLinkout cancer={global_cancer} label={toCBioLabels} data={toCBio}/>
-    </>;     
-  }
-
-  return plotobj;
-}
-
-function loopThroughFilter(ss, s, col, cc, rpsi, out, set){
-  var datarray = [];
-  var toCBio = [];
-  var toCBioLabels = [];
-  //console.log("lTF", out);
-  //console.log("set", set);
-  for(var i = 0; i < set.length; i++)
-  {
-      var curstack = [];
-      var curcol = [];
-      for(var k = 0; k < col.length; k++)
-      {
-        if(out[col[k]] == set[i])
-        {
-          curstack.push(ss[col[k]]);
-          curcol.push(col[k]);
-        }
-      }
-      toCBioLabels.push(set[i]);
-      toCBio.push(curcol);
-      var name = set[i];
-      var curcolor = global_colors[i];
-      datarray.push({
-        y: curstack,
-        type: 'violin',
-        mode: 'lines+markers',
-        name: name,
-        marker: {color: curcolor},
-      });
-  }
-  var plotobj = <><Plot
-              data={datarray}
-              layout={ {width: 535, 
-                        height: 300,
-                        margin: {
-                          l: 48,
-                          r: 48,
-                          b: 100,
-                          t: 40
-                        },
-                        title: {
-                          text: s["pancanceruid"],
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 11,
-                            color: '#7f7f7f'
-                            }
-                        },
-                        yaxis:{
-                        range: [0, 1],
-                        title: {
-                          text: 'PSI Value',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }},
-                        xaxis:{
-                        title: {
-                          text: 'Filters',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }
-                      }} }
-  />
-  <CBioportalLinkout cancer={global_cancer} label={toCBioLabels} data={toCBio}/>
-  </>;
-  return plotobj;
-}
-
 function loopThroughGtex(vec){
   var datarray = [];
   var counter = 0;
@@ -1890,14 +1457,13 @@ class SupplementaryPlot extends React.Component {
     var plotobj1 = null;
     var plotobj2 = null;
     var plotobj3 = null;
-    //console.log("current state", this.state.filterset, this.state.filters);
     var elm1 = this.state.filters;
     var elm2 = this.state.filterset;
     if(Selection != null && this.state.filterset != null && this.state.fulldat != null)
     {
-      var plotobj1 = loopThroughGene(this.state.fulldat, Selection, this.props.Cols, this.props.CC, this.props.RPSI, this.props.TRANS);
-      var plotobj2 = loopThroughHC(this.state.fulldat, Selection, this.props.Cols, this.props.CC, this.props.RPSI, this.props.TRANS);
-      var plotobj3 = loopThroughFilter(this.state.fulldat, Selection, this.props.Cols, this.props.CC, this.props.RPSI, elm1, elm2);
+      var plotobj1 = oncospliceClusterViolinPlotPanel(Selection, this.state.fulldat, this.props.Cols, this.props.RPSI, this.props.TRANS, global_cancer);
+      var plotobj2 = hierarchicalClusterViolinPlotPanel(this.state.fulldat, Selection, this.props.Cols, this.props.CC, global_cancer);
+      var plotobj3 = sampleFilterViolinPlotPanel(Selection, this.state.fulldat, this.props.Cols, elm1, elm2, global_cancer);
     }
     else
     {
@@ -2009,7 +1575,6 @@ class SetExonPlot extends React.Component {
 
   render()
   {
-    //console.log("ComponentRendered", this.state);
     return(
       <div>
       {this.state.input}
@@ -2096,23 +1661,13 @@ class EXON_PLOT extends React.Component {
 
   tempOnHover(in_x, in_y, in_text, flag)
   {
-
     if(flag == "add")
     {
       var h_adj = 0;
 
-      if(in_text.length == 2)
-      {
-        h_adj = 40;
-      }
-      else
-      {
-        h_adj = 80;
-      }
+      h_adj = in_text.length == 2 ? 40 : 80;
 
       this.SVG_hover_group = this.SVG.append("g").attr("id", "Ubaid".concat(in_x.toString()));
-        
-
 
       if(in_text.length == 2)
       {
@@ -2196,10 +1751,8 @@ class EXON_PLOT extends React.Component {
   {
     var parent = this;
     var y_start = 110;
-    //console.log("ENS MAP", this.ens_map);
     for (const [key, value] of Object.entries(trans_input)) 
     {
-      //console.log("Trans input key:", trans_input[key]);
       
       var cur_obj = this.SVG_main_group.append("text")
           .attr("x", 8)
@@ -2298,11 +1851,6 @@ class EXON_PLOT extends React.Component {
   {
     if(flag == "add")
     {
-      /*var j_id_t = document.getElementById(j_id);
-      console.log("CIRCLE_GET", j_id_t);
-      var temp_x_1 = parseFloat(j_id_t["attributes"]["cx"]["nodeValue"]);
-      var temp_y_1 = parseFloat(j_id_t["attributes"]["cy"]["nodeValue"]);
-      var temp_r = parseFloat(j_id_t["attributes"]["r"]["nodeValue"]);*/
 
       this.SVG_main_group.append('circle')
         .attr('cx', x)
@@ -2344,16 +1892,6 @@ class EXON_PLOT extends React.Component {
           .style('stroke', '#e60000');
         }
       })
-      /*
-      var gmos_1 = g1["attributes"]["exname"]["nodeValue"];
-      var temp_x_1 = parseFloat(g1["attributes"]["x"]["nodeValue"]);
-      var temp_y_1 = parseFloat(g1["attributes"]["y"]["nodeValue"]);
-      var temp_wid_1 = parseFloat(g1["attributes"]["width"]["nodeValue"]);
-
-      var gmos_2 = g2["attributes"]["exname"]["nodeValue"];
-      var temp_x_2 = parseFloat(g2["attributes"]["x"]["nodeValue"]);
-      var temp_y_2 = parseFloat(g2["attributes"]["y"]["nodeValue"]);
-      var temp_wid_2 = parseFloat(g2["attributes"]["width"]["nodeValue"]);*/
 
     }
     else
@@ -2409,10 +1947,6 @@ class EXON_PLOT extends React.Component {
 
       const get_1 = document.getElementById(starting_exon.concat("_global_id"));
       const get_2 = document.getElementById(finishing_exon.concat("_global_id"));
-
-      //console.log(get_2["_groups"])
-      //console.log(get_2["attributes"])
-      //console.log(get_2["_groups"]["exname"])
 
       const gmos_1 = get_1["attributes"]["exname"]["nodeValue"];
       var temp_x_1 = parseFloat(get_1["attributes"]["x"]["nodeValue"]);
@@ -2506,7 +2040,7 @@ class EXON_PLOT extends React.Component {
         // the overlapping space defined by the points is filled with
         // the default value of 'black'
         .attr('fill', 'none');
-      //#4d0000
+
       var burger = this.SVG_main_group.append('circle')
         .attr('cx', t_x_s)
         .attr('cy', finy)
@@ -2583,16 +2117,8 @@ class EXON_PLOT extends React.Component {
       {
         if(exname.charAt(0) == "I")
         {
-          if(this.state.scaled == true)
-          {
-            scale_exon_stop = scale_exon_stop + 20;
-            continue;
-          }
-          else
-          {
-            scale_exon_stop = scale_exon_stop + 200;
-            continue;            
-          }
+          scale_exon_stop = this.state.scaled == true ? scale_exon_stop + 20 : scale_exon_stop + 200;
+          continue;
         }
         else
         {
@@ -2739,39 +2265,19 @@ class EXON_PLOT extends React.Component {
             parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "remove")
         });
 
-      //var ens_id = exon_input[i]["ensembl_exon_id"];
-      //var ens_id_split = ens_id.split("|");
-
-      //for(var k = 0; k < ens_id_split.length; k++)
-      //{
       this.ens_map[exon_input[i]["start"]] = {};
       this.ens_map[exon_input[i]["start"]]["name"] = exname;
       this.ens_map[exon_input[i]["start"]]["x"] = x_offset + x_pos_1;
       this.ens_map[exon_input[i]["start"]]["width"] = (x_pos_2 - x_pos_1);
       this.ens_map[exon_input[i]["start"]]["h_start"] = exon_input[i]["start"];
       this.ens_map[exon_input[i]["start"]]["h_stop"] = exon_input[i]["stop"];
-      //}
 
     }
     
   }
 
-  /*
-  componentDidUpdate (prevProps){
-    if(this.props !== prevProps)
-    {
-      if(this.state.exons != null && this.state.exons != null && this.state.exons != null)
-      {
-        
-      }
-    }
-  }*/
 
   render (){
-    //console.log("NEW OKMAP RENDER", this.props.column_names);
-
-    //var map1 = new OKMAP("HEATMAP_0", cbeds, document, ((400/cbeds.length) * adjust_width), rr.length);
-    //var tempnode = document.getElementById(this.target_div);
     var y_start = 0;
     var tempnode = document.getElementById(this.target_div);
     while (tempnode.firstChild) {
@@ -2782,7 +2288,6 @@ class EXON_PLOT extends React.Component {
     if(this.state.exons != null && this.state.transcripts != null && this.state.junctions != null)
     {
       var sorted_exons = this.state.exons.sort((a, b)=>{return Number(a["start"])-Number(b["start"])})
-      //console.log(sorted_exons);
       this.writeExons(sorted_exons);
       this.writeJunctions(this.state.junctions, this.state.in_data);
       this.writeTranscripts(this.state.transcripts)
@@ -2819,10 +2324,7 @@ function ScalingCheckbox(props)
 
     const handleChange = (event) => {
       setState({ ...state, [event.target.name]: event.target.checked });
-      //props.updateBQPane(event.target.checked);
-      //props.qBDefaultMessage(event.target.checked);
       setScaling(event.target.checked);
-      //console.log(event.target.checked);
     };
 
   return(
@@ -2845,7 +2347,6 @@ function ScalingCheckbox(props)
 
 
 function downloadTranscript(){
-  //console.log(global_exon_blob);
   var blob_text = "";
   for (const [key, value] of Object.entries(global_exon_blob[0])) {
         blob_text = blob_text.concat(key);
@@ -3045,7 +2546,7 @@ function ViewPane_Side(props) {
     <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>{"Cancer: ".concat(props.QueryExport["cancer"])}</h3>
     <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
     <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
-    <SupplementaryPlot title={"OncoClusters"} function={loopThroughGene} CC={props.CC} RPSI={props.RPSI} TRANS={props.TRANS} Data={props.Data} Cols={props.Cols}></SupplementaryPlot>
+    <SupplementaryPlot CC={props.CC} RPSI={props.RPSI} TRANS={props.TRANS} Data={props.Data} Cols={props.Cols}></SupplementaryPlot>
     <Stats></Stats>
     <SetExonPlot></SetExonPlot>
     </div>
