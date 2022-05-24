@@ -15,7 +15,7 @@ module.exports = function(_env, argv) {
     output: {
       path: path.resolve(__dirname, 'build'),
       filename: "app.js",
-      publicPath: "/ICGS/Oncosplice/testing"
+      publicPath: "/ICGS/Oncosplice/testing/"
     },
     module: {
       rules: [
@@ -64,8 +64,8 @@ module.exports = function(_env, argv) {
     plugins: [
       isProduction &&
         new MiniCssExtractPlugin({
-          filename: "[name].[contenthash:8].css",
-          chunkFilename: "[name].[contenthash:8].chunk.css"
+          filename: "style.css",
+          chunkFilename: "style.chunk.css"
         }),
       new HtmlWebpackPlugin({
         filename: "./index.html",
