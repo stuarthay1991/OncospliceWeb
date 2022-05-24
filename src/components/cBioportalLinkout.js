@@ -21,22 +21,24 @@ const cancerCodeTranslate = {
 	"AML_Leucegene": null
 }
 
+//This function retrieves the sample names and groups from the parent component and formats them into the proper format for use in cBioportal.
+//After formatting, axios is used to send the information to a PHP file that uses a cURL command to retrieve the string needed to complete the cBioportal url.
 function sendSamplesRetrieveURL(props)
 {
-	var data = props.data;
+	var rawSampleNamesAndGroups = props.data;
 	var cBioportalJsonData = [];
-	for (const [key, value] of Object.entries(data)) 
+	for (const [groupName, value] of Object.entries(rawSampleNamesAndGroups)) 
 	{
-		var lendat = []
-		for (var k = 0; k < data[key].length; k++)
+		var tempHoldingArray = []
+		for (var k = 0; k < rawSampleNamesAndGroups[groupName].length; k++)
 		{
-			var stredit = data[key][k];
+			var stredit = rawSampleNamesAndGroups[groupName][k];
 			stredit = stredit.split("_");
-			lendat.push((stredit[0].concat("-").concat(stredit[1]).concat("-").concat(stredit[2]).concat("-").concat(stredit[3].slice(0, -1))).toUpperCase());
+			tempHoldingArray.push((stredit[0].concat("-").concat(stredit[1]).concat("-").concat(stredit[2]).concat("-").concat(stredit[3].slice(0, -1))).toUpperCase());
 		}
-		if(lendat.length > 0)
+		if(tempHoldingArray.length > 0)
 		{
-			cBioportalJsonData.push(lendat);
+			cBioportalJsonData.push(tempHoldingArray);
 		}
 	}
 	
@@ -75,6 +77,8 @@ function sendSamplesRetrieveURL(props)
 	})
 }
 
+//This component facilitates the retrieval of information from cBioportal (using our selected sample names) to complete a URL linkout for visualizing
+//survival plots.
 function CBioportalLinkout(props)
 {
 	var isDisabled = cancerCodeTranslate[props.cancer] == null ? true : false;

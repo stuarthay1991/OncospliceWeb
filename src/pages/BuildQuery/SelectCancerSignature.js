@@ -29,8 +29,10 @@ function none()
   return null;
 }
 
-function SelectCancerSignature({P, parentProps, S, BQstate}){
+function SelectCancerSignature({P, BQstate}){
   const wla4 = widgetlabel4();
+
+  const BQstateSet = P.BQstateSet;
 
   const [state, setState] = React.useState({
     value: '',
@@ -51,29 +53,22 @@ function SelectCancerSignature({P, parentProps, S, BQstate}){
     args["none"] = none;
     args["chicken"] = null;
     args["cancername"] = event.target.value;
-    args["setState"] = P.FilterBoxProps.updateTargetSignature;
+    args["setState"] = BQstateSet.updateTargetSignature;
     args["keys"] = BQstate.keys;
     makeRequest("updateSignature", args);
   }
   
   var chicken = BQstate.signatures;
-  console.log("SelectCancerSignature1", BQstate.compared_cancer, state.value);
-  console.log("SelectCancerSignature2", BQstate.signatures, state.selection);
 
   React.useEffect(() => {
     if(state.selection != BQstate.signatures)
     {
-        //console.log("WAHOOBA1", bqstate, mpstate.bqstate);
-        //var temp_view_obj = {"inData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []};
-        console.log("Use effect 1");
         setState({
           ...state,
           value: state.value,
           selection: BQstate.signatures
         });
     }
-    console.log("Use effect 2", BQstate.compared_cancer, state.value);
-    console.log("Use effect 3", BQstate.signatures, state.selection);
 
   }, [state.value])
 
@@ -86,23 +81,6 @@ function SelectCancerSignature({P, parentProps, S, BQstate}){
         });
     }
   })
-  /*if()
-  {
-
-  }*/
-  /*const obj1 = <ClientAddFilter
-        BQstate={BQstate}
-        inheritState={P.FilterBoxState}
-        parentProps={P.FilterBoxProps}
-        removeKey={P.removeKey}
-        functioncall={none}
-        chicken={BQstate.signatures}
-        egg={BQstate.postoncosig}
-        type={"single"}
-        filterID={"sig_filter_id"}
-        label={"Oncosplice Signature Filter"}
-  />;*/
-  //P.FilterBoxProps.updatePage(BQstate.keys, BQstate.queuebox_values, new_clientgenes, new_clientcoord, "Oncosplice Signature Filter", obj1);
 
   return(
   	<>

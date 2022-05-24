@@ -156,7 +156,7 @@ class FilterBox extends React.Component {
       <ClientSEF
         BQstate={BQstate}
         FilterBoxState={this.state}
-        FilterBoxProps={this.props}
+        BQstateSet={this.props}
         sigvalue={this.state.sigSet}
         removeKey={removeKey}
         />

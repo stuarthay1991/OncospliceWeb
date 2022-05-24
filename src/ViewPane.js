@@ -2460,6 +2460,9 @@ function ViewPane(props) {
   global_cc = props.CC;
   global_rpsi = props.RPSI;
   global_trans = props.TRANS;
+  /*const [viewState, setViewState] = React.useState({
+
+  });*/
   console.log("VIEW PANE", props);
   console.log("VIEW TRANS", global_trans);
   console.log("VIEW PANE_sig", global_signature[global_signature.length - 1]);
