@@ -307,9 +307,9 @@ class QueueBox extends React.Component {
       </Tooltip>
       <Box borderColor="#dbdbdb" {...boxProps} style={{position: 'relative', alignItems: 'center', textAlign: 'center'}}>
       <QB_SelectedCancer targetCancer={S.BQstate.queuebox_values["cancer"]} defaultvalue={S.BQstate.defaultQuery}/>
-      <QB_SelectedSample targetArrSelections={S.BQstate.childrenFilters} targetArr={S.targetFilters} defaultvalue={S.BQstate.defaultQuery}/>
+      <QB_SelectedSample targetArrSelections={S.BQstate.listOfSelectedFilters} targetArr={S.targetFilters} defaultvalue={S.BQstate.defaultQuery}/>
       <QB_SelectedSignature 
-        targetSigSelections={S.BQstate.postoncosig} 
+        targetSigSelections={S.BQstate.listOfSelectedSignatures} 
         targetSignatures={S.targetSignatures}
         numberGenes={S.BQstate.clientgenes.length}
         numberCoords={S.BQstate.clientcoord.length}

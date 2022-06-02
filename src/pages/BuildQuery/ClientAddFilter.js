@@ -29,11 +29,10 @@ class ClientAddFilter extends React.Component {
     super(props);
     var P = this.props;
     this.state = {
-      currentEgg: P.egg,
+      currentListOfSelectedFilters: P.listOfSelectedFilters,
       currentKeys: P.BQstate.keys,
       numChildren: P.BQstate.keys[P.type].length,
       BQstate: P.BQstate
-      //childrenList: BQstate.childrenFilters
     };
   }
 
@@ -45,11 +44,10 @@ class ClientAddFilter extends React.Component {
         BQstate={BQstate} 
         addChild={this.onAddChild}
         parentProps={P.parentProps} 
-        egg={P.egg} 
         type={P.type} 
         filterID={P.filterID}
         label={P.label} 
-        chicken={P.chicken} 
+        comboBoxFields={P.comboBoxFields} 
         range={P.rangeSet}
         sigTranslate={P.sigtranslate}>
       </FilterMenuPopulate>
@@ -79,18 +77,13 @@ class ClientAddFilter extends React.Component {
     const P = this.props;
     const BQstate = P.BQstate;
     BQstate.keys = P.removeKey(P.type, keyval, BQstate.keys);
-    P.egg[keyval] = "";
-    //console.log(this.state.numChildren);
+    P.listOfSelectedFilters[keyval] = "";
     this.setState(state => ({...state, numChildren: state.numChildren - 1}));
-    //console.log(this.state.numChildren);
     if(P.type == "filter")
     {
       BQstate.pre_queueboxvalues["children"][keyval] = undefined;
       BQstate.queuebox_values["children"][keyval] = "";
       var args = {};
-      //args["name"] = P.pre_q["children"][P.keys["filter"][i]].props.name;
-      //args["value"] = P.pre_q["children"][P.keys["filter"][i]].props.value;
-      //args["number"] = P.keys["filter"][i];
       args["filter"] = "filter";
       args["keys"] = BQstate.keys;
       args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
@@ -100,11 +93,6 @@ class ClientAddFilter extends React.Component {
       args["setState"] = P.parentProps.setMeta;
       args["export"] = P.parentProps.inherit.export;
       makeRequest("recursiveMetaDataField", args);
-      //for(var i = 0; i < P.keys["filter"].length; i++)
-      //{    
-        //makeRequest("metaDataField", args);
-        //P.functioncall(P.pre_q["children"][P.keys["filter"][i]].props.name, P.pre_q["children"][P.keys["filter"][i]].props.value, P.keys["filter"][i], P.type)
-      //}
     }
     if(P.type == "single")
     {
@@ -120,10 +108,6 @@ class ClientAddFilter extends React.Component {
       args["setState"] = P.parentProps.setSig;
       args["export"] = BQstate.export;
       makeRequest("recursiveSignature", args);
-      //for(var i = 0; i < P.keys["single"].length; i++)
-      //{
-        //P.functioncall(P.pre_q[P.keys["single"][i]].props.name, P.keys["single"][i], P.type);
-      //}
     }    
   }
 
@@ -133,10 +117,9 @@ class ClientAddFilter extends React.Component {
     const keyval = document.getElementById(P.filterID).value.concat(S.numChildren.toString());
     const BQstate = P.BQstate;
     BQstate.keys[P.type].push(keyval);
-    var eggcopy = P.egg;
+    var listOfSelectedFilters_copy = P.listOfSelectedFilters;
     console.log("BQstate after...", BQstate);
     const filterIDvalue = document.getElementById(P.filterID).value;
-    //console.log("added value", invalue, P);
     var found = false;
     if(P.rangeSet != undefined)
     {
@@ -149,34 +132,34 @@ class ClientAddFilter extends React.Component {
     }
     if(P.type == "filter"){
       if(found){
-        eggcopy[keyval] = <ClientSelectedFilter
+        listOfSelectedFilters_copy[keyval] = <ClientSelectedFilter
                           BQstate={BQstate}
-                          P={P} 
+                          P={P}
                           functioncall={P.functioncall} 
                           key={keyval} 
                           number={S.numChildren} 
                           get={keyval} 
                           deleteChild={this.onDeleteChild} 
                           range={P.rangeSet} 
-                          chicken={P.rangeSet} 
-                          egg={filterIDvalue} 
+                          comboBoxFields={P.rangeSet} 
+                          selectedFilter={filterIDvalue} 
                           pre_q={BQstate.pre_queueboxvalues}/>;
       }
       else{
-        eggcopy[keyval] = <ClientSelectedFilter
+        listOfSelectedFilters_copy[keyval] = <ClientSelectedFilter
                           BQstate={BQstate} 
-                          P={P} 
+                          P={P}
                           functioncall={P.functioncall} 
                           key={keyval} 
                           number={S.numChildren} 
                           get={keyval} 
                           deleteChild={this.onDeleteChild} 
                           range={P.rangeSet} 
-                          chicken={P.chicken} 
-                          egg={filterIDvalue} 
+                          comboBoxFields={P.comboBoxFields} 
+                          selectedFilter={filterIDvalue} 
                           pre_q={BQstate.pre_queueboxvalues}/>;
       }
-      P.parentProps.setChildrenFilters(eggcopy, eggcopy, BQstate.keys);
+      P.parentProps.setChildrenFilters(listOfSelectedFilters_copy, listOfSelectedFilters_copy, BQstate.keys);
     }
     if(P.type == "single"){
       var args = {};
@@ -197,21 +180,17 @@ class ClientAddFilter extends React.Component {
       args["keyval"] = keyval;
       args["type"] = P.type;
       args["export"] = BQstate.export;
-      //name, number, filter
-      eggcopy[keyval] = <SingleItem 
+      listOfSelectedFilters_copy[keyval] = <SingleItem 
                         key={keyval} 
                         number={S.numChildren} 
                         get={keyval} 
                         deleteChild={this.onDeleteChild} 
-                        chicken={P.chicken} 
-                        egg={invalue}/>;
-      args["egg"] = P.egg;
+                        selectedSignature={invalue}/>;
+      args["egg"] = P.listOfSelectedFilters;
       makeRequest("signature", args);
-      //P.functioncall(invalue, keyval, P.type);
     }
-    //this.setState(state => ({...state, currentEgg: eggcopy, currentKeys: keycopy, numChildren: state.numChildren + 1}));
     this.setState({
-      currentEgg: eggcopy,
+      currentListOfSelectedFilters: listOfSelectedFilters_copy,
       currentKeys: BQstate.keys
     })
     }

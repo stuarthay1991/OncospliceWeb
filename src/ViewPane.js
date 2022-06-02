@@ -39,6 +39,8 @@ import { global_colors } from './constants.js';
 import oncospliceClusterViolinPlotPanel from './plots/oncospliceClusterViolinPlotPanel';
 import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterViolinPlotPanel';
 import sampleFilterViolinPlotPanel from './plots/sampleFilterViolinPlotPanel';
+import { gtexSend } from './plots/gtexPlotPanel.js';
+import { downloadTranscript, downloadGeneModel, downloadJunctions } from './Download.js';
 
 var global_meta = [];
 var global_sig = [];
@@ -96,7 +98,7 @@ function oneUIDrequest(UID) {
   })  
 }
 
-function exonRequest(GENE, in_data) {
+function exonRequest(GENE, in_data, setViewState, viewState) {
   var bodyFormData = new FormData();
   console.log("EXON_IN", GENE);
   bodyFormData.append("GENE",GENE);
@@ -109,68 +111,11 @@ function exonRequest(GENE, in_data) {
     .then(function (response) {
       var resp = response["data"];
       updateExPlot(resp["gene"], resp["trans"], resp["junc"], in_data);
-      global_exon_blob = resp["blob"]["trans"];
-      global_genemodel_blob = resp["blob"]["genemodel"];
-      global_junc_blob = resp["blob"]["junc"];
-
-  })
-}
-
-function GTexSend(UID) {
-  var bodyFormData = new FormData();
-  bodyFormData.append("UID",UID);
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/GTex.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-    .then(function (response) {
-      var new_vec = response["data"]["result"][0];
-      gtexupdate(new_vec);
-  })  
-}
-
-function survivalSend(data, cols) {
-
-  var post = "";
-  for (const [newkey, newvalue] of Object.entries(data)) {
-    post = post.concat(newkey);
-    post = post.concat("#");
-    post = post.concat(newvalue);
-    post = post.concat("%");
-  }
-  post = post.slice(0, -1);
-  var bodyFormData = new FormData();
-  //console.log("GTEXsend", UID);
-  bodyFormData.append("UID", data["uid"]);
-  bodyFormData.append("CANC", global_cancer);
-  bodyFormData.append("EXP", post);
-  //bodyFormData = JSON.stringify(bodyFormData);
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/survplot.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "application/json",
-    "Data-Type": "json" },
-  })
-    .then(function (response) {
-      console.log("surv_receive", response["data"]);
-      survupdate(data["uid"]);
-  })  
-}
-
-function gtexupdate(vec)
-{
-  this.setState({
-    gtex: vec
-  })  
-}
-
-function survupdate(dat)
-{
-  this.setState({
-    surv: dat
+      setViewState({
+        toDownloadExon: resp["blob"]["trans"],
+        toDownloadGeneModel: resp["blob"]["genemodel"],
+        toDownloadJunc: resp["blob"]["junc"]
+      });
   })
 }
 
@@ -353,7 +298,6 @@ function FilterHeatmapSelect(props) {
       ...state,
       [name]: event.target.value,
     });
-    //console.log("metarepost", event.target.value);
     metarepost(event.target.value);
   }
 
@@ -448,21 +392,44 @@ class Heatmap extends React.Component {
     var escale = (this.props.cols.length * (this.xscale - 0.1));
 
     document.getElementById("HEATMAP_0").style.width = escale.toString().concat("px");
-    //console.log("DATA", this.props.data);
-    //console.log("COLS", this.props.cols);
     console.log("ONCOSPLICE CLUSTER BUILD:", this.props.cols, this.props.rpsi);
     this.setState({
-      output: <OKMAP dataset={this.props.data} column_names={this.props.cols} len={this.props.data.length} doc={document} target_div_id={"HEATMAP_0"} xscale={xscale} yscale={y_scaling} norm={1}></OKMAP>,
-      label: <OKMAP_LABEL target_div_id={"HEATMAP_LABEL"} column_names={this.props.cols} doc={document} xscale={xscale}/>,
-      CC: <OKMAP_COLUMN_CLUSTERS target_div_id={"HEATMAP_CC"} column_names={this.props.cc} doc={document} xscale={xscale}/>,
-      RPSI: <OKMAP_RPSI target_div_id={"HEATMAP_RPSI"} refcols={this.props.cols} column_names={this.props.rpsi} doc={document} xscale={xscale}/>
+      output: <OKMAP 
+                dataset={this.props.data} 
+                column_names={this.props.cols} 
+                len={this.props.data.length} 
+                doc={document} 
+                target_div_id={"HEATMAP_0"} 
+                xscale={xscale} 
+                yscale={y_scaling} 
+                norm={1}
+                viewState={this.props.viewState}
+                setViewState={this.props.setViewState}
+                gtexState={this.props.gtexState}
+                setGtexState={this.props.setGtexState}>
+                </OKMAP>,
+      label: <OKMAP_LABEL 
+                target_div_id={"HEATMAP_LABEL"} 
+                column_names={this.props.cols} 
+                doc={document} 
+                xscale={xscale}/>,
+      CC: <OKMAP_COLUMN_CLUSTERS 
+                target_div_id={"HEATMAP_CC"} 
+                column_names={this.props.cc} 
+                doc={document} 
+                xscale={xscale}/>,
+      RPSI: <OKMAP_RPSI 
+                target_div_id={"HEATMAP_RPSI"} 
+                refcols={this.props.cols} 
+                column_names={this.props.rpsi}
+                doc={document} 
+                xscale={xscale}/>
     })
   }
 
   componentDidUpdate(prevProps) {
     if((this.props.data.length !== prevProps.data.length) || (this.props.cols.length !== prevProps.cols.length))
     {
-      //console.log("ComponentUpdated");
       var base_re_wid = window.innerWidth;
       var base_re_high = window.innerHeight;
       var standard_width = 1438;
@@ -481,21 +448,46 @@ class Heatmap extends React.Component {
       var escale = (this.props.cols.length * (this.xscale - 0.1));
 
       document.getElementById("HEATMAP_0").style.width = escale.toString().concat("px");
-      //console.log("DATA", this.props.data);
-      //console.log("COLS", this.props.cols);
 
       this.setState({
-        output: <OKMAP dataset={this.props.data} column_names={this.props.cols} len={this.props.data.length} doc={document} target_div_id={"HEATMAP_0"} xscale={this.xscale} yscale={y_scaling} norm={1}></OKMAP>,
-        label: <OKMAP_LABEL target_div_id={"HEATMAP_LABEL"} column_names={this.props.cols} doc={document} xscale={this.xscale}/>,
-        CC: <OKMAP_COLUMN_CLUSTERS target_div_id={"HEATMAP_CC"} column_names={this.props.cc} doc={document} xscale={this.xscale}/>,
-        RPSI: <OKMAP_RPSI target_div_id={"HEATMAP_RPSI"} refcols={this.props.cols} column_names={this.props.rpsi} doc={document} xscale={this.xscale}/>
+        output: <OKMAP 
+                  dataset={this.props.data} 
+                  column_names={this.props.cols} 
+                  len={this.props.data.length} 
+                  doc={document} 
+                  target_div_id={"HEATMAP_0"} 
+                  xscale={this.xscale} 
+                  yscale={y_scaling} 
+                  norm={1}
+                  viewState={this.props.viewState}
+                  setViewState={this.props.setViewState}
+                  gtexState={this.props.gtexState}
+                  setGtexState={this.props.setGtexState}
+                  >
+                  </OKMAP>,
+        label: <OKMAP_LABEL 
+                  target_div_id={"HEATMAP_LABEL"} 
+                  column_names={this.props.cols} 
+                  doc={document} 
+                  xscale={this.xscale}
+                  />,
+        CC: <OKMAP_COLUMN_CLUSTERS 
+                  target_div_id={"HEATMAP_CC"} 
+                  column_names={this.props.cc} 
+                  doc={document} 
+                  xscale={this.xscale}/>,
+        RPSI: <OKMAP_RPSI 
+                  target_div_id={"HEATMAP_RPSI"} 
+                  refcols={this.props.cols} 
+                  column_names={this.props.rpsi} 
+                  doc={document}
+                  xscale={this.xscale}/>
       })
     }
   }
 
   render()
   {
-    //console.log("ComponentRendered", this.state);
     return(
       <div>
       {this.state.output}
@@ -949,9 +941,6 @@ class OKMAP_LABEL extends React.Component {
         metarepost(Object.entries(global_uifielddict)[0][0]); 
         document.getElementById("HeatmapFilterSelect_id").value = Object.entries(global_uifielddict)[0][0];
       }
-      //else
-      //{
-      //}
       return(
         null
       );    
@@ -1007,6 +996,7 @@ class OKMAP extends React.Component {
     this.state = {
       zoom_level: this.props.yscale
     };
+    const setViewState = this.props.setViewState;
     updateOkmap = updateOkmap.bind(this)
   }
   
@@ -1030,8 +1020,6 @@ class OKMAP extends React.Component {
 
   writeBase(yscale, xscale, cols, height)
   {
-    //console.log("WRITEBASE: this.col_names.length", cols.length);
-    //console.log("WRITEBASE: xscale", xscale);
     this.SVG_main_group.append("rect")
       .attr("width", (cols.length * (xscale - 0.1)))
       .attr("height", (height * yscale))
@@ -1167,21 +1155,18 @@ class OKMAP extends React.Component {
       .on("click", function(){
           updateOkmapTable(data);
           selectionToSup(data);
-          GTexSend(data["examined_junction"]);
+          gtexSend(data["examined_junction"], parent.props.setGtexState, parent.props.gtexState);
           var toex = data["examined_junction"].split(":");
-          exonRequest(toex[0], data);
+          exonRequest(toex[0], data, parent.props.setViewState, parent.props.viewState);
           oneUIDrequest(data["uid"]);
-          survivalSend(data, this.col_names);
           parent.setSelected(converteduid);
           //updateStats(y_point, data);
       })
       .on("mouseover", function(){
             d3.select(this).style("fill", "red");
-            //parent.tempRectAdd(this.attributes, parent.col_names, parent.U_xscale);
       })
       .on("mouseout", function(){
             d3.select(this).style("fill", "black");
-            //parent.tempRectRemove();
       });
   }
 
@@ -1215,9 +1200,6 @@ class OKMAP extends React.Component {
 
   setSelected(id)
   {
-    //document.getElementById(id).style.fill = "green";
-    //console.log(this.CURRENT_SELECTED_UID);
-
     var parent = this;
 
     if(this.CURRENT_SELECTED_UID != null)
@@ -1272,7 +1254,6 @@ class OKMAP extends React.Component {
       this.writeBaseRLSVG(15, this.props.len);
       }, 50);
       //const set = new Set([]);
-      //console.log("length", this.props.dataset.length);
       for(let i = 0; i < this.props.dataset.length; i++)
       {
         //console.log(rr[i]);
@@ -1288,7 +1269,6 @@ class OKMAP extends React.Component {
   render (){
     //console.log("NEW OKMAP RENDER", this.props.column_names);
 
-    //var map1 = new OKMAP("HEATMAP_0", cbeds, document, ((400/cbeds.length) * adjust_width), rr.length);
     var tempnode = document.getElementById(this.target_div);
     var y_start = 0;
     if(tempnode.hasChildNodes() == "")
@@ -1299,11 +1279,9 @@ class OKMAP extends React.Component {
       this.writeBase(this.state.zoom_level, this.props.xscale, this.props.column_names, this.props.len);
       this.writeBaseRLSVG(this.state.zoom_level);
       }, 50);
-      //const set = new Set([]);
-      //console.log("length", this.props.dataset.length);
+
       for(let i = 0; i < this.props.dataset.length; i++)
       {
-        //console.log(rr[i]);
         setTimeout(() => {
         this.writeSingle5(y_start, this.props.dataset[i], this.state.zoom_level, this.props.xscale, this.props.column_names, 1);
         this.writeRowLabel(y_start, this.props.dataset[i], this.state.zoom_level);
@@ -1346,72 +1324,6 @@ function selectionToSup(selection){
   })
 }
 
-function loopThroughGtex(vec){
-  var datarray = [];
-  var counter = 0;
-  for (const [key, value] of Object.entries(vec)) {
-          if(key != "uid")
-          {
-          //console.log(key, value);
-          var tmparr = value.split("|");
-          
-          var curcolor = global_colors[counter];
-          datarray.push({
-            y: tmparr,
-            type: 'violin',
-            mode: 'lines+markers',
-            name: key,
-            marker: {color: curcolor},
-          });
-
-          counter = counter + 1;
-          }
-  }
-
-  var plotobj = <Plot
-              data={datarray}
-              layout={ {width: 525, 
-                        height: 450,
-                        margin: {
-                          l: 48,
-                          r: 32,
-                          b: 200,
-                          t: 40
-                        },
-                        showlegend: false,
-                        title: {
-                          text: "GTEX",
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 11,
-                            color: '#7f7f7f'
-                            }
-                        },
-                        yaxis:{
-                        range: [0, 1],
-                        title: {
-                          text: 'PSI Value',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }},
-                        xaxis:{
-                        title: {
-                          text: 'GTEX',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }
-                      }} }
-  />;
-  return plotobj;
-}
-
-
 function supFilterUpdate(data)
 {
   this.setState({
@@ -1430,16 +1342,22 @@ class SupplementaryPlot extends React.Component {
       filterset: null,
       matches: null,
       fulldat: null,
-      gtex: null,
-      surv: null
+      gtex: this.props.gtexState.gtexPlot
     };
     //var other_gene_matches = [];
     selectionToSup = selectionToSup.bind(this);
     supFilterUpdate = supFilterUpdate.bind(this);
     plot4update = plot4update.bind(this);
-    gtexupdate = gtexupdate.bind(this);
     plotUIDupdate = plotUIDupdate.bind(this);
-    survupdate = survupdate.bind(this);
+  }
+
+  componentDidUpdate(prevProps){
+    if(this.props.gtexState.gtexPlot !== this.state.gtex)
+    {
+      this.setState({
+        gtex: this.props.gtexState.gtexPlot
+      })
+    }
   }
 
   componentDidMount(){
@@ -1474,7 +1392,7 @@ class SupplementaryPlot extends React.Component {
 
     if(Selection != null && this.state.gtex != null)
     {
-      var plotobj4 = loopThroughGtex(this.state.gtex);
+      var plotobj4 = this.state.gtex;
     }
     else
     {
@@ -1488,11 +1406,6 @@ class SupplementaryPlot extends React.Component {
       }
     }
 
-
-    if(this.state.surv != null)
-    {
-      var plotobj5 = <img src="/ICGS/Oncosplice/testing/backend/survivalplot.png" alt="Logo" width="177" height="148"></img>;
-    }
     //var plotdata = [trace1, trace2];
     //Plotly.newPlot('supp1', plotdata); 
     return(
@@ -1526,14 +1439,6 @@ class SupplementaryPlot extends React.Component {
       <Box borderColor="#dbdbdb" {...spboxProps}>
         <div>
           {plotobj4}
-        </div>
-      </Box>
-      </div>
-      <div style={{marginBottom: 10}}>
-      <SpcInputLabel label={"Survival"} />
-      <Box borderColor="#dbdbdb" {...spboxProps}>
-        <div>
-          {plotobj5}
         </div>
       </Box>
       </div>
@@ -2345,112 +2250,6 @@ function ScalingCheckbox(props)
   );
 }
 
-
-function downloadTranscript(){
-  var blob_text = "";
-  for (const [key, value] of Object.entries(global_exon_blob[0])) {
-        blob_text = blob_text.concat(key);
-        blob_text = blob_text.concat(",");
-  }
-
-  blob_text = blob_text.slice(0, -1);
-  blob_text = blob_text.concat("\n");
-
-  for(var i = 0; i < global_exon_blob.length; i++)
-  {
-    for (const [key, value] of Object.entries(global_exon_blob[i])) {
-          blob_text = blob_text.concat(value);
-          blob_text = blob_text.concat(",");
-    }
-    blob_text = blob_text.slice(0, -1);
-    blob_text = blob_text.concat("\n");
-  }
-
-  var filename;
-  filename = "transcript.csv";
-
-  var uri = "data:application/octet-stream," + encodeURIComponent(blob_text);
-  var link = document.createElement("a");
-  link.download = filename;
-  link.href = uri;
-
-  document.body.appendChild(link);
-  link.click();
-  // Cleanup the DOM
-  document.body.removeChild(link);
-}
-
-function downloadGeneModel(){
-  console.log(global_genemodel_blob);
-  var blob_text = "";
-  for (const [key, value] of Object.entries(global_genemodel_blob[0])) {
-        blob_text = blob_text.concat(key);
-        blob_text = blob_text.concat(",");
-  }
-
-  blob_text = blob_text.slice(0, -1);
-  blob_text = blob_text.concat("\n");
-
-  for(var i = 0; i < global_genemodel_blob.length; i++)
-  {
-    for (const [key, value] of Object.entries(global_genemodel_blob[i])) {
-          blob_text = blob_text.concat(value);
-          blob_text = blob_text.concat(",");
-    }
-    blob_text = blob_text.slice(0, -1);
-    blob_text = blob_text.concat("\n");
-  }
-
-  var filename;
-  filename = "genemodel.csv";
-
-  var uri = "data:application/octet-stream," + encodeURIComponent(blob_text);
-  var link = document.createElement("a");
-  link.download = filename;
-  link.href = uri;
-
-  document.body.appendChild(link);
-  link.click();
-  // Cleanup the DOM
-  document.body.removeChild(link);
-}
-
-function downloadJunctions(){
-  console.log(global_junc_blob);
-  var blob_text = "";
-  for (const [key, value] of Object.entries(global_junc_blob[0])) {
-        blob_text = blob_text.concat(key);
-        blob_text = blob_text.concat(",");
-  }
-
-  blob_text = blob_text.slice(0, -1);
-  blob_text = blob_text.concat("\n");
-
-  for(var i = 0; i < global_junc_blob.length; i++)
-  {
-    for (const [key, value] of Object.entries(global_junc_blob[i])) {
-          blob_text = blob_text.concat(value);
-          blob_text = blob_text.concat(",");
-    }
-    blob_text = blob_text.slice(0, -1);
-    blob_text = blob_text.concat("\n");
-  }
-
-  var filename;
-  filename = "junctions.csv";
-
-  var uri = "data:application/octet-stream," + encodeURIComponent(blob_text);
-  var link = document.createElement("a");
-  link.download = filename;
-  link.href = uri;
-
-  document.body.appendChild(link);
-  link.click();
-  // Cleanup the DOM
-  document.body.removeChild(link);
-}
-
-
 function ViewPane(props) {
   const classes = useStyles();
   global_meta = props.Cols;
@@ -2460,9 +2259,12 @@ function ViewPane(props) {
   global_cc = props.CC;
   global_rpsi = props.RPSI;
   global_trans = props.TRANS;
-  /*const [viewState, setViewState] = React.useState({
-
-  });*/
+  const [viewState, setViewState] = React.useState({
+    toDownloadExon: undefined,
+    toDownloadGeneModel: undefined,
+    toDownloadJunc: undefined
+  });
+  const [gtexState, setGtexState] = React.useState({gtexPlot: null});
   console.log("VIEW PANE", props);
   console.log("VIEW TRANS", global_trans);
   console.log("VIEW PANE_sig", global_signature[global_signature.length - 1]);
@@ -2472,13 +2274,42 @@ function ViewPane(props) {
     <div style={{ fontFamily: 'Arial' }}>
     <Grid container spacing={1}>
       <Grid item xs={8}>
-        <ViewPane_Top Data={props.Data} Cols={props.Cols} CC={props.CC} RPSI={props.RPSI} QueryExport={props.QueryExport}/>
-        <Typography className={classes.padding} />
+        <ViewPane_Top 
+          Data={props.Data} 
+          Cols={props.Cols} 
+          CC={props.CC} 
+          RPSI={props.RPSI} 
+          QueryExport={props.QueryExport}
+        />
+        <Typography 
+          className={classes.padding} 
+        />
         <ViewPane_Hidden />
-        <ViewPane_Main Data={props.Data} Cols={props.Cols} CC={props.CC} RPSI={props.RPSI} QueryExport={props.QueryExport}/>
+        <ViewPane_Main 
+          Data={props.Data} 
+          Cols={props.Cols} 
+          CC={props.CC} 
+          RPSI={props.RPSI} 
+          QueryExport={props.QueryExport}
+          viewState={viewState}
+          setViewState={setViewState}
+          gtexState={gtexState}
+          setGtexState={setGtexState}
+        />
       </Grid>
       <Grid item xs={4}>
-        <ViewPane_Side Data={props.Data} Cols={props.Cols} CC={props.CC} RPSI={props.RPSI} TRANS={props.TRANS} QueryExport={props.QueryExport}/>
+        <ViewPane_Side 
+          Data={props.Data} 
+          Cols={props.Cols} 
+          CC={props.CC} 
+          RPSI={props.RPSI} 
+          TRANS={props.TRANS} 
+          QueryExport={props.QueryExport}
+          viewState={viewState}
+          setViewState={setViewState}
+          gtexState={gtexState}
+          setGtexState={setGtexState}
+        />
       </Grid>
     </Grid>
     <div style={{margin: 10}}>
@@ -2490,13 +2321,13 @@ function ViewPane(props) {
         <ScalingCheckbox />
       </Grid>
       <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={downloadTranscript}>Download Transcript</Button>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadTranscript(viewState.toDownloadExon)}>Download Transcript</Button>
       </Grid>
       <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={downloadGeneModel}>Download Gene Model</Button>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadGeneModel(viewState.toDownloadGeneModel)}>Download Gene Model</Button>
       </Grid>
       <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={downloadJunctions}>Download Junctions</Button>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadJunctions(viewState.toDownloadJunc)}>Download Junctions</Button>
       </Grid>
       <Grid item>
         <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}}>Download PDF</Button>
@@ -2549,7 +2380,17 @@ function ViewPane_Side(props) {
     <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>{"Cancer: ".concat(props.QueryExport["cancer"])}</h3>
     <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
     <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
-    <SupplementaryPlot CC={props.CC} RPSI={props.RPSI} TRANS={props.TRANS} Data={props.Data} Cols={props.Cols}></SupplementaryPlot>
+    <SupplementaryPlot 
+      CC={props.CC} 
+      RPSI={props.RPSI} 
+      TRANS={props.TRANS} 
+      Data={props.Data} 
+      Cols={props.Cols}
+      viewState={props.viewState}
+      setViewState={props.setViewState}
+      gtexState={props.gtexState}
+      setGtexState={props.setGtexState}>
+    </SupplementaryPlot>
     <Stats></Stats>
     <SetExonPlot></SetExonPlot>
     </div>
@@ -2575,7 +2416,15 @@ function ViewPane_Main(props) {
         </span>
         </div>
       </Box> 
-      <Heatmap data={props.Data} cols={props.Cols} cc={props.CC} rpsi={props.RPSI}>
+      <Heatmap 
+        data={props.Data} 
+        cols={props.Cols} 
+        cc={props.CC} 
+        rpsi={props.RPSI}
+        viewState={props.viewState}
+        setViewState={props.setViewState}
+        gtexState={props.gtexState}
+        setGtexState={props.setGtexState}>
       </Heatmap>
     </div>  
     );

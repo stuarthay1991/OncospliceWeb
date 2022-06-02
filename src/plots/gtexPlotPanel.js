@@ -1,8 +1,24 @@
 import Plot from 'react-plotly.js';
+import axios from 'axios';
 import { global_colors } from '../constants.js';
+import targeturl from '../targeturl.js';
 
+export function gtexSend(UID, setGtexState, gtexState) {
+  var bodyFormData = new FormData();
+  bodyFormData.append("UID",UID);
+  axios({
+    method: "post",
+    url: (targeturl.concat("/backend/GTex.php")),
+    data: bodyFormData,
+    headers: { "Content-Type": "multipart/form-data" },
+  })
+    .then(function (response) {
+      var new_vec = response["data"]["result"][0];
+      gtexPlotPanel(new_vec, setGtexState, gtexState);
+  })  
+}
 
-function gtexPlotPanel(vec){
+function gtexPlotPanel(vec, setGtexState, gtexState){
   var datarray = [];
   var counter = 0;
   for (const [key, value] of Object.entries(vec)) {
@@ -24,7 +40,7 @@ function gtexPlotPanel(vec){
           }
   }
 
-  var plotobj = <Plot
+  const plotobj = <Plot
               data={datarray}
               layout={ {width: 525, 
                         height: 450,
@@ -63,8 +79,6 @@ function gtexPlotPanel(vec){
                           }
                         }
                       }} }
-  />;
-  return plotobj;
+  />
+  setGtexState({gtexPlot: plotobj})
 }
-
-export default gtexPlotPanel;
