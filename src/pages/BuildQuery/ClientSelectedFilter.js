@@ -37,8 +37,7 @@ const widgetlabel5 = makeStyles((theme) => ({
   }
 }));
 
-//Creates new filter in the query box from a selection in the left hand panel.
-function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range, comboBoxFields, selectedFilter, functioncall}) {
+function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range, chicken, egg, functioncall}) {
   const classes = useStyles();
   const widgemidge = widgetlabel5();
   if(BQstate.pre_queueboxvalues["children"][get] != undefined)
@@ -54,6 +53,10 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
     name: 'hai',
   });
   var found_range = false;
+  //console.log("RANGE", range);
+  //console.log("EGG", egg);
+  //console.log("pre_q", pre_q);
+
 
   const handleChange = (event) => {
     const name = event.target.name;
@@ -65,13 +68,13 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
                                                     key={number} 
                                                     number={number} 
                                                     get={get} 
-                                                    name={selectedFilter} 
+                                                    name={egg} 
                                                     value={event.target.value}/>
     var args = {};
     //console.log("event.target.value", event.target.value);
 
     //name, value, number, filter
-    args["name"] = selectedFilter;
+    args["name"] = egg;
     args["value"] = event.target.value;
     args["number"] = get;
     args["filter"] = "filter";
@@ -83,26 +86,28 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
     args["export"] = BQstate.export;
     args["setState"] = P.parentProps.setMeta;
     makeRequest("metaDataField", args);
+    //functioncall(egg, event.target.value, get, "filter");
   }
 
-  var newFilter = comboBoxFields[selectedFilter];
+  var cur_filter = chicken[egg];
   for (const [key, value] of Object.entries(range))
   {
-    var modifiedKey = key.replaceAll("_", " ");
-    if((key.toLowerCase() == selectedFilter.toLowerCase()) || (modifiedKey.toLowerCase() == selectedFilter.toLowerCase()))
+    var groovykey = key.replaceAll("_", " ");
+    //console.log("ENTRIES", key, groovykey, egg);
+    if((key.toLowerCase() == egg.toLowerCase()) || (groovykey.toLowerCase() == egg.toLowerCase()))
     {
       found_range = true;
-      newFilter = value;
+      cur_filter = value;
     }
   }
-  const cur_id = (selectedFilter).concat("_id");
+  const cur_id = (egg).concat("_id");
   return (
     <Grid item>
     <div>
       <IconButton variant="contained" color="primary" onClick={() => deleteChild(get)}><CloseIcon /></IconButton>
       <IconButton variant="contained" color="primary"><LocalBarIcon /></IconButton>
       <FormControl className={classes.formControl}>
-        <InputLabel htmlFor={cur_id}>{selectedFilter}</InputLabel>
+        <InputLabel htmlFor={cur_id}>{egg}</InputLabel>
         <Select
           native
           classes={widgemidge}
@@ -117,11 +122,11 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
           {(() => {
             const options = [];
 
-            for (var i = 0; i < newFilter.length; i++) 
+            for (var i = 0; i < cur_filter.length; i++) 
             {
-              var name_selected = newFilter[i].replaceAll("_", " ");
+              var name_selected = cur_filter[i].replaceAll("_", " ");
               name_selected = name_selected.charAt(0).toUpperCase() + name_selected.slice(1);
-              options.push(<option value={newFilter[i]}>{name_selected}</option>);
+              options.push(<option value={cur_filter[i]}>{name_selected}</option>);
             }
 
             return options;

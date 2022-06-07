@@ -29,10 +29,11 @@ class ClientAddFilter extends React.Component {
     super(props);
     var P = this.props;
     this.state = {
-      currentListOfSelectedFilters: P.listOfSelectedFilters,
+      currentEgg: P.egg,
       currentKeys: P.BQstate.keys,
       numChildren: P.BQstate.keys[P.type].length,
       BQstate: P.BQstate
+      //childrenList: BQstate.childrenFilters
     };
   }
 
@@ -44,10 +45,11 @@ class ClientAddFilter extends React.Component {
         BQstate={BQstate} 
         addChild={this.onAddChild}
         parentProps={P.parentProps} 
+        egg={P.egg} 
         type={P.type} 
         filterID={P.filterID}
         label={P.label} 
-        comboBoxFields={P.comboBoxFields} 
+        chicken={P.chicken} 
         range={P.rangeSet}
         sigTranslate={P.sigtranslate}>
       </FilterMenuPopulate>
@@ -77,13 +79,18 @@ class ClientAddFilter extends React.Component {
     const P = this.props;
     const BQstate = P.BQstate;
     BQstate.keys = P.removeKey(P.type, keyval, BQstate.keys);
-    P.listOfSelectedFilters[keyval] = "";
+    P.egg[keyval] = "";
+    //console.log(this.state.numChildren);
     this.setState(state => ({...state, numChildren: state.numChildren - 1}));
+    //console.log(this.state.numChildren);
     if(P.type == "filter")
     {
       BQstate.pre_queueboxvalues["children"][keyval] = undefined;
       BQstate.queuebox_values["children"][keyval] = "";
       var args = {};
+      //args["name"] = P.pre_q["children"][P.keys["filter"][i]].props.name;
+      //args["value"] = P.pre_q["children"][P.keys["filter"][i]].props.value;
+      //args["number"] = P.keys["filter"][i];
       args["filter"] = "filter";
       args["keys"] = BQstate.keys;
       args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
@@ -93,21 +100,34 @@ class ClientAddFilter extends React.Component {
       args["setState"] = P.parentProps.setMeta;
       args["export"] = P.parentProps.inherit.export;
       makeRequest("recursiveMetaDataField", args);
+      //for(var i = 0; i < P.keys["filter"].length; i++)
+      //{    
+        //makeRequest("metaDataField", args);
+        //P.functioncall(P.pre_q["children"][P.keys["filter"][i]].props.name, P.pre_q["children"][P.keys["filter"][i]].props.value, P.keys["filter"][i], P.type)
+      //}
     }
     if(P.type == "single")
     {
-      BQstate.pre_queueboxvalues[keyval] = undefined;
-      BQstate.queuebox_values[keyval] = "";
       var args = {};
+      const deletedSigName = BQstate.pre_queueboxvalues["signatures"][keyval].props.name;
+      BQstate.pre_queueboxvalues["signatures"][keyval] = undefined;
+      BQstate.queuebox_values["signatures"][keyval] = "";
       args["filter"] = "single";
       args["keys"] = BQstate.keys;
+      args["name"] = deletedSigName;
       args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
       args["queueboxchildren"] = BQstate.queuebox_values;
+      args["completeListOfUIDs"] = BQstate.completeListOfUIDs;
       args["cancer"] = BQstate.cancer;
       args["parentResultAmt"] = BQstate.resultamount;
       args["setState"] = P.parentProps.setSig;
       args["export"] = BQstate.export;
-      makeRequest("recursiveSignature", args);
+      args["egg"] = P.egg;
+      makeRequest("deleteSignature", args);
+      //for(var i = 0; i < P.keys["single"].length; i++)
+      //{
+        //P.functioncall(P.pre_q[P.keys["single"][i]].props.name, P.keys["single"][i], P.type);
+      //}
     }    
   }
 
@@ -117,9 +137,10 @@ class ClientAddFilter extends React.Component {
     const keyval = document.getElementById(P.filterID).value.concat(S.numChildren.toString());
     const BQstate = P.BQstate;
     BQstate.keys[P.type].push(keyval);
-    var listOfSelectedFilters_copy = P.listOfSelectedFilters;
+    var eggcopy = P.egg;
     console.log("BQstate after...", BQstate);
     const filterIDvalue = document.getElementById(P.filterID).value;
+    //console.log("added value", invalue, P);
     var found = false;
     if(P.rangeSet != undefined)
     {
@@ -132,34 +153,34 @@ class ClientAddFilter extends React.Component {
     }
     if(P.type == "filter"){
       if(found){
-        listOfSelectedFilters_copy[keyval] = <ClientSelectedFilter
+        eggcopy[keyval] = <ClientSelectedFilter
                           BQstate={BQstate}
-                          P={P}
+                          P={P} 
                           functioncall={P.functioncall} 
                           key={keyval} 
                           number={S.numChildren} 
                           get={keyval} 
                           deleteChild={this.onDeleteChild} 
                           range={P.rangeSet} 
-                          comboBoxFields={P.rangeSet} 
-                          selectedFilter={filterIDvalue} 
+                          chicken={P.rangeSet} 
+                          egg={filterIDvalue} 
                           pre_q={BQstate.pre_queueboxvalues}/>;
       }
       else{
-        listOfSelectedFilters_copy[keyval] = <ClientSelectedFilter
+        eggcopy[keyval] = <ClientSelectedFilter
                           BQstate={BQstate} 
-                          P={P}
+                          P={P} 
                           functioncall={P.functioncall} 
                           key={keyval} 
                           number={S.numChildren} 
                           get={keyval} 
                           deleteChild={this.onDeleteChild} 
                           range={P.rangeSet} 
-                          comboBoxFields={P.comboBoxFields} 
-                          selectedFilter={filterIDvalue} 
+                          chicken={P.chicken} 
+                          egg={filterIDvalue} 
                           pre_q={BQstate.pre_queueboxvalues}/>;
       }
-      P.parentProps.setChildrenFilters(listOfSelectedFilters_copy, listOfSelectedFilters_copy, BQstate.keys);
+      P.parentProps.setChildrenFilters(eggcopy, eggcopy, BQstate.keys);
     }
     if(P.type == "single"){
       var args = {};
@@ -174,23 +195,28 @@ class ClientAddFilter extends React.Component {
       args["queueboxchildren"] = BQstate.queuebox_values;
       args["cancer"] = P.compared_cancer;
       args["parentResultAmt"] = BQstate.resultamount;
+      args["completeListOfUIDs"] = BQstate.completeListOfUIDs;
       args["sigTranslate"] = P.sigtranslate;
       args["setState"] = P.parentProps.setSig;
       args["name"] = invalue;
       args["keyval"] = keyval;
       args["type"] = P.type;
       args["export"] = BQstate.export;
-      listOfSelectedFilters_copy[keyval] = <SingleItem 
+      //name, number, filter
+      eggcopy[keyval] = <SingleItem 
                         key={keyval} 
                         number={S.numChildren} 
                         get={keyval} 
                         deleteChild={this.onDeleteChild} 
-                        selectedSignature={invalue}/>;
-      args["egg"] = P.listOfSelectedFilters;
+                        chicken={P.chicken} 
+                        egg={invalue}/>;
+      args["egg"] = P.egg;
       makeRequest("signature", args);
+      //P.functioncall(invalue, keyval, P.type);
     }
+    //this.setState(state => ({...state, currentEgg: eggcopy, currentKeys: keycopy, numChildren: state.numChildren + 1}));
     this.setState({
-      currentListOfSelectedFilters: listOfSelectedFilters_copy,
+      currentEgg: eggcopy,
       currentKeys: BQstate.keys
     })
     }

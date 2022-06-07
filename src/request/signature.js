@@ -3,6 +3,21 @@ import ReactDOM from 'react-dom';
 import QueueMessage from '../components/QueueMessage';
 import axios from 'axios';
 
+function mergeSignatures(name, currentListOfUIDs, completeListOfUIDs)
+{
+  for(var i = 0; i < currentListOfUIDs.length; i++)
+  {
+    try {
+      completeListOfUIDs[currentListOfUIDs[i]].push(name);
+    } catch (error) {
+      console.error(error);
+      completeListOfUIDs[currentListOfUIDs[i]] = [name];
+    }
+    
+  }
+  return completeListOfUIDs;
+}
+
 function signature(arg, targeturl)
 {
   //name, number, filter
@@ -10,12 +25,14 @@ function signature(arg, targeturl)
   var bodyFormData = new FormData();
   const keys = arg["keys"];
   const egg = arg["egg"];
+  var completeListOfUIDs = arg["completeListOfUIDs"];
   const preQ = arg["pre_queueboxchildren"];
   const Q = arg["queueboxchildren"];
   const cancer = arg["cancer"];
   var resamt = arg["parentResultAmt"];
   const callback = arg["setState"];
   var name = arg["name"];
+  const original_name = name;
   var number = arg["keyval"];
   var filter = arg["type"];
   const sigTranslate = arg["sigTranslate"];
@@ -81,11 +98,11 @@ function signature(arg, targeturl)
       var in_criterion = response["data"]["single"];
       var selected_left = response["data"]["meta"];
       var current_number_of_events = response["data"]["meta"];
-      console.log("1234", Q, number)
+      console.log("1234", response["data"]);
       Q["signatures"][number] = <QueueMessage key={number} number={number} name={"PSI"} get={number} value={name} type={"events"} total_selected={in_criterion} total_left={selected_left}/>
-      resamt = {"samples": arg["parentResultAmt"]["samples"], "events": selected_left};
-      console.log("sig...callback...ended", response["data"]);
-      callback(resamt, Q, keys, exportView, egg);
+      completeListOfUIDs = mergeSignatures(original_name, response["data"]["result"], completeListOfUIDs);
+      resamt = {"samples": arg["parentResultAmt"]["samples"], "events": Object.keys(completeListOfUIDs).length};
+      callback(resamt, Q, keys, exportView, egg, completeListOfUIDs);
       //updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
   })
 }

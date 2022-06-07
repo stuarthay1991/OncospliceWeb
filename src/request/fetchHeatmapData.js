@@ -11,7 +11,7 @@ function fetchHeatmapData(arg, targeturl)
   var clientcoord = BQstate.clientcoord;
   var clientgenes = BQstate.clientgenes;
   const childrenFilters = BQstate.queryFilter;
-  const querySignature = BQstate.querySignature;
+  const postoncosig = BQstate.querySignature;
   const sigTranslate = BQstate.sigTranslate;
   const exportView = BQstate.export;
   const curCancer = BQstate.cancer;
@@ -37,7 +37,7 @@ function fetchHeatmapData(arg, targeturl)
   }
   for(var i = 0; i < keys["single"].length; i++)
   {
-    var myString = querySignature[keys["single"][i]].props.egg;
+    var myString = postoncosig[keys["single"][i]].props.egg;
     myString = myString.replace(/(\r\n|\n|\r)/gm, "");
     tmp_qh_obj = {};
     if(Object.entries(sigTranslate).length > 0)

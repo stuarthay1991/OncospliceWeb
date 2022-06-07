@@ -11,7 +11,7 @@ import defaultQuery from './defaultQuery.js';
 import fetchHeatmapData from './fetchHeatmapData.js';
 import gene from './gene.js';
 import coord from './coord.js';
-import recursiveSignature from './recursiveSignature.js';
+import deleteSignature from './deleteSignature.js';
 import recursiveMetaDataField from './recursiveMetaDataField.js';
 import metaDataField from './metaDataField.js';
 import signature from './signature.js';
@@ -26,7 +26,7 @@ export function makeRequest(to, arg)
 	if(to == "metaDataField"){ metaDataField(arg, targeturl);}
 	if(to == "recursiveMetaDataField"){ recursiveMetaDataField(arg, targeturl);}
 	if(to == "signature"){ signature(arg, targeturl);}
-	if(to == "recursiveSignature"){ recursiveSignature(arg, targeturl);}
+	if(to == "deleteSignature"){ deleteSignature(arg, targeturl);}
 	if(to == "fetchHeatmapData"){ fetchHeatmapData(arg, targeturl);}
 	if(to == "gene"){ gene(arg, targeturl);}
 	if(to == "coord"){ coord(arg, targeturl);}

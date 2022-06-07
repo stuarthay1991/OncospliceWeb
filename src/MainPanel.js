@@ -107,8 +107,8 @@ function MainPanel(props){
       pre_queueboxvalues: {"children": {}, "signatures": {}}, //This is currently just used to store some information for clinical metadata and signature queries. It holds the same keys as queryboxchildren, but it used much less and will likely be replaced with a more pertinent variable in the future.
       eventfilterSet: null, //This denotes whether the event filter has been selected or not; will likely remove in the future as it is redundant.
       resultamount: {"samples": 0, "events": 0}, //This informs the "prospective results" at the bottom of the querybox. 
-      listOfSelectedFilters: [], //When a filter is selected on the left hand side of the build query pane, a set of sub-options for that filter will appear in the queuebox on the right. For example, if a user selects "Age" the age ranges will appear in a combobox inside the queuebox. This varaible holds those values.
-      listOfSelectedSignatures: [], // When a signature is selected, it is added to this variable. Using "keys" to retrieve it, it is used in both the query and populating the queuebox.
+      childrenFilters: {}, //When a filter is selected on the left hand side of the build query pane, a set of sub-options for that filter will appear in the queuebox on the right. For example, if a user selects "Age" the age ranges will appear in a combobox inside the queuebox. This varaible holds those values.
+      postoncosig: [], // When a signature is selected, it is added to this variable. Using "keys" to retrieve it, it is used in both the query and populating the queuebox.
       queryFilter: {}, // This currently holds the same information as childrenFilters and will likely be deleted soon.
       querySignature: {}, // This currently holds the same information as postoncosig and will likely be deleted soon.
       clientcoord: [], //If the user has selected genomic coordinates in their query, this list will hold them. This list is sent directly to the database for retrieval.
@@ -221,6 +221,7 @@ function MainPanel(props){
         </Grid>
         <Grid item sm={12} md={3}>
         <Typography className={classes.padding} />
+
         </Grid>
         </Grid>
         </div>

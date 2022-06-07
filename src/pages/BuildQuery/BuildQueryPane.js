@@ -6,6 +6,8 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { borders } from '@material-ui/system';
 import '@fontsource/roboto';
+import axios from 'axios';
+import {Helmet} from "react-helmet";
 import { createMuiTheme } from '@material-ui/core/styles';
 import '../../App.css';
 import useStyles from '../../useStyles.js';
@@ -13,7 +15,12 @@ import Tooltip from '@material-ui/core/Tooltip';
 import loadinggif from './gifmax.gif';
 
 //General components
+import TabPanel from '../../components/TabPanel';
+import SpcInputLabel from '../../components/SpcInputLabel';
 import CheckboxForm from '../../components/CheckboxForm';
+import QueueMessage from '../../components/QueueMessage';
+import PreQueueMessage from '../../components/PreQueueMessage';
+import SingleItem from '../../components/SingleItem';
 import { isBuild } from '../../constants.js';
 
 //Page specific components
@@ -96,6 +103,7 @@ class FilterBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    //console.log("Look at state", this.state)
     const BQstate = this.props.BQstate;
     if(prevProps.inherit.cancer != BQstate.cancer){
       this.setState({
@@ -133,12 +141,13 @@ class FilterBox extends React.Component {
       <div>
       <ClientAddFilter 
         BQstate={BQstate}
+        inheritState={S} 
         parentProps={P}
         removeKey={removeKey}
         functioncall={none}
         rangeSet={S.rangeSet}
-        comboBoxFields={S.fieldSet}
-        listOfSelectedFilters={BQstate.listOfSelectedFilters}
+        chicken={S.fieldSet}
+        egg={BQstate.childrenFilters}
         type={"filter"}
         filterID={"meta_filter_id"}
         label={"Add Sample Filter"}>
@@ -156,11 +165,12 @@ class FilterBox extends React.Component {
       <div id="signature_repository" style={{display: BQstate.sigdisplay}}>
       <ClientAddFilter
             BQstate={BQstate}
+            inheritState={S}
             parentProps={P}
             removeKey={removeKey}
             functioncall={none}
-            comboBoxFields={BQstate.signatures}
-            listOfSelectedFilters={BQstate.listOfSelectedSignatures}
+            chicken={BQstate.signatures}
+            egg={BQstate.postoncosig}
             type={"single"}
             filterID={"sig_filter_id"}
             label={"Oncosplice Signature Filter"}
@@ -200,10 +210,11 @@ class BQPane extends React.Component {
       defaultQuery: false,
       queuebox_values: {"children": undefined, "signatures": undefined},
       pre_queueboxvalues: {"children": {}, "signatures": {}},
+      completeListOfUIDs: {},
       eventfilterSet: null,
       resultamount: {"samples": 0, "events": 0},
-      listOfSelectedFilters: [],
-      listOfSelectedSignatures: [],
+      childrenFilters: {},
+      postoncosig: [],
       queryFilter: {},
       querySignature: {},
       clientcoord: [],
@@ -224,6 +235,13 @@ class BQPane extends React.Component {
     }
     updateBQPane = updateBQPane.bind(this)
   }
+
+  /*
+  componentDidMount() {
+    var prevstate = this.props.prevstate;
+    console.log("mounted_prevstate", this.props);
+    this.setState(prevstate);
+  }*/
 
   componentDidUpdate(prevProps){
     console.log("CDU STATE", this.state);
@@ -263,10 +281,11 @@ class BQPane extends React.Component {
                 resultamount: resamt,
                 sigTranslate: sigT,
                 export: exp,
-                listOfSelectedFilters: [],
-                listOfSelectedSignatures: [],
+                childrenFilters: [],
+                postoncosig: [],
                 clientgenes: [],
                 clientcoord: [],
+                eventsAndSignaturesDict: {},
                 filterboxSEF: "",
                 SEFobj: null,
                 sigdisplay: "none",
@@ -281,7 +300,7 @@ class BQPane extends React.Component {
               BQstate={this.state}
               inherit={this.state}
               setChildrenFilters={(cF, egg, keys) => this.setState({
-                listOfSelectedFilters: cF,
+                childrenFilters: cF,
                 queryFilter: egg,
                 keys: keys
               })}
@@ -292,13 +311,14 @@ class BQPane extends React.Component {
                 keys: keys,
                 export: exp
               })}
-              setSig={(resamt, qbox, keys, exp, pO) => this.setState({
+              setSig={(resamt, qbox, keys, exp, pO, cLOU) => this.setState({
                 resultamount: resamt,
                 queuebox_values: qbox,
                 keys: keys,
                 export: exp,
-                listOfSelectedSignatures: pO,
-                querySignature: pO
+                postoncosig: pO,
+                querySignature: pO,
+                completeListOfUIDs: cLOU
               })}
               setGene={(cG, exp, resamt) => this.setState({
                 clientgenes: cG,
@@ -314,7 +334,7 @@ class BQPane extends React.Component {
                 sigTranslate: sigT,
                 keys: keys,
                 compared_cancer: canc,
-                listOfSelectedSignatures: [],
+                postoncosig: [],
                 clientgenes: [],
                 clientcoord: [],
                 querySignature: {},
