@@ -56,8 +56,18 @@ function deleteSignature(arg, targeturl)
     exportView["single"].push(myString); 
   }
   
+  //delete from postoncosig
+  const postoncosig = arg["egg"];
+  for (const [key, value] of Object.entries(postoncosig))
+  {
+    if(value == "")
+    {
+      delete postoncosig[key];
+    }
+  }
+
   resamt = {"samples": arg["parentResultAmt"]["samples"], "events": Object.keys(completeListOfUIDs).length};
-  callback(resamt, Q, keys, exportView, arg["egg"], completeListOfUIDs);
+  callback(resamt, Q, keys, exportView, postoncosig, completeListOfUIDs);
 }
 
 export default deleteSignature;
