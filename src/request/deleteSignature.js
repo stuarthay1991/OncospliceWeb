@@ -39,21 +39,13 @@ function deleteSignature(arg, targeturl)
   //Reset export
   for(var i = 0; i < keys["single"].length; i++)
   {
-    var myString = preQ["signatures"][keys["single"][i]].props.name;
-    myString = myString.replace(/(\r\n|\n|\r)/gm, "");
+    var signatureName = preQ["signatures"][keys["single"][i]].props.name;
+    signatureName = signatureName.replace(/(\r\n|\n|\r)/gm, "");
     if(Object.entries(sigTranslate).length > 0)
     {
-      if(sigTranslate[myString] != undefined)
-      {
-        myString = sigTranslate[myString];
-        myString = myString.replace("+", "positive_");
-      }
-      else
-      {
-        myString = myString.replace(" ", "_");
-      }
+      signatureName = sigTranslate[signatureName] != undefined ? sigTranslate[signatureName].replace("+", "positive_") : signatureName.replace(" ", "_");
     }
-    exportView["single"].push(myString); 
+    exportView["single"].push(signatureName); 
   }
   
   //delete from postoncosig
