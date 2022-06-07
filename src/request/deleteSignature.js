@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import QueueMessage from '../components/QueueMessage';
 import axios from 'axios';
 
-//NEED FIX
 function deleteSignature(arg, targeturl)
 {
   //name, number, filter
@@ -11,7 +10,9 @@ function deleteSignature(arg, targeturl)
   const Q = arg["queueboxchildren"];
   var resamt = arg["parentResultAmt"];
   var completeListOfUIDs = arg["completeListOfUIDs"];
+  const sigTranslate = arg["sigTranslate"];
   const callback = arg["setState"];
+  const preQ = arg["pre_queueboxchildren"];
   var name = arg["name"];
   for (const [key, value] of Object.entries(completeListOfUIDs))
   {
@@ -34,6 +35,27 @@ function deleteSignature(arg, targeturl)
   }
 
   const exportView = arg["export"];
+  exportView["single"] = [];
+  //Reset export
+  for(var i = 0; i < keys["single"].length; i++)
+  {
+    var myString = preQ["signatures"][keys["single"][i]].props.name;
+    myString = myString.replace(/(\r\n|\n|\r)/gm, "");
+    if(Object.entries(sigTranslate).length > 0)
+    {
+      if(sigTranslate[myString] != undefined)
+      {
+        myString = sigTranslate[myString];
+        myString = myString.replace("+", "positive_");
+      }
+      else
+      {
+        myString = myString.replace(" ", "_");
+      }
+    }
+    exportView["single"].push(myString); 
+  }
+  
   resamt = {"samples": arg["parentResultAmt"]["samples"], "events": Object.keys(completeListOfUIDs).length};
   callback(resamt, Q, keys, exportView, arg["egg"], completeListOfUIDs);
 }

@@ -88,9 +88,6 @@ class ClientAddFilter extends React.Component {
       BQstate.pre_queueboxvalues["children"][keyval] = undefined;
       BQstate.queuebox_values["children"][keyval] = "";
       var args = {};
-      //args["name"] = P.pre_q["children"][P.keys["filter"][i]].props.name;
-      //args["value"] = P.pre_q["children"][P.keys["filter"][i]].props.value;
-      //args["number"] = P.keys["filter"][i];
       args["filter"] = "filter";
       args["keys"] = BQstate.keys;
       args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
@@ -100,11 +97,6 @@ class ClientAddFilter extends React.Component {
       args["setState"] = P.parentProps.setMeta;
       args["export"] = P.parentProps.inherit.export;
       makeRequest("recursiveMetaDataField", args);
-      //for(var i = 0; i < P.keys["filter"].length; i++)
-      //{    
-        //makeRequest("metaDataField", args);
-        //P.functioncall(P.pre_q["children"][P.keys["filter"][i]].props.name, P.pre_q["children"][P.keys["filter"][i]].props.value, P.keys["filter"][i], P.type)
-      //}
     }
     if(P.type == "single")
     {
@@ -118,16 +110,13 @@ class ClientAddFilter extends React.Component {
       args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
       args["queueboxchildren"] = BQstate.queuebox_values;
       args["completeListOfUIDs"] = BQstate.completeListOfUIDs;
+      args["sigTranslate"] = P.sigtranslate;
       args["cancer"] = BQstate.cancer;
       args["parentResultAmt"] = BQstate.resultamount;
       args["setState"] = P.parentProps.setSig;
       args["export"] = BQstate.export;
       args["egg"] = P.egg;
       makeRequest("deleteSignature", args);
-      //for(var i = 0; i < P.keys["single"].length; i++)
-      //{
-        //P.functioncall(P.pre_q[P.keys["single"][i]].props.name, P.keys["single"][i], P.type);
-      //}
     }    
   }
 
