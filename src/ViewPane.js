@@ -1474,7 +1474,12 @@ class SetExonPlot extends React.Component {
     var y_start = 0;
 
     this.setState({
-      input: <EXON_PLOT doc={document} target_div_id={"supp1"}></EXON_PLOT>
+      input: <EXON_PLOT 
+        exonPlotState={this.props.exonPlotState} 
+        setExonPlotState={this.props.setExonPlotState} 
+        doc={document} 
+        target_div_id={"supp1"}>
+        </EXON_PLOT>
     })
   }
 
@@ -1685,7 +1690,7 @@ function ViewPane_Side(props) {
       setGtexState={props.setGtexState}>
     </SupplementaryPlot>
     <Stats></Stats>
-    <SetExonPlot></SetExonPlot>
+    <SetExonPlot exonPlotState={props.exonPlotState} setExonPlotState={props.setExonPlotState}></SetExonPlot>
     </div>
   )
 }

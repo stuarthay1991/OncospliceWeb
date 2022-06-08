@@ -12,14 +12,12 @@ class EXON_PLOT extends React.Component {
     this.div = null;
     this.ens_map = {};
     this.state = {
-      exons: null,
-      transcripts: null,
-      junctions: null,
-      in_data: null,
-      scaled: false
+      exons: this.props.exonPlotState.exons,
+      transcripts: this.props.exonPlotState.transcripts,
+      junctions: this.props.exonPlotState.junctions,
+      in_data: this.props.exonPlotState.in_data,
+      scaled: this.props.exonPlotState.scaled
     };
-    updateExPlot = updateExPlot.bind(this)
-    setScaling = setScaling.bind(this)
   }
 
   baseSVG(w="100%", h=2000) 
