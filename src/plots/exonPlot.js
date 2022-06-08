@@ -1,6 +1,64 @@
 import * as d3 from 'd3';
 import { global_colors } from '../constants.js';
 
+class SetExonPlot extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      input: null,
+    };
+  }
+  componentDidMount() { 
+    var base_re_wid = window.innerWidth;
+    var base_re_high = window.innerHeight;
+    var standard_width = 1438;
+    var standard_height = 707;
+    var adjust_width = (base_re_wid / standard_width) * 0.40;
+    var adjust_height = (base_re_high / standard_height) * 0.40;
+    var y_start = 0;
+
+    this.setState({
+      input: <EXON_PLOT 
+        exonPlotState={this.props.exonPlotState} 
+        setExonPlotState={this.props.setExonPlotState} 
+        doc={document} 
+        target_div_id={"supp1"}>
+        </EXON_PLOT>
+    })
+  }
+
+  componentDidUpdate(prevProps) {
+    if(this.props !== prevProps)
+    {
+      var base_re_wid = window.innerWidth;
+      var base_re_high = window.innerHeight;
+      var standard_width = 1438;
+      var standard_height = 707;
+      var adjust_width = (base_re_wid / standard_width) * 0.40;
+      var adjust_height = (base_re_high / standard_height) * 0.40;
+      var y_start = 0;
+
+      this.setState({
+        input: <EXON_PLOT 
+          exonPlotState={this.props.exonPlotState} 
+          setExonPlotState={this.props.setExonPlotState} 
+          doc={document} 
+          target_div_id={"supp1"}>
+          </EXON_PLOT>
+      })
+    }
+  }
+
+  render()
+  {
+    return(
+      <div>
+      {this.state.input}
+      </div>
+    );
+  }
+}
+
 class EXON_PLOT extends React.Component {
   constructor(props)
   {
@@ -691,6 +749,28 @@ class EXON_PLOT extends React.Component {
     
   }
 
+  componentDidUpdate (prevProps){
+    if(this.props !== prevProps)
+    {
+      var y_start = 0;
+      var tempnode = document.getElementById(this.target_div);
+      while (tempnode.firstChild) {
+          tempnode.removeChild(tempnode.firstChild);
+      }
+      this.baseSVG();
+      this.writeBase();
+      this.setState({
+        exons: this.props.exonPlotState.exons,
+        transcripts: this.props.exonPlotState.transcripts,
+        junctions: this.props.exonPlotState.junctions,
+        in_data: this.props.exonPlotState.in_data,
+        scaled: this.props.exonPlotState.scaled
+      })
+      return(
+        null
+      );    
+    }
+  }
 
   render (){
     var y_start = 0;
@@ -713,3 +793,5 @@ class EXON_PLOT extends React.Component {
   }
 
 }
+
+export default SetExonPlot;

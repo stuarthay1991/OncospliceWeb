@@ -41,6 +41,7 @@ import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterVioli
 import sampleFilterViolinPlotPanel from './plots/sampleFilterViolinPlotPanel';
 import { gtexSend } from './plots/gtexPlotPanel.js';
 import { downloadTranscript, downloadGeneModel, downloadJunctions } from './Download.js';
+import SetExonPlot from './plots/exonPlot.js';
 
 var global_meta = [];
 var global_sig = [];
@@ -98,9 +99,8 @@ function oneUIDrequest(UID) {
   })  
 }
 
-function exonRequest(GENE, in_data, setViewState, viewState) {
+function exonRequest(GENE, in_data, setViewState, viewState, exonPlotState, setExonPlotState) {
   var bodyFormData = new FormData();
-  console.log("EXON_IN", GENE);
   bodyFormData.append("GENE",GENE);
   axios({
     method: "post",
@@ -116,12 +116,18 @@ function exonRequest(GENE, in_data, setViewState, viewState) {
         toDownloadGeneModel: resp["blob"]["genemodel"],
         toDownloadJunc: resp["blob"]["junc"]
       });
+      setExonPlotState({
+        exons: resp["gene"], 
+        transcripts: resp["trans"], 
+        junctions: resp["junc"],
+        in_data: in_data,
+        scaled: exonPlotState.scaled
+      });
   })
 }
 
 function plotUIDupdate(dat)
 {
-  //console.log(dat);
   this.setState({
     fulldat: dat
   })    
@@ -163,7 +169,6 @@ function updateStats(id, input){
 }
 
 function oldLinkOuts(instuff){
-  console.log("OLD CLICK", instuff);
   var peach2 = instuff;
   var peach3 = peach2.replace("|", "<br>");
   var peach = peach2.split("|");
@@ -224,7 +229,6 @@ function updateOkmapTable(data){
   if(chrm == undefined)
   {
     var c = data["coordinates"];
-    console.log("ALL DATA", data);
     var newcoord = oldLinkOuts(c);
     var new_row = [
     createData("Altexons", data["altexons"]),
@@ -373,7 +377,6 @@ class Heatmap extends React.Component {
     };
   }
   componentDidMount() { 
-    //console.log("ComponentMounted");
     var base_re_wid = window.innerWidth;
     var base_re_high = window.innerHeight;
     var standard_width = 1438;
@@ -392,7 +395,6 @@ class Heatmap extends React.Component {
     var escale = (this.props.cols.length * (this.xscale - 0.1));
 
     document.getElementById("HEATMAP_0").style.width = escale.toString().concat("px");
-    console.log("ONCOSPLICE CLUSTER BUILD:", this.props.cols, this.props.rpsi);
     this.setState({
       output: <OKMAP 
                 dataset={this.props.data} 
@@ -406,7 +408,9 @@ class Heatmap extends React.Component {
                 viewState={this.props.viewState}
                 setViewState={this.props.setViewState}
                 gtexState={this.props.gtexState}
-                setGtexState={this.props.setGtexState}>
+                setGtexState={this.props.setGtexState}
+                exonPlotState={this.props.exonPlotState}
+                setExonPlotState={this.props.setExonPlotState}>
                 </OKMAP>,
       label: <OKMAP_LABEL 
                 target_div_id={"HEATMAP_LABEL"} 
@@ -463,6 +467,8 @@ class Heatmap extends React.Component {
                   setViewState={this.props.setViewState}
                   gtexState={this.props.gtexState}
                   setGtexState={this.props.setGtexState}
+                  exonPlotState={this.props.exonPlotState}
+                  setExonPlotState={this.props.setExonPlotState}
                   >
                   </OKMAP>,
         label: <OKMAP_LABEL 
@@ -837,7 +843,6 @@ class OKMAP_LABEL extends React.Component {
       var colortake = retcols["color"][retcols["set"][p]];
       colortake = parseInt(colortake);
       var color = global_colors[colortake];
-      //console.log("DING: ", retcols["set"][p], colortake);
       var curchars = retcols["set"][p];
       this.SVG_main_group.append("rect")
           .style("stroke-width", 0)
@@ -934,7 +939,6 @@ class OKMAP_LABEL extends React.Component {
       tempnode.innerHTML = "";
       this.baseSVG("100%", 100);
       this.writeBase(this.props.column_names, 100, this.props.xscale);
-      console.log("component UPDATED", this.state.retcols, global_cancer);
       if(this.state.retcols != "NULL")
       {
         this.writeBlocks(this.state.retcols, this.props.xscale, this.props.column_names);
@@ -1077,15 +1081,12 @@ class OKMAP extends React.Component {
     var bubble_1 = d3.select("#".concat(this.target_div).concat("_group"));
     var bubs = data;
     var parent = this;
-    //console.log(data);
 
     var x_pointer = 0;
-    //console.log("DATAPUSH", data, col_list)
     for(var p = 0; p < col_list.length; p++)
     {
       var rect_length = (1 * x_scale);
       var cur_square_val = parseFloat(data[col_list[p]]);
-      //console.log("DATAPUSH", cur_square_val);
       var selected_color;
       if(cur_square_val < 0.05 && cur_square_val > -0.05)
       {
@@ -1157,7 +1158,7 @@ class OKMAP extends React.Component {
           selectionToSup(data);
           gtexSend(data["examined_junction"], parent.props.setGtexState, parent.props.gtexState);
           var toex = data["examined_junction"].split(":");
-          exonRequest(toex[0], data, parent.props.setViewState, parent.props.viewState);
+          exonRequest(toex[0], data, parent.props.setViewState, parent.props.viewState, parent.props.exonPlotState, parent.props.setExonPlotState);
           oneUIDrequest(data["uid"]);
           parent.setSelected(converteduid);
           //updateStats(y_point, data);
@@ -1253,10 +1254,8 @@ class OKMAP extends React.Component {
       this.writeBase(15, this.props.xscale, this.props.column_names, this.props.len);
       this.writeBaseRLSVG(15, this.props.len);
       }, 50);
-      //const set = new Set([]);
       for(let i = 0; i < this.props.dataset.length; i++)
       {
-        //console.log(rr[i]);
         setTimeout(() => {
         this.writeSingle5(y_start, this.props.dataset[i], 15, this.props.xscale, this.props.column_names, 1);
         this.writeRowLabel(y_start, this.props.dataset[i], 15);
@@ -1267,8 +1266,6 @@ class OKMAP extends React.Component {
   }
 
   render (){
-    //console.log("NEW OKMAP RENDER", this.props.column_names);
-
     var tempnode = document.getElementById(this.target_div);
     var y_start = 0;
     if(tempnode.hasChildNodes() == "")
@@ -1299,7 +1296,6 @@ class OKMAP extends React.Component {
       var yRL_start = 0;
       for(let k = 0; k < this.props.dataset.length; k++)
       {
-        //console.log(rr[i]);
         setTimeout(() => {
         this.writeRowLabel(yRL_start, this.props.dataset[k], this.state.zoom_level);
         yRL_start = yRL_start + this.state.zoom_level;
@@ -1362,7 +1358,6 @@ class SupplementaryPlot extends React.Component {
 
   componentDidMount(){
       var Data = this.props.Data;
-      console.log("DATA MOUNT:", Data[0]);
       updateOkmapTable(Data[0]);
       selectionToSup(Data[0]);
   }
@@ -1456,43 +1451,6 @@ function updateExPlot(exons, transcripts, junctions, in_data){
   });
 }
 
-class SetExonPlot extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      input: null,
-    };
-  }
-  componentDidMount() { 
-    //console.log("ComponentMounted");
-    var base_re_wid = window.innerWidth;
-    var base_re_high = window.innerHeight;
-    var standard_width = 1438;
-    var standard_height = 707;
-    var adjust_width = (base_re_wid / standard_width) * 0.40;
-    var adjust_height = (base_re_high / standard_height) * 0.40;
-    var y_start = 0;
-
-    this.setState({
-      input: <EXON_PLOT 
-        exonPlotState={this.props.exonPlotState} 
-        setExonPlotState={this.props.setExonPlotState} 
-        doc={document} 
-        target_div_id={"supp1"}>
-        </EXON_PLOT>
-    })
-  }
-
-  render()
-  {
-    return(
-      <div>
-      {this.state.input}
-      </div>
-    );
-  }
-}
-
 const SpcCheckbox = withStyles({
   root: {
     color: "#0F6A8B",
@@ -1518,7 +1476,12 @@ function ScalingCheckbox(props)
 
     const handleChange = (event) => {
       setState({ ...state, [event.target.name]: event.target.checked });
-      setScaling(event.target.checked);
+      props.setExonPlotState({exons: props.exonPlotState.exons,
+                        transcripts: props.exonPlotState.transcripts,
+                        junctions: props.exonPlotState.junctions,
+                        in_data: props.exonPlotState.in_data,
+                        scaled: event.target.checked 
+      })
     };
 
   return(
@@ -1558,14 +1521,10 @@ function ViewPane(props) {
       transcripts: null,
       junctions: null,
       in_data: null,
-      scaled: false  
+      scaled: false
   });
   const [gtexState, setGtexState] = React.useState({gtexPlot: null});
-  console.log("VIEW PANE", props);
-  console.log("VIEW TRANS", global_trans);
-  console.log("VIEW PANE_sig", global_signature[global_signature.length - 1]);
   global_uifielddict = props.QueryExport["ui_field_dict"];
-  console.log("global_uifielddict", global_uifielddict, props.QueryExport["ui_field_dict"]);
   return (
     <div style={{ fontFamily: 'Arial' }}>
     <Grid container spacing={1}>
@@ -1607,6 +1566,8 @@ function ViewPane(props) {
           setViewState={setViewState}
           gtexState={gtexState}
           setGtexState={setGtexState}
+          exonPlotState={exonPlotState}
+          setExonPlotState={setExonPlotState}
         />
       </Grid>
     </Grid>
@@ -1616,7 +1577,7 @@ function ViewPane(props) {
       <SpcInputLabel label={"ExonPlot"} />
       </Grid>
       <Grid item>
-        <ScalingCheckbox />
+        <ScalingCheckbox exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}/>
       </Grid>
       <Grid item>
         <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadTranscript(viewState.toDownloadExon)}>Download Transcript</Button>
@@ -1697,7 +1658,6 @@ function ViewPane_Side(props) {
 
 function ViewPane_Main(props) {
     const classes = useStyles();
-    //console.log("QueryExport", props.QueryExport);
     return(
     <div id="ViewPane_MainPane">
       <Box {...defaultProps}>
@@ -1723,8 +1683,8 @@ function ViewPane_Main(props) {
         setViewState={props.setViewState}
         gtexState={props.gtexState}
         setGtexState={props.setGtexState}
-        exonPlotState={exonPlotState}
-        setExonPlotState={setExonPlotState}>
+        exonPlotState={props.exonPlotState}
+        setExonPlotState={props.setExonPlotState}>
       </Heatmap>
     </div>  
     );
