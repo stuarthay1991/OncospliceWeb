@@ -27,7 +27,7 @@ function sendSamplesRetrieveURL(props)
 {
 	let rawSampleNamesAndGroups = props.data;
 	let cBioportalJsonData = [];
-	for (const groupName in rawSampleNamesAndGroups)
+	for (var groupName in rawSampleNamesAndGroups)
 	{
 		let tempHoldingArray = []
 		for (let k = 0; k < rawSampleNamesAndGroups[groupName].length; k++)
@@ -44,7 +44,7 @@ function sendSamplesRetrieveURL(props)
 	let curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
 	let studyID = cancerCodeTranslate[props.cancer];
 
-	for(let i = 0; i < cBioportalJsonData.length; i++)
+	for(let i in cBioportalJsonData)
 	{
 		curlCommandJsonDataObject["groups"][i] = {};
 		curlCommandJsonDataObject["groups"][i]["name"] = props.label[i];

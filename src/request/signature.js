@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import QueueMessage from '../components/QueueMessage';
 import axios from 'axios';
 
+//Assign signature to list of UIDs
 function mergeSignatures(name, currentListOfUIDs, completeListOfUIDs)
 {
   for(let i in currentListOfUIDs)
@@ -12,7 +13,6 @@ function mergeSignatures(name, currentListOfUIDs, completeListOfUIDs)
       completeListOfUIDs[currentListOfUIDs[i]].push(name);
     } catch (error) 
     {
-      console.error(error);
       completeListOfUIDs[currentListOfUIDs[i]] = [name];
     }
     
@@ -20,6 +20,7 @@ function mergeSignatures(name, currentListOfUIDs, completeListOfUIDs)
   return completeListOfUIDs;
 }
 
+//Request signature data from the server; a list of UIDs
 function signature(arg, targeturl)
 {
   //name, number, filter

@@ -26,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+//Interface for adding and removing filters
 class ClientAddFilter extends React.Component {
   constructor(props) {
     super(props);
