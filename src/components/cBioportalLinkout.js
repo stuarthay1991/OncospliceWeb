@@ -25,14 +25,14 @@ const cancerCodeTranslate = {
 //After formatting, axios is used to send the information to a PHP file that uses a cURL command to retrieve the string needed to complete the cBioportal url.
 function sendSamplesRetrieveURL(props)
 {
-	var rawSampleNamesAndGroups = props.data;
-	var cBioportalJsonData = [];
+	let rawSampleNamesAndGroups = props.data;
+	let cBioportalJsonData = [];
 	for (const groupName in rawSampleNamesAndGroups)
 	{
 		let tempHoldingArray = []
 		for (let k = 0; k < rawSampleNamesAndGroups[groupName].length; k++)
 		{
-			var stredit = rawSampleNamesAndGroups[groupName][k].split("_");
+			let stredit = rawSampleNamesAndGroups[groupName][k].split("_");
 			tempHoldingArray.push((stredit[0].concat("-").concat(stredit[1]).concat("-").concat(stredit[2]).concat("-").concat(stredit[3].slice(0, -1))).toUpperCase());
 		}
 		if(tempHoldingArray.length > 0)
@@ -41,8 +41,8 @@ function sendSamplesRetrieveURL(props)
 		}
 	}
 	
-	var curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
-	var studyID = cancerCodeTranslate[props.cancer];
+	let curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
+	let studyID = cancerCodeTranslate[props.cancer];
 
 	for(let i = 0; i < cBioportalJsonData.length; i++)
 	{
