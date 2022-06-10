@@ -5,11 +5,13 @@ import axios from 'axios';
 
 function mergeSignatures(name, currentListOfUIDs, completeListOfUIDs)
 {
-  for(var i = 0; i < currentListOfUIDs.length; i++)
+  for(let i in currentListOfUIDs)
   {
-    try {
+    try 
+    {
       completeListOfUIDs[currentListOfUIDs[i]].push(name);
-    } catch (error) {
+    } catch (error) 
+    {
       console.error(error);
       completeListOfUIDs[currentListOfUIDs[i]] = [name];
     }
@@ -38,16 +40,13 @@ function signature(arg, targeturl)
   const sigTranslate = arg["sigTranslate"];
   const exportView = arg["export"];
   exportView["single"] = [];
-  //sendToViewPane["single"] = [];
-  console.log(preQ)
   
-  for(var i = 0; i < keys[filter].length; i++)
+  for(let i in keys[filter])
   {
     var myString = preQ["signatures"][keys[filter][i]].props.name;
     myString = myString.replace(/(\r\n|\n|\r)/gm, "");
     if(Object.entries(sigTranslate).length > 0)
     {
-      //console.log("working working");
       if(sigTranslate[myString] != undefined)
       {
         myString = sigTranslate[myString];
@@ -55,14 +54,11 @@ function signature(arg, targeturl)
       }
       else
       {
-        //myString = "PSI_".concat(myString);
         myString = myString.replace(" ", "_");
       }
-      //console.log(myString);
     }
     bodyFormData.append(myString, myString);
-    exportView["single"].push(myString);
-    //console.log("SIGBODYFORMDATA1: ", myString);  
+    exportView["single"].push(myString); 
   }
   if(Object.entries(sigTranslate).length > 0)
   {
@@ -73,18 +69,15 @@ function signature(arg, targeturl)
     }//TMEPORARY FIX
     else
     {
-        //name = "PSI_".concat(name);
         name = name.replace(" ", "_");
     }
     name = name.replace(/(\r\n|\n|\r)/gm, "");
     bodyFormData.append(("SEL".concat(name)), name);
-    //console.log("SIGBODYFORMDATA2: ", name);
   }
   else
   {
     name = name.replace(/(\r\n|\n|\r)/gm, "");
-    bodyFormData.append(("SEL".concat(name)), name);
-    //console.log("SIGBODYFORMDATA2: ", name);   
+    bodyFormData.append(("SEL".concat(name)), name);  
   }
   bodyFormData.append("CANCER",cancer);
   
@@ -98,7 +91,6 @@ function signature(arg, targeturl)
       var in_criterion = response["data"]["single"];
       var selected_left = response["data"]["meta"];
       var current_number_of_events = response["data"]["meta"];
-      console.log("1234", response["data"]);
       Q["signatures"][number] = <QueueMessage key={number} number={number} name={"PSI"} get={number} value={name} type={"events"} total_selected={in_criterion} total_left={selected_left}/>
       completeListOfUIDs = mergeSignatures(original_name, response["data"]["result"], completeListOfUIDs);
       resamt = {"samples": arg["parentResultAmt"]["samples"], "events": Object.keys(completeListOfUIDs).length};

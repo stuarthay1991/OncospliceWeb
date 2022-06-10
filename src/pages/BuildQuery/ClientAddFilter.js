@@ -3,7 +3,9 @@ import Grid from '@material-ui/core/Grid';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import PreQueueMessage from '../../components/PreQueueMessage';
+import QueueMessage from '../../components/QueueMessage';
 import SingleItem from '../../components/SingleItem';
+import axios from 'axios';
 
 import { makeRequest } from '../../request/CancerDataManagement.js';
 
@@ -116,7 +118,7 @@ class ClientAddFilter extends React.Component {
       args["setState"] = P.parentProps.setSig;
       args["export"] = BQstate.export;
       args["egg"] = P.egg;
-      makeRequest("deleteSignature", args);
+      deleteSignature(args);
     }    
   }
 
@@ -209,6 +211,65 @@ class ClientAddFilter extends React.Component {
       currentKeys: BQstate.keys
     })
     }
+}
+
+function deleteSignature(arg)
+{
+  //name, number, filter
+  const keys = arg["keys"];
+  const Q = arg["queueboxchildren"];
+  var prospectedQueryResults = arg["parentResultAmt"];
+  var completeListOfUIDs = arg["completeListOfUIDs"];
+  const sigTranslate = arg["sigTranslate"];
+  const callback = arg["setState"];
+  const preQ = arg["pre_queueboxchildren"];
+  var name = arg["name"];
+  for(const key in completeListOfUIDs)
+  {
+    var current_list = completeListOfUIDs[key];
+    for(let i in current_list)
+    {
+      if(name == current_list[i])
+      {
+        current_list.splice(i, 1);
+      }
+    }
+    if(current_list.length == 0)
+    {
+      delete completeListOfUIDs[key];
+    }
+    else
+    {
+      completeListOfUIDs[key] = current_list; 
+    }
+  }
+
+  const exportView = arg["export"];
+  exportView["single"] = [];
+  //Reset export
+  for(let i in keys["single"])
+  {
+    var signatureName = preQ["signatures"][keys["single"][i]].props.name;
+    signatureName = signatureName.replace(/(\r\n|\n|\r)/gm, "");
+    if(Object.entries(sigTranslate).length > 0)
+    {
+      signatureName = sigTranslate[signatureName] != undefined ? sigTranslate[signatureName].replace("+", "positive_") : signatureName.replace(" ", "_");
+    }
+    exportView["single"].push(signatureName); 
+  }
+  
+  //delete from postoncosig
+  const postoncosig = arg["egg"];
+  for (const key in postoncosig)
+  {
+    if(postoncosig[key] == "")
+    {
+      delete postoncosig[key];
+    }
+  }
+
+  prospectedQueryResults = {"samples": arg["parentResultAmt"]["samples"], "events": Object.keys(completeListOfUIDs).length};
+  callback(prospectedQueryResults, Q, keys, exportView, postoncosig, completeListOfUIDs);
 }
 
 export default ClientAddFilter;

@@ -27,13 +27,12 @@ function sendSamplesRetrieveURL(props)
 {
 	var rawSampleNamesAndGroups = props.data;
 	var cBioportalJsonData = [];
-	for (const [groupName, value] of Object.entries(rawSampleNamesAndGroups)) 
+	for (const groupName in rawSampleNamesAndGroups)
 	{
-		var tempHoldingArray = []
-		for (var k = 0; k < rawSampleNamesAndGroups[groupName].length; k++)
+		let tempHoldingArray = []
+		for (let k = 0; k < rawSampleNamesAndGroups[groupName].length; k++)
 		{
-			var stredit = rawSampleNamesAndGroups[groupName][k];
-			stredit = stredit.split("_");
+			var stredit = rawSampleNamesAndGroups[groupName][k].split("_");
 			tempHoldingArray.push((stredit[0].concat("-").concat(stredit[1]).concat("-").concat(stredit[2]).concat("-").concat(stredit[3].slice(0, -1))).toUpperCase());
 		}
 		if(tempHoldingArray.length > 0)
@@ -45,7 +44,7 @@ function sendSamplesRetrieveURL(props)
 	var curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
 	var studyID = cancerCodeTranslate[props.cancer];
 
-	for(var i = 0; i < cBioportalJsonData.length; i++)
+	for(let i = 0; i < cBioportalJsonData.length; i++)
 	{
 		curlCommandJsonDataObject["groups"][i] = {};
 		curlCommandJsonDataObject["groups"][i]["name"] = props.label[i];

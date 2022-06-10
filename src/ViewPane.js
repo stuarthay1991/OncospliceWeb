@@ -40,7 +40,7 @@ import oncospliceClusterViolinPlotPanel from './plots/oncospliceClusterViolinPlo
 import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterViolinPlotPanel';
 import sampleFilterViolinPlotPanel from './plots/sampleFilterViolinPlotPanel';
 import { gtexSend } from './plots/gtexPlotPanel.js';
-import { downloadTranscript, downloadGeneModel, downloadJunctions } from './Download.js';
+import { downloadExonPlotData} from './Download.js';
 import SetExonPlot from './plots/exonPlot.js';
 
 var global_meta = [];
@@ -1580,13 +1580,13 @@ function ViewPane(props) {
         <ScalingCheckbox exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}/>
       </Grid>
       <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadTranscript(viewState.toDownloadExon)}>Download Transcript</Button>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("transcript.csv", viewState.toDownloadExon)}>Download Transcript</Button>
       </Grid>
       <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadGeneModel(viewState.toDownloadGeneModel)}>Download Gene Model</Button>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("genemodel.csv", viewState.toDownloadGeneModel)}>Download Gene Model</Button>
       </Grid>
       <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadJunctions(viewState.toDownloadJunc)}>Download Junctions</Button>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button>
       </Grid>
       <Grid item>
         <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}}>Download PDF</Button>
