@@ -108,30 +108,20 @@ function FilterMenuPopulate(props) {
                 }
                 else
                 {
-                  //console.log("msel1", name_selected);
                   var final_name_selected = name_selected.replaceAll("__", " _");
-                  //console.log("msel2", name_selected);
                   final_name_selected = final_name_selected.replaceAll("_", " ");
                   final_name_selected = final_name_selected.replaceAll("  ", " ");
-                  //console.log("msel3", name_selected);
                   final_name_selected = final_name_selected.replaceAll("PSI ", "");
-                  viewDict[final_name_selected] = name_selected;
-                  //console.log("msel4", name_selected);
-                  //Temporary fix
-                  //name_selected = name_selected.charAt(0).toUpperCase() + name_selected.slice(1);                  
+                  viewDict[final_name_selected] = name_selected;               
                 }
               }
               else
               {
-                //console.log("nsel1", name_selected);
                 var final_name_selected = name_selected.replaceAll("__", " _");
-                //console.log("nsel2", name_selected);
                 final_name_selected = final_name_selected.replaceAll("_", " ");
                 final_name_selected = final_name_selected.replaceAll("  ", " ");
-                //console.log("nsel3", name_selected);
                 final_name_selected = final_name_selected.charAt(0).toUpperCase() + final_name_selected.slice(1);
                 viewDict[final_name_selected] = name_selected;
-                //console.log("nsel4", name_selected);
               }
               options.push(<option value={props.chicken.length[i]}>{final_name_selected}</option>);
             }

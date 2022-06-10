@@ -34,6 +34,14 @@ import targeturl from './targeturl.js';
 import Plot from 'react-plotly.js';
 import * as d3 from 'd3';
 import useStyles from './useStyles.js';
+import { global_colors } from './constants.js';
+
+import oncospliceClusterViolinPlotPanel from './plots/oncospliceClusterViolinPlotPanel';
+import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterViolinPlotPanel';
+import sampleFilterViolinPlotPanel from './plots/sampleFilterViolinPlotPanel';
+import { gtexSend } from './plots/gtexPlotPanel.js';
+import { downloadExonPlotData} from './downloadDataFile.js';
+import SetExonPlot from './plots/exonPlot.js';
 
 var global_meta = [];
 var global_sig = [];
@@ -48,7 +56,6 @@ var global_rpsi = [];
 var global_exon_blob = undefined;
 var global_genemodel_blob = undefined;
 var global_junc_blob = undefined;
-var global_colors = ["#0096FF", "Yellow", "#FF7F7F", "#44D62C", "Purple", "Orange", "Grey", "#32a852", "#8e7be3", "#e6b035", "#b5109f", "#8bab59", "#782b51", "#366fd9", "#f0b3ff", "#5d1ca3", "#d94907", "#32a8a6", "#ada50c", "#bf1b28", "#0000b3", "#ffc61a", "#336600"];
 var global_Y = "";
 var global_adj_height = "";
 var global_heat_len = "";
@@ -57,7 +64,6 @@ var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=de
 
 function metarepost(name) {
   var bodyFormData = new FormData();
-  //box = [];
   if(name != "age range")
   {
     name = name.replaceAll("  ", "__");
@@ -72,16 +78,9 @@ function metarepost(name) {
     headers: { "Content-Type": "multipart/form-data" },
   })
     .then(function (response) {
-      //var retval = response["data"]["out"];
-      //var retset = response["data"]["set"];
       var ret = response["data"];
-      //console.log("RET RET RET", ret, global_cancer);
       updateOkmapLabel(ret);
       supFilterUpdate(ret);
-      //console.log(retval);
-      //console.log(retset);
-      //console.log(global_cols);
-      //var okheader = new OKMAP_LABEL("HEATMAP_LABEL",global_cols,retval,document,);
     })
 }
 
@@ -96,21 +95,12 @@ function oneUIDrequest(UID) {
     headers: { "Content-Type": "multipart/form-data" },
   })
     .then(function (response) {
-      //var totalmatch = response["data"]["single"];
-      //console.log("oneuid", response["data"]);
       plotUIDupdate(response["data"]["result"][0])
-      //var new_vec = response["data"];
-      //plot4update(new_vec);
-      //console.log("1", totalmatch);
-      //console.log("2", response["data"]);
-      //add totalmatch for gene counter
-      //callback(clientgenes, exportView);
   })  
 }
 
-function exonRequest(GENE, in_data) {
+function exonRequest(GENE, in_data, setViewState, viewState, exonPlotState, setExonPlotState) {
   var bodyFormData = new FormData();
-  console.log("EXON_IN", GENE);
   bodyFormData.append("GENE",GENE);
   axios({
     method: "post",
@@ -119,94 +109,25 @@ function exonRequest(GENE, in_data) {
     headers: { "Content-Type": "multipart/form-data" },
   })
     .then(function (response) {
-      //console.log("response_exon", response["data"]);
       var resp = response["data"];
-      updateExPlot(resp["gene"], resp["trans"], resp["junc"], in_data);
-      global_exon_blob = resp["blob"]["trans"];
-      global_genemodel_blob = resp["blob"]["genemodel"];
-      global_junc_blob = resp["blob"]["junc"];
-
-  })
-}
-
-function GTexSend(UID) {
-  //const exportUID = arg["UID"];
-  //const exportTISSUE = arg["TISSUE"];
-
-  var bodyFormData = new FormData();
-  //console.log("GTEXsend", UID);
-  bodyFormData.append("UID",UID);
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/GTex.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-    .then(function (response) {
-      //var totalmatch = response["data"]["single"];
-      /*
-      console.log("GTEXreceive", response["data"]);
-      for (const [key, value] of Object.entries(response["data"]["result"][0])) {
-          console.log(key, value);
-      }
-      */
-      var new_vec = response["data"]["result"][0];
-      gtexupdate(new_vec);
-      //var new_vec = response["data"];
-      //plot4update(new_vec);
-      //console.log("1", totalmatch);
-      //console.log("2", response["data"]);
-      //add totalmatch for gene counter
-      //callback(clientgenes, exportView);
-  })  
-}
-
-function survivalSend(data, cols) {
-
-  var post = "";
-  for (const [newkey, newvalue] of Object.entries(data)) {
-    post = post.concat(newkey);
-    post = post.concat("#");
-    post = post.concat(newvalue);
-    post = post.concat("%");
-  }
-  post = post.slice(0, -1);
-  var bodyFormData = new FormData();
-  //console.log("GTEXsend", UID);
-  bodyFormData.append("UID", data["uid"]);
-  bodyFormData.append("CANC", global_cancer);
-  bodyFormData.append("EXP", post);
-  //bodyFormData = JSON.stringify(bodyFormData);
-  axios({
-    method: "post",
-    url: (targeturl.concat("/backend/survplot.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "application/json",
-    "Data-Type": "json" },
-  })
-    .then(function (response) {
-      console.log("surv_receive", response["data"]);
-      survupdate(data["uid"]);
-  })  
-}
-
-function gtexupdate(vec)
-{
-  this.setState({
-    gtex: vec
-  })  
-}
-
-function survupdate(dat)
-{
-  this.setState({
-    surv: dat
+      //updateExPlot(resp["gene"], resp["trans"], resp["junc"], in_data);
+      setViewState({
+        toDownloadExon: resp["blob"]["trans"],
+        toDownloadGeneModel: resp["blob"]["genemodel"],
+        toDownloadJunc: resp["blob"]["junc"]
+      });
+      setExonPlotState({
+        exons: resp["gene"], 
+        transcripts: resp["trans"], 
+        junctions: resp["junc"],
+        in_data: in_data,
+        scaled: exonPlotState.scaled
+      });
   })
 }
 
 function plotUIDupdate(dat)
 {
-  //console.log(dat);
   this.setState({
     fulldat: dat
   })    
@@ -248,7 +169,6 @@ function updateStats(id, input){
 }
 
 function oldLinkOuts(instuff){
-  console.log("OLD CLICK", instuff);
   var peach2 = instuff;
   var peach3 = peach2.replace("|", "<br>");
   var peach = peach2.split("|");
@@ -279,25 +199,10 @@ function oldLinkOuts(instuff){
 }
 
 function makeLinkOuts(chrm, c1, c2, c3, c4){
-  /*var peach2 = instuff;
-  var peach3 = peach2.replace("|", "<br>");
-  var peach = peach2.split("|");
-  var chr1 = peach[0];
-  var chr2 = peach[1];
-  var twor1 = chr1.split(":");
-  var twor2 = chr2.split(":");
-  var flatchr1 = twor1[0];
-  var flatchr2 = twor2[0];
-  var twor1_split = twor1[1].split("-");
-  var twor2_split = twor2[1].split("-");*/
   var full1 = chrm.concat(":").concat(c1).concat("-").concat(c2);
   var full2 = chrm.concat(":").concat(c3).concat("-").concat(c4);
   var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
   var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
-
-  //link1 = "<a href=".concat(link1).concat(flatchr1).concat("%3A").concat(twor1_split[0]).concat("%2D").concat(twor1_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG").concat(">").concat(chr1).concat("</a>");
-
-  //link1 = link1.concat("<br>").concat("<a href=").concat(link2).concat(flatchr2).concat("%3A").concat(twor2_split[0]).concat("%2D").concat(twor2_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG").concat(">").concat(chr2).concat("</a>");
 
   return(
     <div>
@@ -314,7 +219,6 @@ function setUpBioportalIframe(selection)
   var canc = global_cancer.toLowerCase();
   canc = canc.concat("_tcga");
   var srcstr = "https://www.cbioportal.org/ln?cancer_study_id=".concat(canc).concat("&q=").concat(selection["symbol"]);
-  //console.log("srcstr", srcstr)
   return srcstr;
 }
 
@@ -325,7 +229,6 @@ function updateOkmapTable(data){
   if(chrm == undefined)
   {
     var c = data["coordinates"];
-    console.log("ALL DATA", data);
     var newcoord = oldLinkOuts(c);
     var new_row = [
     createData("Altexons", data["altexons"]),
@@ -386,10 +289,6 @@ var rows = [
   createData('-none selected-', '-none selected-'),
 ];
 
-/*function updateFHS(props){
-  const [state, setState] = React.useState
-}*/
-
 function FilterHeatmapSelect(props) {
   const classes = useStyles();
   const [state, setState] = React.useState({
@@ -403,7 +302,6 @@ function FilterHeatmapSelect(props) {
       ...state,
       [name]: event.target.value,
     });
-    //console.log("metarepost", event.target.value);
     metarepost(event.target.value);
   }
 
@@ -467,33 +365,6 @@ class Stats extends React.Component {
 
 }
 
-/*
-class SupplementaryPlot extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-
-    }
-  }
-
-  componentDidMount() {
-
-  }
-
-  componentDidUpdate(prevProps) {
-
-  }
-
-  render()
-  {
-    return(
-      <div>
-      </div>
-    );
-  } 
-
-}*/
-
 class Heatmap extends React.Component {
   constructor(props) {
     super(props);
@@ -506,7 +377,6 @@ class Heatmap extends React.Component {
     };
   }
   componentDidMount() { 
-    //console.log("ComponentMounted");
     var base_re_wid = window.innerWidth;
     var base_re_high = window.innerHeight;
     var standard_width = 1438;
@@ -525,21 +395,45 @@ class Heatmap extends React.Component {
     var escale = (this.props.cols.length * (this.xscale - 0.1));
 
     document.getElementById("HEATMAP_0").style.width = escale.toString().concat("px");
-    //console.log("DATA", this.props.data);
-    //console.log("COLS", this.props.cols);
-    console.log("ONCOSPLICE CLUSTER BUILD:", this.props.cols, this.props.rpsi);
     this.setState({
-      output: <OKMAP dataset={this.props.data} column_names={this.props.cols} len={this.props.data.length} doc={document} target_div_id={"HEATMAP_0"} xscale={xscale} yscale={y_scaling} norm={1}></OKMAP>,
-      label: <OKMAP_LABEL target_div_id={"HEATMAP_LABEL"} column_names={this.props.cols} doc={document} xscale={xscale}/>,
-      CC: <OKMAP_COLUMN_CLUSTERS target_div_id={"HEATMAP_CC"} column_names={this.props.cc} doc={document} xscale={xscale}/>,
-      RPSI: <OKMAP_RPSI target_div_id={"HEATMAP_RPSI"} refcols={this.props.cols} column_names={this.props.rpsi} doc={document} xscale={xscale}/>
+      output: <OKMAP 
+                dataset={this.props.data} 
+                column_names={this.props.cols} 
+                len={this.props.data.length} 
+                doc={document} 
+                target_div_id={"HEATMAP_0"} 
+                xscale={xscale} 
+                yscale={y_scaling} 
+                norm={1}
+                viewState={this.props.viewState}
+                setViewState={this.props.setViewState}
+                gtexState={this.props.gtexState}
+                setGtexState={this.props.setGtexState}
+                exonPlotState={this.props.exonPlotState}
+                setExonPlotState={this.props.setExonPlotState}>
+                </OKMAP>,
+      label: <OKMAP_LABEL 
+                target_div_id={"HEATMAP_LABEL"} 
+                column_names={this.props.cols} 
+                doc={document} 
+                xscale={xscale}/>,
+      CC: <OKMAP_COLUMN_CLUSTERS 
+                target_div_id={"HEATMAP_CC"} 
+                column_names={this.props.cc} 
+                doc={document} 
+                xscale={xscale}/>,
+      RPSI: <OKMAP_RPSI 
+                target_div_id={"HEATMAP_RPSI"} 
+                refcols={this.props.cols} 
+                column_names={this.props.rpsi}
+                doc={document} 
+                xscale={xscale}/>
     })
   }
 
   componentDidUpdate(prevProps) {
     if((this.props.data.length !== prevProps.data.length) || (this.props.cols.length !== prevProps.cols.length))
     {
-      //console.log("ComponentUpdated");
       var base_re_wid = window.innerWidth;
       var base_re_high = window.innerHeight;
       var standard_width = 1438;
@@ -558,21 +452,48 @@ class Heatmap extends React.Component {
       var escale = (this.props.cols.length * (this.xscale - 0.1));
 
       document.getElementById("HEATMAP_0").style.width = escale.toString().concat("px");
-      //console.log("DATA", this.props.data);
-      //console.log("COLS", this.props.cols);
 
       this.setState({
-        output: <OKMAP dataset={this.props.data} column_names={this.props.cols} len={this.props.data.length} doc={document} target_div_id={"HEATMAP_0"} xscale={this.xscale} yscale={y_scaling} norm={1}></OKMAP>,
-        label: <OKMAP_LABEL target_div_id={"HEATMAP_LABEL"} column_names={this.props.cols} doc={document} xscale={this.xscale}/>,
-        CC: <OKMAP_COLUMN_CLUSTERS target_div_id={"HEATMAP_CC"} column_names={this.props.cc} doc={document} xscale={this.xscale}/>,
-        RPSI: <OKMAP_RPSI target_div_id={"HEATMAP_RPSI"} refcols={this.props.cols} column_names={this.props.rpsi} doc={document} xscale={this.xscale}/>
+        output: <OKMAP 
+                  dataset={this.props.data} 
+                  column_names={this.props.cols} 
+                  len={this.props.data.length} 
+                  doc={document} 
+                  target_div_id={"HEATMAP_0"} 
+                  xscale={this.xscale} 
+                  yscale={y_scaling} 
+                  norm={1}
+                  viewState={this.props.viewState}
+                  setViewState={this.props.setViewState}
+                  gtexState={this.props.gtexState}
+                  setGtexState={this.props.setGtexState}
+                  exonPlotState={this.props.exonPlotState}
+                  setExonPlotState={this.props.setExonPlotState}
+                  >
+                  </OKMAP>,
+        label: <OKMAP_LABEL 
+                  target_div_id={"HEATMAP_LABEL"} 
+                  column_names={this.props.cols} 
+                  doc={document} 
+                  xscale={this.xscale}
+                  />,
+        CC: <OKMAP_COLUMN_CLUSTERS 
+                  target_div_id={"HEATMAP_CC"} 
+                  column_names={this.props.cc} 
+                  doc={document} 
+                  xscale={this.xscale}/>,
+        RPSI: <OKMAP_RPSI 
+                  target_div_id={"HEATMAP_RPSI"} 
+                  refcols={this.props.cols} 
+                  column_names={this.props.rpsi} 
+                  doc={document}
+                  xscale={this.xscale}/>
       })
     }
   }
 
   render()
   {
-    //console.log("ComponentRendered", this.state);
     return(
       <div>
       {this.state.output}
@@ -598,10 +519,6 @@ function zoomInHeatmap()
 
     var captain_burgerpants = temp_y_set / 15;
 
-    //document.getElementById("HEATMAP_1").style.display = "none";
-    //document.getElementById("HEATMAP_0").style.display = "block";
-    //document.getElementById("HEATMAP_2").style.display = "none";
-
     document.getElementById("HEATMAP_0").style.transformOrigin = "0 0";
     document.getElementById("HEATMAP_0").style.overflowY = "visible";
     document.getElementById("HEATMAP_0").style.height = document.getElementById("HEATMAP_0").style.height * captain_burgerpants;
@@ -616,18 +533,15 @@ function zoomOutHeatmap()
 {
   if(global_Y < ((400 * global_adj_height) / global_heat_len))
   {
-    //loading_gif("off");
     return;
   }
   else
   {
-    //zoom_on_off = "off";
     var temp_y_set = global_Y / 1.5;
 
     var captain_burgerpants = temp_y_set / 15;
 
     var magic_bob = document.getElementById("HEATMAP_0").style.height;
-    //console.log("boogie bob extreme", magic_bob);
     var fantastic_fred = magic_bob.substring(0, (magic_bob.length - 2));
     var wacky_winston = parseFloat(fantastic_fred) * captain_burgerpants;
     wacky_winston = (wacky_winston.toString()).concat("px");
@@ -929,7 +843,6 @@ class OKMAP_LABEL extends React.Component {
       var colortake = retcols["color"][retcols["set"][p]];
       colortake = parseInt(colortake);
       var color = global_colors[colortake];
-      //console.log("DING: ", retcols["set"][p], colortake);
       var curchars = retcols["set"][p];
       this.SVG_main_group.append("rect")
           .style("stroke-width", 0)
@@ -1026,16 +939,12 @@ class OKMAP_LABEL extends React.Component {
       tempnode.innerHTML = "";
       this.baseSVG("100%", 100);
       this.writeBase(this.props.column_names, 100, this.props.xscale);
-      console.log("component UPDATED", this.state.retcols, global_cancer);
       if(this.state.retcols != "NULL")
       {
         this.writeBlocks(this.state.retcols, this.props.xscale, this.props.column_names);
         metarepost(Object.entries(global_uifielddict)[0][0]); 
         document.getElementById("HeatmapFilterSelect_id").value = Object.entries(global_uifielddict)[0][0];
       }
-      //else
-      //{
-      //}
       return(
         null
       );    
@@ -1091,6 +1000,7 @@ class OKMAP extends React.Component {
     this.state = {
       zoom_level: this.props.yscale
     };
+    const setViewState = this.props.setViewState;
     updateOkmap = updateOkmap.bind(this)
   }
   
@@ -1114,8 +1024,6 @@ class OKMAP extends React.Component {
 
   writeBase(yscale, xscale, cols, height)
   {
-    //console.log("WRITEBASE: this.col_names.length", cols.length);
-    //console.log("WRITEBASE: xscale", xscale);
     this.SVG_main_group.append("rect")
       .attr("width", (cols.length * (xscale - 0.1)))
       .attr("height", (height * yscale))
@@ -1173,15 +1081,12 @@ class OKMAP extends React.Component {
     var bubble_1 = d3.select("#".concat(this.target_div).concat("_group"));
     var bubs = data;
     var parent = this;
-    //console.log(data);
 
     var x_pointer = 0;
-    //console.log("DATAPUSH", data, col_list)
     for(var p = 0; p < col_list.length; p++)
     {
       var rect_length = (1 * x_scale);
       var cur_square_val = parseFloat(data[col_list[p]]);
-      //console.log("DATAPUSH", cur_square_val);
       var selected_color;
       if(cur_square_val < 0.05 && cur_square_val > -0.05)
       {
@@ -1251,21 +1156,18 @@ class OKMAP extends React.Component {
       .on("click", function(){
           updateOkmapTable(data);
           selectionToSup(data);
-          GTexSend(data["examined_junction"]);
+          gtexSend(data["examined_junction"], parent.props.setGtexState, parent.props.gtexState);
           var toex = data["examined_junction"].split(":");
-          exonRequest(toex[0], data);
+          exonRequest(toex[0], data, parent.props.setViewState, parent.props.viewState, parent.props.exonPlotState, parent.props.setExonPlotState);
           oneUIDrequest(data["uid"]);
-          survivalSend(data, this.col_names);
           parent.setSelected(converteduid);
           //updateStats(y_point, data);
       })
       .on("mouseover", function(){
             d3.select(this).style("fill", "red");
-            //parent.tempRectAdd(this.attributes, parent.col_names, parent.U_xscale);
       })
       .on("mouseout", function(){
             d3.select(this).style("fill", "black");
-            //parent.tempRectRemove();
       });
   }
 
@@ -1299,9 +1201,6 @@ class OKMAP extends React.Component {
 
   setSelected(id)
   {
-    //document.getElementById(id).style.fill = "green";
-    //console.log(this.CURRENT_SELECTED_UID);
-
     var parent = this;
 
     if(this.CURRENT_SELECTED_UID != null)
@@ -1355,11 +1254,8 @@ class OKMAP extends React.Component {
       this.writeBase(15, this.props.xscale, this.props.column_names, this.props.len);
       this.writeBaseRLSVG(15, this.props.len);
       }, 50);
-      //const set = new Set([]);
-      //console.log("length", this.props.dataset.length);
       for(let i = 0; i < this.props.dataset.length; i++)
       {
-        //console.log(rr[i]);
         setTimeout(() => {
         this.writeSingle5(y_start, this.props.dataset[i], 15, this.props.xscale, this.props.column_names, 1);
         this.writeRowLabel(y_start, this.props.dataset[i], 15);
@@ -1370,9 +1266,6 @@ class OKMAP extends React.Component {
   }
 
   render (){
-    //console.log("NEW OKMAP RENDER", this.props.column_names);
-
-    //var map1 = new OKMAP("HEATMAP_0", cbeds, document, ((400/cbeds.length) * adjust_width), rr.length);
     var tempnode = document.getElementById(this.target_div);
     var y_start = 0;
     if(tempnode.hasChildNodes() == "")
@@ -1383,11 +1276,9 @@ class OKMAP extends React.Component {
       this.writeBase(this.state.zoom_level, this.props.xscale, this.props.column_names, this.props.len);
       this.writeBaseRLSVG(this.state.zoom_level);
       }, 50);
-      //const set = new Set([]);
-      //console.log("length", this.props.dataset.length);
+
       for(let i = 0; i < this.props.dataset.length; i++)
       {
-        //console.log(rr[i]);
         setTimeout(() => {
         this.writeSingle5(y_start, this.props.dataset[i], this.state.zoom_level, this.props.xscale, this.props.column_names, 1);
         this.writeRowLabel(y_start, this.props.dataset[i], this.state.zoom_level);
@@ -1405,7 +1296,6 @@ class OKMAP extends React.Component {
       var yRL_start = 0;
       for(let k = 0; k < this.props.dataset.length; k++)
       {
-        //console.log(rr[i]);
         setTimeout(() => {
         this.writeRowLabel(yRL_start, this.props.dataset[k], this.state.zoom_level);
         yRL_start = yRL_start + this.state.zoom_level;
@@ -1430,385 +1320,6 @@ function selectionToSup(selection){
   })
 }
 
-function loopThroughGene(ss, s, col, cc, rpsi, trans){
-  var Selection = s;
-  var myArray1 = [];
-  var myArray2 = [];
-  for(var i = 0; i < col.length; i++)
-  {
-    var curcol = col[i];
-    if(rpsi[curcol] == "0")
-    {
-      myArray1.push(ss[curcol]);
-    }
-  }
-  for(var i = 0; i < col.length; i++)
-  {
-    var curcol = col[i];
-    if(rpsi[curcol] == "1")
-    {
-      myArray2.push(ss[curcol]);
-    }
-  }
-  var output = {};
-  output["arr1"] = myArray1;
-  output["arr2"] = myArray2;
-  var plotobj = <Plot
-            data={[
-              {
-                x: "Group1",
-                y: output["arr1"],
-                type: 'violin',
-                name: "Others",
-                mode: 'lines+markers',
-                marker: {color: 'grey'},
-              },
-              {
-                x: "Group2",
-                y: output["arr2"],
-                type: 'violin',
-                name: trans,
-                mode: 'lines+markers',
-                marker: {color: 'black'},
-              }
-            ]}
-
-            layout={ {width: 535,
-                      margin: {
-                          l: 48,
-                          r: 48,
-                          b: 48,
-                          t: 40
-                      },
-                      title: {
-                          text: s["pancanceruid"],
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 11,
-                            color: '#7f7f7f'
-                            }
-                      },
-                      yaxis:{
-                        range: [0, 1],
-                        title: {
-                          text: 'PSI Value',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        },
-                      },
-                      xaxis:{
-                        title: {
-                          text: 'Clusters',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }
-                      },
-                      height: 200} }
-  />;
-  return plotobj;
-}
-
-function loopThroughHC(ss, s, col, cc, rpsi){
-  //console.log("cc_run", cc)
-  var Selection = s;
-  var myArray1 = [];
-  var myArray2 = [];
-  var myArray3 = [];
-  for(var i = 0; i < col.length; i++)
-  {
-    var curcol = col[i];
-    if(cc[i] == "1")
-    {
-      myArray1.push(ss[curcol]);
-    }
-    if(cc[i] == "2")
-    {
-      myArray2.push(ss[curcol]);
-    }
-    if(cc[i] == "3")
-    {
-      myArray3.push(ss[curcol]);
-    }
-  }
-  var output = {};
-  output["arr1"] = myArray1;
-  output["arr2"] = myArray2;
-  output["arr3"] = myArray3;
-  if(output["arr3"].length > 0)
-  {
-    var plotobj = <Plot
-              data={[
-                {
-                  y: output["arr1"],
-                  type: 'violin',
-                  mode: 'lines+markers',
-                  name: "Cluster 1",
-                  marker: {color: 'orange'},
-                },
-                {
-                  y: output["arr2"],
-                  type: 'violin',
-                  mode: 'lines+markers',
-                  name: "Cluster 2",
-                  marker: {color: 'blue'},
-                },
-                {
-                  y: output["arr3"],
-                  type: 'violin',
-                  mode: 'lines+markers',
-                  name: "Cluster 3",
-                  marker: {color: 'green'},
-                }
-              ]}
-              layout={ {width: 535,
-                        height: 200,
-                        margin: {
-                          l: 48,
-                          r: 48,
-                          b: 48,
-                          t: 40
-                        },
-                        title: {
-                          text: s["pancanceruid"],
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 11,
-                            color: '#7f7f7f'
-                            }
-                        },   
-                        yaxis:{
-                        range: [0, 1],
-                        title: {
-                          text: 'PSI Value',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        },
-                        },
-                        xaxis:{
-                        title: {
-                          text: 'Clusters',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }
-                      }} }
-    />;    
-  }
-  else
-  {
-    var plotobj = <Plot
-              data={[
-                {
-                  y: output["arr1"],
-                  type: 'violin',
-                  mode: 'lines+markers',
-                  name: "Cluster 1",
-                  marker: {color: 'orange'},
-                },
-                {
-                  y: output["arr2"],
-                  type: 'violin',
-                  mode: 'lines+markers',
-                  name: "Cluster 2",
-                  marker: {color: 'blue'},
-                }
-              ]}
-              xaxis={{
-                title: {
-                  text: 'x Axis',
-                  font: {
-                    family: 'Courier New, monospace',
-                    size: 18,
-                    color: '#7f7f7f'
-                  }
-                },
-              }}
-              layout={ {width: 535,
-                        height: 200,
-                        margin: {
-                          l: 48,
-                          r: 48,
-                          b: 48,
-                          t: 40
-                        },
-                        title: {
-                          text: s["pancanceruid"],
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 11,
-                            color: '#7f7f7f'
-                            }
-                        }, 
-                        yaxis:{
-                        range: [0, 1],
-                        title: {
-                          text: 'PSI Value',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }},
-                        xaxis:{
-                        title: {
-                          text: 'Clusters',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }
-                      }} }
-    />;     
-  }
-
-  return plotobj;
-}
-
-function loopThroughFilter(ss, s, col, cc, rpsi, out, set){
-  var datarray = [];
-  //console.log("lTF", out);
-  //console.log("set", set);
-  for(var i = 0; i < set.length; i++)
-  {   
-
-      var curstack = [];
-      for(var k = 0; k < col.length; k++)
-      {
-        if(out[col[k]] == set[i])
-        {
-          curstack.push(ss[col[k]]);
-        }
-      }
-      var name = set[i];
-      var curcolor = global_colors[i];
-      datarray.push({
-        y: curstack,
-        type: 'violin',
-        mode: 'lines+markers',
-        name: name,
-        marker: {color: curcolor},
-      });
-  }
-  var plotobj = <Plot
-              data={datarray}
-              layout={ {width: 535, 
-                        height: 300,
-                        margin: {
-                          l: 48,
-                          r: 48,
-                          b: 100,
-                          t: 40
-                        },
-                        title: {
-                          text: s["pancanceruid"],
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 11,
-                            color: '#7f7f7f'
-                            }
-                        },
-                        yaxis:{
-                        range: [0, 1],
-                        title: {
-                          text: 'PSI Value',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }},
-                        xaxis:{
-                        title: {
-                          text: 'Filters',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }
-                      }} }
-  />;
-  return plotobj;
-}
-
-function loopThroughGtex(vec){
-  var datarray = [];
-  var counter = 0;
-  for (const [key, value] of Object.entries(vec)) {
-          if(key != "uid")
-          {
-          //console.log(key, value);
-          var tmparr = value.split("|");
-          
-          var curcolor = global_colors[counter];
-          datarray.push({
-            y: tmparr,
-            type: 'violin',
-            mode: 'lines+markers',
-            name: key,
-            marker: {color: curcolor},
-          });
-
-          counter = counter + 1;
-          }
-  }
-
-  var plotobj = <Plot
-              data={datarray}
-              layout={ {width: 525, 
-                        height: 450,
-                        margin: {
-                          l: 48,
-                          r: 32,
-                          b: 200,
-                          t: 40
-                        },
-                        showlegend: false,
-                        title: {
-                          text: "GTEX",
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 11,
-                            color: '#7f7f7f'
-                            }
-                        },
-                        yaxis:{
-                        range: [0, 1],
-                        title: {
-                          text: 'PSI Value',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }},
-                        xaxis:{
-                        title: {
-                          text: 'GTEX',
-                          font: {
-                            family: 'Arial, monospace',
-                            size: 16,
-                            color: '#7f7f7f'
-                          }
-                        }
-                      }} }
-  />;
-  return plotobj;
-}
-
-
 function supFilterUpdate(data)
 {
   this.setState({
@@ -1827,21 +1338,26 @@ class SupplementaryPlot extends React.Component {
       filterset: null,
       matches: null,
       fulldat: null,
-      gtex: null,
-      surv: null
+      gtex: this.props.gtexState.gtexPlot
     };
     //var other_gene_matches = [];
     selectionToSup = selectionToSup.bind(this);
     supFilterUpdate = supFilterUpdate.bind(this);
     plot4update = plot4update.bind(this);
-    gtexupdate = gtexupdate.bind(this);
     plotUIDupdate = plotUIDupdate.bind(this);
-    survupdate = survupdate.bind(this);
+  }
+
+  componentDidUpdate(prevProps){
+    if(this.props.gtexState.gtexPlot !== this.state.gtex)
+    {
+      this.setState({
+        gtex: this.props.gtexState.gtexPlot
+      })
+    }
   }
 
   componentDidMount(){
       var Data = this.props.Data;
-      console.log("DATA MOUNT:", Data[0]);
       updateOkmapTable(Data[0]);
       selectionToSup(Data[0]);
   }
@@ -1854,14 +1370,13 @@ class SupplementaryPlot extends React.Component {
     var plotobj1 = null;
     var plotobj2 = null;
     var plotobj3 = null;
-    //console.log("current state", this.state.filterset, this.state.filters);
     var elm1 = this.state.filters;
     var elm2 = this.state.filterset;
     if(Selection != null && this.state.filterset != null && this.state.fulldat != null)
     {
-      var plotobj1 = loopThroughGene(this.state.fulldat, Selection, this.props.Cols, this.props.CC, this.props.RPSI, this.props.TRANS);
-      var plotobj2 = loopThroughHC(this.state.fulldat, Selection, this.props.Cols, this.props.CC, this.props.RPSI, this.props.TRANS);
-      var plotobj3 = loopThroughFilter(this.state.fulldat, Selection, this.props.Cols, this.props.CC, this.props.RPSI, elm1, elm2);
+      var plotobj1 = oncospliceClusterViolinPlotPanel(Selection, this.state.fulldat, this.props.Cols, this.props.RPSI, this.props.TRANS, global_cancer);
+      var plotobj2 = hierarchicalClusterViolinPlotPanel(this.state.fulldat, Selection, this.props.Cols, this.props.CC, global_cancer);
+      var plotobj3 = sampleFilterViolinPlotPanel(Selection, this.state.fulldat, this.props.Cols, elm1, elm2, global_cancer);
     }
     else
     {
@@ -1872,7 +1387,7 @@ class SupplementaryPlot extends React.Component {
 
     if(Selection != null && this.state.gtex != null)
     {
-      var plotobj4 = loopThroughGtex(this.state.gtex);
+      var plotobj4 = this.state.gtex;
     }
     else
     {
@@ -1886,11 +1401,6 @@ class SupplementaryPlot extends React.Component {
       }
     }
 
-
-    if(this.state.surv != null)
-    {
-      var plotobj5 = <img src="/ICGS/Oncosplice/testing/backend/survivalplot.png" alt="Logo" width="177" height="148"></img>;
-    }
     //var plotdata = [trace1, trace2];
     //Plotly.newPlot('supp1', plotdata); 
     return(
@@ -1927,14 +1437,6 @@ class SupplementaryPlot extends React.Component {
         </div>
       </Box>
       </div>
-      <div style={{marginBottom: 10}}>
-      <SpcInputLabel label={"Survival"} />
-      <Box borderColor="#dbdbdb" {...spboxProps}>
-        <div>
-          {plotobj5}
-        </div>
-      </Box>
-      </div>
       </>
     )
   }
@@ -1947,815 +1449,6 @@ function updateExPlot(exons, transcripts, junctions, in_data){
       junctions: junctions,
       in_data: in_data
   });
-}
-
-class SetExonPlot extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      input: null,
-    };
-  }
-  componentDidMount() { 
-    //console.log("ComponentMounted");
-    var base_re_wid = window.innerWidth;
-    var base_re_high = window.innerHeight;
-    var standard_width = 1438;
-    var standard_height = 707;
-    var adjust_width = (base_re_wid / standard_width) * 0.40;
-    var adjust_height = (base_re_high / standard_height) * 0.40;
-    var y_start = 0;
-
-    this.setState({
-      input: <EXON_PLOT doc={document} target_div_id={"supp1"}></EXON_PLOT>
-    })
-  }
-
-  render()
-  {
-    //console.log("ComponentRendered", this.state);
-    return(
-      <div>
-      {this.state.input}
-      </div>
-    );
-  }
-}
-
-
-class EXON_PLOT extends React.Component {
-  constructor(props)
-  {
-    super(props);
-    this.target_div = this.props.target_div_id;
-    this.SVG_main_group = null;
-    this.xscale = 0.05;
-    this.doc = this.props.doc;
-    this.div = null;
-    this.ens_map = {};
-    this.state = {
-      exons: null,
-      transcripts: null,
-      junctions: null,
-      in_data: null,
-      scaled: false
-    };
-    updateExPlot = updateExPlot.bind(this)
-    setScaling = setScaling.bind(this)
-  }
-
-  baseSVG(w="100%", h=2000) 
-  {
-    this.SVG = d3.select("#".concat(this.target_div))
-      .append("svg")
-      .attr("width", w)
-      .attr("height", h)
-      .attr("id", (this.target_div.concat("_svg")));
-
-    this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-      
-    this.SVG_main_group.append("rect")
-      .attr("width", w)
-      .attr("height", h)
-      .style("stroke", "White")
-      .attr("stroke-width", 0)
-      .attr("type", "canvas")
-      .attr("fill", "White");    
-  }
-
-  writeBase()
-  {
-    this.SVG_main_group.append("rect")
-      .attr("width", "100%")
-      .attr("height", 2000)
-      .style("opacity", 1.0)
-      .attr("fill", "White");
-
-    this.rect = d3.select("body").append("rect") 
-      .attr("width", 30)
-      .attr("height", 30)
-      .style("opacity", 1.0)
-      .attr("type", "canvas")
-      .attr("fill", "red");
-
-  }
-
-  tempTextAdd(name, originX, originY, id_in)
-  {
-    this.SVG_main_group.append("text")
-      .attr("x", originX)
-      .attr("y", (originY - 30))
-      .attr("text-anchor", "start")
-      .attr("id", "TEMPORARY_HIGHLIGHT") 
-      .style("font-size", "16px")
-      .style('fill', 'red')
-      .text(name);
-  }
-
-  tempTextRemove()
-  {
-    var text_to_remove = document.getElementById("TEMPORARY_HIGHLIGHT");
-    d3.select(text_to_remove).remove();
-  }
-
-  tempOnHover(in_x, in_y, in_text, flag)
-  {
-
-    if(flag == "add")
-    {
-      var h_adj = 0;
-
-      if(in_text.length == 2)
-      {
-        h_adj = 40;
-      }
-      else
-      {
-        h_adj = 80;
-      }
-
-      this.SVG_hover_group = this.SVG.append("g").attr("id", "Ubaid".concat(in_x.toString()));
-        
-
-
-      if(in_text.length == 2)
-      {
-        var set_y = in_y-h_adj;
-        var set_x = in_x+65;
-
-        var set_y_text = in_y-21;
-        var set_x_text = in_x+95;
-
-
-        if(set_y < 10)
-        {
-          set_y = 10;
-          set_x = in_x + 105;
-
-          set_y_text = set_y + 20;
-          set_x_text = set_x + 20;
-        }
-
-        this.SVG_hover_group.append("rect")
-          .attr("x", set_x)
-          .attr("y", set_y)
-          .attr("width", 120)
-          .attr("height", 50)
-          .style("stroke-width", 3)
-          .style("stroke", "black")
-          .attr("fill", "black");
-
-        this.SVG_hover_group.append("text")
-          .attr("x", set_x_text)
-          .attr("y", set_y_text)
-          .attr("text-anchor", "start")
-          .style("font-size", "10px")
-          .style('fill', 'white')
-
-          .text(in_text[0]);
-
-        this.SVG_hover_group.append("text")
-          .attr("x", set_x_text)
-          .attr("y", set_y_text+18)
-          .attr("text-anchor", "start")
-          .style("font-size", "10px")
-          .style('fill', 'white')
-
-          .text((in_text[1].concat(" bp")));
-      }
-      else
-      {
-
-        this.SVG_hover_group.append("rect")
-          .attr("x", in_x+65)
-          .attr("y", in_y-h_adj)
-          .attr("width", 93)
-          .attr("height", 80)
-          .style("stroke-width", 3)
-          .style("stroke", "black")
-          .attr("fill", "black");
-
-        for(var i_k = 0; i_k < in_text.length; i_k++)
-        {
-          this.SVG_hover_group.append("text")
-            .attr("x", in_x+95)
-            .attr("y", ((in_y-64 + (i_k * 18))))
-            .attr("text-anchor", "start")
-            .style("font-size", "10px")
-            .style('fill', 'white')
-            .text(in_text[i_k]);
-        }
-      }
-
-    }
-    else
-    {
-      var tunabi = document.getElementById("Ubaid".concat(in_x.toString()));
-      d3.select(tunabi).remove();
-    }
-  }
-
-
-  writeTranscripts(trans_input)
-  {
-    var parent = this;
-    var y_start = 110;
-    //console.log("ENS MAP", this.ens_map);
-    for (const [key, value] of Object.entries(trans_input)) 
-    {
-      //console.log("Trans input key:", trans_input[key]);
-      
-      var cur_obj = this.SVG_main_group.append("text")
-          .attr("x", 8)
-          .attr("y", (y_start + 15))
-          .attr("text-anchor", "start")
-          .style("font-size", "13px")
-          .style("opacity", 1.0)
-          .attr("fill", "black")
-          .text(key);
-
-      var current_start = 10000000;
-      var current_end = 0;
-
-      for(var i = 0; i < (trans_input[key].length); i++)
-      {
-        try{
-        var cur_ens_id = trans_input[key][i];
-
-        const cur_u = this.ens_map[cur_ens_id];
-        if(cur_u["x"] < current_start)
-        {
-          current_start = cur_u["x"];
-        } 
-        if(cur_u["x"] > current_end)
-        {
-          current_end = cur_u["x"];
-        }
-        }
-        catch(error)
-        {
-          console.log("FAIL", trans_input[key][i]);
-        }        
-      }
-
-      this.SVG_main_group.append("rect")
-        .attr("x", current_start)
-        .attr("y", y_start + 9)
-        .attr("width", (current_end - current_start))
-        .attr("height", 2)
-        .attr("fill", "grey");
-
-      for(var i = 0; i < (trans_input[key].length); i++)
-      {
-        try{
-        var cur_ens_id = trans_input[key][i];
-
-        const current_unit = this.ens_map[cur_ens_id];
-
-        const hard_start = "Start: ".concat(current_unit["h_start"].toString()).concat(" bp");
-        const hard_stop = "Stop: ".concat(current_unit["h_stop"].toString()).concat(" bp");
-
-        const hard_width = Math.abs(current_unit["h_stop"] - current_unit["h_start"]);
-        const hard_width_string = "Width: ".concat(hard_width.toString()).concat(" bp");
-
-
-        var cur_obj = this.SVG_main_group.append("rect")
-          .attr("x", current_unit["x"])
-          .attr("y", (y_start + 5))
-          .attr("width", current_unit["width"])
-          .attr("height", 10)
-          .attr("t_ens_name", current_unit["name"])
-          .attr("transcript", key)
-          .style("stroke", "grey")
-          .style("stroke-width", "1")
-          .style("opacity", 1.0)
-          .attr("fill", "#e6e6e6")
-          .on("mouseover", function() {
-              //console.log(cur_obj);
-              var pretg = d3.select(this);
-              var gmos = pretg["_groups"][0][0]["attributes"]["t_ens_name"]["nodeValue"];
-              var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
-              var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
-              //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
-              parent.tempOnHover(temp_x, temp_y, [current_unit["name"], hard_start, hard_stop, hard_width_string], "add")
-              })          
-          .on("mouseout", function(d) {   
-              //parent.tempTextRemove();
-              var pretg = d3.select(this);
-              var gmos = pretg["_groups"][0][0]["attributes"]["t_ens_name"]["nodeValue"];
-              var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
-              var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
-              parent.tempOnHover(temp_x, temp_y, [current_unit["name"], hard_start, hard_stop, hard_width_string], "remove")
-          });
-        }
-        catch(error)
-        {
-          console.log("FAIL", trans_input[key][i]);
-        }
-      }
-      y_start = y_start + 20;
-
-    }
-  }
-
-  tempCircleAdd(flag, x, y)
-  {
-    if(flag == "add")
-    {
-      /*var j_id_t = document.getElementById(j_id);
-      console.log("CIRCLE_GET", j_id_t);
-      var temp_x_1 = parseFloat(j_id_t["attributes"]["cx"]["nodeValue"]);
-      var temp_y_1 = parseFloat(j_id_t["attributes"]["cy"]["nodeValue"]);
-      var temp_r = parseFloat(j_id_t["attributes"]["r"]["nodeValue"]);*/
-
-      this.SVG_main_group.append('circle')
-        .attr('cx', x)
-        .attr('cy', y)
-        .attr('r', 7)
-        .attr('id', "TEMP_CIRCLE_ID")
-        .style('fill', '#e60000');
-    }
-    else
-    {
-      var circ_to_remove = document.getElementById("TEMP_CIRCLE_ID");
-      d3.select(circ_to_remove).remove();
-    }
-  }
-
-  tempBorderHighlight(flag, g1, g2, m1, m2)
-  {
-    if(flag == "add")
-    {
-      d3.select(g1)
-        .style('fill', '#e60000')
-        .style('stroke', '#e60000');
-
-      d3.select(g2)
-        .style('fill', '#e60000')
-        .style('stroke', '#e60000');
-
-      const f1 = "no";
-      const f2 = "no";
-
-      d3.selectAll("rect").each(function(d, i){
-        const cur_make = d3.select(this);
-        if(cur_make.attr("t_ens_name") == m1){
-          cur_make.style('fill', '#e60000')
-          .style('stroke', '#e60000');
-        }
-        if(cur_make.attr("t_ens_name") == m2){
-          cur_make.style('fill', '#e60000')
-          .style('stroke', '#e60000');
-        }
-      })
-      /*
-      var gmos_1 = g1["attributes"]["exname"]["nodeValue"];
-      var temp_x_1 = parseFloat(g1["attributes"]["x"]["nodeValue"]);
-      var temp_y_1 = parseFloat(g1["attributes"]["y"]["nodeValue"]);
-      var temp_wid_1 = parseFloat(g1["attributes"]["width"]["nodeValue"]);
-
-      var gmos_2 = g2["attributes"]["exname"]["nodeValue"];
-      var temp_x_2 = parseFloat(g2["attributes"]["x"]["nodeValue"]);
-      var temp_y_2 = parseFloat(g2["attributes"]["y"]["nodeValue"]);
-      var temp_wid_2 = parseFloat(g2["attributes"]["width"]["nodeValue"]);*/
-
-    }
-    else
-    {
-      d3.select(g1)
-        .style("fill", "#e6e6e6")
-        .style('stroke', 'grey');
-
-      d3.select(g2)
-        .style("fill", "#e6e6e6")
-        .style('stroke', 'grey');
-
-      d3.selectAll("rect").each(function(d, i){
-        const cur_make = d3.select(this);
-        if(cur_make.attr("t_ens_name") == m1){
-          cur_make.style('fill', '#e6e6e6')
-          .style('stroke', 'grey');
-        }
-        if(cur_make.attr("t_ens_name") == m2){
-          cur_make.style('fill', '#e6e6e6')
-          .style('stroke', 'grey');
-        }
-      })
-
-    }
-  }
-
-  writeJunctions(junc_input, in_data)
-  {
-    var parent = this;
-    const curve = d3.line().curve(d3.curveNatural);
-    var juncpointset = [];
-    var juncpointset8 = [];
-    var juncpointset12 = [];
-    for(var i = 0; i < junc_input.length; i++)
-    {
-      try {
-      var junc_iter = junc_input[i];
-      const cur_junc = junc_iter["junction"];
-      var sign = junc_iter["strand"];
-      if(sign == "+")
-      {
-        var parse = cur_junc.split("-");
-        var starting_exon = parse[0];
-        var finishing_exon = parse[1];
-      }
-      else
-      {
-        var parse = cur_junc.split("-");
-        var starting_exon = parse[1];
-        var finishing_exon = parse[0];
-      }
-
-      const get_1 = document.getElementById(starting_exon.concat("_global_id"));
-      const get_2 = document.getElementById(finishing_exon.concat("_global_id"));
-
-      //console.log(get_2["_groups"])
-      //console.log(get_2["attributes"])
-      //console.log(get_2["_groups"]["exname"])
-
-      const gmos_1 = get_1["attributes"]["exname"]["nodeValue"];
-      var temp_x_1 = parseFloat(get_1["attributes"]["x"]["nodeValue"]);
-      var temp_y_1 = parseFloat(get_1["attributes"]["y"]["nodeValue"]);
-      var temp_wid_1 = parseFloat(get_1["attributes"]["width"]["nodeValue"]);
-
-      const gmos_2 = get_2["attributes"]["exname"]["nodeValue"];
-      var temp_x_2 = parseFloat(get_2["attributes"]["x"]["nodeValue"]);
-      var temp_y_2 = parseFloat(get_2["attributes"]["y"]["nodeValue"]);
-      var temp_wid_2 = parseFloat(get_2["attributes"]["width"]["nodeValue"]);
-
-      var junctions_matched = 0;
-
-      var junc2_start = get_2["attributes"]["start"]["nodeValue"];
-      var junc1_end = get_1["attributes"]["stop"]["nodeValue"];
-      const junclength = "Junction length: ".concat((parseInt(get_2["attributes"]["start"]["nodeValue"]) - parseInt(get_1["attributes"]["stop"]["nodeValue"])).toString());
-
-      if(in_data["coord1"] == junc1_end && in_data["coord2"] == junc2_start){junctions_matched = 2;}
-      if(in_data["coord2"] == junc1_end && in_data["coord1"] == junc2_start){junctions_matched = 2;}
-      if(in_data["coord3"] == junc1_end && in_data["coord4"] == junc2_start){junctions_matched = 2;}
-      if(in_data["coord4"] == junc1_end && in_data["coord3"] == junc2_start){junctions_matched = 2;}
-
-      if(junctions_matched >= 2){
-        var junction_color = "orange";
-        var circle_color = "#ff9933";
-      }
-      else
-      {
-        var junction_color = "#008080";
-        var circle_color = "black";
-      }
-
-      var potent_end = (temp_x_1+temp_wid_1);
-      var curve_s_x = potent_end + ((temp_x_2 - potent_end) / 2);
-
-      var t_x_s = curve_s_x;
-      var y_adj = 0;
-
-      for(var ted = 0; ted < juncpointset.length; ted++)
-      {
-        var iter_ted = juncpointset[ted];
-        if(Math.abs((iter_ted - t_x_s)) < 10)
-        {
-          y_adj = 12;
-        }
-      }
-
-      if(y_adj == 12)
-      {
-        for(var ted = 0; ted < juncpointset8.length; ted++)
-        {
-          var iter_ted = juncpointset8[ted];
-          if(Math.abs((iter_ted - t_x_s)) < 10)
-          {
-            y_adj = 24;
-          }
-        }        
-      }
-
-      if(y_adj == 24)
-      {
-        for(var ted = 0; ted < juncpointset12.length; ted++)
-        {
-          var iter_ted = juncpointset12[ted];
-          if(Math.abs((iter_ted - t_x_s)) < 10)
-          {
-            y_adj = 36;
-          }
-        }        
-      }
-
-      var points = [[potent_end, 90], [t_x_s, (65 - y_adj)], [temp_x_2, 90]];
-
-      if(y_adj == 0)
-      {
-        juncpointset.push(t_x_s);
-      }
-      if(y_adj == 12)
-      {
-        juncpointset8.push(t_x_s);
-      }
-      if(y_adj == 24)
-      {
-        juncpointset12.push(t_x_s);
-      }
-      var finy = (65 - y_adj);
-      this.SVG_main_group.append('path')
-        .attr('d', curve(points))
-        .attr('stroke', junction_color)
-        // with multiple points defined, if you leave out fill:none,
-        // the overlapping space defined by the points is filled with
-        // the default value of 'black'
-        .attr('fill', 'none');
-      //#4d0000
-      var burger = this.SVG_main_group.append('circle')
-        .attr('cx', t_x_s)
-        .attr('cy', finy)
-        .attr('r', 5)
-        .attr('id', cur_junc.concat("_global_id"))
-        .style('fill', circle_color)
-        .on("mouseover", function() {
-              var pretg = d3.select(this);
-              var temp_x = pretg["_groups"][0][0]["attributes"]["cx"]["nodeValue"];
-              var temp_y = pretg["_groups"][0][0]["attributes"]["cy"]["nodeValue"];
-
-              parent.tempCircleAdd("add", temp_x, temp_y)
-              parent.tempBorderHighlight("add", get_1, get_2, gmos_1, gmos_2)
-
-              parent.tempOnHover(temp_x, temp_y, [cur_junc, junclength], "add")
-            })          
-        .on("mouseout", function(d) {
-              var pretg = d3.select(this);
-              var temp_x = pretg["_groups"][0][0]["attributes"]["cx"]["nodeValue"];
-              var temp_y = pretg["_groups"][0][0]["attributes"]["cy"]["nodeValue"];
-
-              parent.tempCircleAdd("remove", (cur_junc.concat("_global_id")))
-              parent.tempBorderHighlight("remove", get_1, get_2, gmos_1, gmos_2)
-
-              parent.tempOnHover(temp_x, temp_y, [cur_junc, junclength], "remove")
-        });
-      }
-      catch (error) {
-        //console.log("ERROR:", error);
-        continue;
-      }
-
-    }
-  }
-
-  writeExons(exon_input)
-  {
-    var parent = this;
-    var starting_point = exon_input[0]["start"];
-    var scale_exon_stop = 0;
-    var to_x_scale = 0;
-    var min_exon_length = 3;
-    var max_exon_length = 20;
-    var x_offset = 150;
-    for(var i = 0; i < exon_input.length; i++)
-    {
-      var exname = exon_input[i]["exon_name"];
-
-      if(i == 0)
-      {
-        var x_pos_1 = exon_input[i]["start"] - starting_point;
-        var x_pos_2 = exon_input[i]["stop"] - starting_point;
-        if(this.state.scaled == true)
-        {
-          if((x_pos_2 - x_pos_1) > 20)
-          {
-            scale_exon_stop = 20;
-          }
-          else if((x_pos_2 - x_pos_1) < 3)
-          {
-            scale_exon_stop = 3;
-          }
-          else
-          {
-            scale_exon_stop = x_pos_2;
-          }
-        }
-        else
-        {
-          scale_exon_stop = x_pos_2;
-        }
-      }
-      else
-      {
-        if(exname.charAt(0) == "I")
-        {
-          if(this.state.scaled == true)
-          {
-            scale_exon_stop = scale_exon_stop + 20;
-            continue;
-          }
-          else
-          {
-            scale_exon_stop = scale_exon_stop + 200;
-            continue;            
-          }
-        }
-        else
-        {
-          var x_pos_1 = scale_exon_stop;
-          var x_pos_2 = scale_exon_stop + (exon_input[i]["stop"] - exon_input[i]["start"]);
-          if(this.state.scaled == true)
-          {
-            if((exon_input[i]["stop"] - exon_input[i]["start"]) < 3)
-            {
-              scale_exon_stop = scale_exon_stop + 3;
-            }
-            else if((exon_input[i]["stop"] - exon_input[i]["start"]) > 20)
-            {
-              scale_exon_stop = scale_exon_stop + 20;
-            }
-            else
-            {
-              scale_exon_stop = x_pos_2;
-            }
-          }
-          else
-          {
-            scale_exon_stop = x_pos_2;
-          }
-        }
-      }
-    }
-
-    to_x_scale = (window.innerWidth / 1.25) / scale_exon_stop;
-
-    var last_exon_stop = 0;
-    for(var i = 0; i < exon_input.length; i++)
-    {
-      const exname = exon_input[i]["exon_name"];
-      const hard_start = "Start: ".concat(exon_input[i]["start"].toString()).concat(" bp");
-      const hard_stop = "Stop: ".concat(exon_input[i]["stop"].toString()).concat(" bp");
-
-      const hard_width = Math.abs(exon_input[i]["stop"] - exon_input[i]["start"]);
-      const hard_width_string = "Width: ".concat(hard_width.toString()).concat(" bp");
-
-      if(i == 0)
-      {
-        var x_pos_1 = exon_input[i]["start"] - starting_point;
-        var x_pos_2 = exon_input[i]["stop"] - starting_point;
-        if(this.state.scaled == true)
-        {
-          if((x_pos_2 - x_pos_1) > 20)
-          {
-            x_pos_2 = x_pos_1 + 20;
-            last_exon_stop = 20;
-          }
-          else if((x_pos_2 - x_pos_1) < 3)
-          {
-            x_pos_2 = x_pos_1 + 3;
-            last_exon_stop = 3;
-          }
-          else
-          {
-            last_exon_stop = x_pos_2;
-          }
-        }
-        else
-        {
-          last_exon_stop = x_pos_2;
-        }
-      }
-      else
-      {
-        if(exname.charAt(0) == "I")
-        {
-          if(this.state.scaled == true)
-          {
-            last_exon_stop = last_exon_stop + 20;
-            continue;
-          }
-          else{
-            last_exon_stop = last_exon_stop + 200;
-            continue;            
-          }
-        }
-        else
-        {
-          var x_pos_1 = last_exon_stop;
-          var x_pos_2 = last_exon_stop + (exon_input[i]["stop"] - exon_input[i]["start"]);
-          if(this.state.scaled == true)
-          {
-            if((exon_input[i]["stop"] - exon_input[i]["start"]) < 3)
-            {
-              x_pos_2 = x_pos_1 + 3;
-              last_exon_stop = last_exon_stop + 3;
-            }
-            else if((exon_input[i]["stop"] - exon_input[i]["start"]) > 20)
-            {
-              x_pos_2 = x_pos_1 + 20;
-              last_exon_stop = last_exon_stop + 20;
-            }
-            else
-            {
-              last_exon_stop = x_pos_2;
-            }
-          }
-          else
-          {
-            last_exon_stop = x_pos_2;
-          }
-        }
-      }
-
-      x_pos_1 = x_pos_1 * to_x_scale;
-      x_pos_2 = x_pos_2 * to_x_scale;
-
-      var higs = this.div;
-
-      var cur_obj = this.SVG_main_group.append("rect")
-        .attr("x", (x_offset + x_pos_1))
-        .attr("y", 90)
-        .attr("width", (x_pos_2 - x_pos_1))
-        .attr("height", 10)
-        .style("stroke", "grey")
-        .style("stroke-width", "1")
-        .style("opacity", 1.0)
-        .attr("fill", "#e6e6e6")
-        .attr("id", exname.concat("_global_id"))
-        .attr("exname", exname)
-        .attr("ensembl_exon_id", exon_input[i]["ensembl_exon_id"])
-        .attr("start", exon_input[i]["start"])
-        .attr("stop", exon_input[i]["stop"])
-        .on("mouseover", function() {
-            //console.log(cur_obj);
-            var pretg = d3.select(this);
-            var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
-            var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
-            var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
-            const pip = exname.concat("_global_id")
-            //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
-            parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "add")
-            })          
-        .on("mouseout", function(d) {   
-            //parent.tempTextRemove();
-            var pretg = d3.select(this);
-            var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
-            var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
-            var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
-            parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "remove")
-        });
-
-      //var ens_id = exon_input[i]["ensembl_exon_id"];
-      //var ens_id_split = ens_id.split("|");
-
-      //for(var k = 0; k < ens_id_split.length; k++)
-      //{
-      this.ens_map[exon_input[i]["start"]] = {};
-      this.ens_map[exon_input[i]["start"]]["name"] = exname;
-      this.ens_map[exon_input[i]["start"]]["x"] = x_offset + x_pos_1;
-      this.ens_map[exon_input[i]["start"]]["width"] = (x_pos_2 - x_pos_1);
-      this.ens_map[exon_input[i]["start"]]["h_start"] = exon_input[i]["start"];
-      this.ens_map[exon_input[i]["start"]]["h_stop"] = exon_input[i]["stop"];
-      //}
-
-    }
-    
-  }
-
-  /*
-  componentDidUpdate (prevProps){
-    if(this.props !== prevProps)
-    {
-      if(this.state.exons != null && this.state.exons != null && this.state.exons != null)
-      {
-        
-      }
-    }
-  }*/
-
-  render (){
-    //console.log("NEW OKMAP RENDER", this.props.column_names);
-
-    //var map1 = new OKMAP("HEATMAP_0", cbeds, document, ((400/cbeds.length) * adjust_width), rr.length);
-    //var tempnode = document.getElementById(this.target_div);
-    var y_start = 0;
-    var tempnode = document.getElementById(this.target_div);
-    while (tempnode.firstChild) {
-        tempnode.removeChild(tempnode.firstChild);
-    }
-    this.baseSVG();
-    this.writeBase();
-    if(this.state.exons != null && this.state.transcripts != null && this.state.junctions != null)
-    {
-      var sorted_exons = this.state.exons.sort((a, b)=>{return Number(a["start"])-Number(b["start"])})
-      //console.log(sorted_exons);
-      this.writeExons(sorted_exons);
-      this.writeJunctions(this.state.junctions, this.state.in_data);
-      this.writeTranscripts(this.state.transcripts)
-    }
-    return(
-      null
-    );
-  }
-
 }
 
 const SpcCheckbox = withStyles({
@@ -2783,10 +1476,12 @@ function ScalingCheckbox(props)
 
     const handleChange = (event) => {
       setState({ ...state, [event.target.name]: event.target.checked });
-      //props.updateBQPane(event.target.checked);
-      //props.qBDefaultMessage(event.target.checked);
-      setScaling(event.target.checked);
-      //console.log(event.target.checked);
+      props.setExonPlotState({exons: props.exonPlotState.exons,
+                        transcripts: props.exonPlotState.transcripts,
+                        junctions: props.exonPlotState.junctions,
+                        in_data: props.exonPlotState.in_data,
+                        scaled: event.target.checked 
+      })
     };
 
   return(
@@ -2807,113 +1502,6 @@ function ScalingCheckbox(props)
   );
 }
 
-
-function downloadTranscript(){
-  //console.log(global_exon_blob);
-  var blob_text = "";
-  for (const [key, value] of Object.entries(global_exon_blob[0])) {
-        blob_text = blob_text.concat(key);
-        blob_text = blob_text.concat(",");
-  }
-
-  blob_text = blob_text.slice(0, -1);
-  blob_text = blob_text.concat("\n");
-
-  for(var i = 0; i < global_exon_blob.length; i++)
-  {
-    for (const [key, value] of Object.entries(global_exon_blob[i])) {
-          blob_text = blob_text.concat(value);
-          blob_text = blob_text.concat(",");
-    }
-    blob_text = blob_text.slice(0, -1);
-    blob_text = blob_text.concat("\n");
-  }
-
-  var filename;
-  filename = "transcript.csv";
-
-  var uri = "data:application/octet-stream," + encodeURIComponent(blob_text);
-  var link = document.createElement("a");
-  link.download = filename;
-  link.href = uri;
-
-  document.body.appendChild(link);
-  link.click();
-  // Cleanup the DOM
-  document.body.removeChild(link);
-}
-
-function downloadGeneModel(){
-  console.log(global_genemodel_blob);
-  var blob_text = "";
-  for (const [key, value] of Object.entries(global_genemodel_blob[0])) {
-        blob_text = blob_text.concat(key);
-        blob_text = blob_text.concat(",");
-  }
-
-  blob_text = blob_text.slice(0, -1);
-  blob_text = blob_text.concat("\n");
-
-  for(var i = 0; i < global_genemodel_blob.length; i++)
-  {
-    for (const [key, value] of Object.entries(global_genemodel_blob[i])) {
-          blob_text = blob_text.concat(value);
-          blob_text = blob_text.concat(",");
-    }
-    blob_text = blob_text.slice(0, -1);
-    blob_text = blob_text.concat("\n");
-  }
-
-  var filename;
-  filename = "genemodel.csv";
-
-  var uri = "data:application/octet-stream," + encodeURIComponent(blob_text);
-  var link = document.createElement("a");
-  link.download = filename;
-  link.href = uri;
-
-  document.body.appendChild(link);
-  link.click();
-  // Cleanup the DOM
-  document.body.removeChild(link);
-}
-
-function downloadJunctions(){
-  console.log(global_junc_blob);
-  var blob_text = "";
-  for (const [key, value] of Object.entries(global_junc_blob[0])) {
-        blob_text = blob_text.concat(key);
-        blob_text = blob_text.concat(",");
-  }
-
-  blob_text = blob_text.slice(0, -1);
-  blob_text = blob_text.concat("\n");
-
-  for(var i = 0; i < global_junc_blob.length; i++)
-  {
-    for (const [key, value] of Object.entries(global_junc_blob[i])) {
-          blob_text = blob_text.concat(value);
-          blob_text = blob_text.concat(",");
-    }
-    blob_text = blob_text.slice(0, -1);
-    blob_text = blob_text.concat("\n");
-  }
-
-  var filename;
-  filename = "junctions.csv";
-
-  var uri = "data:application/octet-stream," + encodeURIComponent(blob_text);
-  var link = document.createElement("a");
-  link.download = filename;
-  link.href = uri;
-
-  document.body.appendChild(link);
-  link.click();
-  // Cleanup the DOM
-  document.body.removeChild(link);
-}
-
-
 function ViewPane(props) {
   const classes = useStyles();
   global_meta = props.Cols;
@@ -2923,22 +1511,64 @@ function ViewPane(props) {
   global_cc = props.CC;
   global_rpsi = props.RPSI;
   global_trans = props.TRANS;
-  console.log("VIEW PANE", props);
-  console.log("VIEW TRANS", global_trans);
-  console.log("VIEW PANE_sig", global_signature[global_signature.length - 1]);
+  const [viewState, setViewState] = React.useState({
+    toDownloadExon: undefined,
+    toDownloadGeneModel: undefined,
+    toDownloadJunc: undefined
+  });
+  const [exonPlotState, setExonPlotState] = React.useState({
+      exons: null,
+      transcripts: null,
+      junctions: null,
+      in_data: null,
+      scaled: false
+  });
+  const [gtexState, setGtexState] = React.useState({gtexPlot: null});
   global_uifielddict = props.QueryExport["ui_field_dict"];
-  console.log("global_uifielddict", global_uifielddict, props.QueryExport["ui_field_dict"]);
   return (
     <div style={{ fontFamily: 'Arial' }}>
     <Grid container spacing={1}>
       <Grid item xs={8}>
-        <ViewPane_Top Data={props.Data} Cols={props.Cols} CC={props.CC} RPSI={props.RPSI} QueryExport={props.QueryExport}/>
-        <Typography className={classes.padding} />
+        <ViewPane_Top 
+          Data={props.Data} 
+          Cols={props.Cols} 
+          CC={props.CC} 
+          RPSI={props.RPSI} 
+          QueryExport={props.QueryExport}
+        />
+        <Typography 
+          className={classes.padding} 
+        />
         <ViewPane_Hidden />
-        <ViewPane_Main Data={props.Data} Cols={props.Cols} CC={props.CC} RPSI={props.RPSI} QueryExport={props.QueryExport}/>
+        <ViewPane_Main 
+          Data={props.Data} 
+          Cols={props.Cols} 
+          CC={props.CC} 
+          RPSI={props.RPSI} 
+          QueryExport={props.QueryExport}
+          viewState={viewState}
+          setViewState={setViewState}
+          gtexState={gtexState}
+          setGtexState={setGtexState}
+          exonPlotState={exonPlotState}
+          setExonPlotState={setExonPlotState}
+        />
       </Grid>
       <Grid item xs={4}>
-        <ViewPane_Side Data={props.Data} Cols={props.Cols} CC={props.CC} RPSI={props.RPSI} TRANS={props.TRANS} QueryExport={props.QueryExport}/>
+        <ViewPane_Side 
+          Data={props.Data} 
+          Cols={props.Cols} 
+          CC={props.CC} 
+          RPSI={props.RPSI} 
+          TRANS={props.TRANS} 
+          QueryExport={props.QueryExport}
+          viewState={viewState}
+          setViewState={setViewState}
+          gtexState={gtexState}
+          setGtexState={setGtexState}
+          exonPlotState={exonPlotState}
+          setExonPlotState={setExonPlotState}
+        />
       </Grid>
     </Grid>
     <div style={{margin: 10}}>
@@ -2947,16 +1577,16 @@ function ViewPane(props) {
       <SpcInputLabel label={"ExonPlot"} />
       </Grid>
       <Grid item>
-        <ScalingCheckbox />
+        <ScalingCheckbox exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}/>
       </Grid>
       <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={downloadTranscript}>Download Transcript</Button>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("transcript.csv", viewState.toDownloadExon)}>Download Transcript</Button>
       </Grid>
       <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={downloadGeneModel}>Download Gene Model</Button>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("genemodel.csv", viewState.toDownloadGeneModel)}>Download Gene Model</Button>
       </Grid>
       <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={downloadJunctions}>Download Junctions</Button>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button>
       </Grid>
       <Grid item>
         <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}}>Download PDF</Button>
@@ -3009,16 +1639,25 @@ function ViewPane_Side(props) {
     <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>{"Cancer: ".concat(props.QueryExport["cancer"])}</h3>
     <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
     <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
-    <SupplementaryPlot title={"OncoClusters"} function={loopThroughGene} CC={props.CC} RPSI={props.RPSI} TRANS={props.TRANS} Data={props.Data} Cols={props.Cols}></SupplementaryPlot>
+    <SupplementaryPlot 
+      CC={props.CC} 
+      RPSI={props.RPSI} 
+      TRANS={props.TRANS} 
+      Data={props.Data} 
+      Cols={props.Cols}
+      viewState={props.viewState}
+      setViewState={props.setViewState}
+      gtexState={props.gtexState}
+      setGtexState={props.setGtexState}>
+    </SupplementaryPlot>
     <Stats></Stats>
-    <SetExonPlot></SetExonPlot>
+    <SetExonPlot exonPlotState={props.exonPlotState} setExonPlotState={props.setExonPlotState}></SetExonPlot>
     </div>
   )
 }
 
 function ViewPane_Main(props) {
     const classes = useStyles();
-    //console.log("QueryExport", props.QueryExport);
     return(
     <div id="ViewPane_MainPane">
       <Box {...defaultProps}>
@@ -3035,7 +1674,17 @@ function ViewPane_Main(props) {
         </span>
         </div>
       </Box> 
-      <Heatmap data={props.Data} cols={props.Cols} cc={props.CC} rpsi={props.RPSI}>
+      <Heatmap 
+        data={props.Data} 
+        cols={props.Cols} 
+        cc={props.CC} 
+        rpsi={props.RPSI}
+        viewState={props.viewState}
+        setViewState={props.setViewState}
+        gtexState={props.gtexState}
+        setGtexState={props.setGtexState}
+        exonPlotState={props.exonPlotState}
+        setExonPlotState={props.setExonPlotState}>
       </Heatmap>
     </div>  
     );

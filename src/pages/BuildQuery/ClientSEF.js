@@ -72,9 +72,9 @@ class ClientSEF extends React.Component {
   handleChange = (event) => {
     const name = event.target.name;
     const P = this.props;
-    const parentProps = P.parentProps;
     const S = this.state;
-    const BQstate = this.props.BQstate;
+    const BQstate = P.BQstate;
+    const BQstateSet = P.BQstateSet;
     this.setState({
       ...this.state,
       [name]: event.target.value,
@@ -85,11 +85,9 @@ class ClientSEF extends React.Component {
       var new_clientcoord = [];
       const obj1 = <SelectCancerSignature
         P={P}
-        parentProps={parentProps}
-        S={S}
         BQstate={BQstate}
       />;
-      P.FilterBoxProps.updatePage(BQstate.keys, BQstate.queuebox_values, new_clientgenes, new_clientcoord, "Oncosplice Signature Filter", obj1, "block");
+      BQstateSet.updatePage(BQstate.keys, BQstate.queuebox_values, new_clientgenes, new_clientcoord, "Oncosplice Signature Filter", obj1, "block");
 
     }
     if(event.target.value == "Gene Symbol Filter"){
@@ -99,14 +97,14 @@ class ClientSEF extends React.Component {
         clientgenes={BQstate.clientgenes}
         cancer={BQstate.cancer}
         export={BQstate.export}
-        callback={P.FilterBoxProps.setGene}
+        callback={BQstateSet.setGene}
       />;
       var new_keys = BQstate.keys;
       new_keys["single"] = [];
       var new_Q = BQstate.queuebox_values;
       new_Q["signatures"] = {};
       var new_clientcoord = [];
-      P.FilterBoxProps.updatePage(new_keys, new_Q, BQstate.clientgenes, new_clientcoord, "Gene Symbol Filter", obj2, "none");
+      BQstateSet.updatePage(new_keys, new_Q, BQstate.clientgenes, new_clientcoord, "Gene Symbol Filter", obj2, "none");
     }
     if(event.target.value == "Coordinate Filter"){
       const obj3 = <ClientAddCoord
@@ -114,22 +112,20 @@ class ClientSEF extends React.Component {
         clientcoord={BQstate.clientcoord}
         cancer={BQstate.cancer}
         export={BQstate.export}
-        callback={P.FilterBoxProps.setCoord}
+        callback={BQstateSet.setCoord}
       />;
       var new_keys = BQstate.keys;
       new_keys["single"] = [];
       var new_Q = BQstate.queuebox_values;
       new_Q["signatures"] = {};
       var new_clientgenes = [];
-      P.FilterBoxProps.updatePage(new_keys, new_Q, new_clientgenes, BQstate.clientcoord, "Coordinate Filter", obj3, "block");
+      BQstateSet.updatePage(new_keys, new_Q, new_clientgenes, BQstate.clientcoord, "Coordinate Filter", obj3, "none");
     }
   };
 
   componentDidUpdate(prevProps) {
     const BQstate = this.props.BQstate;
-    //console.log("update", BQstate.filterboxSEF);
     if(prevProps.BQstate.cancer !== BQstate.cancer){
-      //console.log("ClientSEF", this.state);
       this.setState({
         value: ""
       })

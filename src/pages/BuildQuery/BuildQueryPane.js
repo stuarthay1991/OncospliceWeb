@@ -156,7 +156,7 @@ class FilterBox extends React.Component {
       <ClientSEF
         BQstate={BQstate}
         FilterBoxState={this.state}
-        FilterBoxProps={this.props}
+        BQstateSet={this.props}
         sigvalue={this.state.sigSet}
         removeKey={removeKey}
         />
@@ -210,6 +210,7 @@ class BQPane extends React.Component {
       defaultQuery: false,
       queuebox_values: {"children": undefined, "signatures": undefined},
       pre_queueboxvalues: {"children": {}, "signatures": {}},
+      completeListOfUIDs: {},
       eventfilterSet: null,
       resultamount: {"samples": 0, "events": 0},
       childrenFilters: {},
@@ -284,6 +285,7 @@ class BQPane extends React.Component {
                 postoncosig: [],
                 clientgenes: [],
                 clientcoord: [],
+                eventsAndSignaturesDict: {},
                 filterboxSEF: "",
                 SEFobj: null,
                 sigdisplay: "none",
@@ -309,13 +311,14 @@ class BQPane extends React.Component {
                 keys: keys,
                 export: exp
               })}
-              setSig={(resamt, qbox, keys, exp, pO) => this.setState({
+              setSig={(resamt, qbox, keys, exp, pO, cLOU) => this.setState({
                 resultamount: resamt,
                 queuebox_values: qbox,
                 keys: keys,
                 export: exp,
                 postoncosig: pO,
-                querySignature: pO
+                querySignature: pO,
+                completeListOfUIDs: cLOU
               })}
               setGene={(cG, exp, resamt) => this.setState({
                 clientgenes: cG,
