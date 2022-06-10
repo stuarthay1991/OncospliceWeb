@@ -40,7 +40,7 @@ import oncospliceClusterViolinPlotPanel from './plots/oncospliceClusterViolinPlo
 import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterViolinPlotPanel';
 import sampleFilterViolinPlotPanel from './plots/sampleFilterViolinPlotPanel';
 import { gtexSend } from './plots/gtexPlotPanel.js';
-import { downloadExonPlotData} from './Download.js';
+import { downloadExonPlotData} from './downloadDataFile.js';
 import SetExonPlot from './plots/exonPlot.js';
 
 var global_meta = [];
