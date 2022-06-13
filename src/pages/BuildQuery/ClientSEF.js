@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
@@ -11,21 +10,7 @@ import SelectCancerSignature from './SelectCancerSignature';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from "../../components/SpcInputLabel";
-
-const widgetlabel4 = makeStyles((theme) => ({
-  root: {
-    fontSize: "16px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  },
-  select: {
-    fontSize: "16px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  }
-}));
+import BQSelect from "../../components/BQSelect";
 
 function none()
 {
@@ -33,18 +18,12 @@ function none()
 }
 
 function ClientSEF_select(props){
-  const wla4 = widgetlabel4();
   return(
     <Tooltip title="Select the event filtration type. Events can be matched by genomic coordinates, gene symbols or cancer signatures.">
-    <Select
-          native
-          classes={wla4}
+    <BQSelect
           value={props.value}
-          onChange={props.handleChange}
-          inputProps={{
-            name: 'value',
-            id: "SEF_id",
-          }}
+          handleChange={props.handleChange}
+          inputID={"SEF_id"}
     >
     <option value=""></option>
     {(() => {
@@ -54,7 +33,7 @@ function ClientSEF_select(props){
             options.push(<option value={"Coordinate Filter"}>{"Coordinate Filter"}</option>);
             return options;
     })()}
-    </Select>
+    </BQSelect>
     </Tooltip>
   )
 }

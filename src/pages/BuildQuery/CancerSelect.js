@@ -1,7 +1,6 @@
 import React from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -9,14 +8,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import SpcInputLabel from "../../components/SpcInputLabel";
 import BQSelect from "../../components/BQSelect";
 import { makeRequest } from '../../request/CancerDataManagement.js';
-
-const widgetlabel = makeStyles((theme) => ({
-  root: {
-    maxWidth: "360px",
-    minWidth: "360px",
-    fontSize: "24px"
-    }
-}));
 
 const labelstyle = makeStyles((theme) => ({
   labelstyle: {
@@ -33,7 +24,6 @@ const labelstyle = makeStyles((theme) => ({
 
 function CancerSelectWidget(props)
 {
-  const classes = widgetlabel();
   return (
         <Tooltip title="Select a cancer. All filters and signatures subsequently selected will be matched with this cancer data.">
         <BQSelect
@@ -62,7 +52,6 @@ function CancerSelectWidget(props)
 
 function CancerSelectFormControl(props)
 {
-  const classes = widgetlabel();
   return (
   <div>
   <SpcInputLabel label={"Cancer Type"}></SpcInputLabel>
