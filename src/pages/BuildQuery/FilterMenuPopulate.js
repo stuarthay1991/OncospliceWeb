@@ -6,6 +6,7 @@ import Select from '@material-ui/core/Select';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from "../../components/SpcInputLabel";
+import BQSelect from "../../components/BQSelect";
 
 const useStyles = makeStyles((theme) => ({
   parent: {
@@ -71,17 +72,11 @@ function FilterMenuPopulate(props) {
         <Grid item>
         <FormControl>
         <Tooltip title="Select option from the menu. Filters will correspond to patient data for each cancer, while signatures/coordinates/genes correspond to events.">
-        <Select
-          native
-          classes={widgetlabel}
+        <BQSelect
           value={state.value}
-          onChange={handleChange}
-          inputProps={{
-            name: 'value',
-            id: props.filterID,
-          }}
+          handleChange={handleChange}
+          inputID={props.filterID}
         >
-
           <option value=""></option>
           {(() => {
             const options = [];
@@ -128,7 +123,7 @@ function FilterMenuPopulate(props) {
             }
             return options;
           })()}
-        </Select>
+        </BQSelect>
         </Tooltip>
         </FormControl>
         </Grid>

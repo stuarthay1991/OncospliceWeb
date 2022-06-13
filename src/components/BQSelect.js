@@ -1,5 +1,6 @@
 import Select from '@material-ui/core/Select';
 import React from 'react';
+import Form from 'react-bootstrap/Form'
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 //This informs the style of the selection boxes on the build query page.
@@ -24,6 +25,7 @@ function BQSelect(props)
             name: 'value',
             id: props.inputID,
           }}>
+        {props.children}
         </Select>
     );
 }

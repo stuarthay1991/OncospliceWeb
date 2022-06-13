@@ -13,12 +13,14 @@ const labelstyle = makeStyles((theme) => ({
     paddingLeft: 16,
     paddingRight: 16,
     marginLeft: 2,
-    maxWidth: "180px",
-    width: "180px",
-    minWidth: "180px"
+    maxWidth: "230px",
+    width: "230px",
+    minWidth: "230px",
+    textAlign: "center"
   }
 }));
 
+//This is a "special input label"
 function SpcInputLabel(props)
 {
 	const classes = labelstyle();
