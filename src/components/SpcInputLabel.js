@@ -7,15 +7,15 @@ const labelstyle = makeStyles((theme) => ({
     backgroundColor: '#0F6A8B',
     fontFamily: 'Roboto',
     color: 'white',
-    fontSize: 16,
+    fontSize: 24,
     paddingTop: 6,
     paddingBottom: 6,
     paddingLeft: 16,
     paddingRight: 16,
     marginLeft: 2,
-    maxWidth: "130px",
-    width: "130px",
-    minWidth: "130px"
+    maxWidth: "180px",
+    width: "180px",
+    minWidth: "180px"
   }
 }));
 

@@ -14,7 +14,7 @@ const widgetlabel = makeStyles((theme) => ({
   root: {
     maxWidth: "360px",
     minWidth: "360px",
-    fontSize: "16px"
+    fontSize: "24px"
     }
 }));
 
@@ -22,7 +22,7 @@ const labelstyle = makeStyles((theme) => ({
   labelstyle: {
     backgroundColor: '#0F6A8B',
     color: 'white',
-    fontSize: 16,
+    fontSize: 24,
     paddingTop: 4,
     paddingBottom: 4,
     paddingLeft: 10,

@@ -358,7 +358,7 @@ class BQPane extends React.Component {
           <div style={{height: "110%", width: "5px", backgroundColor:"#edf0f5"}}>
           </div>
           </Grid>
-          <Grid item sm={12} md={5}>
+          <Grid item sm={12} md={6}>
             <Grid container spacing={0}>
             <Grid item xs={6}></Grid>
             <Grid item xs={1}>
@@ -384,8 +384,6 @@ class BQPane extends React.Component {
             <div id="QueueBox_div">
               <QueueBox BQstate={this.state}></QueueBox>
             </div>
-          </Grid>
-          <Grid item sm={12} md={1}>
           </Grid>
         </Grid>
         </div>

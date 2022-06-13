@@ -17,19 +17,19 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   formControl: {
-    fontSize: "16px"
+    fontSize: "24px"
   }
 }));
 
 const widgetlabel3 = makeStyles((theme) => ({
   root: {
-    fontSize: "16px",
+    fontSize: "24px",
     maxWidth: "360px",
     width: "360px",
     minWidth: "360px"
   },
   select: {
-    fontSize: "16px",
+    fontSize: "24px",
     maxWidth: "360px",
     width: "360px",
     minWidth: "360px"
