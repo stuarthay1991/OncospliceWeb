@@ -259,7 +259,7 @@ class BQPane extends React.Component {
     return (
       <div style={{ marginLeft: 100, fontFamily: 'Arial' }}>
         <div>
-        <Grid container spacing={0}>
+        <Grid container spacing={3}>
           <Grid item sm={12} md={5}>
             <Grid container spacing={0}>
               <Grid item xs={10}>
@@ -359,27 +359,27 @@ class BQPane extends React.Component {
           </div>
           </Grid>
           <Grid item sm={12} md={5}>
-            <Grid container spacing={0}>
-            <Grid item xs={6}></Grid>
-            <Grid item xs={1}>
-            <div id="sub" style={{display: "none"}}>
-              {gifimg}
-            </div>
-            </Grid>
-            <Grid item xs={2}>
-            <div style={{float: 'right', alignItems: 'center'}}>
-              <ResetButton
-              />
-            </div>
-            </Grid>
-            <Grid item xs={3}>
-            <div style={{float: 'right', alignItems: 'center'}}>
-              <SubmitButton
-                BQstate={this.state}
-                BQprops={this.props}
-              />
-            </div>
-            </Grid>
+            <Grid container spacing={2}>
+              <Grid item xs={4}></Grid>
+              <Grid item xs={2}>
+              <div id="sub" style={{display: "none"}}>
+                {gifimg}
+              </div>
+              </Grid>
+              <Grid item xs={6}>
+                <span style={{position: "relative", float: "right"}}>
+                <div style={{float: 'right', alignItems: 'center'}}>
+                  <ResetButton
+                  />
+                </div>
+                <div style={{float: 'right', alignItems: 'center'}}>
+                  <SubmitButton
+                    BQstate={this.state}
+                    BQprops={this.props}
+                  />
+                </div>
+                </span>
+              </Grid>
             </Grid>
             <div id="QueueBox_div">
               <QueueBox BQstate={this.state}></QueueBox>

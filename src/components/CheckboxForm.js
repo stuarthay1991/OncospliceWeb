@@ -1,11 +1,12 @@
 import React from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+//import FormControlLabel from '@material-ui/core/FormControlLabel';
+//import Checkbox from '@material-ui/core/Checkbox';
+import Form from 'react-bootstrap/Form'
 import Tooltip from '@material-ui/core/Tooltip';
 
 //#0F6A8B
-const SpcCheckbox = withStyles({
+/*const SpcCheckbox = withStyles({
   root: {
     color: "#0F6A8B",
     '&$checked': {
@@ -13,7 +14,7 @@ const SpcCheckbox = withStyles({
     },
   },
   checked: {},
-})((props) => <Checkbox color="default" {...props} />);
+})((props) => <Checkbox color="default" {...props} />);*/
 
 
 function CheckboxForm(props)
@@ -31,18 +32,17 @@ function CheckboxForm(props)
 
 	return(
 	<Tooltip title="Recommended for first time users. View a basic query's output and explore in the data viewer.">
-	<div style={{marginLeft: 3}}>
-	<FormControlLabel
-	    control={
-	    	
-	        <SpcCheckbox
-	            checked={state.checkedB}
-	            onChange={handleChange}
-	            name="checkedB"
-	        />
-	        }
+	<div style={{marginLeft: 3, fontSize: 22}}>
+	<Form>
+	<Form.Check
+	    type="switch"
+	    id="custom-switch"
 	    label="Use Default Query"
+	    checked={state.checkedB}
+	    onChange={handleChange}
+	    name="checkedB"
 	/>
+	</Form>
 	</div>
 	</Tooltip>
 	);
