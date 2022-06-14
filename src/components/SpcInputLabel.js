@@ -7,7 +7,7 @@ const labelstyle = makeStyles((theme) => ({
     backgroundColor: '#0F6A8B',
     fontFamily: 'Roboto',
     color: 'white',
-    fontSize: 24,
+    fontSize: 21,
     paddingTop: 6,
     paddingBottom: 6,
     paddingLeft: 16,
@@ -15,8 +15,7 @@ const labelstyle = makeStyles((theme) => ({
     marginLeft: 2,
     maxWidth: "230px",
     width: "230px",
-    minWidth: "230px",
-    textAlign: "center"
+    minWidth: "230px"
   }
 }));
 

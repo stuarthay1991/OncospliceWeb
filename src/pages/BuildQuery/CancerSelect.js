@@ -9,19 +9,6 @@ import SpcInputLabel from "../../components/SpcInputLabel";
 import BQSelect from "../../components/BQSelect";
 import { makeRequest } from '../../request/CancerDataManagement.js';
 
-const labelstyle = makeStyles((theme) => ({
-  labelstyle: {
-    backgroundColor: '#0F6A8B',
-    color: 'white',
-    fontSize: 24,
-    paddingTop: 4,
-    paddingBottom: 4,
-    paddingLeft: 10,
-    paddingRight: 10,
-    marginLeft: 2
-  }
-}));
-
 function CancerSelectWidget(props)
 {
   return (

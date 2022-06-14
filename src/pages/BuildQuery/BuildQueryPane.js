@@ -257,10 +257,10 @@ class BQPane extends React.Component {
     }
     //console.log("CURRENT_LOADING_STATE", this.state);
     return (
-      <div style={{ marginLeft: 40, fontFamily: 'Arial' }}>
+      <div style={{ marginLeft: 100, fontFamily: 'Arial' }}>
         <div>
         <Grid container spacing={0}>
-          <Grid item sm={12} md={4}>
+          <Grid item sm={12} md={5}>
             <Grid container spacing={0}>
               <Grid item xs={10}>
               </Grid>
@@ -358,7 +358,7 @@ class BQPane extends React.Component {
           <div style={{height: "110%", width: "5px", backgroundColor:"#edf0f5"}}>
           </div>
           </Grid>
-          <Grid item sm={12} md={6}>
+          <Grid item sm={12} md={5}>
             <Grid container spacing={0}>
             <Grid item xs={6}></Grid>
             <Grid item xs={1}>
