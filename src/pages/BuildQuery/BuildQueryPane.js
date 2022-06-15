@@ -265,9 +265,9 @@ class BQPane extends React.Component {
               <Grid item xs={10}>
               </Grid>
             </Grid>
-            <div>
+            <div style={{marginTop: 20}}>
             <CheckboxForm updateBQPane={updateBQPane}/>
-            <div id="FilterBox_div" style={{display: displayvalue}}>
+            <div id="FilterBox_div" style={{display: displayvalue, marginTop: 5}}>
             <Grid container spacing={2}>
               <Grid item>
               <CancerSelect inherit={this.props} prevState={this.state} 
