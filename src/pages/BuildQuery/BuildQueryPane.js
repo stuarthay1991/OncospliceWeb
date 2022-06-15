@@ -236,13 +236,6 @@ class BQPane extends React.Component {
     updateBQPane = updateBQPane.bind(this)
   }
 
-  /*
-  componentDidMount() {
-    var prevstate = this.props.prevstate;
-    console.log("mounted_prevstate", this.props);
-    this.setState(prevstate);
-  }*/
-
   componentDidUpdate(prevProps){
     console.log("CDU STATE", this.state);
   }
@@ -270,7 +263,7 @@ class BQPane extends React.Component {
             <div id="FilterBox_div" style={{display: displayvalue, marginTop: 5}}>
             <Grid container spacing={2}>
               <Grid item>
-              <CancerSelect inherit={this.props} prevState={this.state} 
+              <CancerSelect inherit={this.props} prevState={this.state}
                 setUI={(in_ui_fields, in_cancer, in_qbox, range, sigs, resamt, sigT, exp) => this.setState({
                 ui_fields: in_ui_fields, 
                 cancer: in_cancer,

@@ -3,6 +3,9 @@ import Form from 'react-bootstrap/Form'
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 //This informs the style of the selection boxes on the build query page.
+
+//Important bug: Memory leak caused when filter is selected, followed by a signature, followed by a filter, 
+//and then another signature.
 function BQSelect(props)
 {
 	return(
@@ -13,6 +16,8 @@ function BQSelect(props)
             name: 'value',
             id: props.inputID,
           }}
+          id={props.inputID}
+          name="value"
           style={{
           	maxWidth: "560px",
 		    minWidth: "560px",

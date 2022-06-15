@@ -37,7 +37,7 @@ function QB_SelectedCancer(props)
             <Grid container spacing={2}>
             <Grid item xs={1}></Grid>
             <Grid item>
-            <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5, fontSize: 19}}>
+            <div style={{position: 'relative', fontSize: 22, alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5}}>
             {"Select 'Run Query' to see example output."}
             </div>
             </Grid>
@@ -45,7 +45,7 @@ function QB_SelectedCancer(props)
           </div>
         </div>
         <div id="QueueBoxContentDiv" style={{display: displayvalue_userquery, position: 'relative', alignItems: 'center', textAlign: 'center'}}>
-          <div style={{color: "#0F6A8B", backgroundColor: "#edf0f5", position: 'relative', minHeight: "40px", minWidth: "40px", alignItems: 'center', textAlign: 'center', marginTop: 2}}>{canc_message}</div>
+          <div style={{color: "#0F6A8B", fontSize: 22, backgroundColor: "#edf0f5", position: 'relative', minHeight: "40px", minWidth: "40px", alignItems: 'center', textAlign: 'center', marginTop: 2}}>{canc_message}</div>
         </div>
       </Box>
     </div>
@@ -91,7 +91,7 @@ function QB_SelectedSample(props)
   return(
     <div>
       <Box>
-      <div style={{display: displayvalue_userquery, position: 'relative', minHeight: "40px", alignItems: 'left', textAlign: 'center', margin: 2}}>
+      <div style={{display: displayvalue_userquery, position: 'relative', minHeight: "40px", alignItems: 'left', textAlign: 'center', margin: 2, fontSize: 22}}>
         {(() => {
             //console.log("Object entries: ", Object.entries(props.targetArrSelections)[0][1]);
             const target = [];
@@ -166,37 +166,37 @@ function QB_SelectedSignature(props)
     <div>
       <div style={{display: displayvalue_userquery}}>
       <Box>
-        <div style={{display: displayvalue_sigquery, position: 'relative', minHeight: "40px", alignItems: 'left', textAlign: 'center', margin: 2}}>
+        <div style={{display: displayvalue_sigquery, position: 'relative', minHeight: "40px", alignItems: 'left', textAlign: 'center', margin: 2, fontSize: 22}}>
           {target}
         </div>
-        <div id="QueueBoxGeneDiv" style={{display: displayvalue_geneinput, position: 'relative', alignItems: 'left', textAlign: 'center'}}>
-          <div style={{position: 'relative', minHeight: "40px", alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', margin: 12}}>
+        <div id="QueueBoxGeneDiv" style={{display: displayvalue_geneinput, position: 'relative', alignItems: 'left', textAlign: 'center', fontSize: 22}}>
+          <div style={{position: 'relative', minHeight: "40px", alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', margin: 12, fontSize: 22}}>
             <Grid container spacing={2}>
                 <Grid item xs={1}></Grid>
                 <Grid item>
-                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5, fontSize: 19}}>
+                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5, fontSize: 22}}>
                 {"Selected ".concat(props.numberGenes).concat(" genes.")}
                 </div>
                 </Grid>
                 <Grid item>
-                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', fontSize: 13}}>
+                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', fontSize: 22}}>
                 {g_message}
                 </div>
                 </Grid>
             </Grid>
           </div>
         </div> 
-        <div id="QueueBoxCoordDiv" style={{display: displayvalue_coordinput, position: 'relative', alignItems: 'left', textAlign: 'center'}}>
-            <div style={{position: 'relative', minHeight: "40px", alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', margin: 12}}>
+        <div id="QueueBoxCoordDiv" style={{display: displayvalue_coordinput, position: 'relative', alignItems: 'left', textAlign: 'center', fontSize: 22}}>
+            <div style={{position: 'relative', minHeight: "40px", alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', margin: 12, fontSize: 22}}>
             <Grid container spacing={2}>
                 <Grid item xs={1}></Grid>
                 <Grid item>
-                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5, fontSize: 19}}>
+                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', paddingTop: 5, paddingBottom: 5, fontSize: 22}}>
                 {"Selected ".concat(props.numberCoords).concat(" Coordinates.")}
                 </div>
                 </Grid>
                 <Grid item>
-                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', fontSize: 13}}>
+                <div style={{position: 'relative', alignItems: 'center', textAlign: 'center', backgroundColor: '#edeff2', fontSize: 22}}>
                 {"Selected ".concat(props.numberCoords).concat(" coordinates.")}
                 </div>
                 </Grid>
@@ -215,15 +215,15 @@ function QB_displayEventsSigs(props)
   return(
     <Tooltip title="This section describes the matches found for your current filter/signature selections in the database. Samples denote columns, while events denote rows.
      In order to run a query, your number of prospective samples and events must be above zero.">
-    <div style={{position: 'relative', fontSize: 16, paddingTop:6, paddingBottom:5, backgroundColor: '#E8E8E8'}}>
+    <div style={{position: 'relative', fontSize: 22, paddingTop:6, paddingBottom:5, backgroundColor: '#E8E8E8'}}>
     <Grid container spacing={1}>
     <Grid item>
-    <div style={{marginLeft: 15, alignItems: 'left', textAlign: 'left'}}>
+    <div style={{marginLeft: 15, fontSize: 22, alignItems: 'left', textAlign: 'left'}}>
     <strong>Prospective Results: </strong>
     </div>
     </Grid>
     <Grid item>
-    <div style={{marginRight: 10, alignItems: 'right', textAlign: 'right'}}>
+    <div style={{marginRight: 10, fontSize: 22, alignItems: 'right', textAlign: 'right'}}>
     {props.amount["samples"].toString().concat(" samples and ").concat(props.amount["events"].toString()).concat(" events")}
     </div>
     </Grid>
@@ -305,7 +305,7 @@ class QueueBox extends React.Component {
       <Tooltip title="This section displays the current queries you have selected.">
       <SpcInputLabel label={"Selected Criteria"}/>
       </Tooltip>
-      <Box borderColor="#dbdbdb" {...boxProps} style={{position: 'relative', alignItems: 'center', textAlign: 'center'}}>
+      <Box borderColor="#dbdbdb" {...boxProps} style={{position: 'relative', alignItems: 'center', textAlign: 'center', fontSize: 22}}>
       <QB_SelectedCancer targetCancer={S.BQstate.queuebox_values["cancer"]} defaultvalue={S.BQstate.defaultQuery}/>
       <QB_SelectedSample targetArrSelections={S.BQstate.childrenFilters} targetArr={S.targetFilters} defaultvalue={S.BQstate.defaultQuery}/>
       <QB_SelectedSignature 
