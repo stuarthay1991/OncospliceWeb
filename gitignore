@@ -1,6 +1,4 @@
-src/.DS_Store
-src/pages/.DS_Store
-.DS_store
+**/.DS_Store
 backend
 node_modules
 dist
