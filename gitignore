@@ -1,0 +1,10 @@
+src/.DS_Store
+src/pages/.DS_Store
+.DS_store
+backend
+node_modules
+dist
+assets
+python
+backend
+build
