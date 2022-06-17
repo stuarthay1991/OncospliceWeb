@@ -21,7 +21,7 @@ function CheckboxForm(props)
 		   type="checkbox" 
 		   checked={state.checked} 
 		   onChange={handleChange}
-		   name="checkedB"
+		   name="checked"
 		   style={{transform: 'scale(2, 2)'}}
 	/>
 	<label htmlFor={"defaultquerycheckbox"} style={{marginLeft: 11}}>Use Default Query</label>

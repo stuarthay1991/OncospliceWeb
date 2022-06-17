@@ -259,18 +259,18 @@ function deleteSignature(arg)
     exportView["single"].push(signatureName); 
   }
   
-  //delete from postoncosig
-  const postoncosig = arg["egg"];
-  for (const key in postoncosig)
+  //delete from listOfSelectedSignatures
+  const listOfSelectedSignatures = arg["egg"];
+  for (const key in listOfSelectedSignatures)
   {
-    if(postoncosig[key] == "")
+    if(listOfSelectedSignatures[key] == "")
     {
-      delete postoncosig[key];
+      delete listOfSelectedSignatures[key];
     }
   }
 
   prospectedQueryResults = {"samples": arg["parentResultAmt"]["samples"], "events": Object.keys(completeListOfUIDs).length};
-  callback(prospectedQueryResults, Q, keys, exportView, postoncosig, completeListOfUIDs);
+  callback(prospectedQueryResults, Q, keys, exportView, listOfSelectedSignatures, completeListOfUIDs);
 }
 
 export default ClientAddFilter;

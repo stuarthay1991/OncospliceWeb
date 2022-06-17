@@ -170,7 +170,7 @@ class FilterBox extends React.Component {
             removeKey={removeKey}
             functioncall={none}
             chicken={BQstate.signatures}
-            egg={BQstate.postoncosig}
+            egg={BQstate.listOfSelectedSignatures}
             type={"single"}
             filterID={"sig_filter_id"}
             label={"Oncosplice Signature Filter"}
@@ -214,7 +214,7 @@ class BQPanel extends React.Component {
       eventfilterSet: null,
       resultAmount: {"samples": 0, "events": 0},
       childrenFilters: {},
-      postoncosig: [],
+      listOfSelectedSignatures: [],
       queryFilter: {},
       querySignature: {},
       clientCoord: [],
@@ -248,7 +248,6 @@ class BQPanel extends React.Component {
     else{
       displayvalue = "none";
     }
-    //console.log("CURRENT_LOADING_STATE", this.state);
     return (
       <div style={{ marginLeft: 100, fontFamily: 'Arial' }}>
         <div>
@@ -274,7 +273,7 @@ class BQPanel extends React.Component {
                 sigTranslate: sigT,
                 export: exp,
                 childrenFilters: [],
-                postoncosig: [],
+                listOfSelectedSignatures: [],
                 clientGenes: [],
                 clientCoord: [],
                 eventsAndSignaturesDict: {},
@@ -307,7 +306,7 @@ class BQPanel extends React.Component {
                 queueboxValues: qbox,
                 keys: keys,
                 export: exp,
-                postoncosig: pO,
+                listOfSelectedSignatures: pO,
                 querySignature: pO,
                 completeListOfUIDs: cLOU
               })}
@@ -325,7 +324,7 @@ class BQPanel extends React.Component {
                 sigTranslate: sigT,
                 keys: keys,
                 compared_cancer: canc,
-                postoncosig: [],
+                listOfSelectedSignatures: [],
                 clientGenes: [],
                 clientCoord: [],
                 querySignature: {},

@@ -308,7 +308,7 @@ class QueueBox extends React.Component {
       <QB_SelectedCancer targetCancer={S.BQstate.queueboxValues["cancer"]} defaultvalue={S.BQstate.defaultQuery}/>
       <QB_SelectedSample targetArrSelections={S.BQstate.childrenFilters} targetArr={S.targetFilters} defaultvalue={S.BQstate.defaultQuery}/>
       <QB_SelectedSignature 
-        targetSigSelections={S.BQstate.postoncosig} 
+        targetSigSelections={S.BQstate.listOfSelectedSignatures} 
         targetSignatures={S.targetSignatures}
         numberGenes={S.BQstate.clientGenes.length}
         numberCoords={S.BQstate.clientCoord.length}
