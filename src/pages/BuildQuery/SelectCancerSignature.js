@@ -61,7 +61,7 @@ function SelectCancerSignature({P, BQstate}){
     {
         setState({
           ...state,
-          value: BQstate.compared_cancer,
+          value: BQstate.comparedCancer,
         });
     }
   })

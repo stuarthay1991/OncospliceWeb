@@ -174,7 +174,7 @@ class FilterBox extends React.Component {
             type={"single"}
             filterID={"sig_filter_id"}
             label={"Oncosplice Signature Filter"}
-            compared_cancer={BQstate.compared_cancer}
+            comparedCancer={BQstate.comparedCancer}
             sigtranslate={BQstate.sigTranslate}
       />
       </div>
@@ -230,7 +230,7 @@ class BQPanel extends React.Component {
       sigTranslate: undefined,
       filterboxSEF: "",
       SEFobj: null,
-      compared_cancer: null,
+      comparedCancer: null,
       sigdisplay: "none"
     }
     updateBQPanel = updateBQPanel.bind(this)
@@ -280,8 +280,8 @@ class BQPanel extends React.Component {
                 filterboxSEF: "",
                 SEFobj: null,
                 sigdisplay: "none",
-                compared_cancer_signature: {},
-                compared_cancer: in_cancer
+                comparedCancer_signature: {},
+                comparedCancer: in_cancer
                 })}
                 />
             </Grid>
@@ -323,7 +323,7 @@ class BQPanel extends React.Component {
                 signatures: sigs,
                 sigTranslate: sigT,
                 keys: keys,
-                compared_cancer: canc,
+                comparedCancer: canc,
                 listOfSelectedSignatures: [],
                 clientGenes: [],
                 clientCoord: [],

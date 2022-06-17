@@ -185,7 +185,7 @@ class ClientAddFilter extends React.Component {
       args["keys"] = BQstate.keys;
       args["pre_queueboxchildren"] = BQstate.preQueueboxValues;
       args["queueboxchildren"] = BQstate.queueboxValues;
-      args["cancer"] = P.compared_cancer;
+      args["cancer"] = P.comparedCancer;
       args["parentResultAmt"] = BQstate.resultAmount;
       args["completeListOfUIDs"] = BQstate.completeListOfUIDs;
       args["sigTranslate"] = P.sigtranslate;

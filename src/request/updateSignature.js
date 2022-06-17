@@ -10,7 +10,7 @@ function updateSignature(arg, targeturl)
   const BQstate = arg["BQstate"];
   const P = arg["P"];
   const none = arg["none"];
-  const targetsigobj = BQstate.compared_cancer_signature;
+  const targetsigobj = BQstate.comparedCancer_signature;
   console.log("updateSignature_1", callback);
   var keys = arg["keys"];
   keys["single"] = [];

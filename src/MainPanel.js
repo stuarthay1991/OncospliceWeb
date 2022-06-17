@@ -124,7 +124,7 @@ function MainPanel(props){
       sigTranslate: undefined, //The signatures have two different values: one is a strict literature value, and another is a more readable, shortened version. This dictionary allows us to switch between the two.
       filterboxSEF: "", //"Select Event Filter object." This informs the the associated dropdown menu, allowing the user to select between genes, coordinates or signatures.
       SEFobj: null, //This directly holds the UI object of the Select Event Filter. It's a sloppy solution that I may change quite soon.
-      compared_cancer: null, //If the signature filter has been selected, a user may choose any other cancer's signatures to match with the current cancer. The cancer chosen will appear here.
+      comparedCancer: null, //If the signature filter has been selected, a user may choose any other cancer's signatures to match with the current cancer. The cancer chosen will appear here.
       sigdisplay: "none" //This informs whether or not to display the signatures div. It's a sloppy solution that I may change quite soon.
     }
   });

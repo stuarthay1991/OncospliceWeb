@@ -15,7 +15,7 @@ function fetchHeatmapData(arg, targeturl)
   const sigTranslate = BQstate.sigTranslate;
   const exportView = BQstate.export;
   const curCancer = BQstate.cancer;
-  const compCancer = BQstate.compared_cancer;
+  const compCancer = BQstate.comparedCancer;
   const callback = BQprops.setViewPane;
   var GLOBAL_user = "Default";
   var document = arg["document"];
