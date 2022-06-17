@@ -103,16 +103,16 @@ function MainPanel(props){
     //use redesign, but currently it is too risky to move anything.
     bqstate: {
       defaultQuery: false, //This informs whether or not the "default query" selection has been ticked.
-      queuebox_values: {"children": undefined, "signatures": undefined}, //This represents what will be populated into the queuebox on the right hand side of the build query pane. As the user selects options, the list will populate.
-      pre_queueboxvalues: {"children": {}, "signatures": {}}, //This is currently just used to store some information for clinical metadata and signature queries. It holds the same keys as queryboxchildren, but it used much less and will likely be replaced with a more pertinent variable in the future.
+      queueboxValues: {"children": undefined, "signatures": undefined}, //This represents what will be populated into the queuebox on the right hand side of the build query pane. As the user selects options, the list will populate.
+      preQueueboxValues: {"children": {}, "signatures": {}}, //This is currently just used to store some information for clinical metadata and signature queries. It holds the same keys as queryboxchildren, but it used much less and will likely be replaced with a more pertinent variable in the future.
       eventfilterSet: null, //This denotes whether the event filter has been selected or not; will likely remove in the future as it is redundant.
       resultAmount: {"samples": 0, "events": 0}, //This informs the "prospective results" at the bottom of the querybox. 
       childrenFilters: {}, //When a filter is selected on the left hand side of the build query pane, a set of sub-options for that filter will appear in the queuebox on the right. For example, if a user selects "Age" the age ranges will appear in a combobox inside the queuebox. This varaible holds those values.
       postoncosig: [], // When a signature is selected, it is added to this variable. Using "keys" to retrieve it, it is used in both the query and populating the queuebox.
       queryFilter: {}, // This currently holds the same information as childrenFilters and will likely be deleted soon.
       querySignature: {}, // This currently holds the same information as postoncosig and will likely be deleted soon.
-      clientcoord: [], //If the user has selected genomic coordinates in their query, this list will hold them. This list is sent directly to the database for retrieval.
-      clientgenes: [], //If the user has selected genes in their query, this list will hold them. This list is sent directly to the database for retrieval.
+      clientCoord: [], //If the user has selected genomic coordinates in their query, this list will hold them. This list is sent directly to the database for retrieval.
+      clientGenes: [], //If the user has selected genes in their query, this list will hold them. This list is sent directly to the database for retrieval.
       keys: {"filter": [], "single": []}, //The "keys" are crucial. These are a way to keep track of every filter and signature that has been selected, a unique ID is created on the fly for each one and stored here.
       range: undefined, //Some filters have numerical, rather than categorical, values. This keeps track of whether or not the chosen filter is numerical, and whether or not that numerical filter has ranges of numbers, as opposed to individual numbers. For example, instead of individual ages of patients, a RANGE will have groups of ages, such as "18-30", "31-50", etc.
       cancer: "", //This informs the currently selected cancer.
