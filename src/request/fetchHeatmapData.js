@@ -8,8 +8,8 @@ function fetchHeatmapData(arg, targeturl)
   const BQstate = arg["BQstate"];
   const BQprops = arg["BQprops"];
   const keys = BQstate.keys;
-  var clientcoord = BQstate.clientcoord;
-  var clientgenes = BQstate.clientgenes;
+  var clientCoord = BQstate.clientCoord;
+  var clientGenes = BQstate.clientGenes;
   const childrenFilters = BQstate.queryFilter;
   const postoncosig = BQstate.querySignature;
   const sigTranslate = BQstate.sigTranslate;
@@ -63,9 +63,9 @@ function fetchHeatmapData(arg, targeturl)
     //console.log("bodyFormDataPSI", myString, myString);
     bodyFormData.append(myString, myString);
   }
-  for(var i = 0; i < clientgenes.length; i++)
+  for(var i = 0; i < clientGenes.length; i++)
   {
-    var myString = clientgenes[i];
+    var myString = clientGenes[i];
     tmp_qh_obj = {};
     myString = "GENE".concat(myString);
     tmp_qh_obj["key"] = myString;
@@ -74,9 +74,9 @@ function fetchHeatmapData(arg, targeturl)
     //console.log("bodyFormDataGene", myString, myString);
     bodyFormData.append(myString, myString);
   }
-  for(var i = 0; i < clientcoord.length; i++)
+  for(var i = 0; i < clientCoord.length; i++)
   {
-    var myString = clientcoord[i];
+    var myString = clientCoord[i];
     tmp_qh_obj = {};
     myString = "COORD".concat(myString);
     tmp_qh_obj["key"] = myString;
@@ -98,12 +98,12 @@ function fetchHeatmapData(arg, targeturl)
   bodyFormData.append("HIST",qh_postdata);
   bodyFormData.append("USER",GLOBAL_user);
   //console.log("bodyFormDataCancer", curCancer)
-  if(keys["single"].length == 0 && clientgenes.length == 0 && clientcoord.length == 0)
+  if(keys["single"].length == 0 && clientGenes.length == 0 && clientCoord.length == 0)
   {
     alert("Please select at least one signature or gene to continue.");
     document.getElementById("sub").style.display = "none";
   }
-  else if(clientgenes.length > 0 && parseInt(BQstate.resultAmount["events"]) == 0)
+  else if(clientGenes.length > 0 && parseInt(BQstate.resultAmount["events"]) == 0)
   {
     alert("These gene(s) have no matches in database. Please try different gene(s), remember to not use Ensembl IDs.");
     document.getElementById("sub").style.display = "none";
@@ -119,22 +119,13 @@ function fetchHeatmapData(arg, targeturl)
       .then(function (response) {
         var dateval = response["data"]["date"];
         var indatatmp = {};
-        //indatatmp["obj"] = qh_arr;
-        //indatatmp["date"] = dateval;
-        //queryhistory_dat.push(indatatmp);
-        //addQueryHistory(indatatmp);
-        console.log("METAREQUEST response:", response["data"]);
-        //response = JSON.parse(response);
-        //document.getElementById(`simple-tab-1`).click();
         var splicingreturned = response["data"]["rr"];
         var splicingcols = response["data"]["col_beds"];
         var splicingcc = response["data"]["cci"];
         var splicingrpsi = response["data"]["rpsi"];
         var splicingtrans = response["data"]["oncokey"];
-        //console.log("EXPORT VIEW", exportView);
         callback(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exportView, BQstate);
         document.getElementById("sub").style.display = "none";
-        //changeUser(GLOBAL_user);
       })
   }
 }

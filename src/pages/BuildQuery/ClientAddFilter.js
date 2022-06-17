@@ -88,13 +88,13 @@ class ClientAddFilter extends React.Component {
     //console.log(this.state.numChildren);
     if(P.type == "filter")
     {
-      BQstate.pre_queueboxvalues["children"][keyval] = undefined;
-      BQstate.queuebox_values["children"][keyval] = "";
+      BQstate.preQueueboxValues["children"][keyval] = undefined;
+      BQstate.queueboxValues["children"][keyval] = "";
       var args = {};
       args["filter"] = "filter";
       args["keys"] = BQstate.keys;
-      args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
-      args["queueboxchildren"] = BQstate.queuebox_values;
+      args["pre_queueboxchildren"] = BQstate.preQueueboxValues;
+      args["queueboxchildren"] = BQstate.queueboxValues;
       args["cancer"] = P.inheritState.cancerType;
       args["parentResultAmt"] = P.parentProps.inherit.resultAmount;
       args["setState"] = P.parentProps.setMeta;
@@ -104,14 +104,14 @@ class ClientAddFilter extends React.Component {
     if(P.type == "single")
     {
       var args = {};
-      const deletedSigName = BQstate.pre_queueboxvalues["signatures"][keyval].props.name;
-      BQstate.pre_queueboxvalues["signatures"][keyval] = undefined;
-      BQstate.queuebox_values["signatures"][keyval] = "";
+      const deletedSigName = BQstate.preQueueboxValues["signatures"][keyval].props.name;
+      BQstate.preQueueboxValues["signatures"][keyval] = undefined;
+      BQstate.queueboxValues["signatures"][keyval] = "";
       args["filter"] = "single";
       args["keys"] = BQstate.keys;
       args["name"] = deletedSigName;
-      args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
-      args["queueboxchildren"] = BQstate.queuebox_values;
+      args["pre_queueboxchildren"] = BQstate.preQueueboxValues;
+      args["queueboxchildren"] = BQstate.queueboxValues;
       args["completeListOfUIDs"] = BQstate.completeListOfUIDs;
       args["sigTranslate"] = P.sigtranslate;
       args["cancer"] = BQstate.cancer;
@@ -156,7 +156,7 @@ class ClientAddFilter extends React.Component {
                           range={P.rangeSet} 
                           chicken={P.rangeSet} 
                           egg={filterIDvalue} 
-                          pre_q={BQstate.pre_queueboxvalues}/>;
+                          pre_q={BQstate.preQueueboxValues}/>;
       }
       else{
         eggcopy[keyval] = <ClientSelectedFilter
@@ -170,21 +170,21 @@ class ClientAddFilter extends React.Component {
                           range={P.rangeSet} 
                           chicken={P.chicken} 
                           egg={filterIDvalue} 
-                          pre_q={BQstate.pre_queueboxvalues}/>;
+                          pre_q={BQstate.preQueueboxValues}/>;
       }
       P.parentProps.setChildrenFilters(eggcopy, eggcopy, BQstate.keys);
     }
     if(P.type == "single"){
       var args = {};
-      BQstate.pre_queueboxvalues["signatures"][keyval] = <PreQueueMessage 
+      BQstate.preQueueboxValues["signatures"][keyval] = <PreQueueMessage 
                                                             key={keyval} 
                                                             number={S.numChildren} 
                                                             get={keyval} 
                                                             name={invalue}/>
       args["filter"] = "single";
       args["keys"] = BQstate.keys;
-      args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
-      args["queueboxchildren"] = BQstate.queuebox_values;
+      args["pre_queueboxchildren"] = BQstate.preQueueboxValues;
+      args["queueboxchildren"] = BQstate.queueboxValues;
       args["cancer"] = P.compared_cancer;
       args["parentResultAmt"] = BQstate.resultAmount;
       args["completeListOfUIDs"] = BQstate.completeListOfUIDs;

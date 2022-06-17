@@ -116,7 +116,7 @@ function MainPanel(props){
       keys: {"filter": [], "single": []}, //The "keys" are crucial. These are a way to keep track of every filter and signature that has been selected, a unique ID is created on the fly for each one and stored here.
       range: undefined, //Some filters have numerical, rather than categorical, values. This keeps track of whether or not the chosen filter is numerical, and whether or not that numerical filter has ranges of numbers, as opposed to individual numbers. For example, instead of individual ages of patients, a RANGE will have groups of ages, such as "18-30", "31-50", etc.
       cancer: "", //This informs the currently selected cancer.
-      ui_fields: {}, //This is important. When the user initially selects a cancer, there are a set of clinical metadata filters specific to that cancer that must be retrieved from the database. These are then used to populate the UI. This object informs that process.
+      uiFields: {}, //This is important. When the user initially selects a cancer, there are a set of clinical metadata filters specific to that cancer that must be retrieved from the database. These are then used to populate the UI. This object informs that process.
       export: {}, //This is misc information that is sent to the "export" object in viewpaneobj.
       genes: [], //I'm almost certain this is deprecated and will be removed soon.
       coordinates: [], //I'm almost certain this is deprecated and will be removed soon.

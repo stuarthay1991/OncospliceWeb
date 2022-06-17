@@ -60,45 +60,45 @@ class ClientSEF extends React.Component {
     });
     if(event.target.value == "Oncosplice Signature Filter"){
 
-      var new_clientgenes = [];
-      var new_clientcoord = [];
+      var new_clientGenes = [];
+      var new_clientCoord = [];
       const obj1 = <SelectCancerSignature
         P={P}
         BQstate={BQstate}
       />;
-      BQstateSet.updatePage(BQstate.keys, BQstate.queuebox_values, new_clientgenes, new_clientcoord, "Oncosplice Signature Filter", obj1, "block");
+      BQstateSet.updatePage(BQstate.keys, BQstate.queueboxValues, new_clientGenes, new_clientCoord, "Oncosplice Signature Filter", obj1, "block");
 
     }
     if(event.target.value == "Gene Symbol Filter"){
       const obj2 = <ClientAddGene
         filterID={"clientinputgene"}
         BQstate={BQstate}
-        clientgenes={BQstate.clientgenes}
+        clientGenes={BQstate.clientGenes}
         cancer={BQstate.cancer}
         export={BQstate.export}
         callback={BQstateSet.setGene}
       />;
       var new_keys = BQstate.keys;
       new_keys["single"] = [];
-      var new_Q = BQstate.queuebox_values;
+      var new_Q = BQstate.queueboxValues;
       new_Q["signatures"] = {};
-      var new_clientcoord = [];
-      BQstateSet.updatePage(new_keys, new_Q, BQstate.clientgenes, new_clientcoord, "Gene Symbol Filter", obj2, "none");
+      var new_clientCoord = [];
+      BQstateSet.updatePage(new_keys, new_Q, BQstate.clientGenes, new_clientCoord, "Gene Symbol Filter", obj2, "none");
     }
     if(event.target.value == "Coordinate Filter"){
       const obj3 = <ClientAddCoord
         filterID={"clientinputcoord"}
-        clientcoord={BQstate.clientcoord}
+        clientCoord={BQstate.clientCoord}
         cancer={BQstate.cancer}
         export={BQstate.export}
         callback={BQstateSet.setCoord}
       />;
       var new_keys = BQstate.keys;
       new_keys["single"] = [];
-      var new_Q = BQstate.queuebox_values;
+      var new_Q = BQstate.queueboxValues;
       new_Q["signatures"] = {};
-      var new_clientgenes = [];
-      BQstateSet.updatePage(new_keys, new_Q, new_clientgenes, BQstate.clientcoord, "Coordinate Filter", obj3, "none");
+      var new_clientGenes = [];
+      BQstateSet.updatePage(new_keys, new_Q, new_clientGenes, BQstate.clientCoord, "Coordinate Filter", obj3, "none");
     }
   };
 

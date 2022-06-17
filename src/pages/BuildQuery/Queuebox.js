@@ -247,17 +247,16 @@ class QueueBox extends React.Component {
 
   componentDidMount (){
     const BQstate = this.props.BQstate;
-    //console.log("Queuebox mounted:", BQstate.keys["filter"], BQstate.queuebox_values["children"])
     var ta1 = [];
     var ta2 = [];
     for(var i = 0; i < BQstate.keys["filter"].length; i++)
     {
-      ta1.push(BQstate.queuebox_values["children"][BQstate.keys["filter"][i]])
+      ta1.push(BQstate.queueboxValues["children"][BQstate.keys["filter"][i]])
     }
 
     for(var i = 0; i < BQstate.keys["single"].length; i++)
     {
-      ta2.push(BQstate.queuebox_values["signature"][BQstate.keys["single"][i]])
+      ta2.push(BQstate.queueboxValues["signature"][BQstate.keys["single"][i]])
     }
 
     this.setState({
@@ -273,8 +272,8 @@ class QueueBox extends React.Component {
     {
       var ta1 = [];
       var ta2 = [];
-      var qfilters = BQstate.queuebox_values["children"];
-      var qsigs = BQstate.queuebox_values["signatures"];
+      var qfilters = BQstate.queueboxValues["children"];
+      var qsigs = BQstate.queueboxValues["signatures"];
       var kfilters = BQstate.keys["filter"];
       var ksigs = BQstate.keys["single"];
       console.log("Queuebox updated", BQstate);
@@ -306,13 +305,13 @@ class QueueBox extends React.Component {
       <SpcInputLabel label={"Selected Criteria"}/>
       </Tooltip>
       <Box borderColor="#dbdbdb" {...boxProps} style={{position: 'relative', alignItems: 'center', textAlign: 'center', fontSize: 22}}>
-      <QB_SelectedCancer targetCancer={S.BQstate.queuebox_values["cancer"]} defaultvalue={S.BQstate.defaultQuery}/>
+      <QB_SelectedCancer targetCancer={S.BQstate.queueboxValues["cancer"]} defaultvalue={S.BQstate.defaultQuery}/>
       <QB_SelectedSample targetArrSelections={S.BQstate.childrenFilters} targetArr={S.targetFilters} defaultvalue={S.BQstate.defaultQuery}/>
       <QB_SelectedSignature 
         targetSigSelections={S.BQstate.postoncosig} 
         targetSignatures={S.targetSignatures}
-        numberGenes={S.BQstate.clientgenes.length}
-        numberCoords={S.BQstate.clientcoord.length}
+        numberGenes={S.BQstate.clientGenes.length}
+        numberCoords={S.BQstate.clientCoord.length}
         displayvalue={S.BQstate.filterboxSEF}
         defaultvalue={S.BQstate.defaultQuery}
         resamt={S.BQstate.resultAmount}

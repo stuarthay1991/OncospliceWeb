@@ -40,9 +40,9 @@ const widgetlabel5 = makeStyles((theme) => ({
 function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range, chicken, egg, functioncall}) {
   const classes = useStyles();
   const widgemidge = widgetlabel5();
-  if(BQstate.pre_queueboxvalues["children"][get] != undefined)
+  if(BQstate.preQueueboxValues["children"][get] != undefined)
   {
-    var initial_val = BQstate.pre_queueboxvalues["children"][get].props.value;
+    var initial_val = BQstate.preQueueboxValues["children"][get].props.value;
   }
   else
   {
@@ -53,10 +53,6 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
     name: 'hai',
   });
   var found_range = false;
-  //console.log("RANGE", range);
-  //console.log("EGG", egg);
-  //console.log("pre_q", pre_q);
-
 
   const handleChange = (event) => {
     const name = event.target.name;
@@ -64,23 +60,20 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
       ...state,
       [name]: event.target.value,
     });
-    BQstate.pre_queueboxvalues["children"][get] = <PreQueueMessage 
+    BQstate.preQueueboxValues["children"][get] = <PreQueueMessage 
                                                     key={number} 
                                                     number={number} 
                                                     get={get} 
                                                     name={egg} 
                                                     value={event.target.value}/>
     var args = {};
-    //console.log("event.target.value", event.target.value);
-
-    //name, value, number, filter
     args["name"] = egg;
     args["value"] = event.target.value;
     args["number"] = get;
     args["filter"] = "filter";
     args["keys"] = BQstate.keys;
-    args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
-    args["queueboxchildren"] = BQstate.queuebox_values;
+    args["pre_queueboxchildren"] = BQstate.preQueueboxValues;
+    args["queueboxchildren"] = BQstate.queueboxValues;
     args["cancer"] = BQstate.cancer;
     args["parentResultAmt"] = BQstate.resultAmount;
     args["export"] = BQstate.export;

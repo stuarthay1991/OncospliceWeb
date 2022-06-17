@@ -77,7 +77,7 @@ class FilterBox extends React.Component {
     this.state = {
       cancerType: BQstate.cancer,
       number: 0,
-      fieldSet: BQstate.ui_fields,
+      fieldSet: BQstate.uiFields,
       sigSet: BQstate.signatures,
       rangeSet: BQstate.range,
       eventfilterSet: BQstate.SEFobj,
@@ -94,7 +94,7 @@ class FilterBox extends React.Component {
     this.setState({
         cancerType: BQstate.cancer,
         number: 0,
-        fieldSet: BQstate.ui_fields,
+        fieldSet: BQstate.uiFields,
         sigSet: BQstate.signatures,
         rangeSet: BQstate.range,
         eventfilterSet: BQstate.SEFobj,
@@ -109,7 +109,7 @@ class FilterBox extends React.Component {
       this.setState({
         cancerType: BQstate.cancer,
         number: 0,
-        fieldSet: BQstate.ui_fields,
+        fieldSet: BQstate.uiFields,
         sigSet: BQstate.signatures,
         rangeSet: BQstate.range,
         eventfilterSet: BQstate.SEFobj,
@@ -120,7 +120,7 @@ class FilterBox extends React.Component {
       this.setState({
         cancerType: BQstate.cancer,
         number: 0,
-        fieldSet: BQstate.ui_fields,
+        fieldSet: BQstate.uiFields,
         sigSet: BQstate.signatures,
         rangeSet: BQstate.range,
         eventfilterSet: BQstate.SEFobj,
@@ -208,8 +208,8 @@ class BQPanel extends React.Component {
     var prevstate = this.props.prevstate;
     this.state = {
       defaultQuery: false,
-      queuebox_values: {"children": undefined, "signatures": undefined},
-      pre_queueboxvalues: {"children": {}, "signatures": {}},
+      queueboxValues: {"children": undefined, "signatures": undefined},
+      preQueueboxValues: {"children": {}, "signatures": {}},
       completeListOfUIDs: {},
       eventfilterSet: null,
       resultAmount: {"samples": 0, "events": 0},
@@ -217,12 +217,12 @@ class BQPanel extends React.Component {
       postoncosig: [],
       queryFilter: {},
       querySignature: {},
-      clientcoord: [],
-      clientgenes: [],
+      clientCoord: [],
+      clientGenes: [],
       keys: {"filter": [], "single": []},
       range: undefined,
       cancer: "",
-      ui_fields: {},
+      uiFields: {},
       export: {},
       genes: [],
       coordinates: [],
@@ -263,10 +263,10 @@ class BQPanel extends React.Component {
             <div id="FilterBox_div" style={{display: displayvalue, marginTop: 5, overflowX: "scroll"}}>
             <Grid item container spacing={2}>
               <CancerSelect inherit={this.props} prevState={this.state}
-                setUI={(in_ui_fields, in_cancer, in_qbox, range, sigs, resamt, sigT, exp) => this.setState({
-                ui_fields: in_ui_fields, 
+                setUI={(in_uiFields, in_cancer, in_qbox, range, sigs, resamt, sigT, exp) => this.setState({
+                uiFields: in_uiFields, 
                 cancer: in_cancer,
-                queuebox_values: in_qbox,
+                queueboxValues: in_qbox,
                 keys: {"filter": [], "single": []},
                 range: range,
                 signatures: sigs,
@@ -275,8 +275,8 @@ class BQPanel extends React.Component {
                 export: exp,
                 childrenFilters: [],
                 postoncosig: [],
-                clientgenes: [],
-                clientcoord: [],
+                clientGenes: [],
+                clientCoord: [],
                 eventsAndSignaturesDict: {},
                 filterboxSEF: "",
                 SEFobj: null,
@@ -297,14 +297,14 @@ class BQPanel extends React.Component {
               })}
               setMeta={(resamt, qbox, pre_qbox, keys, exp) => this.setState({
                 resultAmount: resamt,
-                queuebox_values: qbox,
-                pre_queueboxvalues: pre_qbox,
+                queueboxValues: qbox,
+                preQueueboxValues: pre_qbox,
                 keys: keys,
                 export: exp
               })}
               setSig={(resamt, qbox, keys, exp, pO, cLOU) => this.setState({
                 resultAmount: resamt,
-                queuebox_values: qbox,
+                queueboxValues: qbox,
                 keys: keys,
                 export: exp,
                 postoncosig: pO,
@@ -312,12 +312,12 @@ class BQPanel extends React.Component {
                 completeListOfUIDs: cLOU
               })}
               setGene={(cG, exp, resamt) => this.setState({
-                clientgenes: cG,
+                clientGenes: cG,
                 export: exp,
                 resultAmount: resamt
               })}
               setCoord={(cC, exp) => this.setState({
-                clientcoord: cC,
+                clientCoord: cC,
                 export: exp
               })}
               updateTargetSignature={(canc, sigs, sigT, keys, tsobj) => this.setState({
@@ -326,17 +326,17 @@ class BQPanel extends React.Component {
                 keys: keys,
                 compared_cancer: canc,
                 postoncosig: [],
-                clientgenes: [],
-                clientcoord: [],
+                clientGenes: [],
+                clientCoord: [],
                 querySignature: {},
-                queuebox_values: {"children": {}, "signatures": {}, "cancer": this.state.queuebox_values["cancer"]},
-                pre_queueboxvalues: {"children": {}, "signatures": {}}
+                queueboxValues: {"children": {}, "signatures": {}, "cancer": this.state.queueboxValues["cancer"]},
+                preQueueboxValues: {"children": {}, "signatures": {}}
               })}
               updatePage={(k,q,cG,cC,fSEF,SEFobj,disp) => this.setState({
                 keys: k,
-                queuebox_values: q,
-                clientgenes: cG,
-                clientcoord: cC,
+                queueboxValues: q,
+                clientGenes: cG,
+                clientCoord: cC,
                 filterboxSEF: fSEF,
                 SEFobj: SEFobj,
                 sigdisplay: disp
