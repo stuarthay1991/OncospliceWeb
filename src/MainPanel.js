@@ -14,10 +14,10 @@ import LockIcon from '@material-ui/icons/Lock';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import './App.css';
-import BQPane from './pages/BuildQuery/BuildQueryPane.js';
-import ViewPaneWrapper from './ViewPaneWrapper.js';
+import BQPanel from './pages/BuildQuery/BuildQueryPanel.js';
+import ViewPanelWrapper from './ViewPanelWrapper.js';
 //import Authentication from './Authentication.js';
-import QueryHistoryPaneWrapper from './QueryHistoryPaneWrapper.js';
+import QueryHistoryPanelWrapper from './QueryHistoryPanelWrapper.js';
 
 const spcTabStyles = makeStyles({
   root: {
@@ -227,9 +227,9 @@ function MainPanel(props){
         </div>
       </div>
       <div id="tabcontent" style={{display: "block"}}>
-      {mpstate.value === 0 && <BQPane setViewPane={setViewPane}/>}
-      {mpstate.value === 1 && <ViewPaneWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
-      {mpstate.value === 2 && <QueryHistoryPaneWrapper user={mpstate.authentication.user} data={mpstate.authentication.data}/>}
+      {mpstate.value === 0 && <BQPanel setViewPane={setViewPane}/>}
+      {mpstate.value === 1 && <ViewPanelWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
+      {mpstate.value === 2 && <QueryHistoryPanelWrapper user={mpstate.authentication.user} data={mpstate.authentication.data}/>}
       </div>
       <div id="aboutpanel" style={{display: "none", margin: 15}}>
         <AboutUs />

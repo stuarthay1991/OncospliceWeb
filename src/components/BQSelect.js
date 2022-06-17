@@ -12,20 +12,15 @@ function BQSelect(props)
 		<Form.Control as="select"
           value={props.value}
           onChange={props.handleChange}
-          inputProps={{
-            name: 'value',
-            id: props.inputID,
-          }}
           id={props.inputID}
           name="value"
           style={{
-          	maxWidth: "560px",
-		    minWidth: "560px",
-          	maxHeight: "50px",
-		    minHeight: "50px",
-		    fontSize: "24px"
-          }}
-          >
+          	maxWidth: "20em",
+		        minWidth: "20em",
+          	maxHeight: "25%",
+		        minHeight: "25%",
+		        fontSize: "1.75em"
+          }}>
         {props.children}
         </Form.Control>
     );

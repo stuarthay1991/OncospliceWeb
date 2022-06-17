@@ -31,7 +31,7 @@ import ClientAddFilter from './ClientAddFilter';
 import CancerSelect from './CancerSelect';
 import ClientAddCoord from './ClientAddCoord';
 import ClientAddGene from './ClientAddGene';
-import ClientSEF from './ClientSEF';
+import ClientSelectEventFilter from './ClientSelectEventFilter';
 
 //Server interface
 import { makeRequest } from '../../request/CancerDataManagement.js';
@@ -153,7 +153,7 @@ class FilterBox extends React.Component {
         label={"Add Sample Filter"}>
       </ClientAddFilter>
       </div>
-      <ClientSEF
+      <ClientSelectEventFilter
         BQstate={BQstate}
         FilterBoxState={this.state}
         BQstateSet={this.props}
@@ -196,13 +196,13 @@ function updateFilterBoxSEF(val){
   });
 }
 
-function updateBQPane(value) {
+function updateBQPanel(value) {
   this.setState({
       defaultQuery: value
   });
 }
 
-class BQPane extends React.Component {
+class BQPanel extends React.Component {
   constructor(props) {
     super(props)
     var prevstate = this.props.prevstate;
@@ -233,7 +233,7 @@ class BQPane extends React.Component {
       compared_cancer: null,
       sigdisplay: "none"
     }
-    updateBQPane = updateBQPane.bind(this)
+    updateBQPanel = updateBQPanel.bind(this)
   }
 
   componentDidUpdate(prevProps){
@@ -259,10 +259,9 @@ class BQPane extends React.Component {
               </Grid>
             </Grid>
             <div style={{marginTop: 20}}>
-            <CheckboxForm updateBQPane={updateBQPane}/>
-            <div id="FilterBox_div" style={{display: displayvalue, marginTop: 5}}>
-            <Grid container spacing={2}>
-              <Grid item>
+            <CheckboxForm updateBQPanel={updateBQPanel}/>
+            <div id="FilterBox_div" style={{display: displayvalue, marginTop: 5, overflowX: "scroll"}}>
+            <Grid item container spacing={2}>
               <CancerSelect inherit={this.props} prevState={this.state}
                 setUI={(in_ui_fields, in_cancer, in_qbox, range, sigs, resamt, sigT, exp) => this.setState({
                 ui_fields: in_ui_fields, 
@@ -286,7 +285,6 @@ class BQPane extends React.Component {
                 compared_cancer: in_cancer
                 })}
                 />
-              </Grid>
             </Grid>
             <Typography style={{padding: '2px 4px'}} />
             <FilterBox
@@ -385,4 +383,4 @@ class BQPane extends React.Component {
   }
 }
 
-export default BQPane;
+export default BQPanel;

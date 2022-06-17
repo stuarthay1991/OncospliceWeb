@@ -59,7 +59,6 @@ function FilterMenuPopulate(props) {
     //TEMPORARY FIX (UPDATE AS SOON AS POSSIBLE)
     props.addChild(viewDict[event.target.value])
     console.log("After selection", props.BQstate);
-
   };
   
   return(

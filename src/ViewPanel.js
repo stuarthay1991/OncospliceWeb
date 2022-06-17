@@ -1502,7 +1502,7 @@ function ScalingCheckbox(props)
   );
 }
 
-function ViewPane(props) {
+function ViewPanel(props) {
   const classes = useStyles();
   global_meta = props.Cols;
   global_cancer = props.QueryExport["cancer"];
@@ -1529,7 +1529,7 @@ function ViewPane(props) {
     <div style={{ fontFamily: 'Arial' }}>
     <Grid container spacing={1}>
       <Grid item xs={8}>
-        <ViewPane_Top 
+        <ViewPanel_Top 
           Data={props.Data} 
           Cols={props.Cols} 
           CC={props.CC} 
@@ -1539,8 +1539,8 @@ function ViewPane(props) {
         <Typography 
           className={classes.padding} 
         />
-        <ViewPane_Hidden />
-        <ViewPane_Main 
+        <ViewPanel_Hidden />
+        <ViewPanel_Main 
           Data={props.Data} 
           Cols={props.Cols} 
           CC={props.CC} 
@@ -1555,7 +1555,7 @@ function ViewPane(props) {
         />
       </Grid>
       <Grid item xs={4}>
-        <ViewPane_Side 
+        <ViewPanel_Side 
           Data={props.Data} 
           Cols={props.Cols} 
           CC={props.CC} 
@@ -1601,7 +1601,7 @@ function ViewPane(props) {
   );
 }
 
-function ViewPane_Top(props) {
+function ViewPanel_Top(props) {
   const classes = useStyles();
   return (
     <div>
@@ -1633,7 +1633,7 @@ function ViewPane_Top(props) {
   );
 }
 
-function ViewPane_Side(props) {
+function ViewPanel_Side(props) {
   return(
     <div>
     <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>{"Cancer: ".concat(props.QueryExport["cancer"])}</h3>
@@ -1656,7 +1656,7 @@ function ViewPane_Side(props) {
   )
 }
 
-function ViewPane_Main(props) {
+function ViewPanel_Main(props) {
     const classes = useStyles();
     return(
     <div id="ViewPane_MainPane">
@@ -1690,7 +1690,7 @@ function ViewPane_Main(props) {
     );
 }
 
-function ViewPane_Hidden(props) {
+function ViewPanel_Hidden(props) {
   const classes = useStyles();
   return (
     <div className={classes.hidden_panel} id="ViewPane_SubPane">
@@ -1739,4 +1739,4 @@ function ViewPane_Hidden(props) {
   );
 }
 
-export default ViewPane;
+export default ViewPanel;
