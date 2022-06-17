@@ -80,7 +80,7 @@ class ClientAddGene extends React.Component {
   }
 
   onAddChild = () => {
-    postGenes(this.props.cancer, this.props.export, this.props.callback, this.props.BQstate.resultamount);
+    postGenes(this.props.cancer, this.props.export, this.props.callback, this.props.BQstate.resultAmount);
   }
 
 }

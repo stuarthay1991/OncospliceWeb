@@ -96,7 +96,7 @@ class ClientAddFilter extends React.Component {
       args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
       args["queueboxchildren"] = BQstate.queuebox_values;
       args["cancer"] = P.inheritState.cancerType;
-      args["parentResultAmt"] = P.parentProps.inherit.resultamount;
+      args["parentResultAmt"] = P.parentProps.inherit.resultAmount;
       args["setState"] = P.parentProps.setMeta;
       args["export"] = P.parentProps.inherit.export;
       makeRequest("recursiveMetaDataField", args);
@@ -115,7 +115,7 @@ class ClientAddFilter extends React.Component {
       args["completeListOfUIDs"] = BQstate.completeListOfUIDs;
       args["sigTranslate"] = P.sigtranslate;
       args["cancer"] = BQstate.cancer;
-      args["parentResultAmt"] = BQstate.resultamount;
+      args["parentResultAmt"] = BQstate.resultAmount;
       args["setState"] = P.parentProps.setSig;
       args["export"] = BQstate.export;
       args["egg"] = P.egg;
@@ -186,7 +186,7 @@ class ClientAddFilter extends React.Component {
       args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
       args["queueboxchildren"] = BQstate.queuebox_values;
       args["cancer"] = P.compared_cancer;
-      args["parentResultAmt"] = BQstate.resultamount;
+      args["parentResultAmt"] = BQstate.resultAmount;
       args["completeListOfUIDs"] = BQstate.completeListOfUIDs;
       args["sigTranslate"] = P.sigtranslate;
       args["setState"] = P.parentProps.setSig;

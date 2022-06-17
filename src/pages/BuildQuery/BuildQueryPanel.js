@@ -212,7 +212,7 @@ class BQPanel extends React.Component {
       pre_queueboxvalues: {"children": {}, "signatures": {}},
       completeListOfUIDs: {},
       eventfilterSet: null,
-      resultamount: {"samples": 0, "events": 0},
+      resultAmount: {"samples": 0, "events": 0},
       childrenFilters: {},
       postoncosig: [],
       queryFilter: {},
@@ -270,7 +270,7 @@ class BQPanel extends React.Component {
                 keys: {"filter": [], "single": []},
                 range: range,
                 signatures: sigs,
-                resultamount: resamt,
+                resultAmount: resamt,
                 sigTranslate: sigT,
                 export: exp,
                 childrenFilters: [],
@@ -296,14 +296,14 @@ class BQPanel extends React.Component {
                 keys: keys
               })}
               setMeta={(resamt, qbox, pre_qbox, keys, exp) => this.setState({
-                resultamount: resamt,
+                resultAmount: resamt,
                 queuebox_values: qbox,
                 pre_queueboxvalues: pre_qbox,
                 keys: keys,
                 export: exp
               })}
               setSig={(resamt, qbox, keys, exp, pO, cLOU) => this.setState({
-                resultamount: resamt,
+                resultAmount: resamt,
                 queuebox_values: qbox,
                 keys: keys,
                 export: exp,
@@ -314,7 +314,7 @@ class BQPanel extends React.Component {
               setGene={(cG, exp, resamt) => this.setState({
                 clientgenes: cG,
                 export: exp,
-                resultamount: resamt
+                resultAmount: resamt
               })}
               setCoord={(cC, exp) => this.setState({
                 clientcoord: cC,

@@ -222,7 +222,7 @@ class QueueBox extends React.Component {
       numberCoords: 0,
       defaultOn: false,
       totalMatch: 0,
-      resultamount: BQstate.resultamount
+      resultAmount: BQstate.resultAmount
     }
   }
 
@@ -273,7 +273,7 @@ class QueueBox extends React.Component {
       }
       this.setState({
         targetCancer: BQstate.queuebox_values["cancer"],
-        resultamount: BQstate.resultamount,
+        resultAmount: BQstate.resultAmount,
         targetArr: ta1,
         targetSignatures: ta2,
         targetArrSelections: BQstate.childrenFilters,
@@ -302,7 +302,7 @@ class QueueBox extends React.Component {
         displayvalue={BQstate.filterboxSEF}
         defaultvalue={BQstate.defaultQuery}
         />
-      <QB_displayEventsSigs amount={this.state.resultamount}/>
+      <QB_displayEventsSigs amount={this.state.resultAmount}/>
       </Box>
       </div>
     );

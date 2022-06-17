@@ -106,7 +106,7 @@ function MainPanel(props){
       queuebox_values: {"children": undefined, "signatures": undefined}, //This represents what will be populated into the queuebox on the right hand side of the build query pane. As the user selects options, the list will populate.
       pre_queueboxvalues: {"children": {}, "signatures": {}}, //This is currently just used to store some information for clinical metadata and signature queries. It holds the same keys as queryboxchildren, but it used much less and will likely be replaced with a more pertinent variable in the future.
       eventfilterSet: null, //This denotes whether the event filter has been selected or not; will likely remove in the future as it is redundant.
-      resultamount: {"samples": 0, "events": 0}, //This informs the "prospective results" at the bottom of the querybox. 
+      resultAmount: {"samples": 0, "events": 0}, //This informs the "prospective results" at the bottom of the querybox. 
       childrenFilters: {}, //When a filter is selected on the left hand side of the build query pane, a set of sub-options for that filter will appear in the queuebox on the right. For example, if a user selects "Age" the age ranges will appear in a combobox inside the queuebox. This varaible holds those values.
       postoncosig: [], // When a signature is selected, it is added to this variable. Using "keys" to retrieve it, it is used in both the query and populating the queuebox.
       queryFilter: {}, // This currently holds the same information as childrenFilters and will likely be deleted soon.

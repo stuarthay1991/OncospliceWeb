@@ -82,7 +82,7 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
     args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
     args["queueboxchildren"] = BQstate.queuebox_values;
     args["cancer"] = BQstate.cancer;
-    args["parentResultAmt"] = BQstate.resultamount;
+    args["parentResultAmt"] = BQstate.resultAmount;
     args["export"] = BQstate.export;
     args["setState"] = P.parentProps.setMeta;
     makeRequest("metaDataField", args);

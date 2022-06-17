@@ -103,7 +103,7 @@ function fetchHeatmapData(arg, targeturl)
     alert("Please select at least one signature or gene to continue.");
     document.getElementById("sub").style.display = "none";
   }
-  else if(clientgenes.length > 0 && parseInt(BQstate.resultamount["events"]) == 0)
+  else if(clientgenes.length > 0 && parseInt(BQstate.resultAmount["events"]) == 0)
   {
     alert("These gene(s) have no matches in database. Please try different gene(s), remember to not use Ensembl IDs.");
     document.getElementById("sub").style.display = "none";

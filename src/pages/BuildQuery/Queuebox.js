@@ -315,9 +315,9 @@ class QueueBox extends React.Component {
         numberCoords={S.BQstate.clientcoord.length}
         displayvalue={S.BQstate.filterboxSEF}
         defaultvalue={S.BQstate.defaultQuery}
-        resamt={S.BQstate.resultamount}
+        resamt={S.BQstate.resultAmount}
         />
-      <QB_displayEventsSigs amount={S.BQstate.resultamount}/>
+      <QB_displayEventsSigs amount={S.BQstate.resultAmount}/>
       </Box>
       </div>
     );
