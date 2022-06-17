@@ -2,12 +2,13 @@ import React from 'react';
 import * as d3 from 'd3';
 import { global_colors } from '../constants.js';
 
-class OKMAP_COLUMN_CLUSTERS extends React.Component {
+class OKMAP_RPSI extends React.Component {
   constructor(props)
   {
     super(props);
     this.target_div = this.props.target_div_id;
     this.col_names = this.props.column_names;
+    this.refcols = this.props.refcols;
     this.SVG = "None";
     this.SVG_main_group = "";
     this.doc = this.props.doc;
@@ -42,27 +43,27 @@ class OKMAP_COLUMN_CLUSTERS extends React.Component {
       .attr("fill", "White");
   }
 
-  writeBlocks(xscale, writecols)
+  writeBlocks(xscale, writecols, refcols)
   {
     var x_pointer = 0;
     var ikg = [];
-    for(var p = 0; p < writecols.length; p++)
+    for(var p = 0; p < refcols.length; p++)
     {
       var rect_length = (1 * xscale);
-      var coledit = writecols[p];
+      var coledit = writecols[refcols[p]];
       var colortake = parseInt(coledit);
       var color;
-      if(colortake == 1)
+      if(colortake == "0")
       {
-        color = "orange";
+        color = "white";
       }
-      else if(colortake == 2)
+      else if(colortake == "1")
       {
-        color = "blue";
+        color = "black";
       }
       else
       {
-        color = "green";
+        color = "white";
       }
       this.SVG_main_group.append("rect")
           .style("stroke-width", 0)
@@ -82,7 +83,8 @@ class OKMAP_COLUMN_CLUSTERS extends React.Component {
         .attr("text-anchor", "start")
         .style("font-size", "11px")
         .style('fill', 'black')
-        .text("Hierarchical Clusters");
+        .text(this.props.trans.concat(" Clusters"));
+
   }
 
   render (){
@@ -90,8 +92,8 @@ class OKMAP_COLUMN_CLUSTERS extends React.Component {
     var tempnode = document.getElementById(this.target_div);
     tempnode.innerHTML = "";
     this.baseSVG("100%", 16);
-    this.writeBase(this.props.column_names, 16, this.props.xscale);
-    this.writeBlocks(this.props.xscale, this.props.column_names);
+    this.writeBase(this.props.refcols, 16, this.props.xscale);
+    this.writeBlocks(this.props.xscale, this.props.column_names, this.props.refcols);
     return(
       null
     );
@@ -99,4 +101,4 @@ class OKMAP_COLUMN_CLUSTERS extends React.Component {
 
 }
 
-export default OKMAP_COLUMN_CLUSTERS;
+export default OKMAP_RPSI;

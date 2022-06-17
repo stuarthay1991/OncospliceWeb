@@ -43,6 +43,7 @@ import { gtexSend } from './plots/gtexPlotPanel.js';
 import { downloadExonPlotData} from './downloadDataFile.js';
 import SetExonPlot from './plots/exonPlot.js';
 import OKMAP_COLUMN_CLUSTERS from './plots/okmapColumnClusters.js';
+import OKMAP_RPSI from './plots/okmapRPSI.js';
 
 var global_meta = [];
 var global_sig = [];
@@ -111,7 +112,6 @@ function exonRequest(GENE, in_data, setViewState, viewState, exonPlotState, setE
   })
     .then(function (response) {
       var resp = response["data"];
-      //updateExPlot(resp["gene"], resp["trans"], resp["junc"], in_data);
       setViewState({
         toDownloadExon: resp["blob"]["trans"],
         toDownloadGeneModel: resp["blob"]["genemodel"],
@@ -184,10 +184,6 @@ function oldLinkOuts(instuff){
 
   var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
   var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
-
-  //link1 = "<a href=".concat(link1).concat(flatchr1).concat("%3A").concat(twor1_split[0]).concat("%2D").concat(twor1_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG").concat(">").concat(chr1).concat("</a>");
-
-  //link1 = link1.concat("<br>").concat("<a href=").concat(link2).concat(flatchr2).concat("%3A").concat(twor2_split[0]).concat("%2D").concat(twor2_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG").concat(">").concat(chr2).concat("</a>");
 
   return(
     <div>
@@ -265,18 +261,6 @@ function updateOkmapTable(data){
 }
 
 function updateOkmapLabel(data){
-  this.setState({
-    retcols: data
-  });
-}
-
-function updateOkmapCC(data){
-  this.setState({
-    retcols: data
-  });
-}
-
-function updateOkmapRPSI(data){
   this.setState({
     retcols: data
   });
@@ -427,7 +411,8 @@ class Heatmap extends React.Component {
                 target_div_id={"HEATMAP_RPSI"} 
                 refcols={this.props.cols} 
                 column_names={this.props.rpsi}
-                doc={document} 
+                doc={document}
+                trans={global_trans}
                 xscale={xscale}/>
     })
   }
@@ -488,6 +473,7 @@ class Heatmap extends React.Component {
                   refcols={this.props.cols} 
                   column_names={this.props.rpsi} 
                   doc={document}
+                  trans={global_trans}
                   xscale={this.xscale}/>
       })
     }
@@ -510,12 +496,10 @@ function zoomInHeatmap()
 {
   if(global_Y >= (400 * global_adj_height))
   {
-    //loading_gif("off");
     return;
   }
   else
   {
-    //zoom_on_off = "off";
     var temp_y_set = global_Y * 1.5;
 
     var captain_burgerpants = temp_y_set / 15;
@@ -560,7 +544,6 @@ function zoomOutHeatmap()
 
 function fullViewHeatmap()
 {
-  //zoom_on_off = "off";
   global_Y = (400 * global_adj_height) / global_heat_len;
   var temp_y_set = global_Y / 15;
 
@@ -571,109 +554,6 @@ function fullViewHeatmap()
 
   global_Y = temp_y_set;
   updateOkmap(global_Y);
-}
-
-class OKMAP_RPSI extends React.Component {
-  constructor(props)
-  {
-    super(props);
-    this.target_div = this.props.target_div_id;
-    this.col_names = this.props.column_names;
-    this.refcols = this.props.refcols;
-    this.SVG = "None";
-    this.SVG_main_group = "";
-    this.doc = this.props.doc;
-    this.xscale = this.props.xscale;
-    this.state = {
-      retcols: "NULL"
-    };
-    updateOkmapRPSI = updateOkmapRPSI.bind(this)
-  }
-
-  baseSVG(w="120%", h="100%") 
-  {
-    this.SVG = d3.select("#".concat(this.target_div))
-      .append("svg")
-      .attr("width", w)
-      .attr("height", h)
-      .attr("id", (this.target_div.concat("_svg")));
-
-    this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-      
-    this.SVG_main_group.append("rect")
-      .attr("width", w)
-      .attr("height", h)
-      .style("stroke", "White")
-      .attr("stroke-width", 0)
-      .attr("type", "canvas")
-      .attr("fill", "White");    
-  }
-
-  writeBase(cols, yscale, xscale)
-  {
-    this.SVG_main_group.append("rect")
-      .attr("width", ((cols.length * (xscale - 0.1)) + 75))
-      .attr("height", yscale)
-      .style("opacity", 1.0)
-      .attr("fill", "White");
-  }
-
-  writeBlocks(xscale, writecols, refcols)
-  {
-    var x_pointer = 0;
-    var ikg = [];
-    for(var p = 0; p < refcols.length; p++)
-    {
-      var rect_length = (1 * xscale);
-      var coledit = writecols[refcols[p]];
-      var colortake = parseInt(coledit);
-      var color;
-      if(colortake == "0")
-      {
-        color = "white";
-      }
-      else if(colortake == "1")
-      {
-        color = "black";
-      }
-      else
-      {
-        color = "white";
-      }
-      this.SVG_main_group.append("rect")
-          .style("stroke-width", 0)
-          .attr("x", x_pointer)
-          .attr("y", 0)
-          .attr("width", rect_length)
-          .attr("height", 16)
-          .attr("fill", color);
-      
-      x_pointer = x_pointer + ((1 * xscale) - 0.1);
-    }
-
-    x_pointer = x_pointer + 6;
-    this.SVG_main_group.append("text")
-        .attr("x", x_pointer)
-        .attr("y", 10)
-        .attr("text-anchor", "start")
-        .style("font-size", "11px")
-        .style('fill', 'black')
-        .text(global_trans.concat(" Clusters"));
-
-  }
-
-  render (){
-    var retval = null;
-    var tempnode = document.getElementById(this.target_div);
-    tempnode.innerHTML = "";
-    this.baseSVG("100%", 16);
-    this.writeBase(this.props.refcols, 16, this.props.xscale);
-    this.writeBlocks(this.props.xscale, this.props.column_names, this.props.refcols);
-    return(
-      null
-    );
-  }
-
 }
 
 class OKMAP_LABEL extends React.Component {
@@ -1061,7 +941,6 @@ class OKMAP extends React.Component {
           exonRequest(toex[0], data, parent.props.setViewState, parent.props.viewState, parent.props.exonPlotState, parent.props.setExonPlotState);
           oneUIDrequest(data["uid"]);
           parent.setSelected(converteduid);
-          //updateStats(y_point, data);
       })
       .on("mouseover", function(){
             d3.select(this).style("fill", "red");
@@ -1110,11 +989,9 @@ class OKMAP extends React.Component {
       .style('fill', 'black')
       .on("mouseover", function(){
             d3.select(this).style("fill", "red");
-            //parent.tempRectAdd(this.attributes, parent.col_names, parent.U_xscale);
       })
       .on("mouseout", function(){
             d3.select(this).style("fill", "black");
-            //parent.tempRectRemove();
       });
     }
 
@@ -1123,11 +1000,9 @@ class OKMAP extends React.Component {
       .style('fill', 'green')
       .on("mouseover", function(){
             d3.select(this).style("fill", "green");
-            //parent.tempRectAdd(this.attributes, parent.col_names, parent.U_xscale);
       })
       .on("mouseout", function(){
             d3.select(this).style("fill", "green");
-            //parent.tempRectRemove();
       }); 
 
     this.CURRENT_SELECTED_UID = id;      
@@ -1184,7 +1059,6 @@ class OKMAP extends React.Component {
         this.writeRowLabel(y_start, this.props.dataset[i], this.state.zoom_level);
         y_start = y_start + this.state.zoom_level;
         }, 50);
-        //set.add(this.props.dataset[i]["symbol"]);
       }
     }
     else
@@ -1200,7 +1074,6 @@ class OKMAP extends React.Component {
         this.writeRowLabel(yRL_start, this.props.dataset[k], this.state.zoom_level);
         yRL_start = yRL_start + this.state.zoom_level;
         }, 50);
-        //set.add(this.props.dataset[i]["symbol"]);
       }
     }
     return(
@@ -1301,8 +1174,6 @@ class SupplementaryPlot extends React.Component {
       }
     }
 
-    //var plotdata = [trace1, trace2];
-    //Plotly.newPlot('supp1', plotdata); 
     return(
       <>
       <div style={{marginBottom: 10}}>
