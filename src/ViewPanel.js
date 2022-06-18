@@ -211,53 +211,19 @@ function makeLinkOuts(chrm, c1, c2, c3, c4){
 
 }
 
-function setUpBioportalIframe(selection)
-{
-  var canc = global_cancer.toLowerCase();
-  canc = canc.concat("_tcga");
-  var srcstr = "https://www.cbioportal.org/ln?cancer_study_id=".concat(canc).concat("&q=").concat(selection["symbol"]);
-  return srcstr;
-}
-
-
 function updateOkmapTable(data){
   var chrm = data["chromosome"];
-  var biolink = setUpBioportalIframe(data);
-  if(chrm == undefined)
-  {
-    var c = data["coordinates"];
-    var newcoord = oldLinkOuts(c);
-    var new_row = [
-    createData("Altexons", data["altexons"]),
-    createData("Protein Predictions", data["proteinpredictions"]),
-    createData("Cluster ID", data["clusterid"]),
-    createData("Coordinates", newcoord),
-    createData("Event Annotation", data["eventannotation"]),
-    createData("cBioportal Analysis", biolink),
-    ];
-    this.setState({
-      curAnnots: new_row
-    });
-  }
-  else
-  {
-    var c1 = data["coord1"];
-    var c2 = data["coord2"];
-    var c3 = data["coord3"];
-    var c4 = data["coord4"];
-    var newcoord = makeLinkOuts(chrm, c1, c2, c3, c4);
-    var new_row = [
-    createData("Altexons", data["altexons"]),
-    createData("Protein Predictions", data["proteinpredictions"]),
-    createData("Cluster ID", data["clusterid"]),
-    createData("Coordinates", newcoord),
-    createData("Event Annotation", data["eventannotation"]),
-    createData("cBioportal Analysis", biolink),
-    ];
-    this.setState({
-      curAnnots: new_row
-    });
-  }
+  var newcoord = chrm == undefined ? oldLinkOuts(data["coordinates"]) : makeLinkOuts(chrm, data["coord1"], data["coord2"], data["coord3"], data["coord4"]);
+  var new_row = [
+  createData("Altexons", data["altexons"]),
+  createData("Protein Predictions", data["proteinpredictions"]),
+  createData("Cluster ID", data["clusterid"]),
+  createData("Coordinates", newcoord),
+  createData("Event Annotation", data["eventannotation"]),
+  ];
+  this.setState({
+    curAnnots: new_row
+  });
 }
 
 function updateOkmapLabel(data){
@@ -1295,6 +1261,7 @@ function ViewPanel(props) {
       scaled: false
   });
   const [gtexState, setGtexState] = React.useState({gtexPlot: null});
+  const [okmapLabelState, setOkmapLabelState] = React.useState({okmapLabel: null});
   global_uifielddict = props.QueryExport["ui_field_dict"];
   return (
     <div style={{ fontFamily: 'Arial' }}>
