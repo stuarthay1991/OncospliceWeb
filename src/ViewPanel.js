@@ -1,13 +1,9 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import Icon from '@material-ui/core/Icon';
 import { AccessAlarm, ExpandMore, OpenInNew, Timeline, GetApp, ChevronRight, Add } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
-import PropTypes from 'prop-types';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import ZoomInIcon from '@material-ui/icons/ZoomIn';
@@ -18,7 +14,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { borders } from '@material-ui/system';
-import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
@@ -44,6 +39,7 @@ import { downloadExonPlotData} from './downloadDataFile.js';
 import SetExonPlot from './plots/exonPlot.js';
 import OKMAP_COLUMN_CLUSTERS from './plots/okmapColumnClusters.js';
 import OKMAP_RPSI from './plots/okmapRPSI.js';
+import PlotPanel from './plots/plotPanel.js';
 
 var global_meta = [];
 var global_sig = [];
@@ -55,9 +51,6 @@ var global_trans = "";
 var global_cols = [];
 var global_cc = [];
 var global_rpsi = [];
-var global_exon_blob = undefined;
-var global_genemodel_blob = undefined;
-var global_junc_blob = undefined;
 var global_Y = "";
 var global_adj_height = "";
 var global_heat_len = "";
@@ -720,12 +713,7 @@ class OKMAP_LABEL extends React.Component {
 
 }
 
-function updateOkmap(y)
-{
-  this.setState({
-    zoom_level: y
-  })
-}
+function updateOkmap(y){ this.setState({zoom_level: y}) }
 
 class OKMAP extends React.Component {
   constructor(props) 
@@ -1049,9 +1037,7 @@ class OKMAP extends React.Component {
 
 }
 
-const spboxProps = {
-  border: 3,
-};
+const spboxProps = {border: 3};
 
 function selectionToSup(selection){
   this.setState({
@@ -1106,9 +1092,7 @@ class SupplementaryPlot extends React.Component {
     var Cols = this.props.Cols;
     var Selection = this.state.selection;
     var set = null;
-    var plotobj1 = null;
-    var plotobj2 = null;
-    var plotobj3 = null;
+    var plotobj1, plotobj2, plotobj3 = null;
     var elm1 = this.state.filters;
     var elm2 = this.state.filterset;
     if(Selection != null && this.state.filterset != null && this.state.fulldat != null)
@@ -1119,9 +1103,7 @@ class SupplementaryPlot extends React.Component {
     }
     else
     {
-      var plotobj1 = <h4>No selection set</h4>;
-      var plotobj2 = <h4>No selection set</h4>;
-      var plotobj3 = <h4>No selection set</h4>;
+      var plotobj1, plotobj2, plotobj3 = <h4>No selection set</h4>;
     }
 
     if(Selection != null && this.state.gtex != null)
@@ -1130,50 +1112,15 @@ class SupplementaryPlot extends React.Component {
     }
     else
     {
-      if(this.state.fulldat == null)
-      {
-        var plotobj4 = <h4>No selection set</h4>;
-      }
-      else
-      {
-        var plotobj4 = <h4>No GTEX available for given UID</h4>;
-      }
+      var plotobj4 = this.state.fulldat == null ? <h4>No selection set</h4> : <h4>No GTEX available for given UID</h4>;
     }
 
     return(
       <>
-      <div style={{marginBottom: 10}}>
-      <SpcInputLabel label={"OncoClusters"} />
-      <Box borderColor="#dbdbdb" {...spboxProps}>
-        <div>
-          {plotobj1}
-        </div>
-      </Box>
-      </div>
-      <div style={{marginBottom: 10}}>
-      <SpcInputLabel label={"HierarchyClusters"} />
-      <Box borderColor="#dbdbdb" {...spboxProps}>
-        <div>
-          {plotobj2}
-        </div>
-      </Box>
-      </div>
-      <div style={{marginBottom: 10}}>
-      <SpcInputLabel label={"Filters"} />
-      <Box borderColor="#dbdbdb" {...spboxProps}>
-        <div>
-          {plotobj3}
-        </div>
-      </Box>
-      </div>
-      <div style={{marginBottom: 10}}>
-      <SpcInputLabel label={"GTEX"} />
-      <Box borderColor="#dbdbdb" {...spboxProps}>
-        <div>
-          {plotobj4}
-        </div>
-      </Box>
-      </div>
+      <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
+      <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
+      <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
+      <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
       </>
     )
   }
@@ -1274,10 +1221,7 @@ function ViewPanel(props) {
           RPSI={props.RPSI} 
           QueryExport={props.QueryExport}
         />
-        <Typography 
-          className={classes.padding} 
-        />
-        <ViewPanel_Hidden />
+        <Typography className={classes.padding} />
         <ViewPanel_Main 
           Data={props.Data} 
           Cols={props.Cols} 
@@ -1331,8 +1275,7 @@ function ViewPanel(props) {
       </Grid>
       </Grid>
       <Box borderColor="#dbdbdb" {...spboxProps}>
-        <div style={{marginLeft: 20, marginTop: 10, marginBottom: 10}} id="supp1">
-        </div>
+        <div style={{marginLeft: 20, marginTop: 10, marginBottom: 10}} id="supp1"></div>
       </Box>
     </div>
     </div>
@@ -1399,17 +1342,12 @@ function ViewPanel_Main(props) {
     return(
     <div id="ViewPane_MainPane">
       <Box {...defaultProps}>
-        <div id="HEATMAP_LABEL">
-        </div>
-        <div id="HEATMAP_CC">
-        </div>
-        <div id="HEATMAP_RPSI">
-        </div>
+        <div id="HEATMAP_LABEL"></div>
+        <div id="HEATMAP_CC"></div>
+        <div id="HEATMAP_RPSI"></div>
         <div className={classes.flexparent}>
-        <span id="HEATMAP_0">
-        </span>
-        <span id="HEATMAP_ROW_LABEL" style={{width: "280px"}}>
-        </span>
+        <span id="HEATMAP_0"></span>
+        <span id="HEATMAP_ROW_LABEL" style={{width: "280px"}}></span>
         </div>
       </Box> 
       <Heatmap 
@@ -1426,55 +1364,6 @@ function ViewPanel_Main(props) {
       </Heatmap>
     </div>  
     );
-}
-
-function ViewPanel_Hidden(props) {
-  const classes = useStyles();
-  return (
-    <div className={classes.hidden_panel} id="ViewPane_SubPane">
-    <Grid container spacing={2}>
-        <Grid item xs={1}></Grid>
-        <Grid item xs={4}>
-        <div className={classes.baseinput}>
-        <IconButton className={classes.iconButton} aria-label="menu">
-          <MenuIcon />
-        </IconButton>
-        <TextField id="standard-basic" label="Annotate samples by..." className={classes.input} inputProps={{ 'aria-label': 'Annotate samples by' }}/>
-        <IconButton type="submit" className={classes.iconSearch} aria-label="search">
-          <SearchIcon />
-        </IconButton>
-        </div>
-        </Grid>
-        <Grid item xs={1}></Grid>
-        <Grid item xs={4}>
-        <div className={classes.baseinput}>
-        <IconButton className={classes.iconButton} aria-label="menu">
-          <MenuIcon />
-        </IconButton>
-        <TextField id="standard-basic" label="Select Feature Type" className={classes.input} inputProps={{ 'aria-label': 'Select Feature Type' }}/>
-        <IconButton type="submit" className={classes.iconSearch} aria-label="search">
-          <SearchIcon />
-        </IconButton>
-          </div>
-        </Grid>
-        <Grid item xs={2}></Grid>
-      </Grid>
-      <Typography className={classes.padding} />
-      <Grid container spacing={2}>
-        <Grid item xs={1}></Grid>
-        <Grid item xs={9}>
-          <div>
-            <Button variant="contained" style={{ textTransform: 'none'}}>Select data to plot</Button>
-          </div>
-          <Box borderColor="#dbdbdb" {...boxProps}>
-              <Typography className={classes.medpadding} />
-          </Box>
-        </Grid>
-        <Grid item xs={2}></Grid>
-      </Grid>
-      <Typography className={classes.padding} />
-    </div> 
-  );
 }
 
 export default ViewPanel;
