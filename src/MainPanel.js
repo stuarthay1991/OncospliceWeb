@@ -91,7 +91,7 @@ function MainPanel(props){
     //In order, "inData" describes the heatmap row values, "inCols" describes the column header values, "inCC" describes the hierarchical clusters, "inRPSI"
     //describes the Oncosplice clusters, "inTRANS" is a dictionary to relate between postgres-friendly modified strings and their original values, and "export"
     //contains an array of misc information to help build the heatmap.
-    viewpaneobj: {"inData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []},
+    viewpaneobj: {"heatmapInputData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []},
     //"value" dictates what page we are currently viewing.
     value: indexToTabName[page],
     //Currently logged in user.
@@ -148,7 +148,7 @@ function MainPanel(props){
       //This is a hack. If the "build query" tab is re-selected, the page reloads in order to prevent bugs.
       if(newValue == 0)
       {
-        var temp_view_obj = {"inData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []};
+        var temp_view_obj = {"heatmapInputData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []};
         window.location.reload(true);
       }
       setMpstate({
@@ -162,7 +162,7 @@ function MainPanel(props){
   //The purpose of this function is to allow the "build query" pane to transition to the "data exploration" pane when a query has been sent through.
   const setViewPane = (list1, list2, list3, list4, list5, exp, bqstate) => {
     var stateobj = {};
-    stateobj["inData"] = list1;
+    stateobj["heatmapInputData"] = list1;
     stateobj["inCols"] = list2;
     stateobj["inCC"] = list3;
     stateobj["inRPSI"] = list4;

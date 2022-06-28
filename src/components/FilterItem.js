@@ -16,7 +16,7 @@ function FilterItem(props) {
   }*/
   return(
     <Grid item>
-    <div style={{fontSize: 14, margin: 8, fontFamily: 'Roboto', fontWeight: "bold", textAlign: 'left'}}>
+    <div style={{fontSize: "1em", margin: 8, fontFamily: 'Roboto', fontWeight: "bold", textAlign: 'left'}}>
       <strong style={{backgroundColor: "#0F6A8B", color: "white", margin: 2}}>{message}</strong>
     </div>
     </Grid>

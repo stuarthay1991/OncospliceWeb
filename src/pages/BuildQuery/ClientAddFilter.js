@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   formControl: {
-    fontSize: "16px"
+    fontSize: "1.2em"
   }
 }));
 
@@ -32,11 +32,7 @@ class ClientAddFilter extends React.Component {
     super(props);
     var P = this.props;
     this.state = {
-      currentEgg: P.egg,
-      currentKeys: P.BQstate.keys,
-      numChildren: P.BQstate.keys[P.type].length,
-      BQstate: P.BQstate
-      //childrenList: BQstate.childrenFilters
+      numChildren: P.BQstate.keys[P.type].length
     };
   }
 
@@ -59,33 +55,12 @@ class ClientAddFilter extends React.Component {
     )
   }
 
-  static getDerivedStateFromProps(props, state) {
-    //console.log("GET DERIVED STATE", state);
-    //console.log("GET DERIVED PROPS", props);
-  }
-
-  componentDidMount() {
-    console.log("mounted", this.props);
-    //this.setState(prevstate);
-  }
-
-  componentDidUpdate(prevProps) {
-    //console.log("prev:", prevProps);
-    //console.log("cur", this.props);
-    if(prevProps !== this.props)
-    {
-      this.setState(state => ({...state, BQstate: this.props.BQstate}));
-    }
-  }
-
   onDeleteChild = (keyval) => {
     const P = this.props;
     const BQstate = P.BQstate;
     BQstate.keys = P.removeKey(P.type, keyval, BQstate.keys);
     P.egg[keyval] = "";
-    //console.log(this.state.numChildren);
     this.setState(state => ({...state, numChildren: state.numChildren - 1}));
-    //console.log(this.state.numChildren);
     if(P.type == "filter")
     {
       BQstate.preQueueboxValues["children"][keyval] = undefined;
@@ -118,15 +93,14 @@ class ClientAddFilter extends React.Component {
       args["parentResultAmt"] = BQstate.resultAmount;
       args["setState"] = P.parentProps.setSig;
       args["export"] = BQstate.export;
-      args["egg"] = P.egg;
+      args["listOfSelectedSignatures"] = P.egg;
       deleteSignature(args);
-    }    
+    }
   }
 
   onAddChild = (invalue) => {
     const P = this.props;
-    const S = this.state;
-    const keyval = document.getElementById(P.filterID).value.concat(S.numChildren.toString());
+    const keyval = document.getElementById(P.filterID).value.concat(this.state.numChildren.toString());
     const BQstate = P.BQstate;
     BQstate.keys[P.type].push(keyval);
     var eggcopy = P.egg;
@@ -150,7 +124,7 @@ class ClientAddFilter extends React.Component {
                           P={P} 
                           functioncall={P.functioncall} 
                           key={keyval} 
-                          number={S.numChildren} 
+                          number={this.state.numChildren} 
                           get={keyval} 
                           deleteChild={this.onDeleteChild} 
                           range={P.rangeSet} 
@@ -164,7 +138,7 @@ class ClientAddFilter extends React.Component {
                           P={P} 
                           functioncall={P.functioncall} 
                           key={keyval} 
-                          number={S.numChildren} 
+                          number={this.state.numChildren} 
                           get={keyval} 
                           deleteChild={this.onDeleteChild} 
                           range={P.rangeSet} 
@@ -178,7 +152,7 @@ class ClientAddFilter extends React.Component {
       var args = {};
       BQstate.preQueueboxValues["signatures"][keyval] = <PreQueueMessage 
                                                             key={keyval} 
-                                                            number={S.numChildren} 
+                                                            number={this.state.numChildren} 
                                                             get={keyval} 
                                                             name={invalue}/>
       args["filter"] = "single";
@@ -197,20 +171,14 @@ class ClientAddFilter extends React.Component {
       //name, number, filter
       eggcopy[keyval] = <SingleItem 
                         key={keyval} 
-                        number={S.numChildren} 
+                        number={this.state.numChildren} 
                         get={keyval} 
                         deleteChild={this.onDeleteChild} 
                         chicken={P.chicken} 
                         egg={invalue}/>;
       args["egg"] = P.egg;
       makeRequest("signature", args);
-      //P.functioncall(invalue, keyval, P.type);
     }
-    //this.setState(state => ({...state, currentEgg: eggcopy, currentKeys: keycopy, numChildren: state.numChildren + 1}));
-    this.setState({
-      currentEgg: eggcopy,
-      currentKeys: BQstate.keys
-    })
     }
 }
 
@@ -260,7 +228,7 @@ function deleteSignature(arg)
   }
   
   //delete from listOfSelectedSignatures
-  const listOfSelectedSignatures = arg["egg"];
+  const listOfSelectedSignatures = arg["listOfSelectedSignatures"];
   for (const key in listOfSelectedSignatures)
   {
     if(listOfSelectedSignatures[key] == "")

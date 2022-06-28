@@ -103,7 +103,6 @@ class FilterBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    //console.log("Look at state", this.state)
     const BQstate = this.props.BQstate;
     if(prevProps.inherit.cancer != BQstate.cancer){
       this.setState({
@@ -234,10 +233,6 @@ class BQPanel extends React.Component {
       sigdisplay: "none"
     }
     updateBQPanel = updateBQPanel.bind(this)
-  }
-
-  componentDidUpdate(prevProps){
-    console.log("CDU STATE", this.state);
   }
 
   render(){

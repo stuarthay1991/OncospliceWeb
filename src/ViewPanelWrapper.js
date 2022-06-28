@@ -12,7 +12,7 @@ class ViewPanelWrapper extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      inData: [],
+      heatmapInputData: [],
       inCols: [],
       inCC: [],
       inRPSI: [],
@@ -25,7 +25,7 @@ class ViewPanelWrapper extends React.Component {
     if(this.props.entrydata != undefined)
     {
         this.setState({
-        inData: this.props.entrydata["inData"],
+        heatmapInputData: this.props.entrydata["heatmapInputData"],
         inCols: this.props.entrydata["inCols"],
         inCC: this.props.entrydata["inCC"],
         inRPSI: this.props.entrydata["inRPSI"],
@@ -41,7 +41,7 @@ class ViewPanelWrapper extends React.Component {
       if(this.props.entrydata != undefined)
       {
         this.setState({
-        inData: this.props.entrydata["inData"],
+        heatmapInputData: this.props.entrydata["heatmapInputData"],
         inCols: this.props.entrydata["inCols"],
         inCC: this.props.entrydata["inCC"],
         inRPSI: this.props.entrydata["inRPSI"],
@@ -56,8 +56,15 @@ class ViewPanelWrapper extends React.Component {
   {
     return(
       <div>
-        {this.state.inData.length > 0 && this.props.validate == 1 && (
-          <ViewPanel css={withStyles(useStyles)} QueryExport={this.state.export} Data={this.state.inData} Cols={this.state.inCols} CC={this.state.inCC} RPSI={this.state.inRPSI} TRANS={this.state.inTRANS}/>
+        {this.state.heatmapInputData.length > 0 && this.props.validate == 1 && (
+          <ViewPanel  css={withStyles(useStyles)} 
+                      QueryExport={this.state.export} 
+                      Data={this.state.heatmapInputData} 
+                      Cols={this.state.inCols} 
+                      CC={this.state.inCC} 
+                      RPSI={this.state.inRPSI} 
+                      TRANS={this.state.inTRANS}
+          />
         )}
       </div>
     );

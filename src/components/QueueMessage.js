@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     margin: 12,
   },
   altparent: {
-    fontSize: 26,
+    fontSize: "1.1em",
   },
   build_message: {
     position: 'relative',
@@ -18,19 +18,19 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     paddingTop: 5,
     paddingBottom: 5,
-    fontSize: 19,
+    fontSize: "1.25em",
   },
   selected_message: {
     position: 'relative',
     alignItems: 'center',
     textAlign: 'center',
-    fontSize: 19,
+    fontSize: "1.25em",
   },
   in_criterion_message: {
     position: 'relative',
     alignItems: 'center',
     textAlign: 'center',
-    fontSize: 19,
+    fontSize: "1.25em",
   }
 }));
 

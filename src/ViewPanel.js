@@ -251,7 +251,7 @@ function FilterHeatmapSelect(props) {
 
   return (
     <div>
-      <SpcInputLabel label={"Show Sample"} />
+      <SpcInputLabel label={"Show Sample"} customFontSize={"1em"} noSpaceAbove={true}/>
       <FormControl variant="outlined" className={classes.formControl}>
         <Tooltip title="Filter heatmap columns by categories of patient data.">
         <Select
