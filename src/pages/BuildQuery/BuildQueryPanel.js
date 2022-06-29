@@ -145,8 +145,8 @@ class FilterBox extends React.Component {
         removeKey={removeKey}
         functioncall={none}
         rangeSet={S.rangeSet}
-        chicken={S.fieldSet}
-        egg={BQstate.childrenFilters}
+        possibleSelections={S.fieldSet}
+        currentSelection={BQstate.childrenFilters}
         type={"filter"}
         filterID={"meta_filter_id"}
         label={"Add Sample Filter"}>
@@ -168,8 +168,8 @@ class FilterBox extends React.Component {
             parentProps={P}
             removeKey={removeKey}
             functioncall={none}
-            chicken={BQstate.signatures}
-            egg={BQstate.listOfSelectedSignatures}
+            possibleSelections={BQstate.signatures}
+            currentSelection={BQstate.listOfSelectedSignatures}
             type={"single"}
             filterID={"sig_filter_id"}
             label={"Oncosplice Signature Filter"}

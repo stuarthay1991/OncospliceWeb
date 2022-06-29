@@ -82,7 +82,7 @@ function FilterMenuPopulate(props) {
 
             if(props.type == "filter")
             {
-            for (const [key, value] of Object.entries(props.chicken)) {
+            for (const [key, value] of Object.entries(props.possibleSelections)) {
               var name_selected = key.replaceAll("_", " ");
               name_selected = name_selected.charAt(0).toUpperCase() + name_selected.slice(1);
               name_selected = name_selected.toUpperCase();
@@ -91,8 +91,8 @@ function FilterMenuPopulate(props) {
             }
             else if(props.type == "single")
             {
-            for(var i = 0; i < props.chicken.length; i++) {
-              var name_selected = props.chicken[i];
+            for(var i = 0; i < props.possibleSelections.length; i++) {
+              var name_selected = props.possibleSelections[i];
               if((Object.entries(props.sigTranslate)).length > 0)
               {
                 if(props.sigTranslate[name_selected] != undefined)
@@ -117,7 +117,7 @@ function FilterMenuPopulate(props) {
                 final_name_selected = final_name_selected.charAt(0).toUpperCase() + final_name_selected.slice(1);
                 viewDict[final_name_selected] = name_selected;
               }
-              options.push(<option value={props.chicken.length[i]}>{final_name_selected}</option>);
+              options.push(<option value={props.possibleSelections.length[i]}>{final_name_selected}</option>);
             }
             }
             return options;

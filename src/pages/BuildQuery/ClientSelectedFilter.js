@@ -37,7 +37,7 @@ const widgetlabel5 = makeStyles((theme) => ({
   }
 }));
 
-function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range, chicken, egg, functioncall}) {
+function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range, possibleSelections, currentSelection, functioncall}) {
   const classes = useStyles();
   const widgemidge = widgetlabel5();
   if(BQstate.preQueueboxValues["children"][get] != undefined)
@@ -64,10 +64,10 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
                                                     key={number} 
                                                     number={number} 
                                                     get={get} 
-                                                    name={egg} 
+                                                    name={currentSelection} 
                                                     value={event.target.value}/>
     var args = {};
-    args["name"] = egg;
+    args["name"] = currentSelection;
     args["value"] = event.target.value;
     args["number"] = get;
     args["filter"] = "filter";
@@ -82,25 +82,25 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
     //functioncall(egg, event.target.value, get, "filter");
   }
 
-  var cur_filter = chicken[egg];
+  var cur_filter = possibleSelections[currentSelection];
   for (const [key, value] of Object.entries(range))
   {
     var groovykey = key.replaceAll("_", " ");
     //console.log("ENTRIES", key, groovykey, egg);
-    if((key.toLowerCase() == egg.toLowerCase()) || (groovykey.toLowerCase() == egg.toLowerCase()))
+    if((key.toLowerCase() == currentSelection.toLowerCase()) || (groovykey.toLowerCase() == currentSelection.toLowerCase()))
     {
       found_range = true;
       cur_filter = value;
     }
   }
-  const cur_id = (egg).concat("_id");
+  const cur_id = (currentSelection).concat("_id");
   return (
     <Grid item>
     <div>
       <IconButton variant="contained" color="primary" onClick={() => deleteChild(get)}><CloseIcon /></IconButton>
       <IconButton variant="contained" color="primary"><LocalBarIcon /></IconButton>
       <FormControl className={classes.formControl}>
-        <InputLabel htmlFor={cur_id}>{egg}</InputLabel>
+        <InputLabel htmlFor={cur_id}>{currentSelection}</InputLabel>
         <Select
           native
           classes={widgemidge}

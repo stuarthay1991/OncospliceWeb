@@ -26,18 +26,18 @@ function fetchHeatmapData(arg, targeturl)
   var tmp_qh_obj = {};
   for(var i = 0; i < keys["filter"].length; i++)
   {
-    var myString = document.getElementById(childrenFilters[keys["filter"][i]].props.egg.concat("_id")).value;
+    var myString = document.getElementById(childrenFilters[keys["filter"][i]].props.currentSelection.concat("_id")).value;
     myString = myString.replace(/(\r\n|\n|\r)/gm, "");
     tmp_qh_obj = {};
     //console.log("bodyFormDataSPLC", ("SPLC".concat(childrenFilters[keys["filter"][i]].props.egg)), myString);
-    bodyFormData.append(("SPLC".concat(childrenFilters[keys["filter"][i]].props.egg)), myString);
-    tmp_qh_obj["key"] = "SPLC".concat(childrenFilters[keys["filter"][i]].props.egg);
+    bodyFormData.append(("SPLC".concat(childrenFilters[keys["filter"][i]].props.currentSelection)), myString);
+    tmp_qh_obj["key"] = "SPLC".concat(childrenFilters[keys["filter"][i]].props.currentSelection);
     tmp_qh_obj["val"] = myString;
     qh_arr.push(tmp_qh_obj);
   }
   for(var i = 0; i < keys["single"].length; i++)
   {
-    var myString = listOfSelectedSignatures[keys["single"][i]].props.egg;
+    var myString = listOfSelectedSignatures[keys["single"][i]].props.currentSelection;
     myString = myString.replace(/(\r\n|\n|\r)/gm, "");
     tmp_qh_obj = {};
     if(Object.entries(sigTranslate).length > 0)

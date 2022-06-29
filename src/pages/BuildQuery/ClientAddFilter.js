@@ -44,11 +44,11 @@ class ClientAddFilter extends React.Component {
         BQstate={BQstate} 
         addChild={this.onAddChild}
         parentProps={P.parentProps} 
-        egg={P.egg} 
+        currentSelection={P.currentSelection} 
         type={P.type} 
         filterID={P.filterID}
         label={P.label} 
-        chicken={P.chicken} 
+        possibleSelections={P.possibleSelections} 
         range={P.rangeSet}
         sigTranslate={P.sigtranslate}>
       </FilterMenuPopulate>
@@ -59,7 +59,7 @@ class ClientAddFilter extends React.Component {
     const P = this.props;
     const BQstate = P.BQstate;
     BQstate.keys = P.removeKey(P.type, keyval, BQstate.keys);
-    P.egg[keyval] = "";
+    P.currentSelection[keyval] = "";
     this.setState(state => ({...state, numChildren: state.numChildren - 1}));
     if(P.type == "filter")
     {
@@ -93,7 +93,7 @@ class ClientAddFilter extends React.Component {
       args["parentResultAmt"] = BQstate.resultAmount;
       args["setState"] = P.parentProps.setSig;
       args["export"] = BQstate.export;
-      args["listOfSelectedSignatures"] = P.egg;
+      args["listOfSelectedSignatures"] = P.currentSelection;
       deleteSignature(args);
     }
   }
@@ -103,7 +103,7 @@ class ClientAddFilter extends React.Component {
     const keyval = document.getElementById(P.filterID).value.concat(this.state.numChildren.toString());
     const BQstate = P.BQstate;
     BQstate.keys[P.type].push(keyval);
-    var eggcopy = P.egg;
+    var currentSelectionCopy = P.currentSelection;
     console.log("BQstate after...", BQstate);
     const filterIDvalue = document.getElementById(P.filterID).value;
     //console.log("added value", invalue, P);
@@ -119,7 +119,7 @@ class ClientAddFilter extends React.Component {
     }
     if(P.type == "filter"){
       if(found){
-        eggcopy[keyval] = <ClientSelectedFilter
+        currentSelectionCopy[keyval] = <ClientSelectedFilter
                           BQstate={BQstate}
                           P={P} 
                           functioncall={P.functioncall} 
@@ -128,12 +128,12 @@ class ClientAddFilter extends React.Component {
                           get={keyval} 
                           deleteChild={this.onDeleteChild} 
                           range={P.rangeSet} 
-                          chicken={P.rangeSet} 
-                          egg={filterIDvalue} 
+                          possibleSelections={P.rangeSet} 
+                          currentSelection={filterIDvalue} 
                           pre_q={BQstate.preQueueboxValues}/>;
       }
       else{
-        eggcopy[keyval] = <ClientSelectedFilter
+        currentSelectionCopy[keyval] = <ClientSelectedFilter
                           BQstate={BQstate} 
                           P={P} 
                           functioncall={P.functioncall} 
@@ -142,11 +142,11 @@ class ClientAddFilter extends React.Component {
                           get={keyval} 
                           deleteChild={this.onDeleteChild} 
                           range={P.rangeSet} 
-                          chicken={P.chicken} 
-                          egg={filterIDvalue} 
+                          possibleSelections={P.possibleSelections} 
+                          currentSelection={filterIDvalue} 
                           pre_q={BQstate.preQueueboxValues}/>;
       }
-      P.parentProps.setChildrenFilters(eggcopy, eggcopy, BQstate.keys);
+      P.parentProps.setChildrenFilters(currentSelectionCopy, currentSelectionCopy, BQstate.keys);
     }
     if(P.type == "single"){
       var args = {};
@@ -169,14 +169,13 @@ class ClientAddFilter extends React.Component {
       args["type"] = P.type;
       args["export"] = BQstate.export;
       //name, number, filter
-      eggcopy[keyval] = <SingleItem 
+      currentSelectionCopy[keyval] = <SingleItem 
                         key={keyval} 
                         number={this.state.numChildren} 
                         get={keyval} 
-                        deleteChild={this.onDeleteChild} 
-                        chicken={P.chicken} 
-                        egg={invalue}/>;
-      args["egg"] = P.egg;
+                        deleteChild={this.onDeleteChild}
+                        currentSelection={invalue}/>;
+      args["egg"] = P.currentSelection;
       makeRequest("signature", args);
     }
     }
