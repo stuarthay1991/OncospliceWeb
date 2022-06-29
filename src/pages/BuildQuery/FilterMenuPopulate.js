@@ -18,29 +18,13 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   formControl: {
-    fontSize: "24px"
+    fontSize: "1.25em"
   }
 }));
 
-const widgetlabel3 = makeStyles((theme) => ({
-  root: {
-    fontSize: "24px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  },
-  select: {
-    fontSize: "24px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  }
-}));
 
 function FilterMenuPopulate(props) {
   const classes = useStyles();
-  const BQstate = props.BQstate;
-  const widgetlabel = widgetlabel3();
   const [state, setState] = React.useState({
     value: '',
     name: 'hai',
@@ -58,7 +42,6 @@ function FilterMenuPopulate(props) {
     });
     //TEMPORARY FIX (UPDATE AS SOON AS POSSIBLE)
     props.addChild(viewDict[event.target.value])
-    console.log("After selection", props.BQstate);
   };
   
   return(

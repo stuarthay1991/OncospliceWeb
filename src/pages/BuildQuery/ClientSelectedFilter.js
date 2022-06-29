@@ -79,14 +79,12 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
     args["export"] = BQstate.export;
     args["setState"] = P.parentProps.setMeta;
     makeRequest("metaDataField", args);
-    //functioncall(egg, event.target.value, get, "filter");
   }
 
   var cur_filter = possibleSelections[currentSelection];
   for (const [key, value] of Object.entries(range))
   {
     var groovykey = key.replaceAll("_", " ");
-    //console.log("ENTRIES", key, groovykey, egg);
     if((key.toLowerCase() == currentSelection.toLowerCase()) || (groovykey.toLowerCase() == currentSelection.toLowerCase()))
     {
       found_range = true;
