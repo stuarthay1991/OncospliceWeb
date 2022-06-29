@@ -11,25 +11,7 @@ import BQSelect from '../../components/BQSelect';
 import PreQueueMessage from '../../components/PreQueueMessage';
 import { makeRequest } from '../../request/CancerDataManagement.js';
 
-const useStyles = makeStyles((theme) => ({
-  parent: {
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  secondaryinput: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  formControl: {
-    fontSize: "16px"
-  }
-}));
-
 function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range, possibleSelections, currentSelection, functioncall}) {
-  if(module.hot){
-    module.hot.accept()
-  }
-  const classes = useStyles();
   var initial_val = BQstate.preQueueboxValues["children"][get] != undefined ? BQstate.preQueueboxValues["children"][get].props.value : "";
   const [state, setState] = React.useState({
     value: initial_val,
@@ -84,10 +66,10 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
       <IconButton variant="contained" color="primary"><LocalBarIcon /></IconButton>
       </span>
       <span>
-      <FormControl className={classes.formControl}>
+      <FormControl>
         <span style={{flex: 1, display: "flex"}}>
-        <span style={{color: "grey", marginTop: "0.5em", marginLeft: "0.4em", marginRight: "0.6em", fontSize: "1.25em"}}>{currentSelection}</span>
-        <span style={{mmarginLeft: "0.5em", marginTop: "0.5em", flex: 1}}>
+        <span style={{color: "grey", marginTop: "0.2em", marginLeft: "0.4em", marginRight: "0.6em", fontSize: "1.25em"}}>{currentSelection}</span>
+        <span style={{mmarginLeft: "0.5em", marginTop: "0.4em", fontSize: "0.75em", flex: 1}}>
         <BQSelect value={state.value} 
                   handleChange={handleChange} 
                   inputID={cur_id} 
