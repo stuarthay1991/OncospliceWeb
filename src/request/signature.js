@@ -44,22 +44,22 @@ function signature(arg, targeturl)
   
   for(let i in keys[filter])
   {
-    var myString = preQ["signatures"][keys[filter][i]].props.name;
-    myString = myString.replace(/(\r\n|\n|\r)/gm, "");
+    var queryString = preQ["signatures"][keys[filter][i]].props.name;
+    queryString = queryString.replace(/(\r\n|\n|\r)/gm, "");
     if(Object.entries(sigTranslate).length > 0)
     {
-      if(sigTranslate[myString] != undefined)
+      if(sigTranslate[queryString] != undefined)
       {
-        myString = sigTranslate[myString];
-        myString = myString.replace("+", "positive_");
+        queryString = sigTranslate[queryString];
+        queryString = queryString.replace("+", "positive_");
       }
       else
       {
-        myString = myString.replace(" ", "_");
+        queryString = queryString.replace(" ", "_");
       }
     }
-    bodyFormData.append(myString, myString);
-    exportView["single"].push(myString); 
+    bodyFormData.append(queryString, queryString);
+    exportView["single"].push(queryString); 
   }
   if(Object.entries(sigTranslate).length > 0)
   {

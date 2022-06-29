@@ -26,64 +26,64 @@ function fetchHeatmapData(arg, targeturl)
   var tmp_qh_obj = {};
   for(var i = 0; i < keys["filter"].length; i++)
   {
-    var myString = document.getElementById(childrenFilters[keys["filter"][i]].props.currentSelection.concat("_id")).value;
-    myString = myString.replace(/(\r\n|\n|\r)/gm, "");
+    var queryString = document.getElementById(childrenFilters[keys["filter"][i]].props.currentSelection.concat("_id")).value;
+    queryString = queryString.replace(/(\r\n|\n|\r)/gm, "");
     tmp_qh_obj = {};
-    //console.log("bodyFormDataSPLC", ("SPLC".concat(childrenFilters[keys["filter"][i]].props.egg)), myString);
-    bodyFormData.append(("SPLC".concat(childrenFilters[keys["filter"][i]].props.currentSelection)), myString);
+    //console.log("bodyFormDataSPLC", ("SPLC".concat(childrenFilters[keys["filter"][i]].props.egg)), queryString);
+    bodyFormData.append(("SPLC".concat(childrenFilters[keys["filter"][i]].props.currentSelection)), queryString);
     tmp_qh_obj["key"] = "SPLC".concat(childrenFilters[keys["filter"][i]].props.currentSelection);
-    tmp_qh_obj["val"] = myString;
+    tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
   }
   for(var i = 0; i < keys["single"].length; i++)
   {
-    var myString = listOfSelectedSignatures[keys["single"][i]].props.currentSelection;
-    myString = myString.replace(/(\r\n|\n|\r)/gm, "");
+    var queryString = listOfSelectedSignatures[keys["single"][i]].props.currentSelection;
+    queryString = queryString.replace(/(\r\n|\n|\r)/gm, "");
     tmp_qh_obj = {};
     if(Object.entries(sigTranslate).length > 0)
     {
-      if(sigTranslate[myString] != undefined)
+      if(sigTranslate[queryString] != undefined)
       {
-        bodyFormData.append(("RPSI".concat(myString)), myString);
-        console.log("RPSI SUBMIT", myString);
-        myString = sigTranslate[myString];
-        myString = myString.replace("+", "positive_");
+        bodyFormData.append(("RPSI".concat(queryString)), queryString);
+        console.log("RPSI SUBMIT", queryString);
+        queryString = sigTranslate[queryString];
+        queryString = queryString.replace("+", "positive_");
       }//TEMPORARY FIX
       else
       {
         //myString = "PSI_".concat(myString);
-        myString = myString.replace(" ", "_");
+        queryString = queryString.replace(" ", "_");
       }
       //console.log("Signature added:", myString);
     }
-    myString = "PSI".concat(myString);
-    tmp_qh_obj["key"] = myString;
-    tmp_qh_obj["val"] = myString;
+    queryString = "PSI".concat(queryString);
+    tmp_qh_obj["key"] = queryString;
+    tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
     //console.log("bodyFormDataPSI", myString, myString);
-    bodyFormData.append(myString, myString);
+    bodyFormData.append(queryString, queryString);
   }
   for(var i = 0; i < clientGenes.length; i++)
   {
-    var myString = clientGenes[i];
+    var queryString = clientGenes[i];
     tmp_qh_obj = {};
-    myString = "GENE".concat(myString);
-    tmp_qh_obj["key"] = myString;
-    tmp_qh_obj["val"] = myString;
+    queryString = "GENE".concat(queryString);
+    tmp_qh_obj["key"] = queryString;
+    tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
     //console.log("bodyFormDataGene", myString, myString);
-    bodyFormData.append(myString, myString);
+    bodyFormData.append(queryString, queryString);
   }
   for(var i = 0; i < clientCoord.length; i++)
   {
-    var myString = clientCoord[i];
+    var queryString = clientCoord[i];
     tmp_qh_obj = {};
-    myString = "COORD".concat(myString);
-    tmp_qh_obj["key"] = myString;
-    tmp_qh_obj["val"] = myString;
+    queryString = "COORD".concat(queryString);
+    tmp_qh_obj["key"] = queryString;
+    tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
     //console.log("bodyFormDataGene", myString, myString);
-    bodyFormData.append(myString, myString);
+    bodyFormData.append(queryString, queryString);
   }  
   bodyFormData.append("CANCER",curCancer);
   bodyFormData.append("COMPCANCER",compCancer);
