@@ -19,7 +19,6 @@ function fetchHeatmapData(arg, targeturl)
   const callback = BQprops.setViewPane;
   var GLOBAL_user = "Default";
   var document = arg["document"];
-  //console.log("FETCH ARGS", arg)
   document.getElementById("sub").style.display = "block";
   var bodyFormData = new FormData();
   var qh_arr = [];
@@ -29,7 +28,6 @@ function fetchHeatmapData(arg, targeturl)
     var queryString = document.getElementById(childrenFilters[keys["filter"][i]].props.currentSelection.concat("_id")).value;
     queryString = queryString.replace(/(\r\n|\n|\r)/gm, "");
     tmp_qh_obj = {};
-    //console.log("bodyFormDataSPLC", ("SPLC".concat(childrenFilters[keys["filter"][i]].props.egg)), queryString);
     bodyFormData.append(("SPLC".concat(childrenFilters[keys["filter"][i]].props.currentSelection)), queryString);
     tmp_qh_obj["key"] = "SPLC".concat(childrenFilters[keys["filter"][i]].props.currentSelection);
     tmp_qh_obj["val"] = queryString;
@@ -60,7 +58,6 @@ function fetchHeatmapData(arg, targeturl)
     tmp_qh_obj["key"] = queryString;
     tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
-    //console.log("bodyFormDataPSI", myString, myString);
     bodyFormData.append(queryString, queryString);
   }
   for(var i = 0; i < clientGenes.length; i++)
@@ -71,7 +68,6 @@ function fetchHeatmapData(arg, targeturl)
     tmp_qh_obj["key"] = queryString;
     tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
-    //console.log("bodyFormDataGene", myString, myString);
     bodyFormData.append(queryString, queryString);
   }
   for(var i = 0; i < clientCoord.length; i++)
@@ -82,22 +78,17 @@ function fetchHeatmapData(arg, targeturl)
     tmp_qh_obj["key"] = queryString;
     tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
-    //console.log("bodyFormDataGene", myString, myString);
     bodyFormData.append(queryString, queryString);
   }  
   bodyFormData.append("CANCER",curCancer);
   bodyFormData.append("COMPCANCER",compCancer);
-  //console.log("curcancer", curCancer);
   tmp_qh_obj = {};
   tmp_qh_obj["key"] = "CANCER";
   tmp_qh_obj["val"] = curCancer;
   qh_arr.push(tmp_qh_obj);
   var qh_postdata = JSON.stringify(qh_arr);
-  //console.log("QH1", qh_arr);
-  //console.log("QH2", qh_postdata);
   bodyFormData.append("HIST",qh_postdata);
   bodyFormData.append("USER",GLOBAL_user);
-  //console.log("bodyFormDataCancer", curCancer)
   if(keys["single"].length == 0 && clientGenes.length == 0 && clientCoord.length == 0)
   {
     alert("Please select at least one signature or gene to continue.");
