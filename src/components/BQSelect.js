@@ -6,6 +6,9 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 function BQSelect(props)
 {
+  var componentWidth = props.componentWidth == undefined ? "20em" : props.componentWidth;
+  var componentHeight = props.componentHeight == undefined ? "25%" : props.componentHeight;
+  var componentFontSize = props.componentFontSize == undefined ? "1.5em" : props.componentFontSize;
 	return(
 		<Form.Control as="select"
           value={props.value}
@@ -13,14 +16,14 @@ function BQSelect(props)
           id={props.inputID}
           name="value"
           style={{
-          	maxWidth: "20em",
-		        minWidth: "20em",
-          	maxHeight: "25%",
-		        minHeight: "25%",
-		        fontSize: "1.75em"
+          	maxWidth: componentWidth,
+		        minWidth: componentWidth,
+          	maxHeight: componentHeight,
+		        minHeight: componentHeight,
+		        fontSize: componentFontSize
           }}>
         {props.children}
-        </Form.Control>
+    </Form.Control>
     );
 }
 

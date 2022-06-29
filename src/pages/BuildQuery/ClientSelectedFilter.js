@@ -6,7 +6,7 @@ import LocalBarIcon from '@material-ui/icons/LocalBar';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+import BQSelect from '../../components/BQSelect';
 
 import PreQueueMessage from '../../components/PreQueueMessage';
 import { makeRequest } from '../../request/CancerDataManagement.js';
@@ -25,29 +25,9 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const widgetlabel5 = makeStyles((theme) => ({
-  root: {
-    fontSize: "16px"
-  },
-  select: {
-    fontSize: "16px",
-    maxWidth: "200px",
-    width: "200px",
-    minWidth: "200px"
-  }
-}));
-
 function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range, possibleSelections, currentSelection, functioncall}) {
   const classes = useStyles();
-  const widgemidge = widgetlabel5();
-  if(BQstate.preQueueboxValues["children"][get] != undefined)
-  {
-    var initial_val = BQstate.preQueueboxValues["children"][get].props.value;
-  }
-  else
-  {
-    var initial_val = "";
-  }
+  var initial_val = BQstate.preQueueboxValues["children"][get] != undefined ? BQstate.preQueueboxValues["children"][get].props.value : "";
   const [state, setState] = React.useState({
     value: initial_val,
     name: 'hai',
@@ -98,17 +78,14 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
       <IconButton variant="contained" color="primary" onClick={() => deleteChild(get)}><CloseIcon /></IconButton>
       <IconButton variant="contained" color="primary"><LocalBarIcon /></IconButton>
       <FormControl className={classes.formControl}>
-        <InputLabel htmlFor={cur_id}>{currentSelection}</InputLabel>
-        <Select
-          native
-          classes={widgemidge}
-          value={state.value}
-          onChange={handleChange}
-          inputProps={{
-            name: 'value',
-            id: cur_id,
-          }}
-        >
+        <span style={{display: "flex", marginTop: 8, marginLeft: 3}}>
+        <span style={{color: "grey", marginTop: 8, marginLeft: 3, fontSize: "1.25em"}}>{currentSelection}</span>
+        <span style={{mmarginLeft: 8, flex: 1}}>
+        <BQSelect value={state.value} 
+                  handleChange={handleChange} 
+                  inputID={cur_id} 
+                  componentWidth={"8em"}
+                  componentHeight={"100%"}>
           <option value=""></option>
           {(() => {
             const options = [];
@@ -122,7 +99,9 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
 
             return options;
           })()}
-        </Select>
+        </BQSelect>
+        </span>
+        </span>
       </FormControl>
     </div>
     </Grid>
