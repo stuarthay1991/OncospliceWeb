@@ -12,7 +12,9 @@ import TopNav from './TopNav.js';
 //Versioninga
 //console.log('process.argv', process.argv);
 var version = "0.1";
-
+if(module.hot){
+    module.hot.accept()
+}
 //App function is the top level function, all components are underneath this function. At this level the routing is controlled.
 function App() {
   if(module.hot){

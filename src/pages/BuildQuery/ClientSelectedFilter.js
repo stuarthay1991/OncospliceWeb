@@ -26,6 +26,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range, possibleSelections, currentSelection, functioncall}) {
+  if(module.hot){
+    module.hot.accept()
+  }
   const classes = useStyles();
   var initial_val = BQstate.preQueueboxValues["children"][get] != undefined ? BQstate.preQueueboxValues["children"][get].props.value : "";
   const [state, setState] = React.useState({
@@ -75,12 +78,16 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
   return (
     <Grid item>
     <div>
+      <span style={{display: "flex", marginTop: 8, marginLeft: 3}}>
+      <span>
       <IconButton variant="contained" color="primary" onClick={() => deleteChild(get)}><CloseIcon /></IconButton>
       <IconButton variant="contained" color="primary"><LocalBarIcon /></IconButton>
+      </span>
+      <span>
       <FormControl className={classes.formControl}>
-        <span style={{display: "flex", marginTop: 8, marginLeft: 3}}>
-        <span style={{color: "grey", marginTop: 8, marginLeft: 3, fontSize: "1.25em"}}>{currentSelection}</span>
-        <span style={{mmarginLeft: 8, flex: 1}}>
+        <span style={{flex: 1, display: "flex"}}>
+        <span style={{color: "grey", marginTop: "0.5em", marginLeft: "0.4em", marginRight: "0.6em", fontSize: "1.25em"}}>{currentSelection}</span>
+        <span style={{mmarginLeft: "0.5em", marginTop: "0.5em", flex: 1}}>
         <BQSelect value={state.value} 
                   handleChange={handleChange} 
                   inputID={cur_id} 
@@ -103,6 +110,8 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
         </span>
         </span>
       </FormControl>
+      </span>
+      </span>
     </div>
     </Grid>
   );
