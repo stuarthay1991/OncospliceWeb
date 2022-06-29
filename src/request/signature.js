@@ -27,7 +27,7 @@ function signature(arg, targeturl)
   console.log("callback...started");
   var bodyFormData = new FormData();
   const keys = arg["keys"];
-  const egg = arg["egg"];
+  const currentSelection = arg["currentSelection"];
   var completeListOfUIDs = arg["completeListOfUIDs"];
   const preQ = arg["pre_queueboxchildren"];
   const Q = arg["queueboxchildren"];
@@ -95,7 +95,7 @@ function signature(arg, targeturl)
       Q["signatures"][number] = <QueueMessage key={number} number={number} name={"PSI"} get={number} value={name} type={"events"} total_selected={in_criterion} total_left={selected_left}/>
       completeListOfUIDs = mergeSignatures(original_name, response["data"]["result"], completeListOfUIDs);
       resamt = {"samples": arg["parentResultAmt"]["samples"], "events": Object.keys(completeListOfUIDs).length};
-      callback(resamt, Q, keys, exportView, egg, completeListOfUIDs);
+      callback(resamt, Q, keys, exportView, currentSelection, completeListOfUIDs);
       //updateQueueBox(curCancer, keys["single"].length, queueboxchildren, queueboxsignatures);
   })
 }

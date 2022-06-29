@@ -175,7 +175,7 @@ class ClientAddFilter extends React.Component {
                         get={keyval} 
                         deleteChild={this.onDeleteChild}
                         currentSelection={invalue}/>;
-      args["egg"] = P.currentSelection;
+      args["currentSelection"] = P.currentSelection;
       makeRequest("signature", args);
     }
     }
