@@ -23,7 +23,7 @@ const spcTabStyles = makeStyles({
   root: {
     backgroundColor: "#edf0f5",
     color: '#0F6A8B',
-    fontSize: 16,
+    fontSize: "1.36em",
     paddingRight: 43,
     paddingLeft: 43,
     marginLeft: 5,
@@ -32,7 +32,7 @@ const spcTabStyles = makeStyles({
   selected: {
     backgroundColor: "white",
     color: '#0F6A8B',
-    fontSize: 16,
+    fontSize: "1.36em",
     paddingRight: 43,
     paddingLeft: 43,
     marginLeft: 5,
@@ -237,7 +237,7 @@ function MainPanel(props){
       <div id="contactpanel" style={{display: "none", margin: 15}}>
         <div>
           <Box borderLeft={3} borderColor={'#0F6A8B'}>
-          <div style={{marginLeft: 15, marginTop: 20, fontSize: 24}}>
+          <div style={{marginLeft: 15, marginTop: 20, fontSize: "1.5em"}}>
             <p>Contact: <a href="mailto: altanalyze@gmail.com">altanalyze@gmail.com</a></p>
           </div>
           </Box>

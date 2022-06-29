@@ -54,9 +54,13 @@ class ViewPanelWrapper extends React.Component {
 
   render()
   {
+    if(this.state.heatmapInputData.length > 0 && this.props.validate == 1 && this.state.heatmapInputData == undefined)
+    {
+      alert("Submission failed! Please try again!");
+    }
     return(
       <div>
-        {this.state.heatmapInputData.length > 0 && this.props.validate == 1 && (
+        {this.state.heatmapInputData.length > 0 && this.props.validate == 1 && this.state.heatmapInputData != undefined && (
           <ViewPanel  css={withStyles(useStyles)} 
                       QueryExport={this.state.export} 
                       Data={this.state.heatmapInputData} 
