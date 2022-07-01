@@ -38,7 +38,7 @@ import { gtexSend } from './plots/gtexPlotPanel.js';
 import { downloadExonPlotData} from './downloadDataFile.js';
 import SetExonPlot from './plots/exonPlot.js';
 import OKMAP_COLUMN_CLUSTERS from './plots/okmapColumnClusters.js';
-import OKMAP_RPSI from './plots/okmapRPSI.js';
+import OKMAP_OncospliceClusters from './plots/okmapOncospliceClusters.js';
 import PlotPanel from './plots/plotPanel.js';
 
 var global_meta = [];
@@ -50,7 +50,7 @@ var global_signature = "";
 var global_trans = "";
 var global_cols = [];
 var global_cc = [];
-var global_rpsi = [];
+var global_OncospliceClusters = [];
 var global_Y = "";
 var global_adj_height = "";
 var global_heat_len = "";
@@ -317,7 +317,7 @@ class Heatmap extends React.Component {
       output: null,
       label: null,
       CC: null,
-      RPSI: null
+      OncospliceClusters: null
     };
   }
   componentDidMount() { 
@@ -366,10 +366,10 @@ class Heatmap extends React.Component {
                 column_names={this.props.cc} 
                 doc={document} 
                 xscale={xscale}/>,
-      RPSI: <OKMAP_RPSI 
-                target_div_id={"HEATMAP_RPSI"} 
+      OncospliceClusters: <OKMAP_OncospliceClusters 
+                target_div_id={"HEATMAP_OncospliceClusters"} 
                 refcols={this.props.cols} 
-                column_names={this.props.rpsi}
+                column_names={this.props.OncospliceClusters}
                 doc={document}
                 trans={global_trans}
                 xscale={xscale}/>
@@ -427,10 +427,10 @@ class Heatmap extends React.Component {
                   column_names={this.props.cc} 
                   doc={document} 
                   xscale={this.xscale}/>,
-        RPSI: <OKMAP_RPSI 
-                  target_div_id={"HEATMAP_RPSI"} 
+        OncospliceClusters: <OKMAP_OncospliceClusters 
+                  target_div_id={"HEATMAP_OncospliceClusters"} 
                   refcols={this.props.cols} 
-                  column_names={this.props.rpsi} 
+                  column_names={this.props.OncospliceClusters} 
                   doc={document}
                   trans={global_trans}
                   xscale={this.xscale}/>
@@ -445,7 +445,7 @@ class Heatmap extends React.Component {
       {this.state.output}
       {this.state.label}
       {this.state.CC}
-      {this.state.RPSI}
+      {this.state.OncospliceClusters}
       </div>
     );
   }
@@ -1097,7 +1097,7 @@ class SupplementaryPlot extends React.Component {
     var elm2 = this.state.filterset;
     if(Selection != null && this.state.filterset != null && this.state.fulldat != null)
     {
-      var plotobj1 = oncospliceClusterViolinPlotPanel(Selection, this.state.fulldat, this.props.Cols, this.props.RPSI, this.props.TRANS, global_cancer);
+      var plotobj1 = oncospliceClusterViolinPlotPanel(Selection, this.state.fulldat, this.props.Cols, this.props.OncospliceClusters, this.props.TRANS, global_cancer);
       var plotobj2 = hierarchicalClusterViolinPlotPanel(this.state.fulldat, Selection, this.props.Cols, this.props.CC, global_cancer);
       var plotobj3 = sampleFilterViolinPlotPanel(Selection, this.state.fulldat, this.props.Cols, elm1, elm2, global_cancer);
     }
@@ -1193,7 +1193,7 @@ function ViewPanel(props) {
   global_signature = props.QueryExport["single"];
   global_cols = props.Cols;
   global_cc = props.CC;
-  global_rpsi = props.RPSI;
+  global_OncospliceClusters = props.OncospliceClusters;
   global_trans = props.TRANS;
   const [viewState, setViewState] = React.useState({
     toDownloadExon: undefined,
@@ -1218,7 +1218,7 @@ function ViewPanel(props) {
           Data={props.Data} 
           Cols={props.Cols} 
           CC={props.CC} 
-          RPSI={props.RPSI} 
+          OncospliceClusters={props.OncospliceClusters} 
           QueryExport={props.QueryExport}
         />
         <Typography className={classes.padding} />
@@ -1226,7 +1226,7 @@ function ViewPanel(props) {
           Data={props.Data} 
           Cols={props.Cols} 
           CC={props.CC} 
-          RPSI={props.RPSI} 
+          OncospliceClusters={props.OncospliceClusters} 
           QueryExport={props.QueryExport}
           viewState={viewState}
           setViewState={setViewState}
@@ -1241,7 +1241,7 @@ function ViewPanel(props) {
           Data={props.Data} 
           Cols={props.Cols} 
           CC={props.CC} 
-          RPSI={props.RPSI} 
+          OncospliceClusters={props.OncospliceClusters} 
           TRANS={props.TRANS} 
           QueryExport={props.QueryExport}
           viewState={viewState}
@@ -1305,7 +1305,7 @@ function ViewPanel_Top(props) {
           <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
           </Tooltip>
           <Tooltip title="Download heatmap in text format.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.RPSI)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
           </Tooltip>
           </span>
         </Grid>
@@ -1322,7 +1322,7 @@ function ViewPanel_Side(props) {
     <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
     <SupplementaryPlot 
       CC={props.CC} 
-      RPSI={props.RPSI} 
+      OncospliceClusters={props.OncospliceClusters} 
       TRANS={props.TRANS} 
       Data={props.Data} 
       Cols={props.Cols}
@@ -1344,7 +1344,7 @@ function ViewPanel_Main(props) {
       <Box {...defaultProps}>
         <div id="HEATMAP_LABEL"></div>
         <div id="HEATMAP_CC"></div>
-        <div id="HEATMAP_RPSI"></div>
+        <div id="HEATMAP_OncospliceClusters"></div>
         <div className={classes.flexparent}>
         <span id="HEATMAP_0"></span>
         <span id="HEATMAP_ROW_LABEL" style={{width: "280px"}}></span>
@@ -1354,7 +1354,7 @@ function ViewPanel_Main(props) {
         data={props.Data} 
         cols={props.Cols} 
         cc={props.CC} 
-        rpsi={props.RPSI}
+        OncospliceClusters={props.OncospliceClusters}
         viewState={props.viewState}
         setViewState={props.setViewState}
         gtexState={props.gtexState}

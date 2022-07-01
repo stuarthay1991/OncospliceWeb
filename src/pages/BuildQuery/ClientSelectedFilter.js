@@ -68,7 +68,7 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
       <span>
       <FormControl>
         <span style={{flex: 1, display: "flex"}}>
-        <span style={{color: "grey", marginTop: "0.2em", marginLeft: "0.4em", marginRight: "0.6em", fontSize: "1.25em"}}>{currentSelection}</span>
+        <span style={{color: "grey", marginTop: "0.4em", marginLeft: "0.4em", marginRight: "0.6em", fontSize: "1em"}}>{currentSelection.concat(":")}</span>
         <span style={{mmarginLeft: "0.5em", marginTop: "0.4em", fontSize: "0.75em", flex: 1}}>
         <BQSelect value={state.value} 
                   handleChange={handleChange} 

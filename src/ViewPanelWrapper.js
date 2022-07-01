@@ -15,7 +15,7 @@ class ViewPanelWrapper extends React.Component {
       heatmapInputData: [],
       inCols: [],
       inCC: [],
-      inRPSI: [],
+      inOncospliceClusters: [],
       inTRANS: [],
       export: []
     }
@@ -28,7 +28,7 @@ class ViewPanelWrapper extends React.Component {
         heatmapInputData: this.props.entrydata["heatmapInputData"],
         inCols: this.props.entrydata["inCols"],
         inCC: this.props.entrydata["inCC"],
-        inRPSI: this.props.entrydata["inRPSI"],
+        inOncospliceClusters: this.props.entrydata["inOncospliceClusters"],
         inTRANS: this.props.entrydata["inTRANS"],
         export: this.props.entrydata["export"]
         });
@@ -44,7 +44,7 @@ class ViewPanelWrapper extends React.Component {
         heatmapInputData: this.props.entrydata["heatmapInputData"],
         inCols: this.props.entrydata["inCols"],
         inCC: this.props.entrydata["inCC"],
-        inRPSI: this.props.entrydata["inRPSI"],
+        inOncospliceClusters: this.props.entrydata["inOncospliceClusters"],
         inTRANS: this.props.entrydata["inTRANS"],
         export: this.props.entrydata["export"]
         });
@@ -66,7 +66,7 @@ class ViewPanelWrapper extends React.Component {
                       Data={this.state.heatmapInputData} 
                       Cols={this.state.inCols} 
                       CC={this.state.inCC} 
-                      RPSI={this.state.inRPSI} 
+                      OncospliceClusters={this.state.inOncospliceClusters} 
                       TRANS={this.state.inTRANS}
           />
         )}

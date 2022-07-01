@@ -2,7 +2,7 @@ import React from 'react';
 import * as d3 from 'd3';
 import { global_colors } from '../constants.js';
 
-class OKMAP_RPSI extends React.Component {
+class OKMAP_OncospliceClusters extends React.Component {
   constructor(props)
   {
     super(props);
@@ -101,4 +101,4 @@ class OKMAP_RPSI extends React.Component {
 
 }
 
-export default OKMAP_RPSI;
+export default OKMAP_OncospliceClusters;

@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 
-function CheckboxForm(props)
+function DefaultQueryCheckboxForm(props)
 {
 	const [state, setState] = React.useState({
 	    checked: false,
@@ -30,4 +30,4 @@ function CheckboxForm(props)
 	);
 }
 
-export default CheckboxForm;
+export default DefaultQueryCheckboxForm;

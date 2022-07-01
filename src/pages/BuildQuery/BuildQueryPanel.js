@@ -17,7 +17,7 @@ import loadinggif from './gifmax.gif';
 //General components
 import TabPanel from '../../components/TabPanel';
 import SpcInputLabel from '../../components/SpcInputLabel';
-import CheckboxForm from '../../components/CheckboxForm';
+import DefaultQueryCheckboxForm from '../../components/DefaultQueryCheckboxForm';
 import QueueMessage from '../../components/QueueMessage';
 import PreQueueMessage from '../../components/PreQueueMessage';
 import SingleItem from '../../components/SingleItem';
@@ -253,7 +253,7 @@ class BQPanel extends React.Component {
               </Grid>
             </Grid>
             <div style={{marginTop: 20}}>
-            <CheckboxForm updateBQPanel={updateBQPanel}/>
+            <DefaultQueryCheckboxForm updateBQPanel={updateBQPanel}/>
             <div id="FilterBox_div" style={{display: displayvalue, marginTop: 5, overflowX: "scroll"}}>
             <Grid item container spacing={2}>
               <CancerSelect inherit={this.props} prevState={this.state}

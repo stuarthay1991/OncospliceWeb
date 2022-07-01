@@ -22,7 +22,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-
+//This function populates the selection options for the filters (samples and signatures) on the left hand side of
+//the build query panel. It also correctly parses the strings for display purposes.
 function FilterMenuPopulate(props) {
   const classes = useStyles();
   const [state, setState] = React.useState({
