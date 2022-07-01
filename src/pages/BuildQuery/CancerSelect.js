@@ -6,14 +6,14 @@ import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from "../../components/SpcInputLabel";
-import BQSelect from "../../components/BQSelect";
+import BuildQuerySelect from "../../components/BuildQuerySelect";
 import { makeRequest } from '../../request/CancerDataManagement.js';
 
 function CancerSelectWidget(props)
 {
   return (
         <Tooltip title="Select a cancer. All filters and signatures subsequently selected will be matched with this cancer data.">
-        <BQSelect
+        <BuildQuerySelect
           value={props.value}
           handleChange={props.handleChange}
           inputID={props.inputID}
@@ -32,7 +32,7 @@ function CancerSelectWidget(props)
             options.push(<option value={"AML_Leucegene"}>{"Acute Myeloid Leukemia (Leucgene)"}</option>);
             return options;
           })()}
-        </BQSelect>
+        </BuildQuerySelect>
         </Tooltip>
   );
 }

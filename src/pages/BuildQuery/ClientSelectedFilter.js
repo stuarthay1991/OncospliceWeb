@@ -6,7 +6,7 @@ import LocalBarIcon from '@material-ui/icons/LocalBar';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
-import BQSelect from '../../components/BQSelect';
+import BuildQuerySelect from '../../components/BuildQuerySelect';
 
 import PreQueueMessage from '../../components/PreQueueMessage';
 import { makeRequest } from '../../request/CancerDataManagement.js';
@@ -70,7 +70,7 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
         <span style={{flex: 1, display: "flex"}}>
         <span style={{color: "grey", marginTop: "0.4em", marginLeft: "0.4em", marginRight: "0.6em", fontSize: "1em"}}>{currentSelection.concat(":")}</span>
         <span style={{mmarginLeft: "0.5em", marginTop: "0.4em", fontSize: "0.75em", flex: 1}}>
-        <BQSelect value={state.value} 
+        <BuildQuerySelect value={state.value} 
                   handleChange={handleChange} 
                   inputID={cur_id} 
                   componentWidth={"8em"}
@@ -88,7 +88,7 @@ function ClientSelectedFilter({BQstate, P, key, number, get, deleteChild, range,
 
             return options;
           })()}
-        </BQSelect>
+        </BuildQuerySelect>
         </span>
         </span>
       </FormControl>

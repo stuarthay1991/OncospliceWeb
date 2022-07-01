@@ -6,7 +6,7 @@ import Select from '@material-ui/core/Select';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from "../../components/SpcInputLabel";
-import BQSelect from "../../components/BQSelect";
+import BuildQuerySelect from "../../components/BuildQuerySelect";
 
 const useStyles = makeStyles((theme) => ({
   parent: {
@@ -55,7 +55,7 @@ function FilterMenuPopulate(props) {
         <Grid item>
         <FormControl>
         <Tooltip title="Select option from the menu. Filters will correspond to patient data for each cancer, while signatures/coordinates/genes correspond to events.">
-        <BQSelect
+        <BuildQuerySelect
           value={state.value}
           handleChange={handleChange}
           inputID={props.filterID}
@@ -106,7 +106,7 @@ function FilterMenuPopulate(props) {
             }
             return options;
           })()}
-        </BQSelect>
+        </BuildQuerySelect>
         </Tooltip>
         </FormControl>
         </Grid>

@@ -10,7 +10,7 @@ import SelectCancerSignature from './SelectCancerSignature';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from "../../components/SpcInputLabel";
-import BQSelect from "../../components/BQSelect";
+import BuildQuerySelect from "../../components/BuildQuerySelect";
 
 function none()
 {
@@ -20,7 +20,7 @@ function none()
 function ClientSEF_select(props){
   return(
     <Tooltip title="Select the event filtration type. Events can be matched by genomic coordinates, gene symbols or cancer signatures.">
-    <BQSelect
+    <BuildQuerySelect
           value={props.value}
           handleChange={props.handleChange}
           inputID={"SEF_id"}
@@ -33,7 +33,7 @@ function ClientSEF_select(props){
             options.push(<option value={"Coordinate Filter"}>{"Coordinate Filter"}</option>);
             return options;
     })()}
-    </BQSelect>
+    </BuildQuerySelect>
     </Tooltip>
   )
 }

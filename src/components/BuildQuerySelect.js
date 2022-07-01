@@ -4,7 +4,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 //This informs the style of the selection boxes on the build query page.
 
-function BQSelect(props)
+function BuildQuerySelect(props)
 {
   var componentWidth = props.componentWidth == undefined ? "20em" : props.componentWidth;
   var componentHeight = props.componentHeight == undefined ? "25%" : props.componentHeight;
@@ -27,4 +27,4 @@ function BQSelect(props)
     );
 }
 
-export default BQSelect;
+export default BuildQuerySelect;

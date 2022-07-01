@@ -7,7 +7,7 @@ import ClientAddFilter from './ClientAddFilter';
 import SpcInputLabel from "../../components/SpcInputLabel";
 import { makeRequest } from '../../request/CancerDataManagement.js';
 import Tooltip from '@material-ui/core/Tooltip';
-import BQSelect from "../../components/BQSelect";
+import BuildQuerySelect from "../../components/BuildQuerySelect";
 
 function none()
 {
@@ -70,7 +70,7 @@ function SelectCancerSignature({P, BQstate}){
   	<>
     <SpcInputLabel label={"Cancer Signature Selection"}/>
     <Tooltip title="Select a cancer signature. Default is that of the currently selected cancer. Signatures from any cancer can be matched with any other cancer listed in the database.">
-    <BQSelect
+    <BuildQuerySelect
           value={state.value}
           handleChange={handleChange}
           inputID={"CancerSignature_id"}    
@@ -89,7 +89,7 @@ function SelectCancerSignature({P, BQstate}){
             options.push(<option value={"AML_Leucegene"}>{"AML_Leucegene signatures"}</option>);
             return options;
     })()}
-    </BQSelect>
+    </BuildQuerySelect>
     </Tooltip>
 	</>
   )
