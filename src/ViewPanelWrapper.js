@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ViewPane from './ViewPane.js';
+import ViewPanel from './ViewPanel.js';
 import useStyles from './useStyles.js';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
@@ -8,14 +8,14 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 //There should be a more simple and streamlined way to do this; but basically the point of this is that I need to wait for the request
 //to the server to finish before the Data Exploration tab is loaded, otherwise React will load asynchrously. That's what this object
 //currently accomplishes.
-class ViewPaneWrapper extends React.Component {
+class ViewPanelWrapper extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      inData: [],
+      heatmapInputData: [],
       inCols: [],
       inCC: [],
-      inRPSI: [],
+      inOncospliceClusters: [],
       inTRANS: [],
       export: []
     }
@@ -25,10 +25,10 @@ class ViewPaneWrapper extends React.Component {
     if(this.props.entrydata != undefined)
     {
         this.setState({
-        inData: this.props.entrydata["inData"],
+        heatmapInputData: this.props.entrydata["heatmapInputData"],
         inCols: this.props.entrydata["inCols"],
         inCC: this.props.entrydata["inCC"],
-        inRPSI: this.props.entrydata["inRPSI"],
+        inOncospliceClusters: this.props.entrydata["inOncospliceClusters"],
         inTRANS: this.props.entrydata["inTRANS"],
         export: this.props.entrydata["export"]
         });
@@ -41,10 +41,10 @@ class ViewPaneWrapper extends React.Component {
       if(this.props.entrydata != undefined)
       {
         this.setState({
-        inData: this.props.entrydata["inData"],
+        heatmapInputData: this.props.entrydata["heatmapInputData"],
         inCols: this.props.entrydata["inCols"],
         inCC: this.props.entrydata["inCC"],
-        inRPSI: this.props.entrydata["inRPSI"],
+        inOncospliceClusters: this.props.entrydata["inOncospliceClusters"],
         inTRANS: this.props.entrydata["inTRANS"],
         export: this.props.entrydata["export"]
         });
@@ -54,14 +54,25 @@ class ViewPaneWrapper extends React.Component {
 
   render()
   {
+    if(this.state.heatmapInputData.length > 0 && this.state.heatmapInputData == undefined)
+    {
+      alert("Submission failed! Please try again!");
+    }
     return(
       <div>
-        {this.state.inData.length > 0 && this.props.validate == 1 && (
-          <ViewPane css={withStyles(useStyles)} QueryExport={this.state.export} Data={this.state.inData} Cols={this.state.inCols} CC={this.state.inCC} RPSI={this.state.inRPSI} TRANS={this.state.inTRANS}/>
+        {!!this.state.heatmapInputData && this.state.heatmapInputData.length > 0 && (
+          <ViewPanel  css={withStyles(useStyles)} 
+                      QueryExport={this.state.export} 
+                      Data={this.state.heatmapInputData} 
+                      Cols={this.state.inCols} 
+                      CC={this.state.inCC} 
+                      OncospliceClusters={this.state.inOncospliceClusters} 
+                      TRANS={this.state.inTRANS}
+          />
         )}
       </div>
     );
   }
 }
 
-export default ViewPaneWrapper;
+export default ViewPanelWrapper;

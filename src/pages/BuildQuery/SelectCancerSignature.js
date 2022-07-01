@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
@@ -8,21 +7,7 @@ import ClientAddFilter from './ClientAddFilter';
 import SpcInputLabel from "../../components/SpcInputLabel";
 import { makeRequest } from '../../request/CancerDataManagement.js';
 import Tooltip from '@material-ui/core/Tooltip';
-
-const widgetlabel4 = makeStyles((theme) => ({
-  root: {
-    fontSize: "16px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  },
-  select: {
-    fontSize: "16px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  }
-}));
+import BuildQuerySelect from "../../components/BuildQuerySelect";
 
 function none()
 {
@@ -30,7 +15,6 @@ function none()
 }
 
 function SelectCancerSignature({P, BQstate}){
-  const wla4 = widgetlabel4();
 
   const BQstateSet = P.BQstateSet;
 
@@ -77,7 +61,7 @@ function SelectCancerSignature({P, BQstate}){
     {
         setState({
           ...state,
-          value: BQstate.compared_cancer,
+          value: BQstate.comparedCancer,
         });
     }
   })
@@ -86,15 +70,10 @@ function SelectCancerSignature({P, BQstate}){
   	<>
     <SpcInputLabel label={"Cancer Signature Selection"}/>
     <Tooltip title="Select a cancer signature. Default is that of the currently selected cancer. Signatures from any cancer can be matched with any other cancer listed in the database.">
-    <Select
-          native
-          classes={wla4}
+    <BuildQuerySelect
           value={state.value}
-          onChange={handleChange}
-          inputProps={{
-            name: 'value',
-            id: "CancerSignature_id",
-          }}
+          handleChange={handleChange}
+          inputID={"CancerSignature_id"}    
     >
     <option value=""></option>
     {(() => {
@@ -110,7 +89,7 @@ function SelectCancerSignature({P, BQstate}){
             options.push(<option value={"AML_Leucegene"}>{"AML_Leucegene signatures"}</option>);
             return options;
     })()}
-    </Select>
+    </BuildQuerySelect>
     </Tooltip>
 	</>
   )

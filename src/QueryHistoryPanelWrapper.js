@@ -12,7 +12,7 @@ function none()
 //This whole section is likely to be removed in the future. Originally, this was supposed to be a way for users to click back to old
 //queries they've made and see the results of those queries. In practice, this is impractical for queries with a large amount of genes
 //and/or coordinates.
-class QueryHistoryPaneWrapper extends React.Component {
+class QueryHistoryPanelWrapper extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -68,4 +68,4 @@ function updateQueryHistory(input) {
     });
 }
 
-export default QueryHistoryPaneWrapper;
+export default QueryHistoryPanelWrapper;

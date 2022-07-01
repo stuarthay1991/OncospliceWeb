@@ -41,7 +41,7 @@ function SubmitButton(props){
     color:'#ffffff',
     borderColor: 'white',
     fontFamily: 'Roboto',
-    fontSize:'16px',
+    fontSize:'22px',
     fontWeight:'bold',
     padding:'13px 32px',
     textDecoration:'none',

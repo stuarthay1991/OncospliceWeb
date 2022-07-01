@@ -6,6 +6,7 @@ import Select from '@material-ui/core/Select';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from "../../components/SpcInputLabel";
+import BuildQuerySelect from "../../components/BuildQuerySelect";
 
 const useStyles = makeStyles((theme) => ({
   parent: {
@@ -17,29 +18,14 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   formControl: {
-    fontSize: "16px"
+    fontSize: "1.25em"
   }
 }));
 
-const widgetlabel3 = makeStyles((theme) => ({
-  root: {
-    fontSize: "16px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  },
-  select: {
-    fontSize: "16px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  }
-}));
-
+//This function populates the selection options for the filters (samples and signatures) on the left hand side of
+//the build query panel. It also correctly parses the strings for display purposes.
 function FilterMenuPopulate(props) {
   const classes = useStyles();
-  const BQstate = props.BQstate;
-  const widgetlabel = widgetlabel3();
   const [state, setState] = React.useState({
     value: '',
     name: 'hai',
@@ -57,8 +43,6 @@ function FilterMenuPopulate(props) {
     });
     //TEMPORARY FIX (UPDATE AS SOON AS POSSIBLE)
     props.addChild(viewDict[event.target.value])
-    console.log("After selection", props.BQstate);
-
   };
   
   return(
@@ -71,24 +55,18 @@ function FilterMenuPopulate(props) {
         <Grid item>
         <FormControl>
         <Tooltip title="Select option from the menu. Filters will correspond to patient data for each cancer, while signatures/coordinates/genes correspond to events.">
-        <Select
-          native
-          classes={widgetlabel}
+        <BuildQuerySelect
           value={state.value}
-          onChange={handleChange}
-          inputProps={{
-            name: 'value',
-            id: props.filterID,
-          }}
+          handleChange={handleChange}
+          inputID={props.filterID}
         >
-
           <option value=""></option>
           {(() => {
             const options = [];
 
             if(props.type == "filter")
             {
-            for (const [key, value] of Object.entries(props.chicken)) {
+            for (const [key, value] of Object.entries(props.possibleSelections)) {
               var name_selected = key.replaceAll("_", " ");
               name_selected = name_selected.charAt(0).toUpperCase() + name_selected.slice(1);
               name_selected = name_selected.toUpperCase();
@@ -97,8 +75,8 @@ function FilterMenuPopulate(props) {
             }
             else if(props.type == "single")
             {
-            for(var i = 0; i < props.chicken.length; i++) {
-              var name_selected = props.chicken[i];
+            for(var i = 0; i < props.possibleSelections.length; i++) {
+              var name_selected = props.possibleSelections[i];
               if((Object.entries(props.sigTranslate)).length > 0)
               {
                 if(props.sigTranslate[name_selected] != undefined)
@@ -123,12 +101,12 @@ function FilterMenuPopulate(props) {
                 final_name_selected = final_name_selected.charAt(0).toUpperCase() + final_name_selected.slice(1);
                 viewDict[final_name_selected] = name_selected;
               }
-              options.push(<option value={props.chicken.length[i]}>{final_name_selected}</option>);
+              options.push(<option value={props.possibleSelections.length[i]}>{final_name_selected}</option>);
             }
             }
             return options;
           })()}
-        </Select>
+        </BuildQuerySelect>
         </Tooltip>
         </FormControl>
         </Grid>

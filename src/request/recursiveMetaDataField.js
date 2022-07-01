@@ -31,11 +31,11 @@ function recursiveMetaDataField(arg, targeturl)
 	  	for(var k = 0; k < keys[filter].length; k++)
 	  	{
 	  		var item = preQ["children"][keys[filter][k]];
-	    	var myString = item.props.value;
-	    	myString = myString.replace(/(\r\n|\n|\r)/gm, "");
-	    	bodyFormData.append(item.props.name, myString);
+	    	var queryString = item.props.value;
+	    	queryString = queryString.replace(/(\r\n|\n|\r)/gm, "");
+	    	bodyFormData.append(item.props.name, queryString);
 	    }
-	    exportView["filter"].push((item.props.name.concat("#").concat(myString)));
+	    exportView["filter"].push((item.props.name.concat("#").concat(queryString)));
 		i_name = i_name.replace(/(\r\n|\n|\r)/gm, "");
 		i_value = i_value.replace(/(\r\n|\n|\r)/gm, "");
 		bodyFormData.append(("SEL".concat(i_name)), i_value);

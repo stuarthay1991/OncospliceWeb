@@ -1,50 +1,22 @@
 import React from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from "../../components/SpcInputLabel";
-
+import BuildQuerySelect from "../../components/BuildQuerySelect";
 import { makeRequest } from '../../request/CancerDataManagement.js';
-
-const widgetlabel = makeStyles((theme) => ({
-  root: {
-    maxWidth: "360px",
-    minWidth: "360px",
-    fontSize: "16px"
-    }
-}));
-
-const labelstyle = makeStyles((theme) => ({
-  labelstyle: {
-    backgroundColor: '#0F6A8B',
-    color: 'white',
-    fontSize: 16,
-    paddingTop: 4,
-    paddingBottom: 4,
-    paddingLeft: 10,
-    paddingRight: 10,
-    marginLeft: 2
-  }
-}));
 
 function CancerSelectWidget(props)
 {
-  const classes = widgetlabel();
   return (
         <Tooltip title="Select a cancer. All filters and signatures subsequently selected will be matched with this cancer data.">
-        <Select
-          native
-          classes={classes}
+        <BuildQuerySelect
           value={props.value}
-          onChange={props.handleChange}
-          inputProps={{
-            name: 'value',
-            id: "CancerSelect_id",
-          }}
+          handleChange={props.handleChange}
+          inputID={props.inputID}
         >
           <option value=""></option>
           {(() => {
@@ -60,14 +32,13 @@ function CancerSelectWidget(props)
             options.push(<option value={"AML_Leucegene"}>{"Acute Myeloid Leukemia (Leucgene)"}</option>);
             return options;
           })()}
-        </Select>
+        </BuildQuerySelect>
         </Tooltip>
   );
 }
 
 function CancerSelectFormControl(props)
 {
-  const classes = widgetlabel();
   return (
   <div>
   <SpcInputLabel label={"Cancer Type"}></SpcInputLabel>

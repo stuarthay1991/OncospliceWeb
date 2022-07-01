@@ -14,16 +14,16 @@ import LockIcon from '@material-ui/icons/Lock';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import './App.css';
-import BQPane from './pages/BuildQuery/BuildQueryPane.js';
-import ViewPaneWrapper from './ViewPaneWrapper.js';
+import BQPanel from './pages/BuildQuery/BuildQueryPanel.js';
+import ViewPanelWrapper from './ViewPanelWrapper.js';
 //import Authentication from './Authentication.js';
-import QueryHistoryPaneWrapper from './QueryHistoryPaneWrapper.js';
+import QueryHistoryPanelWrapper from './QueryHistoryPanelWrapper.js';
 
 const spcTabStyles = makeStyles({
   root: {
     backgroundColor: "#edf0f5",
     color: '#0F6A8B',
-    fontSize: 16,
+    fontSize: "1.36em",
     paddingRight: 43,
     paddingLeft: 43,
     marginLeft: 5,
@@ -32,7 +32,7 @@ const spcTabStyles = makeStyles({
   selected: {
     backgroundColor: "white",
     color: '#0F6A8B',
-    fontSize: 16,
+    fontSize: "1.36em",
     paddingRight: 43,
     paddingLeft: 43,
     marginLeft: 5,
@@ -91,7 +91,7 @@ function MainPanel(props){
     //In order, "inData" describes the heatmap row values, "inCols" describes the column header values, "inCC" describes the hierarchical clusters, "inRPSI"
     //describes the Oncosplice clusters, "inTRANS" is a dictionary to relate between postgres-friendly modified strings and their original values, and "export"
     //contains an array of misc information to help build the heatmap.
-    viewpaneobj: {"inData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []},
+    viewpaneobj: {"heatmapInputData": [], "inCols": [], "inCC": [], "inOncospliceClusters": [], "inTRANS": [], "export": []},
     //"value" dictates what page we are currently viewing.
     value: indexToTabName[page],
     //Currently logged in user.
@@ -103,20 +103,20 @@ function MainPanel(props){
     //use redesign, but currently it is too risky to move anything.
     bqstate: {
       defaultQuery: false, //This informs whether or not the "default query" selection has been ticked.
-      queuebox_values: {"children": undefined, "signatures": undefined}, //This represents what will be populated into the queuebox on the right hand side of the build query pane. As the user selects options, the list will populate.
-      pre_queueboxvalues: {"children": {}, "signatures": {}}, //This is currently just used to store some information for clinical metadata and signature queries. It holds the same keys as queryboxchildren, but it used much less and will likely be replaced with a more pertinent variable in the future.
+      queueboxValues: {"children": undefined, "signatures": undefined}, //This represents what will be populated into the queuebox on the right hand side of the build query pane. As the user selects options, the list will populate.
+      preQueueboxValues: {"children": {}, "signatures": {}}, //This is currently just used to store some information for clinical metadata and signature queries. It holds the same keys as queryboxchildren, but it used much less and will likely be replaced with a more pertinent variable in the future.
       eventfilterSet: null, //This denotes whether the event filter has been selected or not; will likely remove in the future as it is redundant.
-      resultamount: {"samples": 0, "events": 0}, //This informs the "prospective results" at the bottom of the querybox. 
+      resultAmount: {"samples": 0, "events": 0}, //This informs the "prospective results" at the bottom of the querybox. 
       childrenFilters: {}, //When a filter is selected on the left hand side of the build query pane, a set of sub-options for that filter will appear in the queuebox on the right. For example, if a user selects "Age" the age ranges will appear in a combobox inside the queuebox. This varaible holds those values.
-      postoncosig: [], // When a signature is selected, it is added to this variable. Using "keys" to retrieve it, it is used in both the query and populating the queuebox.
+      listOfSelectedSignatures: [], // When a signature is selected, it is added to this variable. Using "keys" to retrieve it, it is used in both the query and populating the queuebox.
       queryFilter: {}, // This currently holds the same information as childrenFilters and will likely be deleted soon.
-      querySignature: {}, // This currently holds the same information as postoncosig and will likely be deleted soon.
-      clientcoord: [], //If the user has selected genomic coordinates in their query, this list will hold them. This list is sent directly to the database for retrieval.
-      clientgenes: [], //If the user has selected genes in their query, this list will hold them. This list is sent directly to the database for retrieval.
+      querySignature: {}, // This currently holds the same information as listOfSelectedSignatures and will likely be deleted soon.
+      clientCoord: [], //If the user has selected genomic coordinates in their query, this list will hold them. This list is sent directly to the database for retrieval.
+      clientGenes: [], //If the user has selected genes in their query, this list will hold them. This list is sent directly to the database for retrieval.
       keys: {"filter": [], "single": []}, //The "keys" are crucial. These are a way to keep track of every filter and signature that has been selected, a unique ID is created on the fly for each one and stored here.
       range: undefined, //Some filters have numerical, rather than categorical, values. This keeps track of whether or not the chosen filter is numerical, and whether or not that numerical filter has ranges of numbers, as opposed to individual numbers. For example, instead of individual ages of patients, a RANGE will have groups of ages, such as "18-30", "31-50", etc.
       cancer: "", //This informs the currently selected cancer.
-      ui_fields: {}, //This is important. When the user initially selects a cancer, there are a set of clinical metadata filters specific to that cancer that must be retrieved from the database. These are then used to populate the UI. This object informs that process.
+      uiFields: {}, //This is important. When the user initially selects a cancer, there are a set of clinical metadata filters specific to that cancer that must be retrieved from the database. These are then used to populate the UI. This object informs that process.
       export: {}, //This is misc information that is sent to the "export" object in viewpaneobj.
       genes: [], //I'm almost certain this is deprecated and will be removed soon.
       coordinates: [], //I'm almost certain this is deprecated and will be removed soon.
@@ -124,7 +124,7 @@ function MainPanel(props){
       sigTranslate: undefined, //The signatures have two different values: one is a strict literature value, and another is a more readable, shortened version. This dictionary allows us to switch between the two.
       filterboxSEF: "", //"Select Event Filter object." This informs the the associated dropdown menu, allowing the user to select between genes, coordinates or signatures.
       SEFobj: null, //This directly holds the UI object of the Select Event Filter. It's a sloppy solution that I may change quite soon.
-      compared_cancer: null, //If the signature filter has been selected, a user may choose any other cancer's signatures to match with the current cancer. The cancer chosen will appear here.
+      comparedCancer: null, //If the signature filter has been selected, a user may choose any other cancer's signatures to match with the current cancer. The cancer chosen will appear here.
       sigdisplay: "none" //This informs whether or not to display the signatures div. It's a sloppy solution that I may change quite soon.
     }
   });
@@ -148,7 +148,7 @@ function MainPanel(props){
       //This is a hack. If the "build query" tab is re-selected, the page reloads in order to prevent bugs.
       if(newValue == 0)
       {
-        var temp_view_obj = {"inData": [], "inCols": [], "inCC": [], "inRPSI": [], "inTRANS": [], "export": []};
+        var temp_view_obj = {"heatmapInputData": [], "inCols": [], "inCC": [], "inOncospliceClusters": [], "inTRANS": [], "export": []};
         window.location.reload(true);
       }
       setMpstate({
@@ -162,10 +162,10 @@ function MainPanel(props){
   //The purpose of this function is to allow the "build query" pane to transition to the "data exploration" pane when a query has been sent through.
   const setViewPane = (list1, list2, list3, list4, list5, exp, bqstate) => {
     var stateobj = {};
-    stateobj["inData"] = list1;
+    stateobj["heatmapInputData"] = list1;
     stateobj["inCols"] = list2;
     stateobj["inCC"] = list3;
-    stateobj["inRPSI"] = list4;
+    stateobj["inOncospliceClusters"] = list4;
     stateobj["inTRANS"] = list5;
     stateobj["export"] = exp;
     history.push(routeurl.concat(`${tabNameToIndex[1]}`));
@@ -227,9 +227,9 @@ function MainPanel(props){
         </div>
       </div>
       <div id="tabcontent" style={{display: "block"}}>
-      {mpstate.value === 0 && <BQPane setViewPane={setViewPane}/>}
-      {mpstate.value === 1 && <ViewPaneWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
-      {mpstate.value === 2 && <QueryHistoryPaneWrapper user={mpstate.authentication.user} data={mpstate.authentication.data}/>}
+      {mpstate.value === 0 && <BQPanel setViewPane={setViewPane}/>}
+      {mpstate.value === 1 && <ViewPanelWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
+      {mpstate.value === 2 && <QueryHistoryPanelWrapper user={mpstate.authentication.user} data={mpstate.authentication.data}/>}
       </div>
       <div id="aboutpanel" style={{display: "none", margin: 15}}>
         <AboutUs />
@@ -237,7 +237,7 @@ function MainPanel(props){
       <div id="contactpanel" style={{display: "none", margin: 15}}>
         <div>
           <Box borderLeft={3} borderColor={'#0F6A8B'}>
-          <div style={{marginLeft: 15, marginTop: 20, fontSize: 24}}>
+          <div style={{marginLeft: 15, marginTop: 20, fontSize: "1.5em"}}>
             <p>Contact: <a href="mailto: altanalyze@gmail.com">altanalyze@gmail.com</a></p>
           </div>
           </Box>

@@ -49,11 +49,11 @@ function postGenes(cancer, exp, callback, resamt)
     pile_of_uids.push(all_uids[i]);
   }
 
-  var clientgenes = pile_of_uids;
+  var clientGenes = pile_of_uids;
   console.log(pile_of_uids.length);
   console.log(pile_of_uids);
   var args = {};
-  args["clientgenes"] = pile_of_uids;
+  args["clientGenes"] = pile_of_uids;
   args["num"] = pile_of_uids.length;
   args["cancer"] = cancer;
   args["export"] = exp;
@@ -80,7 +80,7 @@ class ClientAddGene extends React.Component {
   }
 
   onAddChild = () => {
-    postGenes(this.props.cancer, this.props.export, this.props.callback, this.props.BQstate.resultamount);
+    postGenes(this.props.cancer, this.props.export, this.props.callback, this.props.BQstate.resultAmount);
   }
 
 }

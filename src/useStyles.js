@@ -110,7 +110,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   tabholder: {
-    marginLeft: 50,
+    marginLeft: 100,
     marginRight: 100,
   },
   mpcontent: {

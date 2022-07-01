@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   formControl: {
-    fontSize: "16px"
+    fontSize: "1.2em"
   }
 }));
 
@@ -32,11 +32,7 @@ class ClientAddFilter extends React.Component {
     super(props);
     var P = this.props;
     this.state = {
-      currentEgg: P.egg,
-      currentKeys: P.BQstate.keys,
-      numChildren: P.BQstate.keys[P.type].length,
-      BQstate: P.BQstate
-      //childrenList: BQstate.childrenFilters
+      numChildren: P.BQstate.keys[P.type].length
     };
   }
 
@@ -48,55 +44,34 @@ class ClientAddFilter extends React.Component {
         BQstate={BQstate} 
         addChild={this.onAddChild}
         parentProps={P.parentProps} 
-        egg={P.egg} 
+        currentSelection={P.currentSelection} 
         type={P.type} 
         filterID={P.filterID}
         label={P.label} 
-        chicken={P.chicken} 
+        possibleSelections={P.possibleSelections} 
         range={P.rangeSet}
         sigTranslate={P.sigtranslate}>
       </FilterMenuPopulate>
     )
   }
 
-  static getDerivedStateFromProps(props, state) {
-    //console.log("GET DERIVED STATE", state);
-    //console.log("GET DERIVED PROPS", props);
-  }
-
-  componentDidMount() {
-    console.log("mounted", this.props);
-    //this.setState(prevstate);
-  }
-
-  componentDidUpdate(prevProps) {
-    //console.log("prev:", prevProps);
-    //console.log("cur", this.props);
-    if(prevProps !== this.props)
-    {
-      this.setState(state => ({...state, BQstate: this.props.BQstate}));
-    }
-  }
-
   onDeleteChild = (keyval) => {
     const P = this.props;
     const BQstate = P.BQstate;
     BQstate.keys = P.removeKey(P.type, keyval, BQstate.keys);
-    P.egg[keyval] = "";
-    //console.log(this.state.numChildren);
+    P.currentSelection[keyval] = "";
     this.setState(state => ({...state, numChildren: state.numChildren - 1}));
-    //console.log(this.state.numChildren);
     if(P.type == "filter")
     {
-      BQstate.pre_queueboxvalues["children"][keyval] = undefined;
-      BQstate.queuebox_values["children"][keyval] = "";
+      BQstate.preQueueboxValues["children"][keyval] = undefined;
+      BQstate.queueboxValues["children"][keyval] = "";
       var args = {};
       args["filter"] = "filter";
       args["keys"] = BQstate.keys;
-      args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
-      args["queueboxchildren"] = BQstate.queuebox_values;
+      args["pre_queueboxchildren"] = BQstate.preQueueboxValues;
+      args["queueboxchildren"] = BQstate.queueboxValues;
       args["cancer"] = P.inheritState.cancerType;
-      args["parentResultAmt"] = P.parentProps.inherit.resultamount;
+      args["parentResultAmt"] = P.parentProps.inherit.resultAmount;
       args["setState"] = P.parentProps.setMeta;
       args["export"] = P.parentProps.inherit.export;
       makeRequest("recursiveMetaDataField", args);
@@ -104,32 +79,31 @@ class ClientAddFilter extends React.Component {
     if(P.type == "single")
     {
       var args = {};
-      const deletedSigName = BQstate.pre_queueboxvalues["signatures"][keyval].props.name;
-      BQstate.pre_queueboxvalues["signatures"][keyval] = undefined;
-      BQstate.queuebox_values["signatures"][keyval] = "";
+      const deletedSigName = BQstate.preQueueboxValues["signatures"][keyval].props.name;
+      BQstate.preQueueboxValues["signatures"][keyval] = undefined;
+      BQstate.queueboxValues["signatures"][keyval] = "";
       args["filter"] = "single";
       args["keys"] = BQstate.keys;
       args["name"] = deletedSigName;
-      args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
-      args["queueboxchildren"] = BQstate.queuebox_values;
+      args["pre_queueboxchildren"] = BQstate.preQueueboxValues;
+      args["queueboxchildren"] = BQstate.queueboxValues;
       args["completeListOfUIDs"] = BQstate.completeListOfUIDs;
       args["sigTranslate"] = P.sigtranslate;
       args["cancer"] = BQstate.cancer;
-      args["parentResultAmt"] = BQstate.resultamount;
+      args["parentResultAmt"] = BQstate.resultAmount;
       args["setState"] = P.parentProps.setSig;
       args["export"] = BQstate.export;
-      args["egg"] = P.egg;
+      args["listOfSelectedSignatures"] = P.currentSelection;
       deleteSignature(args);
-    }    
+    }
   }
 
   onAddChild = (invalue) => {
     const P = this.props;
-    const S = this.state;
-    const keyval = document.getElementById(P.filterID).value.concat(S.numChildren.toString());
+    const keyval = document.getElementById(P.filterID).value.concat(this.state.numChildren.toString());
     const BQstate = P.BQstate;
     BQstate.keys[P.type].push(keyval);
-    var eggcopy = P.egg;
+    var currentSelectionCopy = P.currentSelection;
     console.log("BQstate after...", BQstate);
     const filterIDvalue = document.getElementById(P.filterID).value;
     //console.log("added value", invalue, P);
@@ -145,48 +119,48 @@ class ClientAddFilter extends React.Component {
     }
     if(P.type == "filter"){
       if(found){
-        eggcopy[keyval] = <ClientSelectedFilter
+        currentSelectionCopy[keyval] = <ClientSelectedFilter
                           BQstate={BQstate}
                           P={P} 
                           functioncall={P.functioncall} 
                           key={keyval} 
-                          number={S.numChildren} 
+                          number={this.state.numChildren} 
                           get={keyval} 
                           deleteChild={this.onDeleteChild} 
                           range={P.rangeSet} 
-                          chicken={P.rangeSet} 
-                          egg={filterIDvalue} 
-                          pre_q={BQstate.pre_queueboxvalues}/>;
+                          possibleSelections={P.rangeSet} 
+                          currentSelection={filterIDvalue} 
+                          pre_q={BQstate.preQueueboxValues}/>;
       }
       else{
-        eggcopy[keyval] = <ClientSelectedFilter
+        currentSelectionCopy[keyval] = <ClientSelectedFilter
                           BQstate={BQstate} 
                           P={P} 
                           functioncall={P.functioncall} 
                           key={keyval} 
-                          number={S.numChildren} 
+                          number={this.state.numChildren} 
                           get={keyval} 
                           deleteChild={this.onDeleteChild} 
                           range={P.rangeSet} 
-                          chicken={P.chicken} 
-                          egg={filterIDvalue} 
-                          pre_q={BQstate.pre_queueboxvalues}/>;
+                          possibleSelections={P.possibleSelections} 
+                          currentSelection={filterIDvalue} 
+                          pre_q={BQstate.preQueueboxValues}/>;
       }
-      P.parentProps.setChildrenFilters(eggcopy, eggcopy, BQstate.keys);
+      P.parentProps.setChildrenFilters(currentSelectionCopy, currentSelectionCopy, BQstate.keys);
     }
     if(P.type == "single"){
       var args = {};
-      BQstate.pre_queueboxvalues["signatures"][keyval] = <PreQueueMessage 
+      BQstate.preQueueboxValues["signatures"][keyval] = <PreQueueMessage 
                                                             key={keyval} 
-                                                            number={S.numChildren} 
+                                                            number={this.state.numChildren} 
                                                             get={keyval} 
                                                             name={invalue}/>
       args["filter"] = "single";
       args["keys"] = BQstate.keys;
-      args["pre_queueboxchildren"] = BQstate.pre_queueboxvalues;
-      args["queueboxchildren"] = BQstate.queuebox_values;
-      args["cancer"] = P.compared_cancer;
-      args["parentResultAmt"] = BQstate.resultamount;
+      args["pre_queueboxchildren"] = BQstate.preQueueboxValues;
+      args["queueboxchildren"] = BQstate.queueboxValues;
+      args["cancer"] = P.comparedCancer;
+      args["parentResultAmt"] = BQstate.resultAmount;
       args["completeListOfUIDs"] = BQstate.completeListOfUIDs;
       args["sigTranslate"] = P.sigtranslate;
       args["setState"] = P.parentProps.setSig;
@@ -195,22 +169,15 @@ class ClientAddFilter extends React.Component {
       args["type"] = P.type;
       args["export"] = BQstate.export;
       //name, number, filter
-      eggcopy[keyval] = <SingleItem 
+      currentSelectionCopy[keyval] = <SingleItem 
                         key={keyval} 
-                        number={S.numChildren} 
+                        number={this.state.numChildren} 
                         get={keyval} 
-                        deleteChild={this.onDeleteChild} 
-                        chicken={P.chicken} 
-                        egg={invalue}/>;
-      args["egg"] = P.egg;
+                        deleteChild={this.onDeleteChild}
+                        currentSelection={invalue}/>;
+      args["currentSelection"] = P.currentSelection;
       makeRequest("signature", args);
-      //P.functioncall(invalue, keyval, P.type);
     }
-    //this.setState(state => ({...state, currentEgg: eggcopy, currentKeys: keycopy, numChildren: state.numChildren + 1}));
-    this.setState({
-      currentEgg: eggcopy,
-      currentKeys: BQstate.keys
-    })
     }
 }
 
@@ -259,18 +226,18 @@ function deleteSignature(arg)
     exportView["single"].push(signatureName); 
   }
   
-  //delete from postoncosig
-  const postoncosig = arg["egg"];
-  for (const key in postoncosig)
+  //delete from listOfSelectedSignatures
+  const listOfSelectedSignatures = arg["listOfSelectedSignatures"];
+  for (const key in listOfSelectedSignatures)
   {
-    if(postoncosig[key] == "")
+    if(listOfSelectedSignatures[key] == "")
     {
-      delete postoncosig[key];
+      delete listOfSelectedSignatures[key];
     }
   }
 
   prospectedQueryResults = {"samples": arg["parentResultAmt"]["samples"], "events": Object.keys(completeListOfUIDs).length};
-  callback(prospectedQueryResults, Q, keys, exportView, postoncosig, completeListOfUIDs);
+  callback(prospectedQueryResults, Q, keys, exportView, listOfSelectedSignatures, completeListOfUIDs);
 }
 
 export default ClientAddFilter;

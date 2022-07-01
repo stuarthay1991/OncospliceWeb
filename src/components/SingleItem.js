@@ -17,7 +17,7 @@ function SingleItem(props) {
     <Box borderColor="#dbdbdb" {...boxProps_padding}>
          <IconButton variant="contained" color="primary" onClick={() => props.deleteChild(props.get)}><CloseIcon /></IconButton>
          <IconButton variant="contained" color="primary"><LinearScaleIcon /></IconButton>
-         {props.egg}
+         {props.currentSelection}
     </Box>
     </Grid>
     );

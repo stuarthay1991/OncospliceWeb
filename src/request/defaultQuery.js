@@ -48,7 +48,7 @@ function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splici
     headers: { "Content-Type": "multipart/form-data" },
   })
   .then(function (response) {
-    //console.log("DQ_UI_fields", response["data"]);
+    //console.log("DQ_uiFields", response["data"]);
     exp["cancer"] = "BRCA";
     exp["ui_field_dict"] = response["data"]["meta"];
     exp["ui_field_range"] = response["data"]["range"];

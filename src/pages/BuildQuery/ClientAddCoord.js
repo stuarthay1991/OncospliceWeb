@@ -93,8 +93,8 @@ function postCoords(cancer, exp, callback)
   var args = {};
   console.log(pile_of_coords.length);
   console.log(pile_of_coords);
-  var clientcoord = pile_of_coords;
-  args["clientcoord"] = pile_of_coords;
+  var clientCoord = pile_of_coords;
+  args["clientCoord"] = pile_of_coords;
   args["num"] = pile_of_coords.length;
   args["cancer"] = cancer;
   args["export"] = exp;

@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
@@ -11,21 +10,7 @@ import SelectCancerSignature from './SelectCancerSignature';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import SpcInputLabel from "../../components/SpcInputLabel";
-
-const widgetlabel4 = makeStyles((theme) => ({
-  root: {
-    fontSize: "16px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  },
-  select: {
-    fontSize: "16px",
-    maxWidth: "360px",
-    width: "360px",
-    minWidth: "360px"
-  }
-}));
+import BuildQuerySelect from "../../components/BuildQuerySelect";
 
 function none()
 {
@@ -33,18 +18,12 @@ function none()
 }
 
 function ClientSEF_select(props){
-  const wla4 = widgetlabel4();
   return(
     <Tooltip title="Select the event filtration type. Events can be matched by genomic coordinates, gene symbols or cancer signatures.">
-    <Select
-          native
-          classes={wla4}
+    <BuildQuerySelect
           value={props.value}
-          onChange={props.handleChange}
-          inputProps={{
-            name: 'value',
-            id: "SEF_id",
-          }}
+          handleChange={props.handleChange}
+          inputID={"SEF_id"}
     >
     <option value=""></option>
     {(() => {
@@ -54,7 +33,7 @@ function ClientSEF_select(props){
             options.push(<option value={"Coordinate Filter"}>{"Coordinate Filter"}</option>);
             return options;
     })()}
-    </Select>
+    </BuildQuerySelect>
     </Tooltip>
   )
 }
@@ -81,45 +60,45 @@ class ClientSEF extends React.Component {
     });
     if(event.target.value == "Oncosplice Signature Filter"){
 
-      var new_clientgenes = [];
-      var new_clientcoord = [];
+      var new_clientGenes = [];
+      var new_clientCoord = [];
       const obj1 = <SelectCancerSignature
         P={P}
         BQstate={BQstate}
       />;
-      BQstateSet.updatePage(BQstate.keys, BQstate.queuebox_values, new_clientgenes, new_clientcoord, "Oncosplice Signature Filter", obj1, "block");
+      BQstateSet.updatePage(BQstate.keys, BQstate.queueboxValues, new_clientGenes, new_clientCoord, "Oncosplice Signature Filter", obj1, "block");
 
     }
     if(event.target.value == "Gene Symbol Filter"){
       const obj2 = <ClientAddGene
         filterID={"clientinputgene"}
         BQstate={BQstate}
-        clientgenes={BQstate.clientgenes}
+        clientGenes={BQstate.clientGenes}
         cancer={BQstate.cancer}
         export={BQstate.export}
         callback={BQstateSet.setGene}
       />;
       var new_keys = BQstate.keys;
       new_keys["single"] = [];
-      var new_Q = BQstate.queuebox_values;
+      var new_Q = BQstate.queueboxValues;
       new_Q["signatures"] = {};
-      var new_clientcoord = [];
-      BQstateSet.updatePage(new_keys, new_Q, BQstate.clientgenes, new_clientcoord, "Gene Symbol Filter", obj2, "none");
+      var new_clientCoord = [];
+      BQstateSet.updatePage(new_keys, new_Q, BQstate.clientGenes, new_clientCoord, "Gene Symbol Filter", obj2, "none");
     }
     if(event.target.value == "Coordinate Filter"){
       const obj3 = <ClientAddCoord
         filterID={"clientinputcoord"}
-        clientcoord={BQstate.clientcoord}
+        clientCoord={BQstate.clientCoord}
         cancer={BQstate.cancer}
         export={BQstate.export}
         callback={BQstateSet.setCoord}
       />;
       var new_keys = BQstate.keys;
       new_keys["single"] = [];
-      var new_Q = BQstate.queuebox_values;
+      var new_Q = BQstate.queueboxValues;
       new_Q["signatures"] = {};
-      var new_clientgenes = [];
-      BQstateSet.updatePage(new_keys, new_Q, new_clientgenes, BQstate.clientcoord, "Coordinate Filter", obj3, "none");
+      var new_clientGenes = [];
+      BQstateSet.updatePage(new_keys, new_Q, new_clientGenes, BQstate.clientCoord, "Coordinate Filter", obj3, "none");
     }
   };
 

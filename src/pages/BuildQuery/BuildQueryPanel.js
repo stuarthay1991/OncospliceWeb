@@ -17,7 +17,7 @@ import loadinggif from './gifmax.gif';
 //General components
 import TabPanel from '../../components/TabPanel';
 import SpcInputLabel from '../../components/SpcInputLabel';
-import CheckboxForm from '../../components/CheckboxForm';
+import DefaultQueryCheckboxForm from '../../components/DefaultQueryCheckboxForm';
 import QueueMessage from '../../components/QueueMessage';
 import PreQueueMessage from '../../components/PreQueueMessage';
 import SingleItem from '../../components/SingleItem';
@@ -31,7 +31,7 @@ import ClientAddFilter from './ClientAddFilter';
 import CancerSelect from './CancerSelect';
 import ClientAddCoord from './ClientAddCoord';
 import ClientAddGene from './ClientAddGene';
-import ClientSEF from './ClientSEF';
+import ClientSelectEventFilter from './ClientSelectEventFilter';
 
 //Server interface
 import { makeRequest } from '../../request/CancerDataManagement.js';
@@ -77,7 +77,7 @@ class FilterBox extends React.Component {
     this.state = {
       cancerType: BQstate.cancer,
       number: 0,
-      fieldSet: BQstate.ui_fields,
+      fieldSet: BQstate.uiFields,
       sigSet: BQstate.signatures,
       rangeSet: BQstate.range,
       eventfilterSet: BQstate.SEFobj,
@@ -94,7 +94,7 @@ class FilterBox extends React.Component {
     this.setState({
         cancerType: BQstate.cancer,
         number: 0,
-        fieldSet: BQstate.ui_fields,
+        fieldSet: BQstate.uiFields,
         sigSet: BQstate.signatures,
         rangeSet: BQstate.range,
         eventfilterSet: BQstate.SEFobj,
@@ -103,13 +103,12 @@ class FilterBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    //console.log("Look at state", this.state)
     const BQstate = this.props.BQstate;
     if(prevProps.inherit.cancer != BQstate.cancer){
       this.setState({
         cancerType: BQstate.cancer,
         number: 0,
-        fieldSet: BQstate.ui_fields,
+        fieldSet: BQstate.uiFields,
         sigSet: BQstate.signatures,
         rangeSet: BQstate.range,
         eventfilterSet: BQstate.SEFobj,
@@ -120,7 +119,7 @@ class FilterBox extends React.Component {
       this.setState({
         cancerType: BQstate.cancer,
         number: 0,
-        fieldSet: BQstate.ui_fields,
+        fieldSet: BQstate.uiFields,
         sigSet: BQstate.signatures,
         rangeSet: BQstate.range,
         eventfilterSet: BQstate.SEFobj,
@@ -146,14 +145,14 @@ class FilterBox extends React.Component {
         removeKey={removeKey}
         functioncall={none}
         rangeSet={S.rangeSet}
-        chicken={S.fieldSet}
-        egg={BQstate.childrenFilters}
+        possibleSelections={S.fieldSet}
+        currentSelection={BQstate.childrenFilters}
         type={"filter"}
         filterID={"meta_filter_id"}
         label={"Add Sample Filter"}>
       </ClientAddFilter>
       </div>
-      <ClientSEF
+      <ClientSelectEventFilter
         BQstate={BQstate}
         FilterBoxState={this.state}
         BQstateSet={this.props}
@@ -169,12 +168,12 @@ class FilterBox extends React.Component {
             parentProps={P}
             removeKey={removeKey}
             functioncall={none}
-            chicken={BQstate.signatures}
-            egg={BQstate.postoncosig}
+            possibleSelections={BQstate.signatures}
+            currentSelection={BQstate.listOfSelectedSignatures}
             type={"single"}
             filterID={"sig_filter_id"}
             label={"Oncosplice Signature Filter"}
-            compared_cancer={BQstate.compared_cancer}
+            comparedCancer={BQstate.comparedCancer}
             sigtranslate={BQstate.sigTranslate}
       />
       </div>
@@ -196,33 +195,33 @@ function updateFilterBoxSEF(val){
   });
 }
 
-function updateBQPane(value) {
+function updateBQPanel(value) {
   this.setState({
       defaultQuery: value
   });
 }
 
-class BQPane extends React.Component {
+class BQPanel extends React.Component {
   constructor(props) {
     super(props)
     var prevstate = this.props.prevstate;
     this.state = {
       defaultQuery: false,
-      queuebox_values: {"children": undefined, "signatures": undefined},
-      pre_queueboxvalues: {"children": {}, "signatures": {}},
+      queueboxValues: {"children": undefined, "signatures": undefined},
+      preQueueboxValues: {"children": {}, "signatures": {}},
       completeListOfUIDs: {},
       eventfilterSet: null,
-      resultamount: {"samples": 0, "events": 0},
+      resultAmount: {"samples": 0, "events": 0},
       childrenFilters: {},
-      postoncosig: [],
+      listOfSelectedSignatures: [],
       queryFilter: {},
       querySignature: {},
-      clientcoord: [],
-      clientgenes: [],
+      clientCoord: [],
+      clientGenes: [],
       keys: {"filter": [], "single": []},
       range: undefined,
       cancer: "",
-      ui_fields: {},
+      uiFields: {},
       export: {},
       genes: [],
       coordinates: [],
@@ -230,21 +229,10 @@ class BQPane extends React.Component {
       sigTranslate: undefined,
       filterboxSEF: "",
       SEFobj: null,
-      compared_cancer: null,
+      comparedCancer: null,
       sigdisplay: "none"
     }
-    updateBQPane = updateBQPane.bind(this)
-  }
-
-  /*
-  componentDidMount() {
-    var prevstate = this.props.prevstate;
-    console.log("mounted_prevstate", this.props);
-    this.setState(prevstate);
-  }*/
-
-  componentDidUpdate(prevProps){
-    console.log("CDU STATE", this.state);
+    updateBQPanel = updateBQPanel.bind(this)
   }
 
   render(){
@@ -255,45 +243,42 @@ class BQPane extends React.Component {
     else{
       displayvalue = "none";
     }
-    //console.log("CURRENT_LOADING_STATE", this.state);
     return (
-      <div style={{ marginLeft: 40, fontFamily: 'Arial' }}>
+      <div style={{ marginLeft: 100, fontFamily: 'Arial' }}>
         <div>
-        <Grid container spacing={0}>
-          <Grid item sm={12} md={4}>
+        <Grid container spacing={3}>
+          <Grid item sm={12} md={5}>
             <Grid container spacing={0}>
               <Grid item xs={10}>
               </Grid>
             </Grid>
-            <div>
-            <CheckboxForm updateBQPane={updateBQPane}/>
-            <div id="FilterBox_div" style={{display: displayvalue}}>
-            <Grid container spacing={2}>
-              <Grid item>
-              <CancerSelect inherit={this.props} prevState={this.state} 
-                setUI={(in_ui_fields, in_cancer, in_qbox, range, sigs, resamt, sigT, exp) => this.setState({
-                ui_fields: in_ui_fields, 
+            <div style={{marginTop: 20}}>
+            <DefaultQueryCheckboxForm updateBQPanel={updateBQPanel}/>
+            <div id="FilterBox_div" style={{display: displayvalue, marginTop: 5, overflowX: "scroll"}}>
+            <Grid item container spacing={2}>
+              <CancerSelect inherit={this.props} prevState={this.state}
+                setUI={(in_uiFields, in_cancer, in_qbox, range, sigs, resamt, sigT, exp) => this.setState({
+                uiFields: in_uiFields, 
                 cancer: in_cancer,
-                queuebox_values: in_qbox,
+                queueboxValues: in_qbox,
                 keys: {"filter": [], "single": []},
                 range: range,
                 signatures: sigs,
-                resultamount: resamt,
+                resultAmount: resamt,
                 sigTranslate: sigT,
                 export: exp,
                 childrenFilters: [],
-                postoncosig: [],
-                clientgenes: [],
-                clientcoord: [],
+                listOfSelectedSignatures: [],
+                clientGenes: [],
+                clientCoord: [],
                 eventsAndSignaturesDict: {},
                 filterboxSEF: "",
                 SEFobj: null,
                 sigdisplay: "none",
-                compared_cancer_signature: {},
-                compared_cancer: in_cancer
+                comparedCancer_signature: {},
+                comparedCancer: in_cancer
                 })}
                 />
-              </Grid>
             </Grid>
             <Typography style={{padding: '2px 4px'}} />
             <FilterBox
@@ -305,47 +290,47 @@ class BQPane extends React.Component {
                 keys: keys
               })}
               setMeta={(resamt, qbox, pre_qbox, keys, exp) => this.setState({
-                resultamount: resamt,
-                queuebox_values: qbox,
-                pre_queueboxvalues: pre_qbox,
+                resultAmount: resamt,
+                queueboxValues: qbox,
+                preQueueboxValues: pre_qbox,
                 keys: keys,
                 export: exp
               })}
               setSig={(resamt, qbox, keys, exp, pO, cLOU) => this.setState({
-                resultamount: resamt,
-                queuebox_values: qbox,
+                resultAmount: resamt,
+                queueboxValues: qbox,
                 keys: keys,
                 export: exp,
-                postoncosig: pO,
+                listOfSelectedSignatures: pO,
                 querySignature: pO,
                 completeListOfUIDs: cLOU
               })}
               setGene={(cG, exp, resamt) => this.setState({
-                clientgenes: cG,
+                clientGenes: cG,
                 export: exp,
-                resultamount: resamt
+                resultAmount: resamt
               })}
               setCoord={(cC, exp) => this.setState({
-                clientcoord: cC,
+                clientCoord: cC,
                 export: exp
               })}
               updateTargetSignature={(canc, sigs, sigT, keys, tsobj) => this.setState({
                 signatures: sigs,
                 sigTranslate: sigT,
                 keys: keys,
-                compared_cancer: canc,
-                postoncosig: [],
-                clientgenes: [],
-                clientcoord: [],
+                comparedCancer: canc,
+                listOfSelectedSignatures: [],
+                clientGenes: [],
+                clientCoord: [],
                 querySignature: {},
-                queuebox_values: {"children": {}, "signatures": {}, "cancer": this.state.queuebox_values["cancer"]},
-                pre_queueboxvalues: {"children": {}, "signatures": {}}
+                queueboxValues: {"children": {}, "signatures": {}, "cancer": this.state.queueboxValues["cancer"]},
+                preQueueboxValues: {"children": {}, "signatures": {}}
               })}
               updatePage={(k,q,cG,cC,fSEF,SEFobj,disp) => this.setState({
                 keys: k,
-                queuebox_values: q,
-                clientgenes: cG,
-                clientcoord: cC,
+                queueboxValues: q,
+                clientGenes: cG,
+                clientCoord: cC,
                 filterboxSEF: fSEF,
                 SEFobj: SEFobj,
                 sigdisplay: disp
@@ -359,33 +344,31 @@ class BQPane extends React.Component {
           </div>
           </Grid>
           <Grid item sm={12} md={5}>
-            <Grid container spacing={0}>
-            <Grid item xs={6}></Grid>
-            <Grid item xs={1}>
-            <div id="sub" style={{display: "none"}}>
-              {gifimg}
-            </div>
-            </Grid>
-            <Grid item xs={2}>
-            <div style={{float: 'right', alignItems: 'center'}}>
-              <ResetButton
-              />
-            </div>
-            </Grid>
-            <Grid item xs={3}>
-            <div style={{float: 'right', alignItems: 'center'}}>
-              <SubmitButton
-                BQstate={this.state}
-                BQprops={this.props}
-              />
-            </div>
-            </Grid>
+            <Grid container spacing={2}>
+              <Grid item xs={4}></Grid>
+              <Grid item xs={2}>
+              <div id="sub" style={{display: "none"}}>
+                {gifimg}
+              </div>
+              </Grid>
+              <Grid item xs={6}>
+                <span style={{position: "relative", float: "right"}}>
+                <div style={{float: 'right', alignItems: 'center'}}>
+                  <ResetButton
+                  />
+                </div>
+                <div style={{float: 'right', alignItems: 'center'}}>
+                  <SubmitButton
+                    BQstate={this.state}
+                    BQprops={this.props}
+                  />
+                </div>
+                </span>
+              </Grid>
             </Grid>
             <div id="QueueBox_div">
               <QueueBox BQstate={this.state}></QueueBox>
             </div>
-          </Grid>
-          <Grid item sm={12} md={1}>
           </Grid>
         </Grid>
         </div>
@@ -394,4 +377,4 @@ class BQPane extends React.Component {
   }
 }
 
-export default BQPane;
+export default BQPanel;
