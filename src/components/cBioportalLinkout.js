@@ -42,19 +42,23 @@ function sendSamplesRetrieveURL(props)
 	}
 	var studyID;
 	let cbioportalCancerDictionaryPromise = [];
+	var cbioportalCancerDictionaryFormData = new FormData();
+	cbioportalCancerDictionaryFormData.append("DATA",props.cancer);
 	cbioportalCancerDictionaryPromise.push(
 	axios({
 		    method: "post",
 		    url: (targeturl.concat("/backend/cBioportalTranslateStudies.php")),
-		    data: props.cancer,
+		    data: cbioportalCancerDictionaryFormData,
 		    headers: { "Content-Type": "multipart/form-data" },
 	})
-	.then(function (response) {
-		studyID = response["data"]["cancerStudy"];
+	.then(function (res) {
+		studyID = res["data"];
+		console.log(studyID)
 	})
 	);
 
     Promise.all(cbioportalCancerDictionaryPromise).then(() => function(){
+    	console.log("setting up");
 		let curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
 		//let studyID = cancerCodeTranslate[props.cancer];
 
