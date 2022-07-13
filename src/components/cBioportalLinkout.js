@@ -9,18 +9,6 @@ function goToCBio(uuid)
 	window.open(("https://www.cbioportal.org/comparison/survival?comparisonId=".concat(uuid)), "_blank");
 }
 
-const cancerCodeTranslate = {
-	"BRCA": "brca_tcga",
-	"BLCA": "blca_tcga",
-	"LGG": "lgg_tcga",
-	"LUAD": "luad_tcga",
-	"SKCM": "skcm_tcga",
-	"GBM": "gbm_tcga",
-	"HNSCC": "hnsc_tcga",
-	"COAD": "coadread_tcga",
-	"AML_Leucegene": null
-}
-
 //This function retrieves the sample names and groups from the parent component and formats them into the proper format for use in cBioportal.
 //After formatting, axios is used to send the information to a PHP file that uses a cURL command to retrieve the string needed to complete the cBioportal url.
 function sendSamplesRetrieveURL(props)
@@ -53,7 +41,6 @@ function sendSamplesRetrieveURL(props)
 	.then(function (res) {
 		studyID = res["data"];
 		let curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
-		//let studyID = cancerCodeTranslate[props.cancer];
 
 		for(let i in cBioportalJsonData)
 		{
