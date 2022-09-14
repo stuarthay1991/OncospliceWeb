@@ -1,0 +1,6 @@
+- Call signature JSON data "selectedSignature"
+- Remove previous fields, they are redundant
+- rename "single" and "meta" to more meaningful names
+- Get rid of * in query, just select uid
+- In future get rid of * if you can, it's a very costly call
+- Optimize the cancer data calls, don't return all the data at once if you don't need it

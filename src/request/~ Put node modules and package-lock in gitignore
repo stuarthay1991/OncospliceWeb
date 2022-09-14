@@ -1,0 +1,9 @@
+~ Put node modules and package-lock in gitignore
+~ Use regex to cleanup utilities folder, should be one line instead of multiple that way
+~ Encypt database login info
+~ Put all requests in seperate files
+~ No more text files (for range and col directories) use the same function that was used to create the "range" directory on the queried data.
+~ use forEach loop
+~ remove commented code
+~ 
+~ 

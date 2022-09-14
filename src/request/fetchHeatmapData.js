@@ -20,15 +20,21 @@ function fetchHeatmapData(arg, targeturl)
   var GLOBAL_user = "Default";
   var document = arg["document"];
   document.getElementById("sub").style.display = "block";
-  var bodyFormData = new FormData();
   var qh_arr = [];
   var tmp_qh_obj = {};
+
+  var sampleFilters = [];
+  var signatureFilters = [];
+  var geneFilters = [];
+  var coordinateFilters = [];
+  var oncospliceClusters = undefined;
+
   for(var i = 0; i < keys["filter"].length; i++)
   {
     var queryString = document.getElementById(childrenFilters[keys["filter"][i]].props.currentSelection.concat("_id")).value;
     queryString = queryString.replace(/(\r\n|\n|\r)/gm, "");
     tmp_qh_obj = {};
-    bodyFormData.append(("SPLC".concat(childrenFilters[keys["filter"][i]].props.currentSelection)), queryString);
+    sampleFilters.push({"key": childrenFilters[keys["filter"][i]].props.currentSelection, "value": queryString});
     tmp_qh_obj["key"] = "SPLC".concat(childrenFilters[keys["filter"][i]].props.currentSelection);
     tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
@@ -37,57 +43,64 @@ function fetchHeatmapData(arg, targeturl)
   {
     var queryString = listOfSelectedSignatures[keys["single"][i]].props.currentSelection;
     queryString = queryString.replace(/(\r\n|\n|\r)/gm, "");
+    
     tmp_qh_obj = {};
     if(Object.entries(sigTranslate).length > 0)
     {
       if(sigTranslate[queryString] != undefined)
       {
-        bodyFormData.append(("RPSI".concat(queryString)), queryString);
+        oncospliceClusters = queryString;
         queryString = sigTranslate[queryString];
         queryString = queryString.replace("+", "positive_");
+
       }//TEMPORARY FIX
       else
       {
-        //myString = "PSI_".concat(myString);
         queryString = queryString.replace(" ", "_");
       }
-      //console.log("Signature added:", myString);
     }
+    signatureFilters.push(queryString);
     queryString = "PSI".concat(queryString);
     tmp_qh_obj["key"] = queryString;
     tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
-    bodyFormData.append(queryString, queryString);
   }
   for(var i = 0; i < clientGenes.length; i++)
   {
     var queryString = clientGenes[i];
     tmp_qh_obj = {};
+    geneFilters.push(queryString);
     queryString = "GENE".concat(queryString);
     tmp_qh_obj["key"] = queryString;
     tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
-    bodyFormData.append(queryString, queryString);
   }
   for(var i = 0; i < clientCoord.length; i++)
   {
     var queryString = clientCoord[i];
     tmp_qh_obj = {};
+    coordinateFilters.push(queryString);
     queryString = "COORD".concat(queryString);
     tmp_qh_obj["key"] = queryString;
     tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
-    bodyFormData.append(queryString, queryString);
   }  
-  bodyFormData.append("CANCER",curCancer);
-  bodyFormData.append("COMPCANCER",compCancer);
+
   tmp_qh_obj = {};
   tmp_qh_obj["key"] = "CANCER";
   tmp_qh_obj["val"] = curCancer;
   qh_arr.push(tmp_qh_obj);
   var qh_postdata = JSON.stringify(qh_arr);
-  bodyFormData.append("HIST",qh_postdata);
-  bodyFormData.append("USER",GLOBAL_user);
+
+  var postdata = {"data": {"cancerName": curCancer, 
+  "comparedCancer": compCancer,
+  "oncospliceClusters": oncospliceClusters,
+  "samples": sampleFilters,
+  "signatures": signatureFilters,
+  "genes": geneFilters,
+  "coords": coordinateFilters}
+  };
+
   if(keys["single"].length == 0 && clientGenes.length == 0 && clientCoord.length == 0)
   {
     alert("Please select at least one signature or gene to continue.");
@@ -102,11 +115,12 @@ function fetchHeatmapData(arg, targeturl)
   {
     axios({
       method: "post",
-      url: (targeturl.concat("/backend/metarequest.php")),
-      data: bodyFormData,
-      headers: { "Content-Type": "multipart/form-data" },
+      url: "http://localhost:8081/api/datasets/getheatmapdata",
+      data: postdata,
+      headers: { "Content-Type": "application/json" },
     })
       .then(function (response) {
+        console.log("full return from heatmap: ", response)
         var dateval = response["data"]["date"];
         var indatatmp = {};
         var splicingreturned = response["data"]["rr"];

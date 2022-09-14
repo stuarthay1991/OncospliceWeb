@@ -29,16 +29,14 @@ function sendSamplesRetrieveURL(props)
 		}
 	}
 	var studyID;
-	let cbioportalCancerDictionaryPromise = [];
-	var cbioportalCancerDictionaryFormData = new FormData();
-	cbioportalCancerDictionaryFormData.append("DATA",props.cancer);
 	axios({
-		    method: "post",
-		    url: (targeturl.concat("/backend/cBioportalTranslateStudies.php")),
-		    data: cbioportalCancerDictionaryFormData,
-		    headers: { "Content-Type": "multipart/form-data" },
+		method: "post",
+		url: ("http://localhost:8081/api/datasets/translatecbio"),
+		data: ({"data": {"cancerType": props.cancer}}),
+		headers: { "Content-Type": "application/json"},
 	})
 	.then(function (res) {
+		console.log("Wagga", res["data"]);
 		studyID = res["data"];
 		let curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
 
@@ -59,15 +57,16 @@ function sendSamplesRetrieveURL(props)
 			curlCommandJsonDataObject["groups"][i]["nonExistentSamples"] = [];
 		}
 
-		var cBioportalFormData = new FormData();
-		cBioportalFormData.append("DATA",JSON.stringify(curlCommandJsonDataObject));
+		var cBioportalFormData = curlCommandJsonDataObject;
+		console.log("pre-cbio", cBioportalFormData);
 		axios({
 		    method: "post",
-		    url: (targeturl.concat("/backend/cbioportal.php")),
+		    url: ("http://localhost:8081/api/datasets/getcbio"),
 		    data: cBioportalFormData,
-		    headers: { "Content-Type": "multipart/form-data" },
+		    headers: { "Content-Type": "application/json" },
 		})
 		    .then(function (response) {
+		      console.log("cbio", response);
 		      var returned_uuid = response["data"]["id"];
 		      //uuid in this case is a comparison id returned by the curl command. It gives us the correct destination for our survival plot.
 		      goToCBio(returned_uuid);
@@ -80,7 +79,7 @@ function sendSamplesRetrieveURL(props)
 //survival plots.
 function CBioportalLinkout(props)
 {
-	var isDisabled = cancerCodeTranslate[props.cancer] == null ? true : false;
+	var isDisabled = props.cancer == "AML_Leucegene" ? true : false;
 	var buttonStyles = isDisabled == false ? {"cursor":'pointer', "backgroundColor":'#EFAD18', "opacity":1} : {"cursor":'not-allowed', "backgroundColor":'grey', "opacity":0.5};
 	var tooltipMessage = isDisabled == false ? "View cBioportal analysis" : "cBioportal analysis not available for this cancer";
 	return(

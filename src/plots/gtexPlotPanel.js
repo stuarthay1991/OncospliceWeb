@@ -4,16 +4,16 @@ import { global_colors } from '../constants.js';
 import targeturl from '../targeturl.js';
 
 export function gtexSend(UID, setGtexState, gtexState) {
-  var bodyFormData = new FormData();
-  bodyFormData.append("UID",UID);
+  var postedData = {"data": {"uid": UID}}
   axios({
     method: "post",
-    url: (targeturl.concat("/backend/GTex.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
+    url: ("http://localhost:8081/api/datasets/getgtex"),
+    data: postedData,
+    headers: { "Content-Type": "application/json" },
   })
     .then(function (response) {
       var new_vec = response["data"]["result"][0];
+      console.log("new_vec", new_vec);
       gtexPlotPanel(new_vec, setGtexState, gtexState);
   })  
 }

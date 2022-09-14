@@ -41,7 +41,8 @@ function signature(arg, targeturl)
   const sigTranslate = arg["sigTranslate"];
   const exportView = arg["export"];
   exportView["single"] = [];
-  
+  var fullSignatureList = [];
+  var selectedSignature = "";
   for(let i in keys[filter])
   {
     var queryString = preQ["signatures"][keys[filter][i]].props.name;
@@ -58,7 +59,7 @@ function signature(arg, targeturl)
         queryString = queryString.replace(" ", "_");
       }
     }
-    bodyFormData.append(queryString, queryString);
+    fullSignatureList.push(queryString);
     exportView["single"].push(queryString); 
   }
   if(Object.entries(sigTranslate).length > 0)
@@ -73,22 +74,26 @@ function signature(arg, targeturl)
         name = name.replace(" ", "_");
     }
     name = name.replace(/(\r\n|\n|\r)/gm, "");
-    bodyFormData.append(("SEL".concat(name)), name);
+    selectedSignature = name;
   }
   else
   {
     name = name.replace(/(\r\n|\n|\r)/gm, "");
-    bodyFormData.append(("SEL".concat(name)), name);  
+    selectedSignature = name;
   }
-  bodyFormData.append("CANCER",cancer);
-  
+  var postdata = {"data": {
+    "cancer": cancer,
+    "selectedField": selectedSignature,
+    "prevFields": fullSignatureList
+  }};
   axios({
-    method: "post",
-    url: (targeturl.concat("/backend/getsinglesig.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
+      method: "post",
+      url: "http://localhost:8081/api/datasets/getsignaturedata",
+      data: postdata,
+      headers: { "Content-Type": "application/json" },
   })
     .then(function (response) {
+      console.log("signatureResponse", response);
       var in_criterion = response["data"]["single"];
       var selected_left = response["data"]["meta"];
       var current_number_of_events = response["data"]["meta"];

@@ -66,13 +66,19 @@ function metarepost(name) {
   }
   bodyFormData.append("NAME", name);
   bodyFormData.append("CANCER", global_cancer);
+  console.log(name, global_cancer);
+  var postData = {"data": {
+    "name": name,
+    "cancerType": global_cancer
+  }}
   axios({
     method: "post",
-    url: (targeturl.concat("/backend/single.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
+    url: "http://localhost:8081/api/datasets/getinteractivefilter",
+    data: postData,
+    headers: { "Content-Type": "application/json" },
   })
     .then(function (response) {
+      console.log("single_uid_response", response);
       var ret = response["data"];
       updateOkmapLabel(ret);
       supFilterUpdate(ret);
@@ -81,13 +87,15 @@ function metarepost(name) {
 
 function oneUIDrequest(UID) {
   var bodyFormData = new FormData();
-  bodyFormData.append("UID",UID);
-  bodyFormData.append("CANCER",global_cancer);
+  var postData = {"data": {
+    "uid": UID,
+    "cancerType": global_cancer
+  }}
   axios({
     method: "post",
-    url: (targeturl.concat("/backend/one_uid_retrieve.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
+    url: "http://localhost:8081/api/datasets/getsingleuid",
+    data: postData,
+    headers: { "Content-Type": "application/json" },
   })
     .then(function (response) {
       plotUIDupdate(response["data"]["result"][0])
@@ -96,23 +104,23 @@ function oneUIDrequest(UID) {
 
 function exonRequest(GENE, in_data, setViewState, viewState, exonPlotState, setExonPlotState) {
   var bodyFormData = new FormData();
-  bodyFormData.append("GENE",GENE);
+  var postedData = {"data": {"gene": GENE}}
   axios({
     method: "post",
-    url: (targeturl.concat("/backend/exon_retrieve.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
+    url: "http://localhost:8081/api/datasets/getexonviewerdata",
+    data: postedData,
+    headers: { "Content-Type": "application/json" },
   })
     .then(function (response) {
       var resp = response["data"];
       setViewState({
-        toDownloadExon: resp["blob"]["trans"],
+        toDownloadExon: resp["blob"]["transcript"],
         toDownloadGeneModel: resp["blob"]["genemodel"],
         toDownloadJunc: resp["blob"]["junc"]
       });
       setExonPlotState({
         exons: resp["gene"], 
-        transcripts: resp["trans"], 
+        transcripts: resp["transcript"], 
         junctions: resp["junc"],
         in_data: in_data,
         scaled: exonPlotState.scaled
@@ -1195,6 +1203,7 @@ function ViewPanel(props) {
   global_cc = props.CC;
   global_OncospliceClusters = props.OncospliceClusters;
   global_trans = props.TRANS;
+  console.log("returned from heatmap", props);
   const [viewState, setViewState] = React.useState({
     toDownloadExon: undefined,
     toDownloadGeneModel: undefined,

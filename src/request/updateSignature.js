@@ -14,16 +14,17 @@ function updateSignature(arg, targeturl)
   console.log("updateSignature_1", callback);
   var keys = arg["keys"];
   keys["single"] = [];
-  const bodyFormData = new FormData();
-  bodyFormData.append("cancer_type", cancername);
+  console.log("cancername", cancername);
+  var postdata = {"data": cancername};
+  console.log("post data", postdata);
   let promises = [];
   var sigFilters;
   var sigTranslate;
   axios({
         method: "post",
-        url: (targeturl.concat("/backend/update_signature_ui_fields.php")),
-        data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
+        url: "http://localhost:8081/api/datasets/updatesignatures",
+        data: postdata,
+        headers: { "Content-Type": "application/json" },
     })
   .then(function (response) 
   {
