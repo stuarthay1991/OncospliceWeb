@@ -90,9 +90,9 @@ function fetchHeatmapData(arg, targeturl)
   tmp_qh_obj["key"] = "CANCER";
   tmp_qh_obj["val"] = curCancer;
   qh_arr.push(tmp_qh_obj);
-  var qh_postdata = JSON.stringify(qh_arr);
+  var qhPostData = JSON.stringify(qh_arr);
 
-  var postdata = {"data": {"cancerName": curCancer, 
+  var postData = {"data": {"cancerName": curCancer, 
   "comparedCancer": compCancer,
   "oncospliceClusters": oncospliceClusters,
   "samples": sampleFilters,
@@ -116,19 +116,18 @@ function fetchHeatmapData(arg, targeturl)
     axios({
       method: "post",
       url: "http://localhost:8081/api/datasets/getheatmapdata",
-      data: postdata,
+      data: postData,
       headers: { "Content-Type": "application/json" },
     })
       .then(function (response) {
         console.log("full return from heatmap: ", response)
         var dateval = response["data"]["date"];
-        var indatatmp = {};
-        var splicingreturned = response["data"]["rr"];
-        var splicingcols = response["data"]["col_beds"];
-        var splicingcc = response["data"]["cci"];
-        var splicingrpsi = response["data"]["rpsi"];
-        var splicingtrans = response["data"]["oncokey"];
-        callback(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exportView, BQstate);
+        var heatmapMatrix = response["data"]["rr"];
+        var sampleNames = response["data"]["col_beds"];
+        var hierarchicalClusterColumns = response["data"]["cci"];
+        var oncospliceSignatureClusterColumns = response["data"]["rpsi"];
+        var oncospliceSignatureClusterName = response["data"]["oncokey"];
+        callback(heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, BQstate);
         document.getElementById("sub").style.display = "none";
       })
   }

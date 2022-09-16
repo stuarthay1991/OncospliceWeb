@@ -25,6 +25,12 @@ import downloadHeatmapText from './components/downloadHeatmapText';
 import axios from 'axios';
 import Tooltip from '@material-ui/core/Tooltip';
 import targeturl from './targeturl.js';
+import GridLayout from "react-grid-layout";
+import { Responsive, WidthProvider } from "react-grid-layout";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 import Plot from 'react-plotly.js';
 import * as d3 from 'd3';
@@ -149,6 +155,11 @@ const defaultProps = {
 const boxProps = {
   border: 3,
 };
+
+const gridLayoutStyle = {
+  overflow: "auto",
+  margin: 1
+}
 
 const boxProps_padding = {
   border: 3,
@@ -1125,10 +1136,18 @@ class SupplementaryPlot extends React.Component {
 
     return(
       <>
+      <div key="side_panel_c" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
       <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
+      </div>
+      <div key="side_panel_d" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
       <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
+      </div>
+      <div key="side_panel_e" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
       <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
+      </div>
+      <div key="side_panel_f" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
       <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
+      </div>
       </>
     )
   }
@@ -1219,10 +1238,30 @@ function ViewPanel(props) {
   const [gtexState, setGtexState] = React.useState({gtexPlot: null});
   const [okmapLabelState, setOkmapLabelState] = React.useState({okmapLabel: null});
   global_uifielddict = props.QueryExport["ui_field_dict"];
+  const resizeHandles = ['s','w','e','n','sw','nw','se','ne'];
+
+  const layout = [
+      { i: "main_a", x: 0, y: 0, w: 5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "side_panel_a", x: 5, y: 0, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "side_panel_b", x: 5, y: 1, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "side_panel_c", x: 5, y: 2, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "side_panel_d", x: 5, y: 3, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "side_panel_e", x: 5, y: 4, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "side_panel_f", x: 5, y: 5, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "exon_plot_a", x: 0, y: 7, w: 8, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false }
+  ];
+
   return (
     <div style={{ fontFamily: 'Arial' }}>
-    <Grid container spacing={1}>
-      <Grid item xs={8}>
+    <GridLayout className="layout" 
+                layout={layout} 
+                cols={14} 
+                rowHeight={100} 
+                width={2800} 
+                isDraggable={false}
+                resizeHandles={[ "n", "e", "s", "w", "ne", "se", "nw", "sw" ]}
+                >
+      <div key="main_a" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
         <ViewPanel_Top 
           Data={props.Data} 
           Cols={props.Cols} 
@@ -1244,9 +1283,8 @@ function ViewPanel(props) {
           exonPlotState={exonPlotState}
           setExonPlotState={setExonPlotState}
         />
-      </Grid>
-      <Grid item xs={4}>
-        <ViewPanel_Side 
+      </div>
+      <ViewPanel_Side 
           Data={props.Data} 
           Cols={props.Cols} 
           CC={props.CC} 
@@ -1259,10 +1297,8 @@ function ViewPanel(props) {
           setGtexState={setGtexState}
           exonPlotState={exonPlotState}
           setExonPlotState={setExonPlotState}
-        />
-      </Grid>
-    </Grid>
-    <div style={{margin: 10}}>
+      />
+    <div key="exon_plot_a" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
       <Grid container spacing={1}>
       <Grid item xs={2}>
       <SpcInputLabel label={"ExonPlot"} />
@@ -1287,6 +1323,7 @@ function ViewPanel(props) {
         <div style={{marginLeft: 20, marginTop: 10, marginBottom: 10}} id="supp1"></div>
       </Box>
     </div>
+    </GridLayout>
     </div>
   );
 }
@@ -1327,8 +1364,12 @@ function ViewPanel_Side(props) {
   return(
     <div>
     <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>{"Cancer: ".concat(props.QueryExport["cancer"])}</h3>
+    <div key="side_panel_a" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
     <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
+    </div>
+    <div key="side_panel_b" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
     <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
+    </div>
     <SupplementaryPlot 
       CC={props.CC} 
       OncospliceClusters={props.OncospliceClusters} 
