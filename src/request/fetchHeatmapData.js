@@ -34,7 +34,7 @@ function fetchHeatmapData(arg, targeturl)
     var queryString = document.getElementById(childrenFilters[keys["filter"][i]].props.currentSelection.concat("_id")).value;
     queryString = queryString.replace(/(\r\n|\n|\r)/gm, "");
     tmp_qh_obj = {};
-    sampleFilters.push({"key": childrenFilters[keys["filter"][i]].props.currentSelection, "value": queryString});
+    bodyFormData.append(("SPLC".concat(childrenFilters[keys["filter"][i]].props.currentSelection)), queryString);
     tmp_qh_obj["key"] = "SPLC".concat(childrenFilters[keys["filter"][i]].props.currentSelection);
     tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
@@ -43,64 +43,57 @@ function fetchHeatmapData(arg, targeturl)
   {
     var queryString = listOfSelectedSignatures[keys["single"][i]].props.currentSelection;
     queryString = queryString.replace(/(\r\n|\n|\r)/gm, "");
-    
     tmp_qh_obj = {};
     if(Object.entries(sigTranslate).length > 0)
     {
       if(sigTranslate[queryString] != undefined)
       {
-        oncospliceClusters = queryString;
+        bodyFormData.append(("RPSI".concat(queryString)), queryString);
+        console.log("RPSI SUBMIT", queryString);
         queryString = sigTranslate[queryString];
         queryString = queryString.replace("+", "positive_");
-
       }//TEMPORARY FIX
       else
       {
+        //myString = "PSI_".concat(myString);
         queryString = queryString.replace(" ", "_");
       }
     }
-    signatureFilters.push(queryString);
     queryString = "PSI".concat(queryString);
     tmp_qh_obj["key"] = queryString;
     tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
+    bodyFormData.append(queryString, queryString);
   }
   for(var i = 0; i < clientGenes.length; i++)
   {
     var queryString = clientGenes[i];
     tmp_qh_obj = {};
-    geneFilters.push(queryString);
     queryString = "GENE".concat(queryString);
     tmp_qh_obj["key"] = queryString;
     tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
+    bodyFormData.append(queryString, queryString);
   }
   for(var i = 0; i < clientCoord.length; i++)
   {
     var queryString = clientCoord[i];
     tmp_qh_obj = {};
-    coordinateFilters.push(queryString);
     queryString = "COORD".concat(queryString);
     tmp_qh_obj["key"] = queryString;
     tmp_qh_obj["val"] = queryString;
     qh_arr.push(tmp_qh_obj);
+    bodyFormData.append(queryString, queryString);
   }  
-
+  bodyFormData.append("CANCER",curCancer);
+  bodyFormData.append("COMPCANCER",compCancer);
   tmp_qh_obj = {};
   tmp_qh_obj["key"] = "CANCER";
   tmp_qh_obj["val"] = curCancer;
   qh_arr.push(tmp_qh_obj);
-  var qhPostData = JSON.stringify(qh_arr);
-
-  var postData = {"data": {"cancerName": curCancer, 
-  "comparedCancer": compCancer,
-  "oncospliceClusters": oncospliceClusters,
-  "samples": sampleFilters,
-  "signatures": signatureFilters,
-  "genes": geneFilters,
-  "coords": coordinateFilters}
-  };
-
+  var qh_postdata = JSON.stringify(qh_arr);
+  bodyFormData.append("HIST",qh_postdata);
+  bodyFormData.append("USER",GLOBAL_user);
   if(keys["single"].length == 0 && clientGenes.length == 0 && clientCoord.length == 0)
   {
     alert("Please select at least one signature or gene to continue.");
@@ -122,12 +115,13 @@ function fetchHeatmapData(arg, targeturl)
       .then(function (response) {
         console.log("full return from heatmap: ", response)
         var dateval = response["data"]["date"];
-        var heatmapMatrix = response["data"]["rr"];
-        var sampleNames = response["data"]["col_beds"];
-        var hierarchicalClusterColumns = response["data"]["cci"];
-        var oncospliceSignatureClusterColumns = response["data"]["rpsi"];
-        var oncospliceSignatureClusterName = response["data"]["oncokey"];
-        callback(heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, BQstate);
+        var indatatmp = {};
+        var splicingreturned = response["data"]["rr"];
+        var splicingcols = response["data"]["col_beds"];
+        var splicingcc = response["data"]["cci"];
+        var splicingrpsi = response["data"]["rpsi"];
+        var splicingtrans = response["data"]["oncokey"];
+        callback(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exportView, BQstate);
         document.getElementById("sub").style.display = "none";
       })
   }

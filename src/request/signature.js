@@ -59,7 +59,7 @@ function signature(arg, targeturl)
         queryString = queryString.replace(" ", "_");
       }
     }
-    fullSignatureList.push(queryString);
+    bodyFormData.append(queryString, queryString);
     exportView["single"].push(queryString); 
   }
   if(Object.entries(sigTranslate).length > 0)
