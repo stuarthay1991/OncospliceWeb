@@ -43,6 +43,7 @@ function fetchHeatmapData(arg, targeturl)
       if(sigTranslate[queryString] != undefined)
       {
         bodyFormData.append(("RPSI".concat(queryString)), queryString);
+        console.log("RPSI SUBMIT", queryString);
         queryString = sigTranslate[queryString];
         queryString = queryString.replace("+", "positive_");
       }//TEMPORARY FIX
