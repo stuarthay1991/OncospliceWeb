@@ -22,7 +22,7 @@ function loadContact()
 function TopNav() {
   const classes = useStyles();
 
-  var oncoimg = isBuild ? <img src="/ICGS/Oncosplice/testing/OncoLOGO.png" alt="Logo" width="400" height="130"></img> : <img src={oncologo} alt="Logo" width="177" height="148"></img>;
+  var oncoimg = isBuild ? <img src="/ICGS/Oncosplice/testing/OncoLOGO.png" alt="Logo" width="500" height="130"></img> : <img src={oncologo} alt="Logo" width="309" height="108"></img>;
 
   return (
     <div className={classes.mainpane} style={{ fontFamily: 'Roboto' }}>

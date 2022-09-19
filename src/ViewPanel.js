@@ -63,7 +63,7 @@ var global_heat_len = "";
 var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
 var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
 
-function metarepost(name) {
+function metarepost(name, setFilterState) {
   var bodyFormData = new FormData();
   if(name != "age range")
   {
@@ -87,7 +87,7 @@ function metarepost(name) {
       console.log("single_uid_response", response);
       var ret = response["data"];
       updateOkmapLabel(ret);
-      supFilterUpdate(ret);
+      setFilterState({filters: ret["out"], filterset: ret["set"]});
     })
 }
 
@@ -141,13 +141,6 @@ function plotUIDupdate(dat)
   })    
 }
 
-function plot4update(vec)
-{
-  this.setState({
-    plot4: vec
-  })  
-}
-
 const defaultProps = {
   m: 0.1,
 };
@@ -157,7 +150,7 @@ const boxProps = {
 };
 
 const gridLayoutStyle = {
-  overflow: "auto",
+  overflow: "scroll",
   margin: 1
 }
 
@@ -265,7 +258,7 @@ function FilterHeatmapSelect(props) {
       ...state,
       [name]: event.target.value,
     });
-    metarepost(event.target.value);
+    metarepost(event.target.value, props.setFilterState);
   }
 
   return (
@@ -373,13 +366,20 @@ class Heatmap extends React.Component {
                 gtexState={this.props.gtexState}
                 setGtexState={this.props.setGtexState}
                 exonPlotState={this.props.exonPlotState}
-                setExonPlotState={this.props.setExonPlotState}>
+                setExonPlotState={this.props.setExonPlotState}
+                selectionState={this.props.selectionState}
+                setSelectionState={this.props.setSelectionState}
+                filterState={this.props.filterState}
+                setFilterState={this.props.setFilterState}
+                plotUIDstate={this.props.plotUIDstate}
+                setPlotUIDstate={this.props.setPlotUIDstate}>
                 </OKMAP>,
       label: <OKMAP_LABEL 
                 target_div_id={"HEATMAP_LABEL"} 
                 column_names={this.props.cols} 
                 doc={document} 
-                xscale={xscale}/>,
+                xscale={xscale}
+                setFilterState={this.props.setFilterState}/>,
       CC: <OKMAP_COLUMN_CLUSTERS 
                 target_div_id={"HEATMAP_CC"} 
                 column_names={this.props.cc} 
@@ -433,13 +433,19 @@ class Heatmap extends React.Component {
                   setGtexState={this.props.setGtexState}
                   exonPlotState={this.props.exonPlotState}
                   setExonPlotState={this.props.setExonPlotState}
-                  >
+                  selectionState={this.props.selectionState}
+                  setSelectionState={this.props.setSelectionState}
+                  filterState={this.props.filterState}
+                  setFilterState={this.props.setFilterState}
+                  plotUIDstate={this.props.plotUIDstate}
+                  setPlotUIDstate={this.props.setPlotUIDstate}>
                   </OKMAP>,
         label: <OKMAP_LABEL 
                   target_div_id={"HEATMAP_LABEL"} 
                   column_names={this.props.cols} 
                   doc={document} 
                   xscale={this.xscale}
+                  setFilterState={this.props.setFilterState}
                   />,
         CC: <OKMAP_COLUMN_CLUSTERS 
                   target_div_id={"HEATMAP_CC"} 
@@ -700,7 +706,7 @@ class OKMAP_LABEL extends React.Component {
       if(this.state.retcols != "NULL")
       {
         this.writeBlocks(this.state.retcols, this.props.xscale, this.props.column_names);
-        metarepost(Object.entries(global_uifielddict)[0][0]); 
+        metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState); 
         document.getElementById("HeatmapFilterSelect_id").value = Object.entries(global_uifielddict)[0][0];
       }
       return(
@@ -712,7 +718,7 @@ class OKMAP_LABEL extends React.Component {
   componentDidMount() {
     this.baseSVG("100%", 20);
     this.writeBase(20);
-    metarepost(Object.entries(global_uifielddict)[0][0]);
+    metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState);
   }  
 
   render (){
@@ -908,11 +914,11 @@ class OKMAP extends React.Component {
       .text(converteduid)
       .on("click", function(){
           updateOkmapTable(data);
-          selectionToSup(data);
+          parent.props.setSelectionState({selection: data});
           gtexSend(data["examined_junction"], parent.props.setGtexState, parent.props.gtexState);
           var toex = data["examined_junction"].split(":");
           exonRequest(toex[0], data, parent.props.setViewState, parent.props.viewState, parent.props.exonPlotState, parent.props.setExonPlotState);
-          oneUIDrequest(data["uid"]);
+          parent.props.setPlotUIDstate({fulldat: data["uid"]});
           parent.setSelected(converteduid);
       })
       .on("mouseover", function(){
@@ -1087,7 +1093,6 @@ class SupplementaryPlot extends React.Component {
     //var other_gene_matches = [];
     selectionToSup = selectionToSup.bind(this);
     supFilterUpdate = supFilterUpdate.bind(this);
-    plot4update = plot4update.bind(this);
     plotUIDupdate = plotUIDupdate.bind(this);
   }
 
@@ -1134,20 +1139,21 @@ class SupplementaryPlot extends React.Component {
       var plotobj4 = this.state.fulldat == null ? <h4>No selection set</h4> : <h4>No GTEX available for given UID</h4>;
     }
 
+    const resizeHandles = ['s','w','e','n','sw','nw','se','ne'];
+
+    const layout = [
+        { i: "sidePanelA", x: 0, y: 0, w: 8, h: 3, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+        { i: "sidePanelB", x: 0, y: 1, w: 8, h: 3, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+        { i: "sidePanelC", x: 0, y: 2, w: 8, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+        { i: "sidePanelD", x: 0, y: 3, w: 8, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false }
+    ];
+
     return(
       <>
-      <div key="side_panel_c" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
-      </div>
-      <div key="side_panel_d" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
-      </div>
-      <div key="side_panel_e" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
-      </div>
-      <div key="side_panel_f" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
-      </div>
+        <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
+        <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
+        <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
+        <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
       </>
     )
   }
@@ -1213,6 +1219,10 @@ function ScalingCheckbox(props)
   );
 }
 
+function smallPanel(props) {
+
+}
+
 function ViewPanel(props) {
   const classes = useStyles();
   global_meta = props.Cols;
@@ -1235,21 +1245,54 @@ function ViewPanel(props) {
       in_data: null,
       scaled: false
   });
+
+  const [selectionState, setSelectionState] = React.useState({selection: null});
+  const [filterState, setFilterState] = React.useState({filters: null, filterset: null});
+  const [plotUIDstate, setPlotUIDstate] = React.useState({fulldat: null});
+
   const [gtexState, setGtexState] = React.useState({gtexPlot: null});
   const [okmapLabelState, setOkmapLabelState] = React.useState({okmapLabel: null});
   global_uifielddict = props.QueryExport["ui_field_dict"];
+
   const resizeHandles = ['s','w','e','n','sw','nw','se','ne'];
 
   const layout = [
-      { i: "main_a", x: 0, y: 0, w: 5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "side_panel_a", x: 5, y: 0, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "side_panel_b", x: 5, y: 1, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "side_panel_c", x: 5, y: 2, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "side_panel_d", x: 5, y: 3, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "side_panel_e", x: 5, y: 4, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "side_panel_f", x: 5, y: 5, w: 2.5, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "exon_plot_a", x: 0, y: 7, w: 8, h: 32, resizeHandles: resizeHandles, isResizable: true, isDraggable: false }
+      { i: "mainPanel", x: 0, y: 0, w: 5, h: 28, resizeHandles: resizeHandles, isResizable: true, isDraggable: false, overflow: "scroll" },
+      { i: "side_panel_a", x: 5, y: 0, w: 2.5, h: 2, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "side_panel_b", x: 5, y: 0, w: 2.5, h: 2, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "plotPanelOncoClusters", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "plotPanelHierarchyClusters", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "plotPanelFilters", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "plotPanelGTEX", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "side_panel_stats", x: 5, y: 0, w: 2.5, h: 3, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
+      { i: "exonPlotPanel", x: 0, y: 7, w: 8, h: 16, resizeHandles: resizeHandles, isResizable: true, isDraggable: false }
   ];
+
+  //Refactor after this
+  var Selection = selectionState.selection;
+  var set = null;
+  var plotobj1, plotobj2, plotobj3 = null;
+  var elm1 = filterState.filters;
+  var elm2 = filterState.filterset;
+  if(Selection != null && filterState.filterset != null && plotUIDstate.fulldat != null)
+  {
+    var plotobj1 = oncospliceClusterViolinPlotPanel(Selection, plotUIDstate.fulldat, props.Cols, props.OncospliceClusters, props.TRANS, global_cancer);
+    var plotobj2 = hierarchicalClusterViolinPlotPanel(plotUIDstate.fulldat, Selection, props.Cols, props.CC, global_cancer);
+    var plotobj3 = sampleFilterViolinPlotPanel(Selection, plotUIDstate.fulldat, props.Cols, elm1, elm2, global_cancer);
+  }
+  else
+  {
+    var plotobj1, plotobj2, plotobj3 = <h4>No selection set</h4>;
+  }
+
+  if(Selection != null && gtexState.gtexPlot != null)
+  {
+    var plotobj4 = gtexState.gtexPlot;
+  }
+  else
+  {
+    var plotobj4 = plotUIDstate.fulldat == null ? <h4>No selection set</h4> : <h4>No GTEX available for given UID</h4>;
+  }
 
   return (
     <div style={{ fontFamily: 'Arial' }}>
@@ -1261,13 +1304,14 @@ function ViewPanel(props) {
                 isDraggable={false}
                 resizeHandles={[ "n", "e", "s", "w", "ne", "se", "nw", "sw" ]}
                 >
-      <div key="main_a" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+      <div key="mainPanel" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
         <ViewPanel_Top 
           Data={props.Data} 
           Cols={props.Cols} 
           CC={props.CC} 
           OncospliceClusters={props.OncospliceClusters} 
           QueryExport={props.QueryExport}
+          setFilterState={setFilterState}
         />
         <Typography className={classes.padding} />
         <ViewPanel_Main 
@@ -1282,23 +1326,44 @@ function ViewPanel(props) {
           setGtexState={setGtexState}
           exonPlotState={exonPlotState}
           setExonPlotState={setExonPlotState}
+          selectionState={selectionState}
+          setSelectionState={setSelectionState}
+          filterState={filterState}
+          setFilterState={setFilterState}
+          plotUIDstate={plotUIDstate}
+          setPlotUIDstate={setPlotUIDstate}
         />
       </div>
-      <ViewPanel_Side 
-          Data={props.Data} 
-          Cols={props.Cols} 
-          CC={props.CC} 
-          OncospliceClusters={props.OncospliceClusters} 
-          TRANS={props.TRANS} 
-          QueryExport={props.QueryExport}
-          viewState={viewState}
-          setViewState={setViewState}
-          gtexState={gtexState}
-          setGtexState={setGtexState}
-          exonPlotState={exonPlotState}
-          setExonPlotState={setExonPlotState}
-      />
-    <div key="exon_plot_a" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+
+      <div key="side_panel_a" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+      <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
+      </div>
+
+      <div key="side_panel_b" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+      <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
+      </div>
+      
+      <div key="plotPanelOncoClusters" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+      <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
+      </div>
+
+      <div key="plotPanelHierarchyClusters" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+      <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
+      </div>
+
+      <div key="plotPanelFilters" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+      <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
+      </div>
+
+      <div key="plotPanelGTEX" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+      <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
+      </div>
+      
+      <div key="side_panel_stats" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+      <Stats></Stats>
+      </div>
+      <SetExonPlot exonPlotState={props.exonPlotState} setExonPlotState={props.setExonPlotState}></SetExonPlot>
+    <div key="exonPlotPanel" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
       <Grid container spacing={1}>
       <Grid item xs={2}>
       <SpcInputLabel label={"ExonPlot"} />
@@ -1337,7 +1402,7 @@ function ViewPanel_Top(props) {
           <div className={classes.cntr_viewpane}><h3 style={{ fontSize: 27, color: '#0F6A8B', marginTop: 24}}>Plot Settings</h3></div>
         </Grid>
         <Grid item xs={2}>
-          <FilterHeatmapSelect />
+          <FilterHeatmapSelect setFilterState={props.setFilterState} />
         </Grid>
         <Grid item xs={5}>
           <span className={classes.cntr_btn}>
@@ -1364,25 +1429,6 @@ function ViewPanel_Side(props) {
   return(
     <div>
     <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>{"Cancer: ".concat(props.QueryExport["cancer"])}</h3>
-    <div key="side_panel_a" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-    <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
-    </div>
-    <div key="side_panel_b" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-    <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
-    </div>
-    <SupplementaryPlot 
-      CC={props.CC} 
-      OncospliceClusters={props.OncospliceClusters} 
-      TRANS={props.TRANS} 
-      Data={props.Data} 
-      Cols={props.Cols}
-      viewState={props.viewState}
-      setViewState={props.setViewState}
-      gtexState={props.gtexState}
-      setGtexState={props.setGtexState}>
-    </SupplementaryPlot>
-    <Stats></Stats>
-    <SetExonPlot exonPlotState={props.exonPlotState} setExonPlotState={props.setExonPlotState}></SetExonPlot>
     </div>
   )
 }
@@ -1390,14 +1436,14 @@ function ViewPanel_Side(props) {
 function ViewPanel_Main(props) {
     const classes = useStyles();
     return(
-    <div id="ViewPane_MainPane">
+    <div id="ViewPane_MainPane" style={{overflow: "scroll"}}>
       <Box {...defaultProps}>
-        <div id="HEATMAP_LABEL"></div>
-        <div id="HEATMAP_CC"></div>
-        <div id="HEATMAP_OncospliceClusters"></div>
+        <div id="HEATMAP_LABEL" style={{overflow: "scroll"}}></div>
+        <div id="HEATMAP_CC" style={{overflow: "scroll"}}></div>
+        <div id="HEATMAP_OncospliceClusters" style={{overflow: "scroll"}}></div>
         <div className={classes.flexparent}>
-        <span id="HEATMAP_0"></span>
-        <span id="HEATMAP_ROW_LABEL" style={{width: "280px"}}></span>
+        <span id="HEATMAP_0" style={{overflow: "scroll"}}></span>
+        <span id="HEATMAP_ROW_LABEL" style={{width: "280px", overflow: "scroll"}}></span>
         </div>
       </Box> 
       <Heatmap 
@@ -1410,7 +1456,13 @@ function ViewPanel_Main(props) {
         gtexState={props.gtexState}
         setGtexState={props.setGtexState}
         exonPlotState={props.exonPlotState}
-        setExonPlotState={props.setExonPlotState}>
+        setExonPlotState={props.setExonPlotState}
+        selectionState={props.selectionState}
+        setSelectionState={props.setSelectionState}
+        filterState={props.filterState}
+        setFilterState={props.setFilterState}
+        plotUIDstate={props.plotUIDstate}
+        setPlotUIDstate={props.setPlotUIDstate}>
       </Heatmap>
     </div>  
     );
