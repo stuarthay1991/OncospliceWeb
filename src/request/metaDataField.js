@@ -25,7 +25,7 @@ function metaDataField(arg, targeturl)
   		var item = preQ["children"][keys[filter][i]];
     	var queryString = item.props.value;
     	queryString = queryString.replace(/(\r\n|\n|\r)/gm, "");
-      prevFields.push({"key": item.props.name, "value": queryString});
+      	prevFields.push({"key": item.props.name, "value": queryString});
     	exportView["filter"].push((item.props.name.concat("#").concat(queryString)));
     	//sendToViewPane["filter"].push((item.props.name.concat("#").concat(myString)));
   	}
