@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 import { makeRequest } from '../../request/CancerDataManagement.js';
 
-import useStyles from '../../useStyles.js';
+import useStyles from '../../css/useStyles.js';
 import '../../App.css';
 
 

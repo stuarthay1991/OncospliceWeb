@@ -27,6 +27,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import targeturl from './targeturl.js';
 import GridLayout from "react-grid-layout";
 import { Responsive, WidthProvider } from "react-grid-layout";
+import { Resizable, ResizableBox } from "react-resizable";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
@@ -34,8 +35,8 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 
 import Plot from 'react-plotly.js';
 import * as d3 from 'd3';
-import useStyles from './useStyles.js';
-import { global_colors } from './constants.js';
+import useStyles from './css/useStyles.js';
+import { global_colors } from './utilities/constants.js';
 
 import oncospliceClusterViolinPlotPanel from './plots/oncospliceClusterViolinPlotPanel';
 import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterViolinPlotPanel';
@@ -914,11 +915,11 @@ class OKMAP extends React.Component {
       .text(converteduid)
       .on("click", function(){
           updateOkmapTable(data);
-          parent.props.setSelectionState({selection: data});
+          parent.props.setSelectionState({selection: data["uid"]});
           gtexSend(data["examined_junction"], parent.props.setGtexState, parent.props.gtexState);
           var toex = data["examined_junction"].split(":");
           exonRequest(toex[0], data, parent.props.setViewState, parent.props.viewState, parent.props.exonPlotState, parent.props.setExonPlotState);
-          parent.props.setPlotUIDstate({fulldat: data["uid"]});
+          parent.props.setPlotUIDstate({fulldat: data});
           parent.setSelected(converteduid);
       })
       .on("mouseover", function(){
@@ -1138,8 +1139,8 @@ function ScalingCheckbox(props)
   );
 }
 
-function smallPanel(props) {
-
+function resizeFunction(event, { element, size }) {
+  this.setState({ width: size.width, height: size.height });
 }
 
 function ViewPanel(props) {
@@ -1171,21 +1172,12 @@ function ViewPanel(props) {
 
   const [gtexState, setGtexState] = React.useState({gtexPlot: null});
   const [okmapLabelState, setOkmapLabelState] = React.useState({okmapLabel: null});
+
+  const [resizeState, setResizeState] = React.useState({heatmapBox: null, sidePanel: null});
+
   global_uifielddict = props.QueryExport["ui_field_dict"];
 
   const resizeHandles = ['s','w','e','n','sw','nw','se','ne'];
-
-  const layout = [
-      { i: "mainPanel", x: 0, y: 0, w: 5, h: 28, resizeHandles: resizeHandles, isResizable: true, isDraggable: false, overflow: "scroll" },
-      { i: "side_panel_a", x: 5, y: 0, w: 2.5, h: 2, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "side_panel_b", x: 5, y: 0, w: 2.5, h: 2, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "plotPanelOncoClusters", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "plotPanelHierarchyClusters", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "plotPanelFilters", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "plotPanelGTEX", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "side_panel_stats", x: 5, y: 0, w: 2.5, h: 3, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "exonPlotPanel", x: 0, y: 7, w: 8, h: 16, resizeHandles: resizeHandles, isResizable: true, isDraggable: false }
-  ];
 
   //Refactor after this
   var Selection = selectionState.selection;
@@ -1214,30 +1206,20 @@ function ViewPanel(props) {
   }
 
   return (
-    <div style={{ fontFamily: 'Arial' }}>
-    <GridLayout className="layout" 
-                layout={layout} 
-                cols={14} 
-                rowHeight={100} 
-                width={2800} 
-                isDraggable={false}
-                resizeHandles={[ "n", "e", "s", "w", "ne", "se", "nw", "sw" ]}
-                >
-      <div key="mainPanel" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-        <ViewPanel_Top 
-          Data={props.Data} 
-          Cols={props.Cols} 
-          CC={props.CC} 
-          OncospliceClusters={props.OncospliceClusters} 
-          QueryExport={props.QueryExport}
-          setFilterState={setFilterState}
-        />
-        <Typography className={classes.padding} />
-        <ViewPanel_Main 
-          Data={props.Data} 
-          Cols={props.Cols} 
-          CC={props.CC} 
-          OncospliceClusters={props.OncospliceClusters} 
+    <><div style={{ fontFamily: 'Arial', display: 'flex', flexWrap: 'wrap' }}>
+      <ResizableBox
+        className="box"
+        width={1200}
+        height={300}
+        margin={10}
+        minConstraints={[1020, 150]}
+        maxConstraints={[1500, 800]}
+      >
+        <ViewPanel_Main
+          Data={props.Data}
+          Cols={props.Cols}
+          CC={props.CC}
+          OncospliceClusters={props.OncospliceClusters}
           QueryExport={props.QueryExport}
           viewState={viewState}
           setViewState={setViewState}
@@ -1250,65 +1232,70 @@ function ViewPanel(props) {
           filterState={filterState}
           setFilterState={setFilterState}
           plotUIDstate={plotUIDstate}
-          setPlotUIDstate={setPlotUIDstate}
-        />
-      </div>
+          setPlotUIDstate={setPlotUIDstate} />
+      </ResizableBox>
 
-      <div key="side_panel_a" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
-      </div>
+      <ResizableBox
+        className="box"
+        width={300}
+        height={300}
+        margin={10}
+        minConstraints={[200, 150]}
+        maxConstraints={[1500, 800]}
+      >
+        <div style={{overflow: "scroll", height: "100%", width: "100%", display: "inline-block"}}>
+        <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
 
-      <div key="side_panel_b" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
-      </div>
-      
-      <div key="plotPanelOncoClusters" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
-      </div>
+        <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
 
-      <div key="plotPanelHierarchyClusters" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
-      </div>
+        <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
 
-      <div key="plotPanelFilters" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
-      </div>
+        <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
 
-      <div key="plotPanelGTEX" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
-      </div>
-      
-      <div key="side_panel_stats" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <Stats></Stats>
-      </div>
-      <SetExonPlot exonPlotState={props.exonPlotState} setExonPlotState={props.setExonPlotState}></SetExonPlot>
-    <div key="exonPlotPanel" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <Grid container spacing={1}>
-      <Grid item xs={2}>
-      <SpcInputLabel label={"ExonPlot"} />
-      </Grid>
-      <Grid item>
-        <ScalingCheckbox exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}/>
-      </Grid>
-      <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("transcript.csv", viewState.toDownloadExon)}>Download Transcript</Button>
-      </Grid>
-      <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("genemodel.csv", viewState.toDownloadGeneModel)}>Download Gene Model</Button>
-      </Grid>
-      <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button>
-      </Grid>
-      <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}}>Download PDF</Button>
-      </Grid>
-      </Grid>
-      <Box borderColor="#dbdbdb" {...spboxProps}>
-        <div style={{marginLeft: 20, marginTop: 10, marginBottom: 10}} id="supp1"></div>
-      </Box>
-    </div>
-    </GridLayout>
-    </div>
+        <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
+
+        <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
+
+        <Stats></Stats>
+        <SetExonPlot exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></SetExonPlot>
+        </div>
+      </ResizableBox>
+    </div><div>
+        <ResizableBox
+          className="box"
+          width={1500}
+          height={600}
+          margin={10}
+          minConstraints={[1500, 600]}
+          maxConstraints={[1500, 600]}
+        >
+          <div style={{overflow: "scroll", height: "100%", width: "100%"}}>
+          <Grid container spacing={1}>
+            <Grid item xs={2}>
+              <SpcInputLabel label={"ExonPlot"} />
+            </Grid>
+            <Grid item>
+              <ScalingCheckbox exonPlotState={exonPlotState} setExonPlotState={setExonPlotState} />
+            </Grid>
+            <Grid item>
+              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("transcript.csv", viewState.toDownloadExon)}>Download Transcript</Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("genemodel.csv", viewState.toDownloadGeneModel)}>Download Gene Model</Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }}>Download PDF</Button>
+            </Grid>
+          </Grid>
+          <Box borderColor="#dbdbdb" {...spboxProps}>
+            <div style={{ marginLeft: 20, marginTop: 10, marginBottom: 10 }} id="supp1"></div>
+          </Box>
+          </div>
+        </ResizableBox>
+      </div></>
   );
 }
 
@@ -1355,16 +1342,22 @@ function ViewPanel_Side(props) {
 function ViewPanel_Main(props) {
     const classes = useStyles();
     return(
-    <div id="ViewPane_MainPane" style={{overflow: "scroll"}}>
-      <Box {...defaultProps}>
-        <div id="HEATMAP_LABEL" style={{overflow: "scroll"}}></div>
-        <div id="HEATMAP_CC" style={{overflow: "scroll"}}></div>
-        <div id="HEATMAP_OncospliceClusters" style={{overflow: "scroll"}}></div>
+    <div id="ViewPane_MainPane" style={{overflow: "scroll", height: "100%", width: "100%"}}>
+        <ViewPanel_Top
+          Data={props.Data}
+          Cols={props.Cols}
+          CC={props.CC}
+          OncospliceClusters={props.OncospliceClusters}
+          QueryExport={props.QueryExport}
+          setFilterState={props.setFilterState} />
+        <Typography className={classes.padding} />
+        <div id="HEATMAP_LABEL"></div>
+        <div id="HEATMAP_CC"></div>
+        <div id="HEATMAP_OncospliceClusters"></div>
         <div className={classes.flexparent}>
-        <span id="HEATMAP_0" style={{overflow: "scroll"}}></span>
-        <span id="HEATMAP_ROW_LABEL" style={{width: "280px", overflow: "scroll"}}></span>
+        <span id="HEATMAP_0" ></span>
+        <span id="HEATMAP_ROW_LABEL" style={{width: "280px"}}></span>
         </div>
-      </Box> 
       <Heatmap 
         data={props.Data} 
         cols={props.Cols} 

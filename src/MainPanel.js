@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import useStyles from './useStyles.js';
+import useStyles from './css/useStyles.js';
 import AboutUs from './components/AboutUs';
 import '@fontsource/roboto';
 import Button from '@material-ui/core/Button';

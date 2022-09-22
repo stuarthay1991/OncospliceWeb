@@ -1,6 +1,6 @@
 import Plot from 'react-plotly.js';
 import CBioportalLinkout from '../components/CBioportalLinkout';
-import { global_colors } from '../constants.js';
+import { global_colors } from '../utilities/constants.js';
 
 //This function takes the samples that are associated with hierarchical clusters and outputs two components:
 //1. A violin plot (using Plotly.js) that compares expression between hierarchical cluster samples.

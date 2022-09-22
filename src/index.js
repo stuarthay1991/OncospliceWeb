@@ -4,7 +4,7 @@ import targeturl from './targeturl.js';
 import '@fontsource/roboto';
 import {Helmet} from "react-helmet";
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
-import { isBuild } from './constants.js';
+import { isBuild } from './utilities/constants.js';
 import './App.css';
 
 import MainPanel from './MainPanel.js';

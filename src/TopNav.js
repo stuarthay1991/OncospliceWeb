@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import useStyles from './useStyles.js';
+import useStyles from './css/useStyles.js';
 import Grid from '@material-ui/core/Grid';
-import { isBuild } from './constants.js';
-import oncologo from './OncoLOGO2.png';
+import { isBuild } from './utilities/constants.js';
+import oncologo from './images/OncoLOGO2.png';
 
 function loadAbout()
 {
