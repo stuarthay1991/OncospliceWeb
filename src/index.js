@@ -51,7 +51,7 @@ function App() {
     </Helmet>
     <TopNav />
     <Switch>
-      <Redirect exact from={routeurl} to={routeurl.concat("/build")} />
+      <Redirect exact from={routeurl} to={routeurl.concat("/explore")} />
       <Route exact path={routeurl.concat("/:page?")} render={props => <MainPanel {...props} addPage={onAddPage} pagelist={pages}/>} />
       <Route exact path={routeurl.concat("/:page?/:options?")} render={props => <MainPanel {...props} addPage={onAddPage} pagelist={pages}/>} />
     </Switch>

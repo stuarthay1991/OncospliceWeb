@@ -338,8 +338,8 @@ class Heatmap extends React.Component {
     var base_re_high = window.innerHeight;
     var standard_width = 1438;
     var standard_height = 707;
-    var adjust_width = (base_re_wid / standard_width) * 1.28;
-    var adjust_height = (base_re_high / standard_height) * 1.28;
+    var adjust_width = (base_re_wid / standard_width) * 1.5;
+    var adjust_height = (base_re_high / standard_height) * 1.5;
     var xscale = ((500/this.props.cols.length) * adjust_width);
     this.xscale = xscale;
     var y_start = 0;
@@ -403,8 +403,8 @@ class Heatmap extends React.Component {
       var base_re_high = window.innerHeight;
       var standard_width = 1438;
       var standard_height = 707;
-      var adjust_width = (base_re_wid / standard_width) * 1.28;
-      var adjust_height = (base_re_high / standard_height) * 1.28;
+      var adjust_width = (base_re_wid / standard_width) * 1.5;
+      var adjust_height = (base_re_high / standard_height) * 1.5;
       var xscale = ((500/this.props.cols.length) * adjust_width);
       this.xscale = xscale;
       var y_start = 0;
@@ -1209,11 +1209,11 @@ function ViewPanel(props) {
     <><div style={{ fontFamily: 'Arial', display: 'flex', flexWrap: 'wrap' }}>
       <ResizableBox
         className="box"
-        width={1200}
-        height={300}
+        width={1100}
+        height={430}
         margin={10}
         minConstraints={[1020, 150]}
-        maxConstraints={[1500, 800]}
+        maxConstraints={[1550, 800]}
       >
         <ViewPanel_Main
           Data={props.Data}
@@ -1237,11 +1237,11 @@ function ViewPanel(props) {
 
       <ResizableBox
         className="box"
-        width={300}
-        height={300}
+        width={450}
+        height={430}
         margin={10}
         minConstraints={[200, 150]}
-        maxConstraints={[1500, 800]}
+        maxConstraints={[1550, 800]}
       >
         <div style={{overflow: "scroll", height: "100%", width: "100%", display: "inline-block"}}>
         <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
@@ -1263,11 +1263,11 @@ function ViewPanel(props) {
     </div><div>
         <ResizableBox
           className="box"
-          width={1500}
+          width={1550}
           height={600}
           margin={10}
-          minConstraints={[1500, 600]}
-          maxConstraints={[1500, 600]}
+          minConstraints={[1550, 600]}
+          maxConstraints={[1550, 600]}
         >
           <div style={{overflow: "scroll", height: "100%", width: "100%"}}>
           <Grid container spacing={1}>
@@ -1305,24 +1305,21 @@ function ViewPanel_Top(props) {
     <div>
       <Grid container spacing={1}>    
         <Grid item xs={2}>
-          <div className={classes.cntr_viewpane}><h3 style={{ fontSize: 27, color: '#0F6A8B', marginTop: 24}}>Plot Settings</h3></div>
-        </Grid>
-        <Grid item xs={2}>
           <FilterHeatmapSelect setFilterState={props.setFilterState} />
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={4}>
           <span className={classes.cntr_btn}>
           <Tooltip title="Increase row height of heatmap and font size for labels.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomInIcon onClick={zoomInHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomInIcon onClick={zoomInHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
           </Tooltip>
           <Tooltip title="Decrease row height of heatmap and font size for labels.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomOutIcon onClick={zoomOutHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomOutIcon onClick={zoomOutHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
           </Tooltip>
           <Tooltip title="Fit all rows in the heatmap to the window size.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
           </Tooltip>
           <Tooltip title="Download heatmap in text format.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
           </Tooltip>
           </span>
         </Grid>
