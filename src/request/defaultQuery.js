@@ -7,19 +7,35 @@ function defaultQuery(arg, targeturl)
   const exportView = arg["export"];
   const callback = arg["setState"];
   const document = arg["doc"];
-
+  const curCancer = "BRCA";
+  const compCancer = "BRCA";
+  var sampleFilters = [];
+  var signatureFilters = ["psi_er_negative_r1_v24_vs_others"];
+  var geneFilters = [];
+  var coordinateFilters = [];
+  var oncospliceClusters = "R1-V24 (ER Negative Splice Enriched)";
+  var postData = {"data": {"cancerName": curCancer, 
+  "comparedCancer": compCancer,
+  "oncospliceClusters": oncospliceClusters,
+  "samples": sampleFilters,
+  "signatures": signatureFilters,
+  "genes": geneFilters,
+  "coords": coordinateFilters}
+  };
+  /*
   var bodyFormData = new FormData();
   bodyFormData.append("PSIPsi er negative r1 v24 vs others", "PSIPsi er negative r1 v24 vs others");
   bodyFormData.append("RPSIR1-V24 (ER Negative Splice Enriched)", "R1-V24 (ER Negative Splice Enriched)");
   bodyFormData.append("CANCER","BRCA");
   bodyFormData.append("COMPCANCER","BRCA");
-  document.getElementById("sub").style.display = "block";
+  document.getElementById("sub").style.display = "block";*/
   //console.log("RUNNING running");
+
   axios({
     method: "post",
-    url: (targeturl.concat("/backend/metarequest.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
+    url: "http://localhost:8081/api/datasets/defaultquery",
+    data: postData,
+    headers: { "Content-Type": "application/json" },
   })
     .then(function (response) {
       //console.log(response);
@@ -39,16 +55,14 @@ function defaultQuery(arg, targeturl)
 
 function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exp, callback, doc, targeturl)
 {
-  var bodyFormData = new FormData();
-  bodyFormData.append("cancer_type", "BRCA");
+  var postdata = {"data": "BRCA"};
   axios({
     method: "post",
-    url: (targeturl.concat("/backend/ui_fields.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
+    data: postdata,
+    url: "http://localhost:8081/api/datasets/getui",
+    headers: { "Content-Type": "application/json" },
   })
   .then(function (response) {
-    //console.log("DQ_uiFields", response["data"]);
     exp["cancer"] = "BRCA";
     exp["ui_field_dict"] = response["data"]["meta"];
     exp["ui_field_range"] = response["data"]["range"];

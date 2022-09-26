@@ -10,18 +10,13 @@ import axios from 'axios';
 import {Helmet} from "react-helmet";
 import { createMuiTheme } from '@material-ui/core/styles';
 import '../../App.css';
-import useStyles from '../../useStyles.js';
+import useStyles from '../../css/useStyles.js';
 import Tooltip from '@material-ui/core/Tooltip';
 import loadinggif from './gifmax.gif';
 
 //General components
-import TabPanel from '../../components/TabPanel';
-import SpcInputLabel from '../../components/SpcInputLabel';
 import DefaultQueryCheckboxForm from '../../components/DefaultQueryCheckboxForm';
-import QueueMessage from '../../components/QueueMessage';
-import PreQueueMessage from '../../components/PreQueueMessage';
-import SingleItem from '../../components/SingleItem';
-import { isBuild } from '../../constants.js';
+import { isBuild } from '../../utilities/constants.js';
 
 //Page specific components
 import SubmitButton from './SubmitButton';
@@ -29,8 +24,6 @@ import ResetButton from './ResetButton';
 import QueueBox from './Queuebox';
 import ClientAddFilter from './ClientAddFilter';
 import CancerSelect from './CancerSelect';
-import ClientAddCoord from './ClientAddCoord';
-import ClientAddGene from './ClientAddGene';
 import ClientSelectEventFilter from './ClientSelectEventFilter';
 
 //Server interface

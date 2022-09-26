@@ -27,6 +27,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import targeturl from './targeturl.js';
 import GridLayout from "react-grid-layout";
 import { Responsive, WidthProvider } from "react-grid-layout";
+import { Resizable, ResizableBox } from "react-resizable";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
@@ -337,8 +338,8 @@ class Heatmap extends React.Component {
     var base_re_high = window.innerHeight;
     var standard_width = 1438;
     var standard_height = 707;
-    var adjust_width = (base_re_wid / standard_width) * 1.28;
-    var adjust_height = (base_re_high / standard_height) * 1.28;
+    var adjust_width = (base_re_wid / standard_width) * 1.5;
+    var adjust_height = (base_re_high / standard_height) * 1.5;
     var xscale = ((500/this.props.cols.length) * adjust_width);
     this.xscale = xscale;
     var y_start = 0;
@@ -402,8 +403,8 @@ class Heatmap extends React.Component {
       var base_re_high = window.innerHeight;
       var standard_width = 1438;
       var standard_height = 707;
-      var adjust_width = (base_re_wid / standard_width) * 1.28;
-      var adjust_height = (base_re_high / standard_height) * 1.28;
+      var adjust_width = (base_re_wid / standard_width) * 1.5;
+      var adjust_height = (base_re_high / standard_height) * 1.5;
       var xscale = ((500/this.props.cols.length) * adjust_width);
       this.xscale = xscale;
       var y_start = 0;
@@ -914,11 +915,11 @@ class OKMAP extends React.Component {
       .text(converteduid)
       .on("click", function(){
           updateOkmapTable(data);
-          parent.props.setSelectionState({selection: data});
+          parent.props.setSelectionState({selection: data["uid"]});
           gtexSend(data["examined_junction"], parent.props.setGtexState, parent.props.gtexState);
           var toex = data["examined_junction"].split(":");
           exonRequest(toex[0], data, parent.props.setViewState, parent.props.viewState, parent.props.exonPlotState, parent.props.setExonPlotState);
-          parent.props.setPlotUIDstate({fulldat: data["uid"]});
+          parent.props.setPlotUIDstate({fulldat: data});
           parent.setSelected(converteduid);
       })
       .on("mouseover", function(){
@@ -1078,87 +1079,6 @@ function supFilterUpdate(data)
   })  
 }
 
-class SupplementaryPlot extends React.Component {
-  constructor(props) 
-  {
-    super(props);
-    this.state = {
-      selection: null,
-      filters: null,
-      filterset: null,
-      matches: null,
-      fulldat: null,
-      gtex: this.props.gtexState.gtexPlot
-    };
-    //var other_gene_matches = [];
-    selectionToSup = selectionToSup.bind(this);
-    supFilterUpdate = supFilterUpdate.bind(this);
-    plotUIDupdate = plotUIDupdate.bind(this);
-  }
-
-  componentDidUpdate(prevProps){
-    if(this.props.gtexState.gtexPlot !== this.state.gtex)
-    {
-      this.setState({
-        gtex: this.props.gtexState.gtexPlot
-      })
-    }
-  }
-
-  componentDidMount(){
-      var Data = this.props.Data;
-      updateOkmapTable(Data[0]);
-      selectionToSup(Data[0]);
-  }
-
-  render(){
-    var Data = this.props.Data;
-    var Cols = this.props.Cols;
-    var Selection = this.state.selection;
-    var set = null;
-    var plotobj1, plotobj2, plotobj3 = null;
-    var elm1 = this.state.filters;
-    var elm2 = this.state.filterset;
-    if(Selection != null && this.state.filterset != null && this.state.fulldat != null)
-    {
-      var plotobj1 = oncospliceClusterViolinPlotPanel(Selection, this.state.fulldat, this.props.Cols, this.props.OncospliceClusters, this.props.TRANS, global_cancer);
-      var plotobj2 = hierarchicalClusterViolinPlotPanel(this.state.fulldat, Selection, this.props.Cols, this.props.CC, global_cancer);
-      var plotobj3 = sampleFilterViolinPlotPanel(Selection, this.state.fulldat, this.props.Cols, elm1, elm2, global_cancer);
-    }
-    else
-    {
-      var plotobj1, plotobj2, plotobj3 = <h4>No selection set</h4>;
-    }
-
-    if(Selection != null && this.state.gtex != null)
-    {
-      var plotobj4 = this.state.gtex;
-    }
-    else
-    {
-      var plotobj4 = this.state.fulldat == null ? <h4>No selection set</h4> : <h4>No GTEX available for given UID</h4>;
-    }
-
-    const resizeHandles = ['s','w','e','n','sw','nw','se','ne'];
-
-    const layout = [
-        { i: "sidePanelA", x: 0, y: 0, w: 8, h: 3, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-        { i: "sidePanelB", x: 0, y: 1, w: 8, h: 3, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-        { i: "sidePanelC", x: 0, y: 2, w: 8, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-        { i: "sidePanelD", x: 0, y: 3, w: 8, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false }
-    ];
-
-    return(
-      <>
-        <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
-        <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
-        <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
-        <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
-      </>
-    )
-  }
-}
-
 function updateExPlot(exons, transcripts, junctions, in_data){
   this.setState({
       exons: exons,
@@ -1219,8 +1139,8 @@ function ScalingCheckbox(props)
   );
 }
 
-function smallPanel(props) {
-
+function resizeFunction(event, { element, size }) {
+  this.setState({ width: size.width, height: size.height });
 }
 
 function ViewPanel(props) {
@@ -1252,21 +1172,12 @@ function ViewPanel(props) {
 
   const [gtexState, setGtexState] = React.useState({gtexPlot: null});
   const [okmapLabelState, setOkmapLabelState] = React.useState({okmapLabel: null});
+
+  const [resizeState, setResizeState] = React.useState({heatmapBox: null, sidePanel: null});
+
   global_uifielddict = props.QueryExport["ui_field_dict"];
 
   const resizeHandles = ['s','w','e','n','sw','nw','se','ne'];
-
-  const layout = [
-      { i: "mainPanel", x: 0, y: 0, w: 5, h: 28, resizeHandles: resizeHandles, isResizable: true, isDraggable: false, overflow: "scroll" },
-      { i: "side_panel_a", x: 5, y: 0, w: 2.5, h: 2, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "side_panel_b", x: 5, y: 0, w: 2.5, h: 2, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "plotPanelOncoClusters", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "plotPanelHierarchyClusters", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "plotPanelFilters", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "plotPanelGTEX", x: 5, y: 0, w: 2.5, h: 5, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "side_panel_stats", x: 5, y: 0, w: 2.5, h: 3, resizeHandles: resizeHandles, isResizable: true, isDraggable: false },
-      { i: "exonPlotPanel", x: 0, y: 7, w: 8, h: 16, resizeHandles: resizeHandles, isResizable: true, isDraggable: false }
-  ];
 
   //Refactor after this
   var Selection = selectionState.selection;
@@ -1335,25 +1246,13 @@ function ViewPanel(props) {
         />
       </div>
 
-      <div key="side_panel_a" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
-      </div>
+        <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
 
-      <div key="side_panel_b" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
-      </div>
-      
-      <div key="plotPanelOncoClusters" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
-      </div>
+        <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
 
-      <div key="plotPanelHierarchyClusters" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
-      </div>
+        <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
 
-      <div key="plotPanelFilters" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-      <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
-      </div>
+        <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
 
       <div key="plotPanelGTEX" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
       <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
@@ -1399,24 +1298,21 @@ function ViewPanel_Top(props) {
     <div>
       <Grid container spacing={1}>    
         <Grid item xs={2}>
-          <div className={classes.cntr_viewpane}><h3 style={{ fontSize: 27, color: '#0F6A8B', marginTop: 24}}>Plot Settings</h3></div>
-        </Grid>
-        <Grid item xs={2}>
           <FilterHeatmapSelect setFilterState={props.setFilterState} />
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={4}>
           <span className={classes.cntr_btn}>
           <Tooltip title="Increase row height of heatmap and font size for labels.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomInIcon onClick={zoomInHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomInIcon onClick={zoomInHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
           </Tooltip>
           <Tooltip title="Decrease row height of heatmap and font size for labels.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomOutIcon onClick={zoomOutHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomOutIcon onClick={zoomOutHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
           </Tooltip>
           <Tooltip title="Fit all rows in the heatmap to the window size.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
           </Tooltip>
           <Tooltip title="Download heatmap in text format.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
+          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
           </Tooltip>
           </span>
         </Grid>
@@ -1432,20 +1328,26 @@ function ViewPanel_Side(props) {
     </div>
   )
 }
-
+//Test comment
 function ViewPanel_Main(props) {
     const classes = useStyles();
     return(
-    <div id="ViewPane_MainPane" style={{overflow: "scroll"}}>
-      <Box {...defaultProps}>
-        <div id="HEATMAP_LABEL" style={{overflow: "scroll"}}></div>
-        <div id="HEATMAP_CC" style={{overflow: "scroll"}}></div>
-        <div id="HEATMAP_OncospliceClusters" style={{overflow: "scroll"}}></div>
+    <div id="ViewPane_MainPane" style={{overflow: "scroll", height: "100%", width: "100%"}}>
+        <ViewPanel_Top
+          Data={props.Data}
+          Cols={props.Cols}
+          CC={props.CC}
+          OncospliceClusters={props.OncospliceClusters}
+          QueryExport={props.QueryExport}
+          setFilterState={props.setFilterState} />
+        <Typography className={classes.padding} />
+        <div id="HEATMAP_LABEL"></div>
+        <div id="HEATMAP_CC"></div>
+        <div id="HEATMAP_OncospliceClusters"></div>
         <div className={classes.flexparent}>
-        <span id="HEATMAP_0" style={{overflow: "scroll"}}></span>
-        <span id="HEATMAP_ROW_LABEL" style={{width: "280px", overflow: "scroll"}}></span>
+        <span id="HEATMAP_0" ></span>
+        <span id="HEATMAP_ROW_LABEL" style={{width: "280px"}}></span>
         </div>
-      </Box> 
       <Heatmap 
         data={props.Data} 
         cols={props.Cols} 

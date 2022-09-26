@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import useStyles from './useStyles.js';
+import useStyles from './css/useStyles.js';
 import AboutUs from './components/AboutUs';
 import '@fontsource/roboto';
 import Button from '@material-ui/core/Button';
@@ -16,6 +16,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 import './App.css';
 import BQPanel from './pages/BuildQuery/BuildQueryPanel.js';
 import ViewPanelWrapper from './ViewPanelWrapper.js';
+import { makeRequest } from './request/CancerDataManagement.js';
 //import Authentication from './Authentication.js';
 import QueryHistoryPanelWrapper from './QueryHistoryPanelWrapper.js';
 
@@ -23,18 +24,18 @@ const spcTabStyles = makeStyles({
   root: {
     backgroundColor: "#edf0f5",
     color: '#0F6A8B',
-    fontSize: "1.36em",
-    paddingRight: 43,
-    paddingLeft: 43,
+    fontSize: "1em",
+    paddingRight: 34,
+    paddingLeft: 34,
     marginLeft: 5,
     marginRight: 5
   },
   selected: {
     backgroundColor: "white",
     color: '#0F6A8B',
-    fontSize: "1.36em",
-    paddingRight: 43,
-    paddingLeft: 43,
+    fontSize: "1em",
+    paddingRight: 34,
+    paddingLeft: 34,
     marginLeft: 5,
     marginRight: 5
   }
@@ -200,6 +201,16 @@ function MainPanel(props){
     }
   }, [mpstate.value])
 
+  if(props.pagelist.length <= 1 && page == "explore")
+  {
+    var args = {};
+    var functionpointer = makeRequest;
+    args["setState"] = setViewPane;
+    args["export"] = {};
+    args["cancer"] = "BRCA";
+    args["doc"] = document;
+    makeRequest("defaultQuery", args);
+  }
   //This is the layout of the main pane in action.
   //It's important to note that the "Tabs" element informs the UI for the Tabs, while further down the "tabcontent" div informs the actual substance of those tab selections.
   //"Authentication" informs the currently broken google authentication feature, which will be crucial to implementing the UUID based routing framework.
@@ -212,12 +223,19 @@ function MainPanel(props){
         <div className={classes.tabholder}>
         <Grid container spacing={0}>
         <Grid item sm={12} md={9}>
+<<<<<<< HEAD
         <Typography className={classes.padding} />
         <Tabs id="tabset" value={mpstate.value} onC hange={handleChange} aria-label="simple tabs example" TabIndicatorProps={{style: {background:'#EFAD18'}}}>
+=======
+        <Typography className={classes.medpadding} />
+        <div style={{ display: 'none'}}>
+        <Tabs id="tabset" value={mpstate.value} onChange={handleChange} aria-label="simple tabs example" TabIndicatorProps={{style: {background:'#EFAD18'}}}>
+>>>>>>> 3fe1c3586e2bbde47143ea38d0c16180d682c24e
           <Tab classes={tabstyle} label="Build Query" style={{ textTransform: 'none'}}/>
           <Tab classes={tabstyle} label="Explore Data" style={{ textTransform: 'none'}}/>
           <Tab classes={tabstyle} icon={<LockIcon />} label="Query History" style={{ textTransform: 'none'}}></Tab>
         </Tabs>
+        </div>
         </Grid>
         <Grid item sm={12} md={3}>
         <Typography className={classes.padding} />
