@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import useStyles from '../useStyles.js';
+import useStyles from '../css/useStyles.js';
 import Typography from '@material-ui/core/Typography';
 import '@fontsource/roboto';
 

@@ -1,6 +1,6 @@
 import Plot from 'react-plotly.js';
 import axios from 'axios';
-import { global_colors } from '../constants.js';
+import { global_colors } from '../utilities/constants.js';
 import targeturl from '../targeturl.js';
 
 export function gtexSend(UID, setGtexState, gtexState) {

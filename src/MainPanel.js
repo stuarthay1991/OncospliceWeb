@@ -213,7 +213,7 @@ function MainPanel(props){
         <Grid container spacing={0}>
         <Grid item sm={12} md={9}>
         <Typography className={classes.padding} />
-        <Tabs id="tabset" value={mpstate.value} onChange={handleChange} aria-label="simple tabs example" TabIndicatorProps={{style: {background:'#EFAD18'}}}>
+        <Tabs id="tabset" value={mpstate.value} onC hange={handleChange} aria-label="simple tabs example" TabIndicatorProps={{style: {background:'#EFAD18'}}}>
           <Tab classes={tabstyle} label="Build Query" style={{ textTransform: 'none'}}/>
           <Tab classes={tabstyle} label="Explore Data" style={{ textTransform: 'none'}}/>
           <Tab classes={tabstyle} icon={<LockIcon />} label="Query History" style={{ textTransform: 'none'}}></Tab>

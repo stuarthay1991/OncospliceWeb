@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { global_colors } from '../constants.js';
+import { global_colors } from '../utilities/constants.js';
 
 class SetExonPlot extends React.Component {
   constructor(props) {

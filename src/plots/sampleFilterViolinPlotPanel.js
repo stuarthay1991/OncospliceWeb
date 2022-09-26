@@ -1,6 +1,6 @@
 import Plot from 'react-plotly.js';
 import CBioportalLinkout from '../components/CBioportalLinkout';
-import { global_colors } from '../constants.js';
+import { global_colors } from '../utilities/constants.js';
 
 //This function groups samples by their atrributes and outputs two components:
 //1. A violin plot (using Plotly.js) that compares expression between sample atrribute groups.

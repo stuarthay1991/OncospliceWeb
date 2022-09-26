@@ -34,14 +34,14 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 
 import Plot from 'react-plotly.js';
 import * as d3 from 'd3';
-import useStyles from './useStyles.js';
-import { global_colors } from './constants.js';
+import useStyles from './css/useStyles.js';
+import { global_colors } from './utilities/constants.js';
 
 import oncospliceClusterViolinPlotPanel from './plots/oncospliceClusterViolinPlotPanel';
 import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterViolinPlotPanel';
 import sampleFilterViolinPlotPanel from './plots/sampleFilterViolinPlotPanel';
 import { gtexSend } from './plots/gtexPlotPanel.js';
-import { downloadExonPlotData} from './downloadDataFile.js';
+import { downloadExonPlotData} from './utilities/downloadDataFile.js';
 import SetExonPlot from './plots/exonPlot.js';
 import OKMAP_COLUMN_CLUSTERS from './plots/okmapColumnClusters.js';
 import OKMAP_OncospliceClusters from './plots/okmapOncospliceClusters.js';
@@ -1139,7 +1139,6 @@ class SupplementaryPlot extends React.Component {
       var plotobj4 = this.state.fulldat == null ? <h4>No selection set</h4> : <h4>No GTEX available for given UID</h4>;
     }
 
-<<<<<<< HEAD:src/ViewPanel.js
     const resizeHandles = ['s','w','e','n','sw','nw','se','ne'];
 
     const layout = [
@@ -1155,14 +1154,6 @@ class SupplementaryPlot extends React.Component {
         <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
         <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
         <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
-=======
-    return(
-      <>
-      <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
-      <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
-      <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
-      <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
->>>>>>> d6e0369e28dd0c531675106ea747b4e806352550:src/ViewPane.js
       </>
     )
   }
@@ -1228,13 +1219,10 @@ function ScalingCheckbox(props)
   );
 }
 
-<<<<<<< HEAD:src/ViewPanel.js
 function smallPanel(props) {
 
 }
 
-=======
->>>>>>> d6e0369e28dd0c531675106ea747b4e806352550:src/ViewPane.js
 function ViewPanel(props) {
   const classes = useStyles();
   global_meta = props.Cols;
@@ -1308,7 +1296,6 @@ function ViewPanel(props) {
 
   return (
     <div style={{ fontFamily: 'Arial' }}>
-<<<<<<< HEAD:src/ViewPanel.js
     <GridLayout className="layout" 
                 layout={layout} 
                 cols={14} 
@@ -1318,10 +1305,6 @@ function ViewPanel(props) {
                 resizeHandles={[ "n", "e", "s", "w", "ne", "se", "nw", "sw" ]}
                 >
       <div key="mainPanel" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-=======
-    <Grid container spacing={1}>
-      <Grid item xs={8}>
->>>>>>> d6e0369e28dd0c531675106ea747b4e806352550:src/ViewPane.js
         <ViewPanel_Top 
           Data={props.Data} 
           Cols={props.Cols} 
@@ -1350,7 +1333,6 @@ function ViewPanel(props) {
           plotUIDstate={plotUIDstate}
           setPlotUIDstate={setPlotUIDstate}
         />
-<<<<<<< HEAD:src/ViewPanel.js
       </div>
 
       <div key="side_panel_a" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
@@ -1382,27 +1364,6 @@ function ViewPanel(props) {
       </div>
       <SetExonPlot exonPlotState={props.exonPlotState} setExonPlotState={props.setExonPlotState}></SetExonPlot>
     <div key="exonPlotPanel" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
-=======
-      </Grid>
-      <Grid item xs={4}>
-        <ViewPanel_Side 
-          Data={props.Data} 
-          Cols={props.Cols} 
-          CC={props.CC} 
-          OncospliceClusters={props.OncospliceClusters} 
-          TRANS={props.TRANS} 
-          QueryExport={props.QueryExport}
-          viewState={viewState}
-          setViewState={setViewState}
-          gtexState={gtexState}
-          setGtexState={setGtexState}
-          exonPlotState={exonPlotState}
-          setExonPlotState={setExonPlotState}
-        />
-      </Grid>
-    </Grid>
-    <div style={{margin: 10}}>
->>>>>>> d6e0369e28dd0c531675106ea747b4e806352550:src/ViewPane.js
       <Grid container spacing={1}>
       <Grid item xs={2}>
       <SpcInputLabel label={"ExonPlot"} />
@@ -1468,24 +1429,6 @@ function ViewPanel_Side(props) {
   return(
     <div>
     <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>{"Cancer: ".concat(props.QueryExport["cancer"])}</h3>
-<<<<<<< HEAD:src/ViewPanel.js
-=======
-    <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
-    <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
-    <SupplementaryPlot 
-      CC={props.CC} 
-      OncospliceClusters={props.OncospliceClusters} 
-      TRANS={props.TRANS} 
-      Data={props.Data} 
-      Cols={props.Cols}
-      viewState={props.viewState}
-      setViewState={props.setViewState}
-      gtexState={props.gtexState}
-      setGtexState={props.setGtexState}>
-    </SupplementaryPlot>
-    <Stats></Stats>
-    <SetExonPlot exonPlotState={props.exonPlotState} setExonPlotState={props.setExonPlotState}></SetExonPlot>
->>>>>>> d6e0369e28dd0c531675106ea747b4e806352550:src/ViewPane.js
     </div>
   )
 }
@@ -1495,21 +1438,12 @@ function ViewPanel_Main(props) {
     return(
     <div id="ViewPane_MainPane" style={{overflow: "scroll"}}>
       <Box {...defaultProps}>
-<<<<<<< HEAD:src/ViewPanel.js
         <div id="HEATMAP_LABEL" style={{overflow: "scroll"}}></div>
         <div id="HEATMAP_CC" style={{overflow: "scroll"}}></div>
         <div id="HEATMAP_OncospliceClusters" style={{overflow: "scroll"}}></div>
         <div className={classes.flexparent}>
         <span id="HEATMAP_0" style={{overflow: "scroll"}}></span>
         <span id="HEATMAP_ROW_LABEL" style={{width: "280px", overflow: "scroll"}}></span>
-=======
-        <div id="HEATMAP_LABEL"></div>
-        <div id="HEATMAP_CC"></div>
-        <div id="HEATMAP_OncospliceClusters"></div>
-        <div className={classes.flexparent}>
-        <span id="HEATMAP_0"></span>
-        <span id="HEATMAP_ROW_LABEL" style={{width: "280px"}}></span>
->>>>>>> d6e0369e28dd0c531675106ea747b4e806352550:src/ViewPane.js
         </div>
       </Box> 
       <Heatmap 

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ViewPanel from './ViewPanel.js';
-import useStyles from './useStyles.js';
+import useStyles from './css/useStyles.js';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 //This is a hacky way to transition into the view pane; it is currently vital and in use, but will need to be changed in the future.

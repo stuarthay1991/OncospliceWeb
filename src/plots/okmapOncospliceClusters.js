@@ -1,6 +1,6 @@
 import React from 'react';
 import * as d3 from 'd3';
-import { global_colors } from '../constants.js';
+import { global_colors } from '../utilities/constants.js';
 
 class OKMAP_OncospliceClusters extends React.Component {
   constructor(props)
