@@ -30,6 +30,7 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 import { Resizable, ResizableBox } from "react-resizable";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+import './css/sidebar.css';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -265,8 +266,7 @@ function FilterHeatmapSelect(props) {
   return (
     <div>
       <SpcInputLabel label={"Show Sample"} customFontSize={"1em"} noSpaceAbove={true}/>
-      <FormControl variant="outlined" className={classes.formControl}>
-        <Tooltip title="Filter heatmap columns by categories of patient data.">
+      <FormControl variant="filled" className={classes.formControl} style={{backgroundColor: "white", borderRadius: "30px", textAlign: "center"}}>
         <Select
           native
           value={state.value}
@@ -287,7 +287,6 @@ function FilterHeatmapSelect(props) {
             return options;
           })()}
         </Select>
-        </Tooltip>
       </FormControl>
     </div>
   );
@@ -1299,35 +1298,6 @@ function ViewPanel(props) {
   );
 }
 
-function ViewPanel_Top(props) {
-  const classes = useStyles();
-  return (
-    <div>
-      <Grid container spacing={1}>    
-        <Grid item xs={2}>
-          <FilterHeatmapSelect setFilterState={props.setFilterState} />
-        </Grid>
-        <Grid item xs={4}>
-          <span className={classes.cntr_btn}>
-          <Tooltip title="Increase row height of heatmap and font size for labels.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomInIcon onClick={zoomInHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
-          </Tooltip>
-          <Tooltip title="Decrease row height of heatmap and font size for labels.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomOutIcon onClick={zoomOutHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
-          </Tooltip>
-          <Tooltip title="Fit all rows in the heatmap to the window size.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
-          </Tooltip>
-          <Tooltip title="Download heatmap in text format.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
-          </Tooltip>
-          </span>
-        </Grid>
-      </Grid>
-    </div>   
-  );
-}
-
 function ViewPanel_Side(props) {
   return(
     <div>
@@ -1338,15 +1308,29 @@ function ViewPanel_Side(props) {
 //Test comment
 function ViewPanel_Main(props) {
     const classes = useStyles();
+    const [isShown, setIsShown] = React.useState(false);
     return(
-    <div id="ViewPane_MainPane" style={{overflow: "scroll", height: "100%", width: "100%"}}>
-        <ViewPanel_Top
-          Data={props.Data}
-          Cols={props.Cols}
-          CC={props.CC}
-          OncospliceClusters={props.OncospliceClusters}
-          QueryExport={props.QueryExport}
-          setFilterState={props.setFilterState} />
+    <div id="ViewPane_MainPane" style={{overflow: "scroll", height: "100%", width: "100%", display: "flex"}}>
+        <div className="containerSidebar" onMouseEnter={() => setIsShown(true)} onMouseLeave={() => setIsShown(false)}>
+          {isShown && (
+          <div className="sidebar">
+            <div>
+            <Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><ZoomInIcon onClick={zoomInHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
+            </div>
+            <div>
+            <Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><ZoomOutIcon onClick={zoomOutHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
+            </div>
+            <div>
+            <Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
+            </div>
+            <div>
+            <Button variant="contained" style={{marginTop: "5px", msrginBottom: "5px", backgroundColor: '#0F6A8B'}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
+            </div>
+            <div><FilterHeatmapSelect setFilterState={props.setFilterState} /></div>
+          </div>
+          )}
+        </div>
+        <div style= {{flex: 1}}>
         <Typography className={classes.padding} />
         <div id="HEATMAP_LABEL"></div>
         <div id="HEATMAP_CC"></div>
@@ -1373,6 +1357,7 @@ function ViewPanel_Main(props) {
         plotUIDstate={props.plotUIDstate}
         setPlotUIDstate={props.setPlotUIDstate}>
       </Heatmap>
+      </div>
     </div>  
     );
 }
