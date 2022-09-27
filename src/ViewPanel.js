@@ -43,7 +43,7 @@ import oncospliceClusterViolinPlotPanel from './plots/oncospliceClusterViolinPlo
 import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterViolinPlotPanel';
 import sampleFilterViolinPlotPanel from './plots/sampleFilterViolinPlotPanel';
 import { gtexSend } from './plots/gtexPlotPanel.js';
-import { downloadExonPlotData} from './downloadDataFile.js';
+import { downloadExonPlotData} from './utilities/downloadDataFile.js';
 import SetExonPlot from './plots/exonPlot.js';
 import OKMAP_COLUMN_CLUSTERS from './plots/okmapColumnClusters.js';
 import OKMAP_OncospliceClusters from './plots/okmapOncospliceClusters.js';
@@ -1205,20 +1205,30 @@ function ViewPanel(props) {
   }
 
   return (
-    <><div style={{ fontFamily: 'Arial', display: 'flex', flexWrap: 'wrap' }}>
-      <ResizableBox
-        className="box"
-        width={1100}
-        height={430}
-        margin={10}
-        minConstraints={[1020, 150]}
-        maxConstraints={[1550, 800]}
-      >
-        <ViewPanel_Main
-          Data={props.Data}
-          Cols={props.Cols}
-          CC={props.CC}
-          OncospliceClusters={props.OncospliceClusters}
+    <div style={{ fontFamily: 'Arial' }}>
+    <GridLayout className="layout" 
+                layout={layout} 
+                cols={14} 
+                rowHeight={100} 
+                width={2800} 
+                isDraggable={false}
+                resizeHandles={[ "n", "e", "s", "w", "ne", "se", "nw", "sw" ]}
+                >
+      <div key="mainPanel" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+        <ViewPanel_Top 
+          Data={props.Data} 
+          Cols={props.Cols} 
+          CC={props.CC} 
+          OncospliceClusters={props.OncospliceClusters} 
+          QueryExport={props.QueryExport}
+          setFilterState={setFilterState}
+        />
+        <Typography className={classes.padding} />
+        <ViewPanel_Main 
+          Data={props.Data} 
+          Cols={props.Cols} 
+          CC={props.CC} 
+          OncospliceClusters={props.OncospliceClusters} 
           QueryExport={props.QueryExport}
           viewState={viewState}
           setViewState={setViewState}
@@ -1231,21 +1241,9 @@ function ViewPanel(props) {
           filterState={filterState}
           setFilterState={setFilterState}
           plotUIDstate={plotUIDstate}
-          setPlotUIDstate={setPlotUIDstate} />
-      </ResizableBox>
-
-      <ResizableBox
-        className="box"
-        width={450}
-        height={430}
-        margin={10}
-        minConstraints={[200, 150]}
-        maxConstraints={[1550, 800]}
-      >
-        <div style={{overflow: "scroll", height: "100%", width: "100%", display: "inline-block"}}>
-        <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
-
-        <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
+          setPlotUIDstate={setPlotUIDstate}
+        />
+      </div>
 
         <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
 
@@ -1255,46 +1253,41 @@ function ViewPanel(props) {
 
         <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
 
-        <Stats></Stats>
-        <SetExonPlot exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></SetExonPlot>
-        </div>
-      </ResizableBox>
-    </div><div>
-        <ResizableBox
-          className="box"
-          width={1550}
-          height={600}
-          margin={10}
-          minConstraints={[1550, 600]}
-          maxConstraints={[1550, 600]}
-        >
-          <div style={{overflow: "scroll", height: "100%", width: "100%"}}>
-          <Grid container spacing={1}>
-            <Grid item xs={2}>
-              <SpcInputLabel label={"ExonPlot"} />
-            </Grid>
-            <Grid item>
-              <ScalingCheckbox exonPlotState={exonPlotState} setExonPlotState={setExonPlotState} />
-            </Grid>
-            <Grid item>
-              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("transcript.csv", viewState.toDownloadExon)}>Download Transcript</Button>
-            </Grid>
-            <Grid item>
-              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("genemodel.csv", viewState.toDownloadGeneModel)}>Download Gene Model</Button>
-            </Grid>
-            <Grid item>
-              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button>
-            </Grid>
-            <Grid item>
-              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }}>Download PDF</Button>
-            </Grid>
-          </Grid>
-          <Box borderColor="#dbdbdb" {...spboxProps}>
-            <div style={{ marginLeft: 20, marginTop: 10, marginBottom: 10 }} id="supp1"></div>
-          </Box>
-          </div>
-        </ResizableBox>
-      </div></>
+      <div key="plotPanelGTEX" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+      <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
+      </div>
+      
+      <div key="side_panel_stats" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+      <Stats></Stats>
+      </div>
+      <SetExonPlot exonPlotState={props.exonPlotState} setExonPlotState={props.setExonPlotState}></SetExonPlot>
+    <div key="exonPlotPanel" isDraggable={false} isResizable={true} {...gridLayoutStyle}>
+      <Grid container spacing={1}>
+      <Grid item xs={2}>
+      <SpcInputLabel label={"ExonPlot"} />
+      </Grid>
+      <Grid item>
+        <ScalingCheckbox exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}/>
+      </Grid>
+      <Grid item>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("transcript.csv", viewState.toDownloadExon)}>Download Transcript</Button>
+      </Grid>
+      <Grid item>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("genemodel.csv", viewState.toDownloadGeneModel)}>Download Gene Model</Button>
+      </Grid>
+      <Grid item>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button>
+      </Grid>
+      <Grid item>
+        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}}>Download PDF</Button>
+      </Grid>
+      </Grid>
+      <Box borderColor="#dbdbdb" {...spboxProps}>
+        <div style={{marginLeft: 20, marginTop: 10, marginBottom: 10}} id="supp1"></div>
+      </Box>
+    </div>
+    </GridLayout>
+    </div>
   );
 }
 
