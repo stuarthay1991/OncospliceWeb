@@ -38,16 +38,31 @@ class ViewPanelWrapper extends React.Component {
   componentDidUpdate(prevProps) {  
     if(prevProps !== this.props)
     {
+      //console.log("prevProps", prevProps);
       if(this.props.entrydata != undefined)
       {
-        this.setState({
-        heatmapInputData: this.props.entrydata["heatmapInputData"],
-        inCols: this.props.entrydata["inCols"],
-        inCC: this.props.entrydata["inCC"],
-        inOncospliceClusters: this.props.entrydata["inOncospliceClusters"],
-        inTRANS: this.props.entrydata["inTRANS"],
-        export: this.props.entrydata["export"]
-        });
+        if(prevProps.entrydata["heatmapInputData"].length == 0)
+        {
+          this.setState({
+            heatmapInputData: this.props.entrydata["heatmapInputData"],
+            inCols: this.props.entrydata["inCols"],
+            inCC: this.props.entrydata["inCC"],
+            inOncospliceClusters: this.props.entrydata["inOncospliceClusters"],
+            inTRANS: this.props.entrydata["inTRANS"],
+            export: this.props.entrydata["export"]
+          });          
+        }
+        else if(prevProps.entrydata["heatmapInputData"][0]["uid"] != this.props.entrydata["heatmapInputData"][0]["uid"])
+        {
+          this.setState({
+            heatmapInputData: this.props.entrydata["heatmapInputData"],
+            inCols: this.props.entrydata["inCols"],
+            inCC: this.props.entrydata["inCC"],
+            inOncospliceClusters: this.props.entrydata["inOncospliceClusters"],
+            inTRANS: this.props.entrydata["inTRANS"],
+            export: this.props.entrydata["export"]
+          });
+        }
       }
     }
   }

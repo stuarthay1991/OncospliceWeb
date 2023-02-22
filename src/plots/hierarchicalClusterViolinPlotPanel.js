@@ -61,9 +61,12 @@ function hierarchicalClusterViolinPlotPanel(selectedExpressionArray, selectedRow
 	    marker: {color: 'blue'},  	
 	};
   }
+
+  var available_width = window.innerWidth;
+  var available_height = window.innerHeight;
   var plotobj = <><Plot
               data={plotInputData}
-              layout={ {width: 535,
+              layout={ {width: 0.260 * available_width,
                         height: 200,
                         margin: {
                           l: 48,

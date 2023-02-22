@@ -29,6 +29,8 @@ function oncospliceClusterViolinPlotPanel(selectedRow, selectedExpressionArray, 
     }
   }
   var toCBioLabels = ["others", selectedOncospliceSignature];
+  var available_width = window.innerWidth;
+  var available_height = window.innerHeight;
   var plotobj = <><Plot
             data={[
               {
@@ -49,7 +51,7 @@ function oncospliceClusterViolinPlotPanel(selectedRow, selectedExpressionArray, 
               }
             ]}
 
-            layout={ {width: 535,
+            layout={ {width: 0.260 * available_width,
                       margin: {
                           l: 48,
                           r: 48,

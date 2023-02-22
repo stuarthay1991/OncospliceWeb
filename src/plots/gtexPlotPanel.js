@@ -2,12 +2,15 @@ import Plot from 'react-plotly.js';
 import axios from 'axios';
 import { global_colors } from '../utilities/constants.js';
 import targeturl from '../targeturl.js';
+import { isBuild } from '../utilities/constants.js';
+
+var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 export function gtexSend(UID, setGtexState, gtexState) {
   var postedData = {"data": {"uid": UID}}
   axios({
     method: "post",
-    url: ("http://localhost:8081/api/datasets/getgtex"),
+    url: (routeurl.concat("/api/datasets/gtexData")),
     data: postedData,
     headers: { "Content-Type": "application/json" },
   })
@@ -40,9 +43,12 @@ function gtexPlotPanel(vec, setGtexState, gtexState){
           }
   }
 
+  var available_width = window.innerWidth;
+  var available_height = window.innerHeight;
+
   const plotobj = <Plot
               data={datarray}
-              layout={ {width: 525, 
+              layout={ {width: 0.260 * available_width, 
                         height: 450,
                         margin: {
                           l: 48,

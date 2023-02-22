@@ -117,6 +117,9 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 50,
     marginRight: 100,
   },
+  smallpadding: {
+    padding: theme.spacing(0.5),
+  },
   padding: {
     padding: theme.spacing(2),
   },

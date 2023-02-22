@@ -35,9 +35,11 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
         marker: {color: curcolor},
       });
   }
+  var available_width = window.innerWidth;
+  var available_height = window.innerHeight;
   var plotobj = <><Plot
               data={datarray}
-              layout={ {width: 535, 
+              layout={ {width: 0.260 * available_width, 
                         height: 300,
                         margin: {
                           l: 48,

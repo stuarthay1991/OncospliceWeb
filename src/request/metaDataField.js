@@ -2,6 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import QueueMessage from '../components/QueueMessage';
 import axios from 'axios';
+import { isBuild } from '../utilities/constants.js';
+
+var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 function metaDataField(arg, targeturl)
 {
@@ -35,7 +38,7 @@ function metaDataField(arg, targeturl)
 
   	axios({
     	method: "post",
-    	url: ("http://localhost:8081/api/datasets/getsamples"),
+    	url: routeurl.concat("/api/datasets/getsamples"),
     	data: postedData,
     	headers: { "Content-Type": "application/json" },
   	})

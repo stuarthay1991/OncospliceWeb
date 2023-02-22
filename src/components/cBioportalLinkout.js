@@ -2,7 +2,10 @@ import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import axios from 'axios';
+import { isBuild } from '../utilities/constants.js';
 import targeturl from '../targeturl.js';
+
+var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 function goToCBio(uuid)
 {
@@ -31,7 +34,7 @@ function sendSamplesRetrieveURL(props)
 	var studyID;
 	axios({
 		method: "post",
-		url: ("http://localhost:8081/api/datasets/translatecbio"),
+		url: (routeurl.concat("/api/datasets/translatecbio")),
 		data: ({"data": {"cancerType": props.cancer}}),
 		headers: { "Content-Type": "application/json"},
 	})
@@ -61,7 +64,7 @@ function sendSamplesRetrieveURL(props)
 		console.log("pre-cbio", cBioportalFormData);
 		axios({
 		    method: "post",
-		    url: ("http://localhost:8081/api/datasets/getcbio"),
+		    url: (routeurl.concat("/api/datasets/cbioCurlCommand")),
 		    data: cBioportalFormData,
 		    headers: { "Content-Type": "application/json" },
 		})

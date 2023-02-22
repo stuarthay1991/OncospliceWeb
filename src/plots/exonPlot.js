@@ -22,7 +22,8 @@ class SetExonPlot extends React.Component {
         exonPlotState={this.props.exonPlotState} 
         setExonPlotState={this.props.setExonPlotState} 
         doc={document} 
-        target_div_id={"supp1"}>
+        target_div_id={this.props.exonPlotState.targetdiv}
+        downscale={this.props.exonPlotState.downscale}>
         </EXON_PLOT>
     })
   }
@@ -43,7 +44,8 @@ class SetExonPlot extends React.Component {
           exonPlotState={this.props.exonPlotState} 
           setExonPlotState={this.props.setExonPlotState} 
           doc={document} 
-          target_div_id={"supp1"}>
+          target_div_id={this.props.exonPlotState.targetdiv}
+          downscale={this.props.exonPlotState.downscale}>
           </EXON_PLOT>
       })
     }
@@ -74,7 +76,8 @@ class EXON_PLOT extends React.Component {
       transcripts: this.props.exonPlotState.transcripts,
       junctions: this.props.exonPlotState.junctions,
       in_data: this.props.exonPlotState.in_data,
-      scaled: this.props.exonPlotState.scaled
+      scaled: this.props.exonPlotState.scaled,
+      downscale: this.props.exonPlotState.downscale
     };
   }
 
@@ -224,14 +227,15 @@ class EXON_PLOT extends React.Component {
   {
     var parent = this;
     var y_start = 110;
+    var fontsize = 13 / (this.state.downscale / 1.17);
     for (const [key, value] of Object.entries(trans_input)) 
     {
       
       var cur_obj = this.SVG_main_group.append("text")
-          .attr("x", 8)
+          .attr("x", 1)
           .attr("y", (y_start + 15))
           .attr("text-anchor", "start")
-          .style("font-size", "13px")
+          .style("font-size", fontsize)
           .style("opacity", 1.0)
           .attr("fill", "black")
           .text(key);
@@ -300,7 +304,7 @@ class EXON_PLOT extends React.Component {
               var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
               //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
               parent.tempOnHover(temp_x, temp_y, [current_unit["name"], hard_start, hard_stop, hard_width_string], "add")
-              })          
+              })
           .on("mouseout", function(d) {   
               //parent.tempTextRemove();
               var pretg = d3.select(this);
@@ -418,8 +422,15 @@ class EXON_PLOT extends React.Component {
         var finishing_exon = parse[0];
       }
 
-      const get_1 = document.getElementById(starting_exon.concat("_global_id"));
-      const get_2 = document.getElementById(finishing_exon.concat("_global_id"));
+      var addon_id = "big";
+
+      if(this.state.downscale == true)
+      {
+        addon_id = "small";
+      }      
+
+      const get_1 = document.getElementById(starting_exon.concat(addon_id).concat("_global_id"));
+      const get_2 = document.getElementById(finishing_exon.concat(addon_id).concat("_global_id"));
 
       const gmos_1 = get_1["attributes"]["exname"]["nodeValue"];
       var temp_x_1 = parseFloat(get_1["attributes"]["x"]["nodeValue"]);
@@ -557,15 +568,22 @@ class EXON_PLOT extends React.Component {
     var to_x_scale = 0;
     var min_exon_length = 3;
     var max_exon_length = 20;
-    var x_offset = 150;
+    var x_offset = 150 / this.state.downscale;
+    var addon_id = "big";
+
+    if(this.state.downscale == true)
+    {
+      addon_id = "small";
+    }
+
     for(var i = 0; i < exon_input.length; i++)
     {
       var exname = exon_input[i]["exon_name"];
 
       if(i == 0)
       {
-        var x_pos_1 = exon_input[i]["start"] - starting_point;
-        var x_pos_2 = exon_input[i]["stop"] - starting_point;
+        var x_pos_1 = (exon_input[i]["start"] - starting_point) / this.state.downscale;
+        var x_pos_2 = (exon_input[i]["stop"] - starting_point) / this.state.downscale;
         if(this.state.scaled == true)
         {
           if((x_pos_2 - x_pos_1) > 20)
@@ -596,7 +614,7 @@ class EXON_PLOT extends React.Component {
         else
         {
           var x_pos_1 = scale_exon_stop;
-          var x_pos_2 = scale_exon_stop + (exon_input[i]["stop"] - exon_input[i]["start"]);
+          var x_pos_2 = scale_exon_stop + ((exon_input[i]["stop"] - exon_input[i]["start"])  / this.state.downscale);
           if(this.state.scaled == true)
           {
             if((exon_input[i]["stop"] - exon_input[i]["start"]) < 3)
@@ -620,7 +638,7 @@ class EXON_PLOT extends React.Component {
       }
     }
 
-    to_x_scale = (window.innerWidth / 1.25) / scale_exon_stop;
+    to_x_scale = ((window.innerWidth / 1.25) / this.state.downscale) / scale_exon_stop;
 
     var last_exon_stop = 0;
     for(var i = 0; i < exon_input.length; i++)
@@ -634,8 +652,8 @@ class EXON_PLOT extends React.Component {
 
       if(i == 0)
       {
-        var x_pos_1 = exon_input[i]["start"] - starting_point;
-        var x_pos_2 = exon_input[i]["stop"] - starting_point;
+        var x_pos_1 = (exon_input[i]["start"] - starting_point) / this.state.downscale;
+        var x_pos_2 = (exon_input[i]["stop"] - starting_point) / this.state.downscale;
         if(this.state.scaled == true)
         {
           if((x_pos_2 - x_pos_1) > 20)
@@ -675,7 +693,7 @@ class EXON_PLOT extends React.Component {
         else
         {
           var x_pos_1 = last_exon_stop;
-          var x_pos_2 = last_exon_stop + (exon_input[i]["stop"] - exon_input[i]["start"]);
+          var x_pos_2 = last_exon_stop + ((exon_input[i]["stop"] - exon_input[i]["start"]) / this.state.downscale);
           if(this.state.scaled == true)
           {
             if((exon_input[i]["stop"] - exon_input[i]["start"]) < 3)
@@ -714,7 +732,7 @@ class EXON_PLOT extends React.Component {
         .style("stroke-width", "1")
         .style("opacity", 1.0)
         .attr("fill", "#e6e6e6")
-        .attr("id", exname.concat("_global_id"))
+        .attr("id", exname.concat(addon_id).concat("_global_id"))
         .attr("exname", exname)
         .attr("ensembl_exon_id", exon_input[i]["ensembl_exon_id"])
         .attr("start", exon_input[i]["start"])
@@ -780,6 +798,7 @@ class EXON_PLOT extends React.Component {
     }
     this.baseSVG();
     this.writeBase();
+    //console.log("TRANSCRIPT LIST: ", this.state.transcripts);
     if(this.state.exons != null && this.state.transcripts != null && this.state.junctions != null)
     {
       var sorted_exons = this.state.exons.sort((a, b)=>{return Number(a["start"])-Number(b["start"])})

@@ -9,6 +9,7 @@ import uiFields from './uiFields.js';
 import updateSigature from './updateSignature.js';
 import defaultQuery from './defaultQuery.js';
 import fetchHeatmapData from './fetchHeatmapData.js';
+import updateHeatmapData from './updateHeatmapData.js';
 import gene from './gene.js';
 import coord from './coord.js';
 import recursiveMetaDataField from './recursiveMetaDataField.js';
@@ -26,6 +27,7 @@ export function makeRequest(to, arg)
 	if(to == "recursiveMetaDataField"){ recursiveMetaDataField(arg, targeturl);}
 	if(to == "signature"){ signature(arg, targeturl);}
 	if(to == "fetchHeatmapData"){ fetchHeatmapData(arg, targeturl);}
+  if(to == "updateHeatmapData"){ updateHeatmapData(arg, targeturl);}
 	if(to == "gene"){ gene(arg, targeturl);}
 	if(to == "coord"){ coord(arg, targeturl);}
 	if(to == "defaultQuery"){ defaultQuery(arg, targeturl);}
