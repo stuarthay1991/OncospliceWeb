@@ -138,7 +138,7 @@ function MainPanel(props){
     });
   }
 
-  const [panCancerState, setPanCancerState] = React.useState({"tableData": undefined, "clusterLength": undefined, "cancer": undefined});
+  const [panCancerState, setPanCancerState] = React.useState({"DEtableData": undefined, "tableData": undefined, "clusterLength": undefined, "cancer": undefined});
 
   //update query history function
   const updateQH = (new_user, data) => {

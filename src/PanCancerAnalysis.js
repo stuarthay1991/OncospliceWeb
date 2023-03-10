@@ -27,10 +27,20 @@ const Styles = styled.div`
     tr {
       height: 10px;
       max-height: 10px;
+      overflow: hidden;
+      overflow-Y: hidden;
+      overflow-X: hidden; 
       :last-child {
         td {
           border-bottom: 0;
         }
+      }
+      td {
+        height: 10px;
+        max-height: 10px;
+        overflow: hidden;
+        overflow-Y: hidden;
+        overflow-X: hidden;    
       }
     }
 
@@ -48,7 +58,7 @@ const Styles = styled.div`
     td {
       margin: 0;
       padding: 0.5rem;
-      max-width: 150px;
+      max-width: 100px;
       height: 10px;
       max-height: 10px;
       border-bottom: 1px solid black;
@@ -65,8 +75,39 @@ const Styles = styled.div`
   }
 `
 
-function exonRequest(GENE, in_data, exonPlotState, setExonPlotState) {
+function exonRequest(GENE, in_data, fulldata, exonPlotState, setExonPlotState) {
     var bodyFormData = new FormData();
+    var gene_specific_data = [];
+    //console.log("Data structure: ", fulldata);
+    for(let i = 0; i < fulldata.length; i++)
+    {
+      let curpointer = fulldata[i];
+      var pasta = curpointer.uid.split(":");
+      var ensg_id = pasta[1];
+      if(ensg_id == GENE)
+      {
+        var fullinputcoords = curpointer.coordinates;
+        var peach = fullinputcoords.split("|");
+        var chr1 = peach[0];
+        var chr2 = peach[1];
+        var twor1 = chr1.split(":");
+        var twor2 = chr2.split(":");
+        var flatchr1 = twor1[0];
+        var flatchr2 = twor2[0];
+        var twor1_split = twor1[1].split("-");
+        var twor2_split = twor2[1].split("-"); 
+        var coord1 = twor1_split[0];
+        var coord2 = twor1_split[1];
+        var coord3 = twor2_split[0];
+        var coord4 = twor2_split[1];
+        curpointer["coord1"] = coord1;
+        curpointer["coord2"] = coord2;
+        curpointer["coord3"] = coord3;
+        curpointer["coord4"] = coord4;
+        gene_specific_data.push(curpointer);
+      }
+    }
+    console.log("gene_specific_data", gene_specific_data);
     var postedData = {"data": {"gene": GENE}}
     axios({
       method: "post",
@@ -81,6 +122,7 @@ function exonRequest(GENE, in_data, exonPlotState, setExonPlotState) {
           transcripts: resp["transcript"], 
           junctions: resp["junc"],
           in_data: in_data,
+          gene_specific_data: gene_specific_data,
           scaled: exonPlotState.scaled,
           targetdiv: "pancanc_splice",
           downscale: 2
@@ -88,7 +130,26 @@ function exonRequest(GENE, in_data, exonPlotState, setExonPlotState) {
     })
 }
 
-function popUID(uid, inputcoords, exonPlotState, setExonPlotState){
+function tablePlotRequest(SIGNATURE, type, setTableState) {
+  var bodyFormData = new FormData();
+  var postedData = {"data": {"signature": SIGNATURE, "type": type}}
+  axios({
+    method: "post",
+    url: routeurl.concat("/api/datasets/updatepantable"),
+    data: postedData,
+    headers: { "Content-Type": "application/json" },
+  })
+    .then(function (response) {
+      var resp = response["data"];
+      console.log("OUTPUTTT", resp);
+      setTableState({
+        type: type,
+        data: resp["outputdata"]
+      });
+  })
+}
+
+function popUID(uid, inputcoords, fulldata, exonPlotState, setExonPlotState){
     var pasta = uid.split(":");
     var ensg_id = pasta[1];
     var fullinputcoords = inputcoords;
@@ -106,7 +167,7 @@ function popUID(uid, inputcoords, exonPlotState, setExonPlotState){
     var coord3 = twor2_split[0];
     var coord4 = twor2_split[1];
     var coord_block = {"coord1": coord1, "coord2": coord2, "coord3": coord3, "coord4": coord4};
-    exonRequest(ensg_id, coord_block, exonPlotState, setExonPlotState);
+    exonRequest(ensg_id, coord_block, fulldata, exonPlotState, setExonPlotState);
 }
 
 const BLCA_vals = {"psi_pde4d_del_vs_others": 875,
@@ -276,7 +337,7 @@ function Table({ columns, data, exonPlotState, setExonPlotState }) {
               const inputcoords = row.original.coordinates;
               //console.log("input_coords", inputcoords);
               return (
-                <tr {...row.getRowProps()} onClick={() => popUID(setClick, inputcoords, exonPlotState, setExonPlotState)}>
+                <tr {...row.getRowProps()} onClick={() => popUID(setClick, inputcoords, data, exonPlotState, setExonPlotState)}>
                   {row.cells.map(cell => {
                     return (
                       <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
@@ -295,64 +356,137 @@ function Table({ columns, data, exonPlotState, setExonPlotState }) {
 
 function RootTable(props) {
 
-  const columns = React.useMemo(
+  var column_obj;
+
+  var column_splice_obj = [
+      {
+        Header: 'Signature Name',
+        accessor: 'signature_name',
+        maxWidth: '20px',
+      },
+      {
+        Header: 'UID',
+        accessor: 'uid',
+        maxWidth: '20px',
+      },
+      {
+        Header: 'Event Direction',
+        accessor: 'event_direction',
+        maxWidth: '20px',
+      },
+      {
+        Header: 'Cluster ID',
+        accessor: 'clusterid',
+        maxWidth: '20px',
+      },
+      {
+        Header: 'Event Annotation',
+        accessor: 'eventannotation',
+        maxWidth: '20px',
+      },
+      {
+        Header: 'Coordinates',
+        accessor: 'coordinates',
+        maxWidth: '20px',
+      },
+      {
+        Header: 'Protein Predictions',
+        accessor: 'proteinpredictions',
+        maxWidth: '20px',
+      },
+      {
+        Header: 'dPSI',
+        accessor: 'dpsi',
+        maxWidth: '20px',
+      },
+      {
+        Header: 'rawp',
+        accessor: 'rawp',
+        maxWidth: '20px',
+      },
+      {
+        Header: 'adjp',
+        accessor: 'adjp',
+        maxWidth: '20px',
+      },
+      {
+        Header: 'Avg Others',
+        accessor: 'avg_others',
+        maxWidth: '20px',
+      }
+  ]
+
+  var column_gene_obj = [
+    {
+      Header: 'Signature Name',
+      accessor: 'signature_name',
+      maxWidth: '20px',
+    },
+    {
+      Header: 'Gene ID',
+      accessor: 'geneid',
+      maxWidth: '20px',
+    },
+    {
+      Header: 'System Code',
+      accessor: 'systemcode',
+      maxWidth: '20px',
+    },
+    {
+      Header: 'Logfold',
+      accessor: 'logfold',
+      maxWidth: '20px',
+    },
+    {
+      Header: 'rawp',
+      accessor: 'rawp',
+      maxWidth: '20px',
+    },
+    {
+      Header: 'adjp',
+      accessor: 'adjp',
+      maxWidth: '20px',
+    },
+    {
+      Header: 'symbol',
+      accessor: 'symbol',
+      maxWidth: '20px',
+    },
+    {
+      Header: 'avg_self',
+      accessor: 'avg_self',
+      maxWidth: '20px',
+    },
+    {
+      Header: 'avg_others',
+      accessor: 'avg_others',
+      maxWidth: '20px',
+    }
+  ]
+
+  var columns_splc = React.useMemo(
     () => [
       {
         Header: 'Signature Events',
-        columns: [
-          {
-            Header: 'Signature Name',
-            accessor: 'signature_name',
-          },
-          {
-            Header: 'UID',
-            accessor: 'uid',
-          },
-          {
-            Header: 'Event Direction',
-            accessor: 'event_direction',
-          },
-          {
-            Header: 'Cluster ID',
-            accessor: 'clusterid',
-          },
-          {
-            Header: 'Event Annotation',
-            accessor: 'eventannotation',
-          },
-          {
-            Header: 'Coordinates',
-            accessor: 'coordinates',
-          },
-          {
-            Header: 'Protein Predictions',
-            accessor: 'proteinpredictions',
-          },
-          {
-            Header: 'dPSI',
-            accessor: 'dpsi',
-          },
-          {
-            Header: 'rawp',
-            accessor: 'rawp',
-          },
-          {
-            Header: 'adjp',
-            accessor: 'adjp',
-          },
-          {
-            Header: 'Avg Others',
-            accessor: 'avg_others',
-          }
-        ],
+        columns: column_splice_obj,
       },
     ],
     []
   )
 
+  var columns_gene = React.useMemo(
+    () => [
+      {
+        Header: 'Signature Events',
+        columns: column_gene_obj,
+      },
+    ],
+    []
+  )  
+
   if(props.input == undefined)
   {
-    var data1 = {
+    /*var data1 = {
         signature_name: "Bob",
         uid: "Bobbington",
         event_direction: "40",
@@ -380,31 +514,61 @@ function RootTable(props) {
         avg_others: "ond"
     }
 
-    var data = [data1, data2];
+    var data = [data1, data2];*/
+    var data = [];
   }
   else{
     var data = [];
     for(let i = 0; i < props.input.length; i++)
     {
         let curpointer = props.input[i];
-        let curdat = {
+        if(props.type == "splice")
+        {
+          let curdat = {
+              signature_name: curpointer["signature_name"],
+              uid: curpointer["uid"],
+              event_direction: curpointer["event_direction"],
+              clusterid: curpointer["clusterid"],
+              eventannotation: curpointer["eventannotation"],
+              coordinates: curpointer["coordinates"],
+              proteinpredictions: curpointer["proteinpredictions"],
+              dpsi: curpointer["dpsi"],
+              rawp: curpointer["rawp"],
+              adjp: curpointer["adjp"],
+              avg_others: curpointer["avg_others"]
+          }
+          data.push(curdat);
+        }
+        else
+        {
+          let curdat = {
             signature_name: curpointer["signature_name"],
-            uid: curpointer["uid"],
-            event_direction: curpointer["event_direction"],
-            clusterid: curpointer["clusterid"],
-            eventannotation: curpointer["eventannotation"],
-            coordinates: curpointer["coordinates"],
-            proteinpredictions: curpointer["proteinpredictions"],
-            dpsi: curpointer["dpsi"],
+            geneid: curpointer["geneid"],
+            systemcode: curpointer["systemcode"],
+            logfold: curpointer["logfold"],
             rawp: curpointer["rawp"],
             adjp: curpointer["adjp"],
+            avg_self: curpointer["avg_self"],
             avg_others: curpointer["avg_others"]
+          }
+          data.push(curdat);  
         }
-        data.push(curdat);
+        
     }
   }
   var available_height = window.innerHeight;
-  var s_height = 0.55 * available_height
+  var s_height = 0.55 * available_height;
+
+  var columns = columns_splc;
+
+  if(props.type == "splice")
+  {
+    columns = columns_splc;
+  }
+  else{
+    columns = columns_gene;
+  }
+
   return (
     <Styles>
       <div style={{overflowX: "scroll", overflowY: "scroll", maxHeight: s_height}}>
@@ -438,9 +602,14 @@ function PanCancerAnalysis(props){
         downscale: 2
     });
 
+    const [tableState, setTableState] = React.useState({
+        type: "splice",
+        data: undefined,
+    });
+
     var doubleBarChartData = {cluster: null, gene: null, targetdiv: "doubleBarChartDiv"};
 
-    if(cancername == "BLCA")
+    if(props.cancerName == "BLCA")
     {
         var datarray_x1 = [];
         var datarray_y1 = [];
@@ -450,12 +619,13 @@ function PanCancerAnalysis(props){
         const plotobjs = [];
         var counter = 0;
 
-        doubleBarChartData = {cluster: [], gene: [], targetdiv: "doubleBarChartDiv"};
+        doubleBarChartData = {cluster: [], gene: [], key: [], targetdiv: "doubleBarChartDiv"};
 
-        for (const [key, value] of Object.entries(clusterLength)) {
+        for (const [key, value] of Object.entries(props.clusterLength)) {
 
             doubleBarChartData.cluster.push(value.length);
             doubleBarChartData.gene.push(BLCA_vals[key]);
+            doubleBarChartData.key.push(key);
         }
     }
     //var set_height_0 = available_height * 0.8;
@@ -525,12 +695,8 @@ function PanCancerAnalysis(props){
                 minConstraints={[panel_CancerSummary.minWidth, panel_CancerSummary.minHeight]}
                 maxConstraints={[panel_CancerSummary.maxWidth, panel_CancerSummary.maxHeight]}
             >
-                <ItemWrapper>
-                <h5>Cancer Summary</h5>
-                <SetDoubleBarChart doubleBarChartState={doubleBarChartData}></SetDoubleBarChart>
-                {plotlySetup(props.clusterLength, props.cancerName, setDoubleBarChartState)}
+                <SetDoubleBarChart doubleBarChartState={doubleBarChartData} tablePlotRequest={tablePlotRequest} tableState={tableState} setTableState={setTableState}></SetDoubleBarChart>
                 <div id="doubleBarChartDiv"></div>
-                </ItemWrapper>
             </Box>
             </div>
             <div style={{width: 0.8 * available_width}}>
@@ -554,7 +720,7 @@ function PanCancerAnalysis(props){
                 minConstraints={[panel_SignatureEvents.minWidth, panel_SignatureEvents.minHeight]}
                 maxConstraints={[panel_SignatureEvents.maxWidth, panel_SignatureEvents.maxHeight]}
             >
-                <RootTable input={props.tableData} exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></RootTable>
+                <RootTable input={tableState.data} type={tableState.type} exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></RootTable>
             </ResizableBox>
                     
             <ResizableBox

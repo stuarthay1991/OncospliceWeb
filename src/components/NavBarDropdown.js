@@ -289,7 +289,7 @@ function Header({setViewPane, setPanCancerState}){
     <Fragment>
 
       <div>
-        <Grid container>
+        <Grid container spacing={0.5}>
         <Grid item>
         <Dropdown
                 title="Cancer Type"

@@ -71,7 +71,7 @@ function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splici
     exp["ui_field_dict"] = response["data"]["samples"];
     exp["ui_field_range"] = response["data"]["range"];
     callback(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exp);
-    pancancercallback({"tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"]});
+    pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"]});
   })
 }
 

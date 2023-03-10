@@ -26,7 +26,7 @@ function uiFields(arg, targeturl)
 		var pctable = response["data"]["pancancersignature"];
 		console.log("pctable", response["data"]);
 		callback(samples);
-		pancancercallback({"tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": cancername});
+		pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": cancername});
 	});
 }
 

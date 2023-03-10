@@ -77,7 +77,8 @@ class EXON_PLOT extends React.Component {
       junctions: this.props.exonPlotState.junctions,
       in_data: this.props.exonPlotState.in_data,
       scaled: this.props.exonPlotState.scaled,
-      downscale: this.props.exonPlotState.downscale
+      downscale: this.props.exonPlotState.downscale,
+      gene_specific_data: this.props.exonPlotState.gene_specific_data,
     };
   }
 
@@ -396,6 +397,187 @@ class EXON_PLOT extends React.Component {
     }
   }
 
+  writeGSD(GSD)
+  {
+
+    var addon_id = "big";
+
+    if(this.state.downscale == true)
+    {
+      addon_id = "small";
+    }
+
+    if(GSD != undefined)
+    {
+    for(var i = 0; i < GSD.length; i++)
+    {
+      var pull_split = GSD[i].uid.split("|");
+      var first_split = pull_split[0].split(":");
+      var second_split = pull_split[1].split(":");
+      
+      var area1 = first_split[2];
+      var area2 = second_split[1];
+
+      var first_pair = area1.split("-");
+      var second_pair = area2.split("-");
+
+      var first_pair1 = parseFloat(first_pair[0].substring(1));
+      var first_pair2 = parseFloat(first_pair[1].substring(1));
+      
+      var first_set1 = first_pair[0];
+      var first_set2 =  first_pair[1];
+
+      var second_set1 = second_pair[0];
+      var second_set2 = second_pair[1];
+
+      if(first_pair2 > first_pair1)
+      {
+        first_set1 = first_pair[1];
+        first_set2 = first_pair[0];
+      }
+
+      var second_pair1 = parseFloat(second_pair[0].substring(1));
+      var second_pair2 = parseFloat(second_pair[1].substring(1));
+      if(second_pair2 > second_pair1)
+      {
+        second_set1 = second_pair[1];
+        second_set2 = second_pair[0];
+      }
+
+      var g_1 = document.getElementById(first_set1.concat(addon_id).concat("_global_id"));
+      var g_2 = document.getElementById(first_set2.concat(addon_id).concat("_global_id"));
+
+      var g_3 = document.getElementById(second_set1.concat(addon_id).concat("_global_id"));
+      var g_4 = document.getElementById(second_set2.concat(addon_id).concat("_global_id"));
+  
+      var found_1 = false;
+      var found_2 = false;
+      var found_3 = false;
+      var found_4 = false;
+
+      var gm_1;
+      var gm_x_1;
+      var gm_y_1;
+      var gm_h_1;
+      var gm_2;
+      var gm_x_2;
+      var gm_y_2;
+      var gm_h_2;
+      var gm_3;
+      var gm_x_3;
+      var gm_y_3;
+      var gm_h_3;
+      var gm_4;
+      var gm_x_4;
+      var gm_y_4;
+      var gm_h_4;
+
+      try {
+      gm_1 = g_1["attributes"]["exname"]["nodeValue"];
+      gm_x_1 = parseFloat(g_1["attributes"]["x"]["nodeValue"]);
+      gm_y_1 = parseFloat(g_1["attributes"]["y"]["nodeValue"]);
+      gm_h_1 = parseFloat(g_1["attributes"]["height"]["nodeValue"]);
+      //console.log("gm_x_1", gm_x_1, gm_y_1, gm_h_1);
+      found_1 = true;
+      }
+      catch (error) {
+        console.log("No gm1", first_set1);
+        continue;
+      }
+
+      try {
+      gm_2 = g_2["attributes"]["exname"]["nodeValue"];
+      gm_x_2 = parseFloat(g_2["attributes"]["x"]["nodeValue"]);
+      gm_y_2 = parseFloat(g_2["attributes"]["y"]["nodeValue"]);
+      gm_h_2 = parseFloat(g_2["attributes"]["height"]["nodeValue"]);
+      //console.log("gm_x_2", gm_x_2);
+      found_2 = true;
+      if(found_1 == true && found_2 == true)
+      {
+        var dpsi1 = parseFloat(GSD[i].dpsi);
+        console.log("dspi value: ", dpsi1);
+        var rectColor = "blue";
+        var rectWidth = gm_x_2 - gm_x_1;
+        var startCoord = gm_x_1;
+        if(dpsi1 > 0.0)
+        {
+          rectColor = "red";
+        }
+        if(gm_x_1 > gm_x_2)
+        {
+          rectWidth = gm_x_1 - gm_x_2;
+          startCoord = gm_x_2;
+        }
+        var cur_obj = this.SVG_main_group.append("rect")
+          .attr("x", startCoord)
+          .attr("y", gm_y_2)
+          .attr("width", rectWidth)
+          .attr("height", 10)
+          .style("stroke", "grey")
+          .style("stroke-width", "1")
+          .style("opacity", 0.5)
+          .attr("fill", rectColor);
+      }
+      }
+      catch (error) {
+        console.log("No gm2", first_set2);
+        continue;
+      }
+
+      try {
+      gm_3 = g_3["attributes"]["exname"]["nodeValue"];
+      gm_x_3 = parseFloat(g_3["attributes"]["x"]["nodeValue"]);
+      gm_y_3 = parseFloat(g_3["attributes"]["y"]["nodeValue"]);
+      gm_h_3 = parseFloat(g_3["attributes"]["height"]["nodeValue"]);
+      found_3 = true;
+      //console.log("gm_x_3", gm_x_3);
+      }
+      catch (error) {
+        console.log("No gm3", second_set1);
+        continue;
+      }
+
+      try {
+      gm_4 = g_4["attributes"]["exname"]["nodeValue"];
+      gm_x_4 = parseFloat(g_4["attributes"]["x"]["nodeValue"]);
+      gm_y_4 = parseFloat(g_4["attributes"]["y"]["nodeValue"]);
+      //console.log("gm_x_4", gm_x_4);
+      var rectWidth = gm_x_4 - gm_x_3;
+      var startCoord = gm_x_3;
+      found_4 = true;
+      if(found_3 == true && found_4 == true)
+      {
+        var dpsi2 = parseFloat(GSD[i].dpsi);
+        console.log("dspi value: ", dpsi2);
+        var rectColor2 = "blue";
+        if(dpsi2 > 0.0)
+        {
+          rectColor2 = "red";
+        }
+        if(gm_x_3 > gm_x_4)
+        {
+          rectWidth = gm_x_3 - gm_x_4;
+          startCoord = gm_x_4;
+        }
+        var cur_obj = this.SVG_main_group.append("rect")
+          .attr("x", startCoord)
+          .attr("y", gm_y_4)
+          .attr("width", rectWidth)
+          .attr("height", 10)
+          .style("stroke", "grey")
+          .style("stroke-width", "1")
+          .style("opacity", 0.5)
+          .attr("fill", rectColor2);
+      }  
+      }
+      catch (error) {
+        console.log("No gm4", second_set2);
+        continue;
+      }
+    }
+    }
+  }
+
   writeJunctions(junc_input, in_data)
   {
     var parent = this;
@@ -403,6 +585,7 @@ class EXON_PLOT extends React.Component {
     var juncpointset = [];
     var juncpointset8 = [];
     var juncpointset12 = [];
+    console.log("coordinates_", in_data);
     for(var i = 0; i < junc_input.length; i++)
     {
       try {
@@ -529,7 +712,7 @@ class EXON_PLOT extends React.Component {
         .attr('cx', t_x_s)
         .attr('cy', finy)
         .attr('r', 5)
-        .attr('id', cur_junc.concat("_global_id"))
+        .attr('id', cur_junc.concat(addon_id).concat("_global_id"))
         .style('fill', circle_color)
         .on("mouseover", function() {
               var pretg = d3.select(this);
@@ -782,7 +965,8 @@ class EXON_PLOT extends React.Component {
         transcripts: this.props.exonPlotState.transcripts,
         junctions: this.props.exonPlotState.junctions,
         in_data: this.props.exonPlotState.in_data,
-        scaled: this.props.exonPlotState.scaled
+        scaled: this.props.exonPlotState.scaled,
+        gene_specific_data: this.props.exonPlotState.gene_specific_data
       })
       return(
         null
@@ -798,13 +982,18 @@ class EXON_PLOT extends React.Component {
     }
     this.baseSVG();
     this.writeBase();
+    console.log("in exon plot", this.state.gene_specific_data);
     //console.log("TRANSCRIPT LIST: ", this.state.transcripts);
     if(this.state.exons != null && this.state.transcripts != null && this.state.junctions != null)
     {
       var sorted_exons = this.state.exons.sort((a, b)=>{return Number(a["start"])-Number(b["start"])})
       this.writeExons(sorted_exons);
       this.writeJunctions(this.state.junctions, this.state.in_data);
-      this.writeTranscripts(this.state.transcripts)
+      this.writeTranscripts(this.state.transcripts);
+      if(this.state.gene_specific_data != undefined)
+      {
+        this.writeGSD(this.state.gene_specific_data);
+      }
     }
     return(
       null
