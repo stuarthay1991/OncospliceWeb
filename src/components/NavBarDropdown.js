@@ -286,10 +286,8 @@ function Header({setViewPane, setPanCancerState}){
       coordTextDisplayColor = "grey";
     }
     return(
-    <Fragment>
-
       <div>
-        <Grid container spacing={0.5}>
+        <Grid container spacing={1}>
         <Grid item>
         <Dropdown
                 title="Cancer Type"
@@ -427,7 +425,7 @@ function Header({setViewPane, setPanCancerState}){
         </Grid>
         <Grid item>
         <Dropdown
-                title="Cancer Signature Filter"
+                title="Signature Name"
                 onSelect={signatureSelectHandle}
                 activeKey={signatureState.signature}
                 placement="bottomStart"
@@ -471,8 +469,7 @@ function Header({setViewPane, setPanCancerState}){
         <div style={{textAlign: "center", color: coordTextDisplayColor}}><strong>{geneState != undefined && (geneState[0])}</strong></div>
         </Grid>
         </Grid>
-      </div>
-    </Fragment>);
+      </div>);
     
 }
 

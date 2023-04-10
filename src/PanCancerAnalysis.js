@@ -7,6 +7,7 @@ import * as React from 'react';
 import Box from '@material-ui/core/Box';
 import SetExonPlot from './plots/exonPlot.js';
 import SetDoubleBarChart from './plots/doubleBarChart.js';
+import SetStackedBarChart from './plots/stackedBarChart.js';
 import Grid from '@material-ui/core/Grid';
 import styled from 'styled-components';
 import axios from 'axios';
@@ -14,6 +15,10 @@ import { useTable, useSortBy } from 'react-table';
 import Plot from 'react-plotly.js';
 import './App.css';
 import { isBuild } from './utilities/constants.js';
+import { v4 as uuidv4 } from 'uuid';
+import SetConcordanceGraph from './plots/concordanceGraph.js';
+import SetVennDiagram from './plots/vennDiagram.js';
+//import SetConcordanceGraph from './plots/concordanceGraph.js';
 
 var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
@@ -22,9 +27,10 @@ const Styles = styled.div`
 
   table {
     border-spacing: 0;
-    border: 1px solid black;
+    border: 3px solid black;
 
     tr {
+      border: 3px solid black;
       height: 10px;
       max-height: 10px;
       overflow: hidden;
@@ -36,29 +42,54 @@ const Styles = styled.div`
         }
       }
       td {
+        border: 3px solid black;
         height: 10px;
         max-height: 10px;
         overflow: hidden;
         overflow-Y: hidden;
-        overflow-X: hidden;    
+        overflow-X: hidden;
+        color: black;
       }
     }
 
     tbody {
-      tr {
+      tr:not(.HselectedRow) {
         :hover {
             cursor: pointer;
             background-color: #b4c4de;
             color: white;
         }
       }
+      tr.HselectedRow {
+        background-color: #FFDFBA;
+        color: black;    
+      }
+
+      tr.HselectedRow > td {
+        color: black;    
+      }      
+
     }
 
-    th,
+    th {
+      margin: 0.2;
+      padding: 0.6rem;
+      height: 10px;
+      max-height: 10px;
+      border: 3px solid black;
+      overflow: hidden;
+      overflow-Y: hidden;
+      overflow-X: hidden;
+      font-size: 14px;
+
+      :last-child {
+        border-right: 0;
+      }
+    }
+
     td {
-      margin: 0;
-      padding: 0.5rem;
-      max-width: 100px;
+      margin: 0.2;
+      padding: 0.6rem;
       height: 10px;
       max-height: 10px;
       border-bottom: 1px solid black;
@@ -66,16 +97,16 @@ const Styles = styled.div`
       overflow: hidden;
       overflow-Y: hidden;
       overflow-X: hidden;
-      font-size: 7px;
+      font-size: 12px;
 
       :last-child {
         border-right: 0;
-      }
+      }      
     }
   }
 `
 
-function exonRequest(GENE, in_data, fulldata, exonPlotState, setExonPlotState) {
+function exonRequest(GENE, in_data, fulldata, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn) {
     var bodyFormData = new FormData();
     var gene_specific_data = [];
     //console.log("Data structure: ", fulldata);
@@ -107,7 +138,7 @@ function exonRequest(GENE, in_data, fulldata, exonPlotState, setExonPlotState) {
         gene_specific_data.push(curpointer);
       }
     }
-    console.log("gene_specific_data", gene_specific_data);
+    //console.log("gene_specific_data", gene_specific_data);
     var postedData = {"data": {"gene": GENE}}
     axios({
       method: "post",
@@ -123,11 +154,46 @@ function exonRequest(GENE, in_data, fulldata, exonPlotState, setExonPlotState) {
           junctions: resp["junc"],
           in_data: in_data,
           gene_specific_data: gene_specific_data,
-          scaled: exonPlotState.scaled,
+          scaled: exonPlotStateScaled,
           targetdiv: "pancanc_splice",
-          downscale: 2
+          downscale: 1.45
         });
+        setTableState({...tableState, sortedColumn: sortedColumn.id})
+
     })
+}
+
+function stackedBarChartRequest(setStackedBarChartState){
+  var postedData = {"data": {"cancer": "BLCA_TCGA"}}
+  axios({
+    method: "post",
+    url: routeurl.concat("/api/datasets/stackedBarChart"),
+    data: postedData,
+    headers: { "Content-Type": "application/json" },
+  })
+    .then(function (response) {
+      var resp = response["data"];
+      setStackedBarChartState({
+        data: resp,
+        targetdiv: "stackedBarChartDiv" 
+      })
+  })
+}
+
+function concordanceRequest(signature, cancer, setConcordanceState){
+  console.log("concordreq, signature is... ", signature);
+  var postedData = {"data": {"signature": signature, "cancer": "BLCA_TCGA"}}
+  axios({
+    method: "post",
+    url: routeurl.concat("/api/datasets/concordance"),
+    data: postedData,
+    headers: { "Content-Type": "application/json" },
+  })
+    .then(function (response) {
+      var resp = response["data"];
+      setConcordanceState({signatures: resp})
+      console.log("concord return...", resp);
+  })
 }
 
 function tablePlotRequest(SIGNATURE, type, setTableState) {
@@ -141,15 +207,27 @@ function tablePlotRequest(SIGNATURE, type, setTableState) {
   })
     .then(function (response) {
       var resp = response["data"];
-      console.log("OUTPUTTT", resp);
+      //console.log("OUTPUTTT", resp);
       setTableState({
         type: type,
-        data: resp["outputdata"]
+        data: resp["outputdata"],
+        sortedColumn: "UID"
       });
   })
 }
 
-function popUID(uid, inputcoords, fulldata, exonPlotState, setExonPlotState){
+function popUID(uuid, uid, inputcoords, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn){
+    var allSelected = document.getElementsByClassName("HselectedRow");
+    if(allSelected.length > 0)
+    {
+      for(var i = 0; i < allSelected.length; i++)
+      {
+        allSelected[i].className = "default";
+      }
+    }
+    var important = document.getElementById(uuid);
+    //console.log("POP_UID", important);
+    important.className = "HselectedRow";
     var pasta = uid.split(":");
     var ensg_id = pasta[1];
     var fullinputcoords = inputcoords;
@@ -167,7 +245,7 @@ function popUID(uid, inputcoords, fulldata, exonPlotState, setExonPlotState){
     var coord3 = twor2_split[0];
     var coord4 = twor2_split[1];
     var coord_block = {"coord1": coord1, "coord2": coord2, "coord3": coord3, "coord4": coord4};
-    exonRequest(ensg_id, coord_block, fulldata, exonPlotState, setExonPlotState);
+    exonRequest(ensg_id, coord_block, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn);
 }
 
 const BLCA_vals = {"psi_pde4d_del_vs_others": 875,
@@ -205,87 +283,16 @@ const BLCA_vals = {"psi_pde4d_del_vs_others": 875,
 "psi_r2_v21_vs_others": 744,
 "psi_r2_v9_vs_others": 487}
 
-
-function plotlySetup(clusterLength, cancername, setDoubleBarChartState){
-    console.log("cancername", cancername);
-
-
-    if(clusterLength != undefined)
-    {
-        if(cancername == "BLCA")
-        {
-            var datarray_x1 = [];
-            var datarray_y1 = [];
-
-            var datarray_x2 = [];
-            var datarray_y2 = [];
-            const plotobjs = [];
-            var counter = 0;
-
-            var doubleBarChartData = {"cluster": [], "gene": []};
-
-            for (const [key, value] of Object.entries(clusterLength)) {
- 
-                doubleBarChartData["cluster"].push(value.length);
-                doubleBarChartData["gene"].push(BLCA_vals[key]);
-            }
-            console.log("pre-doubleBarChartData", doubleBarChartData);
-            var available_width = window.innerWidth;
-            var available_height = window.innerHeight;
-            setDoubleBarChartState({
-                cluster: doubleBarChartData["cluster"],
-                gene: doubleBarChartData["gene"],
-                targetdiv: "doubleBarChartDiv"
-            });
-            //return plotobjs;  
-        }
-        /*else
-        {
-            var datarray_x = [];
-            var datarray_y = [];
-            var counter = 0;
-            for (const [key, value] of Object.entries(clusterLength)) {
-                console.log("KV", key, value)
-                datarray_x.push(value.length);
-                datarray_y.push(key);
-            }
-            
-            var datarray = [{
-                x: datarray_x,
-                y: datarray_y,
-                type: 'bar',
-                orientation: 'h'
-            }];
-            var available_width = window.innerWidth;
-            var available_height = window.innerHeight;
-        
-            const plotobj = <Plot 
-                data={datarray}
-                layout={{
-                    width: 270, 
-                    height: 500,
-                    margin: {
-                    l: 120,
-                    r: 10,
-                    b: 50,
-                    t: 10
-                    },
-                    font: {
-                        family: 'Arial, monospace',
-                        size: 8,
-                        color: '#7f7f7f'
-                    }
-                }}
-            />
-            return plotobj;
-        }*/
-    }
-    /*else{
-        return null;
-    }*/
+function uidConvert(input_uid)
+{
+  input_uid = input_uid.split(":");
+    var uid_secondcomp = input_uid[2];
+    uid_secondcomp = uid_secondcomp.split("|");
+    var uid_final = input_uid[0].concat(":").concat(uid_secondcomp[0]).concat("|").concat(input_uid[3]);
+    return uid_final;
 }
 
-function Table({ columns, data, exonPlotState, setExonPlotState }) {
+function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableState, setTableState}) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -296,13 +303,42 @@ function Table({ columns, data, exonPlotState, setExonPlotState }) {
     {
       columns,
       data,
+      initialState: {
+        sortBy: [
+            {
+                id: tableState.sortedColumn,
+                desc: false
+            }
+        ]
+      }
     },
     useSortBy
   )
 
+  React.useEffect(() => {
+    var allSelected = document.getElementsByClassName("HselectedRow");
+    if(allSelected.length > 0)
+    {
+      for(var i = 0; i < allSelected.length; i++)
+      {
+        allSelected[i].className = "default";
+      }
+    }
+  }, [columns])
+
   // We don't want to render all 2000 rows for this example, so cap
   // it at 20 for this use case
-  const firstPageRows = rows.slice(0, 20)
+  const firstPageRows = rows.slice(0, 20);
+
+  var sortedColumn = undefined;
+
+  headerGroups.map(headerGroup => (
+    headerGroup.headers.map(column => (
+      sortedColumn = column.isSorted ? column : sortedColumn
+    ))
+  ))
+
+  console.log(sortedColumn);
 
   return (
     <>
@@ -335,12 +371,31 @@ function Table({ columns, data, exonPlotState, setExonPlotState }) {
               //console.log("ROW", row);
               const setClick = row.original.uid;
               const inputcoords = row.original.coordinates;
+              const id = uuidv4();
               //console.log("input_coords", inputcoords);
               return (
-                <tr {...row.getRowProps()} onClick={() => popUID(setClick, inputcoords, data, exonPlotState, setExonPlotState)}>
+                <tr {...row.getRowProps()} id={id} onClick={() => popUID(id, setClick, inputcoords, data, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn)}>
                   {row.cells.map(cell => {
+                    //console.log("CELL", cell);
+                    if(cell.column.Header == "Protein Predictions")
+                    {
+                      if(cell.value != null)
+                      {
+                        if(cell.value.length > 40)
+                        {
+                          cell.value = (cell.value.substring(0, 40)).concat("...");
+                        }
+                      }
+                    }
+                    if(cell.column.Header == "UID")
+                    {
+                      if(cell.value != null)
+                      {
+                        cell.value = uidConvert(cell.value);
+                      }
+                    }
                     return (
-                      <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                      <td {...cell.getCellProps()} style={{"maxHeight": "20px"}}>{cell.value}</td>
                     )
                   })}
                 </tr>
@@ -360,58 +415,63 @@ function RootTable(props) {
 
   var column_splice_obj = [
       {
-        Header: 'Signature Name',
-        accessor: 'signature_name',
-        maxWidth: '20px',
-      },
-      {
         Header: 'UID',
         accessor: 'uid',
+        id: 'UID',
         maxWidth: '20px',
       },
       {
         Header: 'Event Direction',
         accessor: 'event_direction',
+        id: 'event_direction',
         maxWidth: '20px',
       },
       {
         Header: 'Cluster ID',
         accessor: 'clusterid',
+        id: 'clusterid',
         maxWidth: '20px',
       },
       {
         Header: 'Event Annotation',
         accessor: 'eventannotation',
+        id: 'eventannotation',
         maxWidth: '20px',
       },
       {
         Header: 'Coordinates',
         accessor: 'coordinates',
+        id: 'coordinates',
         maxWidth: '20px',
       },
       {
         Header: 'Protein Predictions',
         accessor: 'proteinpredictions',
+        id: 'proteinpredictions',
         maxWidth: '20px',
       },
       {
         Header: 'dPSI',
         accessor: 'dpsi',
+        id: 'dpsi',
         maxWidth: '20px',
       },
       {
         Header: 'rawp',
         accessor: 'rawp',
+        id: 'rawp',
         maxWidth: '20px',
       },
       {
         Header: 'adjp',
         accessor: 'adjp',
+        id: 'adjp',
         maxWidth: '20px',
       },
       {
         Header: 'Avg Others',
         accessor: 'avg_others',
+        id: 'avg_others',
         maxWidth: '20px',
       }
   ]
@@ -525,7 +585,6 @@ function RootTable(props) {
         if(props.type == "splice")
         {
           let curdat = {
-              signature_name: curpointer["signature_name"],
               uid: curpointer["uid"],
               event_direction: curpointer["event_direction"],
               clusterid: curpointer["clusterid"],
@@ -570,11 +629,11 @@ function RootTable(props) {
   }
 
   return (
-    <Styles>
-      <div style={{overflowX: "scroll", overflowY: "scroll", maxHeight: s_height}}>
-      <Table columns={columns} data={data} exonPlotState={props.exonPlotState} setExonPlotState={props.setExonPlotState}/>
-      </div>
+    <div style={{overflowX: "scroll", overflowY: "scroll", maxHeight: s_height, marginBottom: "6px"}}>
+    <Styles>      
+      <Table columns={columns} data={data} exonPlotStateScaled={props.exonPlotStateScaled} setExonPlotState={props.setExonPlotState} tableState={props.tableState} setTableState={props.setTableState}/>
     </Styles>
+    </div>
   )
 }
   
@@ -592,6 +651,14 @@ function PanCancerAnalysis(props){
     //var state = React.useState(0);
     var available_width = window.innerWidth;
     var available_height = window.innerHeight;
+    console.log("standard_width: ", window.innerWidth);
+    console.log("standard_height: ", window.innerHeight);
+    //var scaled_width = window.innerWidth / 1920;
+    //var scaled_height = window.innerHeight / 985;
+    //var standard_width = 1438;
+    //var standard_height = 707;
+    var scaled_width = window.innerWidth / 1438;
+    var scaled_height = window.innerHeight / 707;
     const [exonPlotState, setExonPlotState] = React.useState({
         exons: null,
         transcripts: null,
@@ -599,15 +666,24 @@ function PanCancerAnalysis(props){
         in_data: null,
         scaled: false,
         targetdiv: "pancanc_splice",
-        downscale: 2
+        downscale: 1.45
+    });
+
+    const [concordanceState, setConcordanceState] = React.useState({
+        signatures: undefined
     });
 
     const [tableState, setTableState] = React.useState({
         type: "splice",
         data: undefined,
+        sortedColumn: "UID"
     });
 
     var doubleBarChartData = {cluster: null, gene: null, targetdiv: "doubleBarChartDiv"};
+    const [stackedBarChartData, setStackedBarChartData] = React.useState({
+      data: null,
+      targetdiv: "stackedBarChartDiv" 
+    })
 
     if(props.cancerName == "BLCA")
     {
@@ -685,6 +761,8 @@ function PanCancerAnalysis(props){
         maxHeight: 0.4 * available_height
     }
 
+    console.log("Concordance state...", concordanceState)
+
     return(
         <div style={{display: 'flex', backgroundColor: "#f7f7f7"}}>
             <div style={{width: 0.26 * available_width}}>
@@ -695,8 +773,24 @@ function PanCancerAnalysis(props){
                 minConstraints={[panel_CancerSummary.minWidth, panel_CancerSummary.minHeight]}
                 maxConstraints={[panel_CancerSummary.maxWidth, panel_CancerSummary.maxHeight]}
             >
-                <SetDoubleBarChart doubleBarChartState={doubleBarChartData} tablePlotRequest={tablePlotRequest} tableState={tableState} setTableState={setTableState}></SetDoubleBarChart>
-                <div id="doubleBarChartDiv"></div>
+                <SetDoubleBarChart 
+                  heightRatio={scaled_height} 
+                  widthRatio={scaled_width} 
+                  doubleBarChartState={doubleBarChartData} 
+                  tablePlotRequest={tablePlotRequest} 
+                  tableState={tableState} 
+                  setTableState={setTableState}
+                  concordanceRequest={concordanceRequest}
+                  concordanceState={concordanceState}
+                  setConcordanceState={setConcordanceState}
+                  setStackedBarChartData={setStackedBarChartData}
+                  stackedBarChartRequest={stackedBarChartRequest}></SetDoubleBarChart>
+                <div width="100%" id="doubleBarChartDiv" style={{overflow: "scroll", height: "100%", width: "100%"}}></div>
+                <SetStackedBarChart 
+                  heightRatio={scaled_height} 
+                  widthRatio={scaled_width} 
+                  stackedBarChartState={stackedBarChartData}></SetStackedBarChart>
+                <div width="100%" id="stackedBarChartDiv" style={{display: "none", overflow: "scroll", height: "100%", width: "100%"}}></div>
             </Box>
             </div>
             <div style={{width: 0.8 * available_width}}>
@@ -708,9 +802,12 @@ function PanCancerAnalysis(props){
                 minConstraints={[panel_PanCancerConcordance.minWidth, panel_PanCancerConcordance.minHeight]}
                 maxConstraints={[panel_PanCancerConcordance.maxWidth, panel_PanCancerConcordance.maxHeight]}
             >
-                <ItemWrapper>
-                    <h3>PanCancer Concordance</h3>
-                </ItemWrapper>
+              <SetConcordanceGraph 
+                heightRatio={scaled_height} 
+                widthRatio={scaled_width} 
+                concordanceState={concordanceState}>  
+              </SetConcordanceGraph>
+              <div width="100%" id="concordanceDiv" style={{overflow: "scroll", height: "100%", width: "100%"}}></div>
             </ResizableBox>
                     
             <ResizableBox
@@ -719,8 +816,8 @@ function PanCancerAnalysis(props){
                 height={panel_SignatureEvents.height}
                 minConstraints={[panel_SignatureEvents.minWidth, panel_SignatureEvents.minHeight]}
                 maxConstraints={[panel_SignatureEvents.maxWidth, panel_SignatureEvents.maxHeight]}
-            >
-                <RootTable input={tableState.data} type={tableState.type} exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></RootTable>
+            >                
+                <RootTable input={tableState.data} type={tableState.type} exonPlotStateScaled={exonPlotState.scaled} setExonPlotState={setExonPlotState} tableState={tableState} setTableState={setTableState}></RootTable>
             </ResizableBox>
                     
             <ResizableBox
@@ -730,9 +827,8 @@ function PanCancerAnalysis(props){
                 minConstraints={[panel_OverlappingEvents.minWidth, panel_OverlappingEvents.minHeight]}
                 maxConstraints={[panel_OverlappingEvents.maxWidth, panel_OverlappingEvents.maxHeight]}
             >
-                <ItemWrapper>
-                <h3>Overlapping Events</h3>
-                </ItemWrapper>
+              <div width="100%" id="overlapDiv" style={{overflow: "scroll", height: "100%", width: "100%"}}></div>
+              <SetVennDiagram></SetVennDiagram>
             </ResizableBox>
                     
             <ResizableBox
@@ -743,9 +839,8 @@ function PanCancerAnalysis(props){
                 maxConstraints={[panel_SplicingGraph.maxWidth, panel_SplicingGraph.maxHeight]}
             >
                 <div style={{overflow: "scroll", height: "100%", width: "100%", backgroundColor: "white", margin: 10}}>
-                <h3>Splicing Graph</h3>
                 <SetExonPlot exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></SetExonPlot>
-                <div id="pancanc_splice" style={{width: 900}}></div>
+                <div id="pancanc_splice"></div>
                 </div>
             </ResizableBox>
             </div>

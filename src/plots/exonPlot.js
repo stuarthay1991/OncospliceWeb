@@ -82,7 +82,7 @@ class EXON_PLOT extends React.Component {
     };
   }
 
-  baseSVG(w="100%", h=2000) 
+  baseSVG(w=2000, h=2000) 
   {
     this.SVG = d3.select("#".concat(this.target_div))
       .append("svg")
@@ -397,6 +397,58 @@ class EXON_PLOT extends React.Component {
     }
   }
 
+  findRetainedIntrons(GSD)
+  {
+    var retarray = []
+    if(GSD != undefined)
+    {
+      for(var i = 0; i < GSD.length; i++)
+      {
+        var pull_split = GSD[i].uid.split("|");
+        var first_split = pull_split[0].split(":");
+        var second_split = pull_split[1].split(":");
+        
+        var area1 = first_split[2];
+        var area2 = second_split[1];
+
+        var value1 = area1.split("-")[0];
+        var value2 = area1.split("-")[1];
+        var value3 = area2.split("-")[0];
+        var value4 = area2.split("-")[1];
+        if(value1.indexOf("I") != -1)
+        {
+          retarray.push(value1);
+        }
+        if(value2.indexOf("I") != -1)
+        {
+          retarray.push(value2);
+        }
+        if(value3.indexOf("I") != -1)
+        {
+          retarray.push(value3);
+        }
+        if(value4.indexOf("I") != -1)
+        {
+          retarray.push(value4);
+        }
+      }
+    }
+    return retarray;
+  }
+
+  writeGeneSymbol(symbol)
+  {
+    var textToWrite = "Gene: ".concat(symbol);
+    var burger = this.SVG_main_group.append("text")
+    .attr("x", 7)
+    .attr("y", 21)
+    .attr("text-anchor", "start")
+    .style("font-size", 15)
+    .style("opacity", 1.0)
+    .attr("fill", "black")
+    .text(textToWrite);
+  }
+
   writeGSD(GSD)
   {
 
@@ -406,6 +458,8 @@ class EXON_PLOT extends React.Component {
     {
       addon_id = "small";
     }
+
+
 
     if(GSD != undefined)
     {
@@ -418,162 +472,80 @@ class EXON_PLOT extends React.Component {
       var area1 = first_split[2];
       var area2 = second_split[1];
 
-      var first_pair = area1.split("-");
-      var second_pair = area2.split("-");
+      //console.log("table_stuff", area1, area2);
 
-      var first_pair1 = parseFloat(first_pair[0].substring(1));
-      var first_pair2 = parseFloat(first_pair[1].substring(1));
-      
-      var first_set1 = first_pair[0];
-      var first_set2 =  first_pair[1];
+      var bl1 = document.getElementById(area1.concat(addon_id).concat("_global_id"));
+      var bl2 = document.getElementById(area2.concat(addon_id).concat("_global_id"));
 
-      var second_set1 = second_pair[0];
-      var second_set2 = second_pair[1];
+      var pl1 = document.getElementById(area1.concat(addon_id).concat("_path_global_id"));
+      var pl2 = document.getElementById(area2.concat(addon_id).concat("_path_global_id"));
 
-      if(first_pair2 > first_pair1)
+      var dpsi = parseFloat(GSD[i].dpsi);
+      var rectColor = "blue";
+      if(dpsi > 0.0)
       {
-        first_set1 = first_pair[1];
-        first_set2 = first_pair[0];
+        rectColor = "red";
       }
 
-      var second_pair1 = parseFloat(second_pair[0].substring(1));
-      var second_pair2 = parseFloat(second_pair[1].substring(1));
-      if(second_pair2 > second_pair1)
+      //console.log("id found: ", bl1);
+      //console.log("id found: ", bl2);
+
+      if(bl1 != null)
       {
-        second_set1 = second_pair[1];
-        second_set2 = second_pair[0];
-      }
-
-      var g_1 = document.getElementById(first_set1.concat(addon_id).concat("_global_id"));
-      var g_2 = document.getElementById(first_set2.concat(addon_id).concat("_global_id"));
-
-      var g_3 = document.getElementById(second_set1.concat(addon_id).concat("_global_id"));
-      var g_4 = document.getElementById(second_set2.concat(addon_id).concat("_global_id"));
-  
-      var found_1 = false;
-      var found_2 = false;
-      var found_3 = false;
-      var found_4 = false;
-
-      var gm_1;
-      var gm_x_1;
-      var gm_y_1;
-      var gm_h_1;
-      var gm_2;
-      var gm_x_2;
-      var gm_y_2;
-      var gm_h_2;
-      var gm_3;
-      var gm_x_3;
-      var gm_y_3;
-      var gm_h_3;
-      var gm_4;
-      var gm_x_4;
-      var gm_y_4;
-      var gm_h_4;
-
-      try {
-      gm_1 = g_1["attributes"]["exname"]["nodeValue"];
-      gm_x_1 = parseFloat(g_1["attributes"]["x"]["nodeValue"]);
-      gm_y_1 = parseFloat(g_1["attributes"]["y"]["nodeValue"]);
-      gm_h_1 = parseFloat(g_1["attributes"]["height"]["nodeValue"]);
-      //console.log("gm_x_1", gm_x_1, gm_y_1, gm_h_1);
-      found_1 = true;
-      }
-      catch (error) {
-        console.log("No gm1", first_set1);
-        continue;
-      }
-
-      try {
-      gm_2 = g_2["attributes"]["exname"]["nodeValue"];
-      gm_x_2 = parseFloat(g_2["attributes"]["x"]["nodeValue"]);
-      gm_y_2 = parseFloat(g_2["attributes"]["y"]["nodeValue"]);
-      gm_h_2 = parseFloat(g_2["attributes"]["height"]["nodeValue"]);
-      //console.log("gm_x_2", gm_x_2);
-      found_2 = true;
-      if(found_1 == true && found_2 == true)
-      {
-        var dpsi1 = parseFloat(GSD[i].dpsi);
-        console.log("dspi value: ", dpsi1);
-        var rectColor = "blue";
-        var rectWidth = gm_x_2 - gm_x_1;
-        var startCoord = gm_x_1;
-        if(dpsi1 > 0.0)
+        if(dpsi > 0.0)
         {
           rectColor = "red";
         }
-        if(gm_x_1 > gm_x_2)
+        else
         {
-          rectWidth = gm_x_1 - gm_x_2;
-          startCoord = gm_x_2;
+          rectColor = "blue";
         }
-        var cur_obj = this.SVG_main_group.append("rect")
-          .attr("x", startCoord)
-          .attr("y", gm_y_2)
-          .attr("width", rectWidth)
-          .attr("height", 10)
-          .style("stroke", "grey")
-          .style("stroke-width", "1")
-          .style("opacity", 0.5)
-          .attr("fill", rectColor);
-      }
-      }
-      catch (error) {
-        console.log("No gm2", first_set2);
-        continue;
+        var pretg1 = d3.select(bl1);
+        pretg1.style('fill', rectColor);
       }
 
-      try {
-      gm_3 = g_3["attributes"]["exname"]["nodeValue"];
-      gm_x_3 = parseFloat(g_3["attributes"]["x"]["nodeValue"]);
-      gm_y_3 = parseFloat(g_3["attributes"]["y"]["nodeValue"]);
-      gm_h_3 = parseFloat(g_3["attributes"]["height"]["nodeValue"]);
-      found_3 = true;
-      //console.log("gm_x_3", gm_x_3);
-      }
-      catch (error) {
-        console.log("No gm3", second_set1);
-        continue;
-      }
-
-      try {
-      gm_4 = g_4["attributes"]["exname"]["nodeValue"];
-      gm_x_4 = parseFloat(g_4["attributes"]["x"]["nodeValue"]);
-      gm_y_4 = parseFloat(g_4["attributes"]["y"]["nodeValue"]);
-      //console.log("gm_x_4", gm_x_4);
-      var rectWidth = gm_x_4 - gm_x_3;
-      var startCoord = gm_x_3;
-      found_4 = true;
-      if(found_3 == true && found_4 == true)
+      if(bl2 != null)
       {
-        var dpsi2 = parseFloat(GSD[i].dpsi);
-        console.log("dspi value: ", dpsi2);
-        var rectColor2 = "blue";
-        if(dpsi2 > 0.0)
+        if(dpsi > 0.0)
         {
-          rectColor2 = "red";
+          rectColor = "blue";
         }
-        if(gm_x_3 > gm_x_4)
+        else
         {
-          rectWidth = gm_x_3 - gm_x_4;
-          startCoord = gm_x_4;
+          rectColor = "red";
         }
-        var cur_obj = this.SVG_main_group.append("rect")
-          .attr("x", startCoord)
-          .attr("y", gm_y_4)
-          .attr("width", rectWidth)
-          .attr("height", 10)
-          .style("stroke", "grey")
-          .style("stroke-width", "1")
-          .style("opacity", 0.5)
-          .attr("fill", rectColor2);
-      }  
+        var pretg2 = d3.select(bl2);
+        pretg2.style('fill', rectColor);
       }
-      catch (error) {
-        console.log("No gm4", second_set2);
-        continue;
+
+      if(pl1 != null)
+      {
+        if(dpsi > 0.0)
+        {
+          rectColor = "red";
+        }
+        else
+        {
+          rectColor = "blue";
+        }
+        var gretg1 = d3.select(pl1);
+        gretg1.attr('stroke', rectColor);
       }
+
+      if(pl2 != null)
+      {
+        if(dpsi > 0.0)
+        {
+          rectColor = "blue";
+        }
+        else
+        {
+          rectColor = "red";
+        }
+        var gretg2 = d3.select(pl2);
+        gretg2.attr('stroke', rectColor);
+      }
+ 
     }
     }
   }
@@ -585,7 +557,7 @@ class EXON_PLOT extends React.Component {
     var juncpointset = [];
     var juncpointset8 = [];
     var juncpointset12 = [];
-    console.log("coordinates_", in_data);
+    //console.log("coordinates_", in_data);
     for(var i = 0; i < junc_input.length; i++)
     {
       try {
@@ -703,6 +675,7 @@ class EXON_PLOT extends React.Component {
       this.SVG_main_group.append('path')
         .attr('d', curve(points))
         .attr('stroke', junction_color)
+        .attr('id', cur_junc.concat(addon_id).concat("_path_global_id"))
         // with multiple points defined, if you leave out fill:none,
         // the overlapping space defined by the points is filled with
         // the default value of 'black'
@@ -743,7 +716,7 @@ class EXON_PLOT extends React.Component {
     }
   }
 
-  writeExons(exon_input)
+  writeExons(exon_input, retained_introns)
   {
     var parent = this;
     var starting_point = exon_input[0]["start"];
@@ -789,7 +762,20 @@ class EXON_PLOT extends React.Component {
       }
       else
       {
+        var retainedFound1 = true;
         if(exname.charAt(0) == "I")
+        {
+          retainedFound1 = false;
+          for(var pk = 0; pk < retained_introns.length; pk++)
+          {
+            if(exname == retained_introns[pk])
+            {
+              retainedFound1 = true;
+              break;
+            }
+          }
+        }
+        if(retainedFound1 == false)
         {
           scale_exon_stop = this.state.scaled == true ? scale_exon_stop + 20 : scale_exon_stop + 200;
           continue;
@@ -826,6 +812,7 @@ class EXON_PLOT extends React.Component {
     var last_exon_stop = 0;
     for(var i = 0; i < exon_input.length; i++)
     {
+      var special_intron_flag = false;
       const exname = exon_input[i]["exon_name"];
       const hard_start = "Start: ".concat(exon_input[i]["start"].toString()).concat(" bp");
       const hard_stop = "Stop: ".concat(exon_input[i]["stop"].toString()).concat(" bp");
@@ -861,7 +848,20 @@ class EXON_PLOT extends React.Component {
       }
       else
       {
+        var retainedFound2 = true;
         if(exname.charAt(0) == "I")
+        {
+          retainedFound2 = false;
+          for(var pk = 0; pk < retained_introns.length; pk++)
+          {
+            if(exname == retained_introns[pk]){
+              retainedFound2 = true;
+              special_intron_flag = true;
+              break;
+            }
+          }
+        }
+        if(retainedFound2 == false)
         {
           if(this.state.scaled == true)
           {
@@ -906,21 +906,23 @@ class EXON_PLOT extends React.Component {
 
       var higs = this.div;
 
-      var cur_obj = this.SVG_main_group.append("rect")
-        .attr("x", (x_offset + x_pos_1))
-        .attr("y", 90)
-        .attr("width", (x_pos_2 - x_pos_1))
-        .attr("height", 10)
-        .style("stroke", "grey")
-        .style("stroke-width", "1")
-        .style("opacity", 1.0)
-        .attr("fill", "#e6e6e6")
-        .attr("id", exname.concat(addon_id).concat("_global_id"))
-        .attr("exname", exname)
-        .attr("ensembl_exon_id", exon_input[i]["ensembl_exon_id"])
-        .attr("start", exon_input[i]["start"])
-        .attr("stop", exon_input[i]["stop"])
-        .on("mouseover", function() {
+      if(special_intron_flag)
+      {
+        var cur_obj2 = this.SVG_main_group.append("rect")
+          .attr("x", (x_offset + x_pos_1))
+          .attr("y", 92)
+          .attr("width", (x_pos_2 - x_pos_1))
+          .attr("height", 6)
+          .style("stroke", "grey")
+          .style("stroke-width", "1")
+          .style("opacity", 0.5)
+          .attr("fill", "red")
+          .attr("id", exname.concat(addon_id).concat("_global_id"))
+          .attr("exname", exname)
+          .attr("ensembl_exon_id", exon_input[i]["ensembl_exon_id"])
+          .attr("start", exon_input[i]["start"])
+          .attr("stop", exon_input[i]["stop"])
+          .on("mouseover", function() {
             //console.log(cur_obj);
             var pretg = d3.select(this);
             var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
@@ -930,14 +932,50 @@ class EXON_PLOT extends React.Component {
             //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
             parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "add")
             })          
-        .on("mouseout", function(d) {   
-            //parent.tempTextRemove();
-            var pretg = d3.select(this);
-            var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
-            var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
-            var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
-            parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "remove")
-        });
+          .on("mouseout", function(d) {   
+              //parent.tempTextRemove();
+              var pretg = d3.select(this);
+              var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
+              var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
+              var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
+              parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "remove")
+          });
+      }
+      else
+      {
+        var cur_obj = this.SVG_main_group.append("rect")
+          .attr("x", (x_offset + x_pos_1))
+          .attr("y", 90)
+          .attr("width", (x_pos_2 - x_pos_1))
+          .attr("height", 10)
+          .style("stroke", "grey")
+          .style("stroke-width", "1")
+          .style("opacity", 1.0)
+          .attr("fill", "#e6e6e6")
+          .attr("id", exname.concat(addon_id).concat("_global_id"))
+          .attr("exname", exname)
+          .attr("ensembl_exon_id", exon_input[i]["ensembl_exon_id"])
+          .attr("start", exon_input[i]["start"])
+          .attr("stop", exon_input[i]["stop"])
+          .on("mouseover", function() {
+              //console.log(cur_obj);
+              var pretg = d3.select(this);
+              var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
+              var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
+              var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
+              const pip = exname.concat("_global_id")
+              //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
+              parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "add")
+              })          
+          .on("mouseout", function(d) {   
+              //parent.tempTextRemove();
+              var pretg = d3.select(this);
+              var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
+              var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
+              var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
+              parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "remove")
+          });
+      }
 
       this.ens_map[exon_input[i]["start"]] = {};
       this.ens_map[exon_input[i]["start"]]["name"] = exname;
@@ -982,16 +1020,21 @@ class EXON_PLOT extends React.Component {
     }
     this.baseSVG();
     this.writeBase();
-    console.log("in exon plot", this.state.gene_specific_data);
+    //console.log("in exon plot", this.state.gene_specific_data);
     //console.log("TRANSCRIPT LIST: ", this.state.transcripts);
     if(this.state.exons != null && this.state.transcripts != null && this.state.junctions != null)
     {
       var sorted_exons = this.state.exons.sort((a, b)=>{return Number(a["start"])-Number(b["start"])})
-      this.writeExons(sorted_exons);
+      //console.log("sorted_exons", sorted_exons);
+      var retainedIntrons = this.findRetainedIntrons(this.state.gene_specific_data);
+      //console.log("retained Introns", retainedIntrons);
+      this.writeExons(sorted_exons, retainedIntrons);
       this.writeJunctions(this.state.junctions, this.state.in_data);
       this.writeTranscripts(this.state.transcripts);
       if(this.state.gene_specific_data != undefined)
       {
+        var geneSymbol = this.state.gene_specific_data[0].uid.split(":")[0];
+        this.writeGeneSymbol(geneSymbol);
         this.writeGSD(this.state.gene_specific_data);
       }
     }
