@@ -46,6 +46,12 @@ class SetStackedBarChart extends React.Component {
       this.setState({
         input: <STACKED_BAR_CHART 
           stackedBarChartState={this.props.stackedBarChartState}
+          concordanceRequest={this.props.concordanceRequest}
+          setConcordanceState={this.props.setConcordanceState}
+          setTableState={this.props.setTableState}
+          tablePlotRequest={this.props.tablePlotRequest}
+          resetDaugtherPanels={this.props.resetDaugtherPanels}
+          resetBottomPanels={this.props.resetBottomPanels}
           doc={document}
           target_div_id={this.props.stackedBarChartState.targetdiv}
           xScale={this.props.widthRatio}
@@ -76,6 +82,12 @@ class SetStackedBarChart extends React.Component {
         this.setState({
           input: <STACKED_BAR_CHART 
             stackedBarChartState={this.props.stackedBarChartState}
+            concordanceRequest={this.props.concordanceRequest}
+            setConcordanceState={this.props.setConcordanceState}
+            setTableState={this.props.setTableState}
+            tablePlotRequest={this.props.tablePlotRequest}
+            resetDaugtherPanels={this.props.resetDaugtherPanels}
+            resetBottomPanels={this.props.resetBottomPanels}
             doc={document} 
             target_div_id={this.props.stackedBarChartState.targetdiv}
             xScale={this.props.widthRatio}
@@ -116,8 +128,10 @@ class SetStackedBarChart extends React.Component {
       };
     }
   
-    baseSVG(w="100%", h=2000) 
+    baseSVG(h_in) 
     {
+      var w = "100%";
+      var h = h_in;
       this.SVG = d3.select("#".concat(this.target_div))
         .append("svg")
         .attr("width", w)
@@ -135,11 +149,11 @@ class SetStackedBarChart extends React.Component {
         .attr("fill", "White");    
     }
   
-    writeBase()
+    writeBase(h_in)
     {
       this.SVG_main_group.append("rect")
         .attr("width", "100%")
-        .attr("height", 2000)
+        .attr("height", h_in)
         .style("opacity", 1.0)
         .attr("fill", "White");
   
@@ -157,12 +171,73 @@ class SetStackedBarChart extends React.Component {
         var S = this.state;
         this.SVG_main_group.append("text")
         .attr("x", 27*S.xScale)
-        .attr("y", 49*S.yScale)
+        .attr("y", 29*S.yScale)
         .attr("text-anchor", "start")
         .style("font-size", 18.5*S.fontScale)
         .style("opacity", 1.0)
         .attr("fill", "black")
         .text("Pancancer Summary");
+
+        var parent = this;
+      
+        this.SVG_main_group.append('circle')
+            .attr('cx', 32*S.xScale)
+            .attr('cy', 46*S.yScale)
+            .attr('r', 6*S.fontScale)
+            .attr('fill', "white")
+            .attr('stroke', "black")
+            .attr('stroke-width', 1)
+            .attr('opacity', 1)
+            .on("mouseover", function() {
+              //console.log(cur_obj);
+              var pretg = d3.select(this).attr("stroke-width", 1)
+                .attr("stroke", "purple")
+                .attr("cursor", "pointer")
+                .attr("fill", "#0F6A8B")
+                .attr("opacity", 0.4);
+              })
+            .on("mouseout", function(d) {   
+              //parent.tempTextRemove();
+              var pretg = d3.select(this).attr("stroke-width", 1)
+              .attr("stroke", "black")
+              .attr("cursor", "default")
+              .attr("fill", "white")
+              .attr("opacity", 1);
+            })
+            .on("click", function(d) {
+              document.getElementById(parent.target_div).style.display = "none";
+              document.getElementById("doubleBarChartDiv").style.display = "block";
+              parent.props.resetDaugtherPanels()
+            });
+
+
+        this.SVG_main_group.append('circle')
+            .attr('cx', 32*S.xScale)
+            .attr('cy', 63*S.yScale)
+            .attr('r', 6*S.fontScale)
+            .attr('fill', "#0F6A8B")
+            .attr('stroke', "black")
+            .attr('stroke-width', 1)
+            .attr('opacity', 1);
+
+        this.SVG_main_group.append("text")
+            .attr("x", 44*S.xScale)
+            .attr("y", 50*S.yScale)
+            .attr("text-anchor", "start")
+            .style("font-size", 11*S.fontScale)
+            .style("opacity", 1.0)
+            .attr("fill", "black")
+            .text("Show DEGs and splicing events");
+
+        this.SVG_main_group.append("text")
+            .attr("x", 44*S.xScale)
+            .attr("y", 68*S.yScale)
+            .attr("text-anchor", "start")
+            .style("font-size", 11*S.fontScale)
+            .style("opacity", 1.0)
+            .attr("fill", "black")
+            .text("Show event annotations");
+
     }
 
     writeLegend()
@@ -201,6 +276,158 @@ class SetStackedBarChart extends React.Component {
           yRectStart = yRectStart + interLabelDistance;
           yTextStart = yTextStart + interLabelDistance;
 
+        }
+    }
+
+    tempStratifiedHover(selectedObject, objData, mode)
+    {
+      var S = this.state;
+      if(mode == "add")
+      {
+        var xToMove = selectedObject.attr("x");
+        var yToMove = selectedObject.attr("y");
+        selectedObject.attr("opacity", 1);
+        selectedObject.attr("stroke-width", 2);
+        this.SVG_main_group.append("rect")
+          .attr("x", xToMove - 1)
+          .attr("y", yToMove-(48*S.yScale))
+          .attr("id", "tooltipForStacked_id")
+          .attr("width", 90 * S.xScale)
+          .attr("height", 47 * S.yScale)
+          .attr("stroke", "black")
+          .attr("stroke-width", 1)
+          .attr("opacity", 0.7)
+          .attr("fill", "white");
+
+        this.SVG_main_group.append("text")
+          .attr("x", xToMove+6)
+          .attr("y", yToMove-(31*S.yScale))
+          .attr("id", "tooltipForStacked_text_1_id")
+          .attr("text-anchor", "start")
+          .style("font-size", 12)
+          .attr("fill", "red")
+          .text(selectedObject.attr("annotation"));
+
+        this.SVG_main_group.append("text")
+          .attr("x", xToMove+6)
+          .attr("y", yToMove-(14*S.yScale))
+          .attr("id", "tooltipForStacked_text_2_id")
+          .attr("text-anchor", "start")
+          .style("font-size", 12)
+          .attr("fill", "red")
+          .text(selectedObject.attr("annot_val"));
+
+      }
+      else
+      {
+        selectedObject.attr("opacity", 0.7);
+        selectedObject.attr("stroke-width", 1);
+        d3.select("#tooltipForStacked_id").remove();
+        d3.select("#tooltipForStacked_text_1_id").remove();
+        d3.select("#tooltipForStacked_text_2_id").remove();
+      }
+    }
+
+    tempOnHover(selectedObject, objData, mode)
+    {
+        var S = this.state;
+        if(mode == "add")
+        {
+            var xToMove = selectedObject.attr("x");
+            var yToMove = selectedObject.attr("y");
+            
+            selectedObject.attr("opacity", 1);
+            selectedObject.attr("stroke-width", 2);
+            var text_size = 9;
+
+            //console.log("objData", objData);
+
+            this.SVG_main_group.append("rect")
+                .attr("x", xToMove - 1)
+                .attr("y", yToMove-(95*S.yScale))
+                .attr("id", "tooltipForStacked_id")
+                .attr("width", 148 * S.yScale)
+                .attr("height", 94 * S.yScale)
+                .attr("stroke", "black")
+                .attr("stroke-width", 1)
+                .attr("fill", "white");
+
+            this.SVG_main_group.append("text")
+                .attr("x", xToMove+6)
+                .attr("y", yToMove-(82*S.yScale))
+                .attr("id", "tooltipForStacked_text_1_id")
+                .attr("text-anchor", "start")
+                .style("font-size", 10)
+                .attr("fill", "black")
+                .text("alt-3': ".concat(objData["objects"]["alt-3"]));
+
+            this.SVG_main_group.append("text")
+                .attr("x", xToMove+6)
+                .attr("y", yToMove-(70*S.yScale))
+                .attr("id", "tooltipForStacked_text_2_id")
+                .attr("text-anchor", "start")
+                .style("font-size", 10)
+                .attr("fill", "black")
+                .text("alt-5': ".concat(objData["objects"]["alt-5"]));
+
+            this.SVG_main_group.append("text")
+                .attr("x", xToMove+6)
+                .attr("y", yToMove-(58*S.yScale))
+                .attr("id", "tooltipForStacked_text_3_id")
+                .attr("text-anchor", "start")
+                .style("font-size", 10)
+                .attr("fill", "black")
+                .text("alt-C-term: ".concat(objData["objects"]["alt-C-term"]));
+
+            this.SVG_main_group.append("text")
+                .attr("x", xToMove+6)
+                .attr("y", yToMove-(46*S.yScale))
+                .attr("id", "tooltipForStacked_text_4_id")
+                .attr("text-anchor", "start")
+                .style("font-size", 10)
+                .attr("fill", "black")
+                .text("altPromoter: ".concat(objData["objects"]["altPromoter"]));
+
+            this.SVG_main_group.append("text")
+                .attr("x", xToMove+6)
+                .attr("y", yToMove-(34*S.yScale))
+                .attr("id", "tooltipForStacked_text_5_id")
+                .attr("text-anchor", "start")
+                .style("font-size", 10)
+                .attr("fill", "black")
+                .text("cassette-exon: ".concat(objData["objects"]["cassette-exon"]));
+
+            this.SVG_main_group.append("text")
+                .attr("x", xToMove+6)
+                .attr("y", yToMove-(22*S.yScale))
+                .attr("id", "tooltipForStacked_text_6_id")
+                .attr("text-anchor", "start")
+                .style("font-size", 10)
+                .attr("fill", "black")
+                .text("intron-retention: ".concat(objData["objects"]["intron-retention"]));
+
+            this.SVG_main_group.append("text")
+                .attr("x", xToMove+6)
+                .attr("y", yToMove-(10*S.yScale))
+                .attr("id", "tooltipForStacked_text_7_id")
+                .attr("text-anchor", "start")
+                .style("font-size", 10)
+                .attr("fill", "black")
+                .text("trans-splicing: ".concat(objData["objects"]["trans-splicing"]));
+        }
+        else
+        {
+            selectedObject.attr("opacity", 0);
+            selectedObject.attr("stroke-width", 0);
+
+            d3.select("#tooltipForStacked_id").remove();
+            d3.select("#tooltipForStacked_text_1_id").remove();
+            d3.select("#tooltipForStacked_text_2_id").remove();
+            d3.select("#tooltipForStacked_text_3_id").remove();
+            d3.select("#tooltipForStacked_text_4_id").remove();
+            d3.select("#tooltipForStacked_text_5_id").remove();
+            d3.select("#tooltipForStacked_text_6_id").remove();
+            d3.select("#tooltipForStacked_text_7_id").remove();
         }
     }
 
@@ -300,11 +527,24 @@ class SetStackedBarChart extends React.Component {
       
     }
 
+    onSelect(obj, signature_name, annot, setTableState, tablePlotRequest, setConcordanceState, concordanceRequest)
+    {
+        //var textgroup = document.getElementById(obj["_groups"][0][0]["attributes"]["group_identifier"]["nodeValue"]);
+        //console.log("Selected:", signature_name, bar_type, textgroup);
+        tablePlotRequest(signature_name, "splice", setTableState, annot);
+        concordanceRequest(signature_name, "BLCA", setConcordanceState, "stackedbar", annot);
+        this.props.resetBottomPanels();
+        //console.log("who needs", d3.select(textgroup).attr("id"));
+        this.setState({
+          selectedGroup: obj.attr("id")
+        })
+    }
+
     drawBar(inputData, index, ypos, maxval)
     {
         var S = this.state;
         var x_offset = 90*S.xScale;
-        var annotVal = inputData[index];
+        const annotVal = inputData[index];
         ypos = ypos * S.yScale;
         var x_now = x_offset;
         var parent = this;
@@ -314,14 +554,71 @@ class SetStackedBarChart extends React.Component {
         {
             var current_annotation = this.annotation_names[i];
             var widthScale = (annotVal["objects"][current_annotation] / maxval) * 200 * S.xScale;
+            //const group_identifier = index.concat(annotVal["objects"][current_annotation])
             this.SVG_main_group.append("rect")
                 .attr("x", x_now)
                 .attr("y", ypos)            
                 .attr("width", widthScale)
                 .attr("height", 16*S.yScale)
-                .attr("fill", colors[i]);
+                .attr("colorset", colors[i])
+                //.attr("group_identifier", group_identifier)
+                .attr("annot_val", annotVal["objects"][current_annotation])
+                .attr("id", (inputData[index].signature_name).concat(current_annotation).concat(i.toString()))
+                .attr("annotation", current_annotation)
+                .attr("signature", inputData[index].signature_name)
+                .attr("fill", colors[i])
+                .attr("opacity", 0.7)
+                .attr("stroke", "purple")
+                .on("mouseover", function() {
+                  var pretg = d3.select(this)
+                  if(pretg.attr("id") != parent.state.selectedGroup)
+                  {
+                    pretg.style("cursor", "pointer");
+                    parent.tempStratifiedHover(pretg, inputData[index], "add");
+                  }
+                })
+                .on("mouseout", function() {    
+                  var pretg = d3.select(this);
+                  if(pretg.attr("id") != parent.state.selectedGroup)
+                  {
+                    pretg.attr("stroke-width", 1);
+                    pretg.style("cursor", "default");
+                    parent.tempStratifiedHover(pretg, inputData[index], "remove");
+                  }
+                })
+                .on("click", function() {
+                  var pretg = d3.select(this).attr("stroke-width", 1);
+                  pretg.style("cursor", "default");
+                  pretg.attr("stroke", "purple");
+                  //.attr("cursor", "pointer")
+                  
+                  parent.onSelect(pretg, pretg.attr("signature"), pretg.attr("annotation"), parent.props.setTableState, parent.props.tablePlotRequest, parent.props.setConcordanceState, parent.props.concordanceRequest);
+                })
             x_now = x_now + widthScale;
         }
+
+        /*
+        this.SVG_main_group.append("rect")
+          .attr("x", x_offset)
+          .attr("y", ypos)            
+          .attr("width", x_now-x_offset)
+          .attr("height", 16*S.yScale)
+          .attr("opacity", 0)
+          .attr("object", annotVal)
+          .attr("fill", "white")
+          .on("mouseover", function() {
+            var pretg = d3.select(this).attr("cursor", "pointer")
+            .attr("stroke-width", 2)
+            .attr("stroke", "purple");
+            parent.tempOnHover(pretg, inputData[index], "add")
+          })
+          .on("mouseout", function() {   
+              var pretg = d3.select(this).attr("cursor", "default")
+              .attr("stroke-width", 0)
+              .attr("stroke", "purple");
+              parent.tempOnHover(pretg, inputData[index], "remove")
+          })
+        */
         
         var inputKey = inputData[index].signature_name;
         inputKey = inputKey.replace('psi_', '');
@@ -349,10 +646,10 @@ class SetStackedBarChart extends React.Component {
           while (tempnode.firstChild) {
               tempnode.removeChild(tempnode.firstChild);
           }
-          this.baseSVG();
-          this.writeBase();
+          this.baseSVG(1000);
+          this.writeBase(1000);
           this.setState({
-            data: this.props.stackedBarChartState.data,
+            data: this.props.stackedBarChartState.data
           })
           return(
             null
@@ -366,19 +663,16 @@ class SetStackedBarChart extends React.Component {
       while (tempnode.firstChild) {
           tempnode.removeChild(tempnode.firstChild);
       }
-      this.baseSVG();
-      this.writeBase();
+
       //console.log("TRANSCRIPT LIST: ", this.state.transcripts);
       var y_start = 95;
       var y_val = y_start;
       var maxValue = 0;
-      console.log("stacked bar chart state: ", this.state.data);
+      //console.log("stacked bar chart state: ", this.state.data);
 
       if(this.state.data != null)
       {
 
-        this.writeTitle();
-        this.writeLegend();
 
         var sorted_data_array = [];
         var index_value = 0;
@@ -386,7 +680,7 @@ class SetStackedBarChart extends React.Component {
             const cur_val = 0;
             for (const [annotation_name, number_value] of Object.entries(value))
             {
-                console.log("STACKED_LOOP: ", annotation_name, number_value);
+                //console.log("STACKED_LOOP: ", annotation_name, number_value);
                 cur_val = cur_val + parseInt(number_value);
             }
             if(cur_val > maxValue){
@@ -401,10 +695,14 @@ class SetStackedBarChart extends React.Component {
         
 
         var sorted_data = sorted_data_array.sort((a, b)=>{return Number(b.sum)-Number(a.sum)});
-        console.log("STACKED_SORTED:", sorted_data);
+        //console.log("STACKED_SORTED:", sorted_data);
         var y_interval = 20.5;
         var total_y_length = (y_interval * sorted_data.length);
         var total_x_length = maxValue + 10;
+        this.baseSVG(total_y_length+160);
+        this.writeBase(total_y_length+160);
+        this.writeTitle();
+        this.writeLegend();
         this.drawAxis(total_x_length, total_y_length);
         this.drawXTicks(total_x_length, total_y_length, maxValue);
 
@@ -413,8 +711,17 @@ class SetStackedBarChart extends React.Component {
             this.drawBar(sorted_data, i, y_val, maxValue);
             y_val = y_val + y_interval;
         }
-
+        console.log("TOHSMODFSKO", this.state.selectedGroup);
+        if(this.state.selectedGroup != undefined)
+        {
+          d3.select(document.getElementById(this.state.selectedGroup)).attr("stroke-width", 3).style("stroke", "red");
+        }
         //plot chart
+      }
+      else
+      {
+        this.baseSVG(1000);
+        this.writeBase(1000);
       }
       return(
         null

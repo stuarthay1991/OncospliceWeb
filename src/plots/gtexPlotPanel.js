@@ -16,7 +16,7 @@ export function gtexSend(UID, setGtexState, gtexState) {
   })
     .then(function (response) {
       var new_vec = response["data"]["result"][0];
-      console.log("new_vec", new_vec);
+      //console.log("new_vec", new_vec);
       gtexPlotPanel(new_vec, setGtexState, gtexState);
   })  
 }

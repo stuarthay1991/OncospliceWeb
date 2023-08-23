@@ -105,7 +105,7 @@ class EXON_PLOT extends React.Component {
   {
     this.SVG_main_group.append("rect")
       .attr("width", "100%")
-      .attr("height", 2000)
+      .attr("height", 1500)
       .style("opacity", 1.0)
       .attr("fill", "White");
 
@@ -1037,6 +1037,17 @@ class EXON_PLOT extends React.Component {
         this.writeGeneSymbol(geneSymbol);
         this.writeGSD(this.state.gene_specific_data);
       }
+    }
+    else
+    {
+      var cur_obj = this.SVG_main_group.append("text")
+          .attr("x", 25)
+          .attr("y", 20)
+          .attr("text-anchor", "start")
+          .style("font-size", 18)
+          .style("opacity", 1.0)
+          .attr("fill", "black")
+          .text("Selection required from the table above.");
     }
     return(
       null

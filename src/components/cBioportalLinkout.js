@@ -45,8 +45,9 @@ function sendSamplesRetrieveURL(props)
 
 		for(let i in cBioportalJsonData)
 		{
+			let nameSet = Array.isArray(props.label[i]) == true ? props.label[i][0] : props.label[i];
 			curlCommandJsonDataObject["groups"][i] = {};
-			curlCommandJsonDataObject["groups"][i]["name"] = props.label[i];
+			curlCommandJsonDataObject["groups"][i]["name"] = nameSet;
 			curlCommandJsonDataObject["groups"][i]["description"] = "";
 			curlCommandJsonDataObject["groups"][i]["studies"] = [];
 			curlCommandJsonDataObject["groups"][i]["studies"][0] = {};
@@ -55,7 +56,7 @@ function sendSamplesRetrieveURL(props)
 			curlCommandJsonDataObject["groups"][i]["studies"][0]["patients"] = cBioportalJsonData[i];
 			curlCommandJsonDataObject["groups"][i]["origin"] = [];
 			curlCommandJsonDataObject["groups"][i]["origin"][0] = studyID;
-			curlCommandJsonDataObject["groups"][i]["uid"] = "62665b890934121b56df06b5".concat(i.toString());
+			curlCommandJsonDataObject["groups"][i]["uid"] = "62665b890934121b56df06b".concat(i.toString());
 			curlCommandJsonDataObject["groups"][i]["isSharedGroup"] = false;
 			curlCommandJsonDataObject["groups"][i]["nonExistentSamples"] = [];
 		}
@@ -80,7 +81,7 @@ function sendSamplesRetrieveURL(props)
 
 //This component facilitates the retrieval of information from cBioportal (using our selected sample names) to complete a URL linkout for visualizing
 //survival plots.
-function CBioportalLinkout(props)
+function CbioportalLinkout(props)
 {
 	var isDisabled = props.cancer == "AML_Leucegene" ? true : false;
 	var buttonStyles = isDisabled == false ? {"cursor":'pointer', "backgroundColor":'#EFAD18', "opacity":1} : {"cursor":'not-allowed', "backgroundColor":'grey', "opacity":0.5};
@@ -106,4 +107,4 @@ function CBioportalLinkout(props)
 	)
 }
 
-export default CBioportalLinkout;
+export default CbioportalLinkout;

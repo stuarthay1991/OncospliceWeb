@@ -1,5 +1,5 @@
 import Plot from 'react-plotly.js';
-import CBioportalLinkout from '../components/CBioportalLinkout';
+import CbioportalLinkout from '../components/cBioportalLinkout';
 import { global_colors } from '../utilities/constants.js';
 
 //This function takes the samples that are associated with oncosplice clusters and outputs two components:
@@ -8,6 +8,7 @@ import { global_colors } from '../utilities/constants.js';
 function oncospliceClusterViolinPlotPanel(selectedRow, selectedExpressionArray, heatmapColumnArray, 
                                           oncospliceSampleLabels, selectedOncospliceSignature, cancer)
 {
+  console.log("ONCO_PANTS", oncospliceSampleLabels, selectedOncospliceSignature);
   var expressionArrayClusters = {"cluster0": [], "cluster1": []};
   var cBioportalInputData = {"cluster0": [], "cluster1": []};
   for(var i = 0; i < heatmapColumnArray.length; i++)
@@ -28,6 +29,7 @@ function oncospliceClusterViolinPlotPanel(selectedRow, selectedExpressionArray, 
       cBioportalInputData["cluster1"].push(curcol);
     }
   }
+  console.log("cBioportalInputData_Onco", cBioportalInputData);
   var toCBioLabels = ["others", selectedOncospliceSignature];
   var available_width = window.innerWidth;
   var available_height = window.innerHeight;
@@ -45,7 +47,7 @@ function oncospliceClusterViolinPlotPanel(selectedRow, selectedExpressionArray, 
                 x: "Group2",
                 y: expressionArrayClusters["cluster1"],
                 type: 'violin',
-                name: selectedOncospliceSignature,
+                name: selectedOncospliceSignature[0],
                 mode: 'lines+markers',
                 marker: {color: 'black'},
               }
@@ -89,7 +91,7 @@ function oncospliceClusterViolinPlotPanel(selectedRow, selectedExpressionArray, 
                       },
                       height: 200} }
   />
-  <CBioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/>
+  <CbioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/>
   </>;
   return plotobj;
 }

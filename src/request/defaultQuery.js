@@ -11,8 +11,8 @@ function defaultQuery(arg, targeturl)
   const callback = arg["setState"];
   const pancancercallback = arg["pancancerupdate"];
   const document = arg["doc"];
-  const curCancer = "BRCA";
-  const compCancer = "BRCA";
+  const curCancer = "BLCA";
+  const compCancer = "GBM";
   var sampleFilters = [];
   var signatureFilters = ["psi_er_negative_r1_v24_vs_others"];
   var geneFilters = [];
@@ -49,7 +49,7 @@ function defaultQuery(arg, targeturl)
       var splicingcols = response["data"]["col_beds"];
       var splicingcc = response["data"]["cci"];
       exportView["filter"] = [];
-      exportView["cancer"] = "GBM";
+      exportView["cancer"] = "BLCA";
       exportView["single"] = ["PSI er negative r1 v24 vs others"];
       var splicingrpsi = response["data"]["oncospliceClusterIndices"];
       var splicingtrans = response["data"]["oncospliceClusterName"];
@@ -59,7 +59,7 @@ function defaultQuery(arg, targeturl)
 
 function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exp, callback, doc, targeturl, pancancercallback)
 {
-  var postdata = {"data": {"cancerName": "GBM", "signature": "psi_er_negative_r1_v24_vs_others"}};
+  var postdata = {"data": {"cancerName": "BLCA", "signature": "psi_er_negative_r1_v24_vs_others"}};
   axios({
     method: "post",
     data: postdata,
@@ -67,11 +67,13 @@ function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splici
     headers: { "Content-Type": "application/json" },
   })
   .then(function (response) {
-    exp["cancer"] = "GBM";
+    exp["cancer"] = "BLCA";
     exp["ui_field_dict"] = response["data"]["samples"];
     exp["ui_field_range"] = response["data"]["range"];
+    console.log("fer4", response["data"]["pancancersignature"]);
+    console.log("fer5", response["data"]["uniqueclusters"]);
     callback(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exp);
-    pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"]});
+    pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": "BLCA"});
   })
 }
 

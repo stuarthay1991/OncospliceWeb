@@ -22,12 +22,16 @@ function updateSignature(arg, targeturl)
     })
   .then(function (response) 
   {
-      //console.log("CANCER RESPONSE", response);
+      console.log("CALLBACK RESPONSE", response);
       //console.log("cancername", cancername);
       //console.log("updateHeatmapArgs", args["updateHeatmapArgs"]);
+      let sigTranslateVar = response["data"]["signatureTranslate"];
+      let firstEntry = Object.keys(response["data"]["signatureTranslate"])[0];
+      let simpleNameVar = sigTranslateVar[firstEntry];
       callbackForSignatureList(response["data"]["signatureTranslate"]);
-      callbackForSelectedSignature({"signature": Object.keys(response["data"]["signatureTranslate"])[0], 
-                                    "oncocluster": "R1-V2", 
+      callbackForSelectedSignature({"signature": Object.keys(response["data"]["signatureTranslate"])[0],
+                                    "simpleName": simpleNameVar,
+                                    "oncocluster": simpleNameVar,
                                     "initialized": true});
       //This function can't directly call updateHeatmapData because it isn't using the state of the navBar object.
       //This causes problems with certain selections and needs to be fixed ASAP. 

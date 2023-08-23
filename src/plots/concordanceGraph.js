@@ -5,6 +5,25 @@ function getPosition(string, subString, index) {
     return string.split(subString, index).join(subString).length;
 }
 
+function utilityCleanSignatureName(toSendInputKey)
+{
+  toSendInputKey = toSendInputKey.replace('HNSCC', '');
+  toSendInputKey = toSendInputKey.replace('BRCA', '');
+  toSendInputKey = toSendInputKey.replace('BLCA', '');
+  toSendInputKey = toSendInputKey.replace('LGG', '');
+  toSendInputKey = toSendInputKey.replace('tcga', '');
+  toSendInputKey = toSendInputKey.replace('TCGA', '');
+  toSendInputKey = toSendInputKey.replace('AML', '');
+  toSendInputKey = toSendInputKey.replace('Leucegene', '');
+  toSendInputKey = toSendInputKey.replace('SKCM', '');
+  toSendInputKey = toSendInputKey.replace('COAD', '');
+  toSendInputKey = toSendInputKey.replaceAll('_', ' ');
+  toSendInputKey = toSendInputKey.replace('GBM', '');
+  toSendInputKey = toSendInputKey.replace('gbm', '');
+  toSendInputKey = toSendInputKey.replace('LUAD', '');
+  return toSendInputKey;
+}
+
 class SetConcordanceGraph extends React.Component {
     constructor(props) {
       super(props);
@@ -33,6 +52,8 @@ class SetConcordanceGraph extends React.Component {
         input: <CONCORDANCE_GRAPH
           doc={document}
           concordanceState={this.props.concordanceState}
+          vennState={this.props.vennState}
+          setVennState={this.props.setVennState}
           target_div_id={"concordanceDiv"}
           xScale={this.props.widthRatio}
           yScale={this.props.heightRatio}>
@@ -63,6 +84,8 @@ class SetConcordanceGraph extends React.Component {
           input: <CONCORDANCE_GRAPH 
             doc={document} 
             concordanceState={this.props.concordanceState}
+            vennState={this.props.vennState}
+            setVennState={this.props.setVennState}
             target_div_id={"concordanceDiv"}
             xScale={this.props.widthRatio}
             yScale={this.props.heightRatio}>
@@ -92,8 +115,13 @@ class CONCORDANCE_GRAPH extends React.Component {
       this.x_offset = 90;
       this.div = null;
       this.ens_map = {};
+      this.homeSignatureTotal = 0;
       this.state = {
         data: this.props.concordanceState.signatures,
+        homeSignature: this.props.concordanceState.homeSignature,
+        originalName: this.props.concordanceState.originalName,
+        type: this.props.concordanceState.type,
+        annot: this.props.concordanceState.annot,
         xScale: this.props.xScale,
         yScale: this.props.yScale,
         fontScale: ((this.props.xScale+this.props.yScale)/2),
@@ -141,12 +169,30 @@ class CONCORDANCE_GRAPH extends React.Component {
         var S = this.state;
         this.SVG_main_group.append("text")
         .attr("x", 27*S.xScale)
-        .attr("y", 49*S.yScale)
+        .attr("y", 29*S.yScale)
         .attr("text-anchor", "start")
         .style("font-size", 18.5*S.fontScale)
         .style("opacity", 1.0)
         .attr("fill", "black")
         .text("Pancancer Concordance");
+
+        var t1 = S.homeSignature.name;
+        t1 = t1.replace('_TCGA', '');
+        t1 = t1.replace('psi_', '');
+        t1 = t1.replace('_', ' ');
+        t1 = t1.replace('_vs_others', '');
+        if(S.type == "stackedbar")
+        {
+          t1 = t1.concat(": ").concat(S.annot);
+        }
+        this.SVG_main_group.append("text")
+          .attr("x", 27*S.xScale)
+          .attr("y", 44*S.yScale)
+          .attr("text-anchor", "start")
+          .style("font-size", 13.5*S.fontScale)
+          .style("opacity", 1.0)
+          .attr("fill", "black")
+          .text(t1);
     }
 
     tempOnHover(selectedObject, firstcomponent, secondcomponent, signature_name, mode)
@@ -231,8 +277,14 @@ class CONCORDANCE_GRAPH extends React.Component {
         }
     }
 
-    drawBar(signature_name, concordance_value, color, jVal, j_cVal, ypos)
+    drawBar(inputData, ypos)
     {
+        const signature_name = inputData["signature"];
+        const concordance_value = inputData["concordance"];
+        const color = inputData["color"];
+        const jVal = inputData["junctionOnly"];
+        const j_cVal = inputData["junctionAndDirection"];
+        const totalC = inputData["totalAmount"];
         var S = this.state;
         var x_offset = 150*S.xScale;
 
@@ -269,8 +321,30 @@ class CONCORDANCE_GRAPH extends React.Component {
                 .style("opacity", 0.8)
         }*/
 
+        var homeKey = S.homeSignature.name;
+        homeKey = homeKey.replace('_TCGA', '');
+        homeKey = homeKey.replace('psi_', '');
+        homeKey = homeKey.replace('_', ' ');
+        homeKey = homeKey.replace('_vs_others', '');
+        if(homeKey.length > 25)
+        {
+            homeKey = homeKey.substring(0, 25);
+            homeKey = homeKey.concat("...");
+        }
+
         //make hollow rect
-    
+        var inputKey = signature_name;
+        inputKey = inputKey.replace('_tcga', '');
+        inputKey = inputKey.replace('hnscc', '');
+        inputKey = inputKey.replace('psi_', '');
+        inputKey = inputKey.replace('_', ' ');
+        inputKey = inputKey.replace('_vs_others', '');
+        if(inputKey.length > 30)
+        {
+            inputKey = inputKey.substring(0, 30);
+            inputKey = inputKey.concat("...");
+        }
+
         const firstComp = this.SVG_main_group.append("rect")
             .attr("x", x_offset)
             .attr("y", ypos)
@@ -289,7 +363,8 @@ class CONCORDANCE_GRAPH extends React.Component {
             .attr("stroke-width", 1)
             .attr("fill", color);
 
-        this.SVG_main_group.append("rect")
+        var cur_id = homeKey.concat(inputKey).concat(ypos.toString()).concat("_id");
+        var special_selector = this.SVG_main_group.append("rect")
             .attr("x", x_offset)
             .attr("y", ypos)
             .attr("width", total_length)
@@ -297,32 +372,57 @@ class CONCORDANCE_GRAPH extends React.Component {
             .attr("cValue", concordance_value)
             .attr("stroke", color)
             .attr("stroke-width", 2)
+            .attr("homeKey", homeKey)
+            .attr("inputKey", inputKey)
+            .attr("id", cur_id)
             .attr("jVal", jVal)
             .attr("j_cVal", j_cVal)
             .attr("fill", "white")
-            .attr("opacity", 0)
+            .attr("opacity", cur_id == parent.state.selectedGroup ? 0.7 : 0)
             .on("mouseover", function() {
                 //console.log(cur_obj);
                 var pretg = d3.select(this);
-                parent.tempOnHover(pretg, firstComp, secondComp, signature_name, "add");
+                if(pretg.attr("id") != parent.state.selectedGroup)
+                {
+                  pretg.attr("cursor", "pointer");
+                  parent.tempOnHover(pretg, firstComp, secondComp, signature_name, "add");
+                }
             })
             .on("mouseleave", function() {
                 var pretg = d3.select(this);
-                parent.tempOnHover(pretg, firstComp, secondComp, signature_name, "remove");
+                if(pretg.attr("id") != parent.state.selectedGroup)
+                {
+                  pretg.attr("cursor", "default");
+                  parent.tempOnHover(pretg, firstComp, secondComp, signature_name, "remove");
+                }
+            })
+            .on("click", function() {
+                var pretg = d3.select(this);
+                var dataSend = {};
+                var toSendInputKey = pretg.attr("inputKey");
+                toSendInputKey = utilityCleanSignatureName(toSendInputKey);
+                dataSend.homeSignature = pretg.attr("homeKey");
+                dataSend.comparedSignature = toSendInputKey;
+                dataSend.homeCount = S.homeSignature.count;
+                dataSend.comparedCount = totalC;
+                dataSend.commonCount = j_cVal;
+                dataSend.comparedOriginal = signature_name;
+                dataSend.homeOriginal = S.homeSignature;
+                dataSend.cancerName = "BLCA_TCGA";
+                dataSend.annot = S.annot;
+                //console.log("concordance clicked...", homeKey, inputKey);
+                //retrieveDataForVenn(parent.props, signature_name, S.homeSignature);
+                parent.setState({
+                  selectedGroup: pretg.attr("id")
+                })
+                parent.props.setVennState({data: dataSend});
             });
         
-        var inputKey = signature_name;
-        inputKey = inputKey.replace('psi_', '');
-        inputKey = inputKey.replace('_', ' ');
-        inputKey = inputKey.replace('_vs_others', '');
+
         var xstringval = (143*S.xScale).toString();
         var ystringval = ((ypos + 13*S.yScale)).toString();
         const rotval = "rotate(15, ".concat(xstringval).concat(", ").concat(ystringval).concat(")");
-        if(inputKey.length > 20)
-        {
-            inputKey = inputKey.substring(0, 20);
-            inputKey = inputKey.concat("...");
-        }
+
         this.SVG_main_group.append("text")
             .attr("x", 143*S.xScale)
             .attr("y", (ypos + 13.2*S.yScale))
@@ -330,8 +430,56 @@ class CONCORDANCE_GRAPH extends React.Component {
             .style("font-size", 11*S.fontScale)
             .style("opacity", 1.0)
             .attr("fill", color)
+            .attr("ref_id", cur_id)
             .attr("transform", rotval)
-            .text(inputKey);
+            .attr("font-weight", cur_id == parent.state.selectedGroup ? 700 : 400)
+            .text(inputKey)
+            .on("mouseover", function() {
+              //console.log(cur_obj);
+              var pretg1 = d3.select(this);
+              var pretg2 = pretg1.attr("ref_id");
+              pretg2 = d3.select(document.getElementById(pretg2));
+              if(pretg2.attr("id") != parent.state.selectedGroup)
+              {
+                pretg1.attr("cursor", "pointer");
+                pretg1.attr("font-weight", 550);
+                parent.tempOnHover(pretg2, firstComp, secondComp, signature_name, "add");
+              }
+            })
+            .on("mouseleave", function() {
+              var pretg1 = d3.select(this);
+              var pretg2 = pretg1.attr("ref_id");
+              pretg2 = d3.select(document.getElementById(pretg2));
+              if(pretg2.attr("id") != parent.state.selectedGroup)
+              {
+                pretg1.attr("cursor", "default");
+                pretg1.attr("font-weight", 400);
+                parent.tempOnHover(pretg2, firstComp, secondComp, signature_name, "remove");
+              }
+            })
+            .on("click", function() {
+                var pretg1 = d3.select(this);
+                var pretg2 = pretg1.attr("ref_id");
+                pretg2 = d3.select(document.getElementById(pretg2));
+                var dataSend = {};
+                var toSendInputKey = pretg2.attr("inputKey");
+                toSendInputKey = utilityCleanSignatureName(toSendInputKey);
+                dataSend.homeSignature = pretg2.attr("homeKey");
+                dataSend.comparedSignature = toSendInputKey;
+                dataSend.homeCount = S.homeSignature.count;
+                dataSend.comparedCount = totalC;
+                dataSend.commonCount = j_cVal;
+                dataSend.comparedOriginal = signature_name;
+                dataSend.homeOriginal = S.homeSignature;
+                dataSend.cancerName = "BLCA_TCGA";
+                dataSend.annot = S.annot;
+                //console.log("concordance clicked...", homeKey, inputKey);
+                //retrieveDataForVenn(parent.props, signature_name, S.homeSignature);
+                parent.setState({
+                  selectedGroup: pretg2.attr("id")
+                })
+                parent.props.setVennState({data: dataSend});
+            });
     }
 
     componentDidUpdate (prevProps){
@@ -344,7 +492,12 @@ class CONCORDANCE_GRAPH extends React.Component {
           }
           this.setState({
             data: this.props.concordanceState.signatures,
+            homeSignature: this.props.concordanceState.homeSignature,
+            originalName: this.props.concordanceState.originalName,
+            type: this.props.concordanceState.type,
+            annot: this.props.concordanceState.annot
           })
+          //var se = d3.select("#".concat(this.state.selectedGroup)).attr("opacity", 0.7);
           return(
             null
           );    
@@ -362,7 +515,7 @@ class CONCORDANCE_GRAPH extends React.Component {
       var y_val = y_start;
       var maxValue = 0;
       var S = this.state;
-      console.log("concordance graph state: ", this.state.data);
+      //console.log("concordance graph state: ", this.state.data);
 
       if(this.state.data != undefined)
       {
@@ -382,11 +535,28 @@ class CONCORDANCE_GRAPH extends React.Component {
 
         for (var i = 0; i < sorted_data.length; i++) 
         {
-            this.drawBar(sorted_data[i]["signature"], sorted_data[i]["concordance"], sorted_data[i]["color"], sorted_data[i]["junctionOnly"], sorted_data[i]["junctionAndDirection"], y_val);
+            this.drawBar(sorted_data[i], y_val);
             y_val = y_val + y_interval;
         }
-
+        //var se = d3.select("#".concat(this.state.selectedGroup)).attr("opacity", 0.7);
         //plot chart
+      }
+      else
+      {
+        const newDiv = document.createElement("h5");
+
+        // and give it some content
+        const newContent = document.createTextNode("Select a signature from the graph on the left.");
+      
+        // add the text node to the newly created div
+        newDiv.appendChild(newContent);
+        document.getElementById("concordanceDiv").appendChild(newDiv);
+        /*var imgElem = document.createElement("img");
+        imgElem.src = loadingGif;
+        imgElem.width="200";
+        imgElem.height="200";
+        // add the text node to the newly created div
+        document.getElementById("concordanceDiv").appendChild(imgElem);*/
       }
       return(
         null

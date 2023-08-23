@@ -1,5 +1,5 @@
 import Plot from 'react-plotly.js';
-import CBioportalLinkout from '../components/CBioportalLinkout';
+import CbioportalLinkout from '../components/cBioportalLinkout.js';
 import { global_colors } from '../utilities/constants.js';
 
 //This function takes the samples that are associated with hierarchical clusters and outputs two components:
@@ -30,6 +30,7 @@ function hierarchicalClusterViolinPlotPanel(selectedExpressionArray, selectedRow
       cBioportalInputData["cluster3"].push(curcol);
     }
   }
+  console.log("cBioportalInputData_hierarchical", cBioportalInputData);
   var expressionArrayClusters = {};
   expressionArrayClusters["arr1"] = expressionArrayCluster1;
   expressionArrayClusters["arr2"] = expressionArrayCluster2;
@@ -104,7 +105,7 @@ function hierarchicalClusterViolinPlotPanel(selectedExpressionArray, selectedRow
                         }
                       }} }
     />
-    <CBioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/>
+    <CbioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}></CbioportalLinkout>
   </>;
   return plotobj;
 }

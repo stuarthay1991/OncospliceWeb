@@ -28,6 +28,7 @@ import targeturl from './targeturl.js';
 import GridLayout from "react-grid-layout";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { Resizable, ResizableBox } from "react-resizable";
+import loadingGif from './images/loading.gif';
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import './css/sidebar.css';
@@ -1054,6 +1055,7 @@ class OKMAP extends React.Component {
       this.writeBaseRLSVG(this.state.zoom_level);
       }, 50);
 
+      console.log("rendering heatmap...", this.props.dataset);
       for(let i = 0; i < this.props.dataset.length; i++)
       {
         setTimeout(() => {
@@ -1365,6 +1367,7 @@ function ViewPanel_Side(props) {
 //Test comment
 function ViewPanel_Main(props) {
     const classes = useStyles();
+    var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/testing/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
     const [isShown, setIsShown] = React.useState(false);
     return(
     <div id="ViewPane_MainPane" style={{overflow: "scroll", height: "100%", width: "100%", display: "flex"}}>
@@ -1390,6 +1393,9 @@ function ViewPanel_Main(props) {
         </div>
         <div style= {{flex: 1}}>
         <Typography className={classes.padding} />
+        <div id="heatmapLoadingDiv" style={{position: "absolute", marginLeft: 35, marginTop: 5, display: "none", textAlign: "center", marginTop: 30}}>
+              {loading_Gif}
+        </div>
         <div style={{marginLeft: 5}} id="HEATMAP_LABEL"></div>
         <div style={{marginLeft: 5}} id="HEATMAP_CC"></div>
         <div style={{marginLeft: 5}} id="HEATMAP_OncospliceClusters"></div>

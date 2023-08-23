@@ -1,5 +1,5 @@
 import Plot from 'react-plotly.js';
-import CBioportalLinkout from '../components/CBioportalLinkout';
+import CbioportalLinkout from '../components/cBioportalLinkout';
 import { global_colors } from '../utilities/constants.js';
 
 //This function groups samples by their atrributes and outputs two components:
@@ -43,7 +43,7 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
                         height: 300,
                         margin: {
                           l: 48,
-                          r: 48,
+                          r: 50,
                           b: 100,
                           t: 40
                         },
@@ -55,6 +55,7 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
                             color: '#7f7f7f'
                             }
                         },
+                        showlegend: false,
                         yaxis:{
                         range: [0, 1],
                         title: {
@@ -76,7 +77,7 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
                         }
                       }} }
   />
-  <CBioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/>
+  <CbioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/>
   </>;
   return plotobj;
 }
