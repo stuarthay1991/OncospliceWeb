@@ -35,7 +35,7 @@ function updateHeatmapData(arg, targeturl)
     postData["data"]["signatures"] = arg["signature"];
     exportView["single"] = arg["signature"];
     postData["data"]["genes"] = arg["genes"];
-    //console.log("postLog", postData);
+    console.log("postLog", postData);
 
     axios({
         method: "post",

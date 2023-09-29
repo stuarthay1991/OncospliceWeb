@@ -8,6 +8,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 import React, { useRef } from "react";
 import { Typography } from "@material-ui/core";
 import jsonGBM from "../gbmBasic.js";
+import jsonBLCA from "../BLCAbasic.js";
 
 const StyledDropdown = withStyles({
   root: {
@@ -70,12 +71,13 @@ function Header({setViewPane, setPanCancerState}){
     //Make request on change
     const [cancerTypeState, setCancerTypeState] = React.useState({"cancerType": "BLCA", "initialized": false});
     const [sampleState, setSampleState] = React.useState();
-    const [sampleListState, setSampleListState] = React.useState(jsonGBM);
+    const [sampleListState, setSampleListState] = React.useState(jsonBLCA);
     const [sampleOptions, setSampleOptions] = React.useState({"key": undefined, "options": []});
     
     const [signatureState, setSignatureState] = React.useState({"signature": "psi_tcga_gbm_r1_v2_vs_others", "simpleName": "R1-V2", "oncocluster": "R1-V2", "initialized": false});
     const [coordState, setCoordState] = React.useState();
     const [geneState, setGeneState] = React.useState();
+    const [pageTypeState, setPageTypeState] = React.useState({"value": "Individual Signatures", "initialized": false})
 
     //signatureState, setSignatureState
 
@@ -108,7 +110,7 @@ function Header({setViewPane, setPanCancerState}){
     }
 
     const signatureSelectHandle = (e) => {
-        console.log("signature selected: ", e);
+        //console.log("signature selected: ", e);
         var selectedOncocluster = e[1];
         if(selectedOncocluster != undefined)
         {
@@ -221,7 +223,7 @@ function Header({setViewPane, setPanCancerState}){
     }
     //for selecting first signature: Object.keys(signatureListState)[0]
 
-    console.log("jsonGBM", jsonGBM);
+    //console.log("jsonGBM", jsonGBM);
     const prevCancerSignatureGroupState = useRef();
     const prevSignatureState = useRef();
     const prevCoordState = useRef();
@@ -388,9 +390,9 @@ function Header({setViewPane, setPanCancerState}){
       }, [cancerSignatureGroupState])
 
     return(
-      <div>
+      <div id="dropdownOptionsDiv" style={{width: "120%"}}>
         <Grid container spacing={1}>
-        <Grid item>
+        <Grid id="gridItem1" item>
         <Dropdown title="Cancer Type" 
         onSelect={cancerSelectHandle} 
         activeKey={cancerTypeState.cancerType}
@@ -410,9 +412,9 @@ function Header({setViewPane, setPanCancerState}){
         <br/>
         <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerTypeState.cancerType}</strong></div>
         </Grid>
-        <Grid item>
+        <Grid id="gridItem2" item>
         <Dropdown title="Sample Filter" 
-        activeKey="GBM" 
+        activeKey="BLCA" 
         onSelect={sampleMenuPopulate}
         placement="bottomStart"
         size="xs"
@@ -432,9 +434,9 @@ function Header({setViewPane, setPanCancerState}){
         <br/>
         <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{sampleOptions.key != undefined && (sampleOptions.key)}</strong></div>
         </Grid>
-        <Grid item>
+        <Grid id="gridItem3" item>
         <Dropdown title={"Sample Selection"}
-        activeKey="GBM"
+        activeKey="BLCA"
         onSelect={selectSampleHandle}
         placement="bottomStart"
         size="xs"
@@ -452,7 +454,7 @@ function Header({setViewPane, setPanCancerState}){
         <br/>
         <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{sampleState != undefined && (sampleState.value)}</strong></div>
         </Grid>
-        <Grid item>
+        <Grid id="gridItem4" item>
         <Dropdown title="Cancer Signature Selection"
                 onSelect={cancerSignatureGroupSelectHandle}
                 activeKey={cancerSignatureGroupState.cancerType}
@@ -472,7 +474,7 @@ function Header({setViewPane, setPanCancerState}){
         <br/>
         <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerSignatureGroupState.cancerType}</strong></div>
         </Grid>
-        <Grid item>
+        <Grid id="gridItem5" item>
         <Dropdown
                 title="Signature Name"
                 onSelect={signatureSelectHandle}
@@ -495,26 +497,26 @@ function Header({setViewPane, setPanCancerState}){
         <br/>
         <div id="sigTextInfo" style={{textAlign: "center", color: eventFontState.sigFontColor, fontSize: 12}}><strong>{signatureState.simpleName}</strong></div>
         </Grid>
-        <Grid item>
+        <Grid id="gridItem6" item>
         <Dropdown
                 title="Enter Coordinates"
                 activeKey={"none"}
                 placement="bottomStart"
                 size="xs"
                 trigger = "hover">
-                <textarea id="clientinputcoord" onChange={onChangeCoord} placeholder="Enter coordinates here" style={{minWidth: 360, fontSize: 17, minHeight: 60}}/>
+                <textarea id="clientinputcoord" onChange={onChangeCoord} placeholder="Enter coordinates here" style={{minWidth: 100, fontSize: 12, minHeight: 60}}/>
         </Dropdown>
         <br/>
         <div id="geneTextInfo" style={{textAlign: "center", color: eventFontState.coordFontColor, fontSize: 12}}><strong>{coordState != undefined && (coordState[0])}</strong></div>
         </Grid>
-        <Grid item>
+        <Grid id="gridItem7" item>
         <Dropdown
                 title="Enter Genes"
                 activeKey={"none"}
                 placement="bottomStart"
                 size="xs"
                 trigger = "hover">
-                <textarea id="clientinputgene" onChange={onChangeGene} placeholder="Enter gene symbols here" style={{minWidth: 360, fontSize: 17, minHeight: 60}}/>
+                <textarea id="clientinputgene" onChange={onChangeGene} placeholder="Enter gene symbols" style={{minWidth: 50, fontSize: 12, minHeight: 60}}/>
         </Dropdown>
         <br/>
         <div id="coordTextInfo" style={{textAlign: "center", color: eventFontState.geneFontColor, fontSize: 12}}><strong>{geneState != undefined && (geneState[0])}</strong></div>

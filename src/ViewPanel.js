@@ -44,7 +44,7 @@ import oncospliceClusterViolinPlotPanel from './plots/oncospliceClusterViolinPlo
 import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterViolinPlotPanel';
 import sampleFilterViolinPlotPanel from './plots/sampleFilterViolinPlotPanel';
 import { gtexSend } from './plots/gtexPlotPanel.js';
-import { downloadExonPlotData} from './downloadDataFile.js';
+import { downloadExonPlotData, downloadPDF} from './downloadDataFile.js';
 import SetExonPlot from './plots/exonPlot.js';
 import OKMAP_COLUMN_CLUSTERS from './plots/okmapColumnClusters.js';
 import OKMAP_OncospliceClusters from './plots/okmapOncospliceClusters.js';
@@ -123,8 +123,9 @@ function exonRequest(GENE, in_data, setViewState, viewState, exonPlotState, setE
   })
     .then(function (response) {
       var resp = response["data"];
+      console.log("blobbings", resp["blob"]);
       setViewState({
-        toDownloadExon: resp["blob"]["transcript"],
+        toDownloadExon: resp["blob"]["trans"],
         toDownloadGeneModel: resp["blob"]["genemodel"],
         toDownloadJunc: resp["blob"]["junc"]
       });
@@ -1055,7 +1056,7 @@ class OKMAP extends React.Component {
       this.writeBaseRLSVG(this.state.zoom_level);
       }, 50);
 
-      console.log("rendering heatmap...", this.props.dataset);
+      //console.log("rendering heatmap...", this.props.dataset);
       for(let i = 0; i < this.props.dataset.length; i++)
       {
         setTimeout(() => {
@@ -1345,7 +1346,7 @@ function ViewPanel(props) {
               <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button>
             </Grid>
             <Grid item>
-              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }}>Download PDF</Button>
+              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadPDF()}>Download PDF</Button>
             </Grid>
           </Grid>
           <Box borderColor="#dbdbdb" {...spboxProps}>

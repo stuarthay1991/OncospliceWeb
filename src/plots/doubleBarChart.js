@@ -264,7 +264,7 @@ class SetDoubleBarChart extends React.Component {
     drawAxis(xLength, yLength)
     {
         var S = this.state;
-        yLength = yLength * S.yScale;
+        //yLength = yLength * S.yScale;
         this.SVG_main_group.append("rect")
             .attr("x", (this.x_offset*S.xScale)-(2*S.xScale))
             .attr("y", 95*S.yScale)
@@ -286,7 +286,7 @@ class SetDoubleBarChart extends React.Component {
     {
         var S = this.state;
         var xTickInterval = (200 / 10)*S.xScale;
-        yLength = yLength * S.yScale;
+        //yLength = yLength * S.yScale;
 
         for(var i = 0; i < 12; i++)
         {
@@ -413,7 +413,7 @@ class SetDoubleBarChart extends React.Component {
         var x_offset = 90*S.xScale;
         var clusterVal = inputData[index].cluster;
         var geneVal = inputData[index].gene;
-        ypos = ypos * S.yScale;
+        //ypos = ypos * S.yScale;
 
         //console.log("cg_", geneVal, clusterVal);
 
@@ -521,8 +521,8 @@ class SetDoubleBarChart extends React.Component {
           while (tempnode.firstChild) {
               tempnode.removeChild(tempnode.firstChild);
           }
-          this.baseSVG(1300);
-          this.writeBase(1300);
+          //this.baseSVG(1300);
+          //this.writeBase(1300);
           this.setState({
             data: this.props.doubleBarChartState,
           })
@@ -533,13 +533,14 @@ class SetDoubleBarChart extends React.Component {
     }  
 
     render (){
+      var S = this.state;
       var y_start = 0;
       var tempnode = document.getElementById(this.target_div);
       while (tempnode.firstChild) {
           tempnode.removeChild(tempnode.firstChild);
       }
       //console.log("TRANSCRIPT LIST: ", this.state.transcripts);
-      var y_start = 95;
+      var y_start = 95 *S.yScale;
       var y_val = y_start;
       var maxValue = 0;
       //console.log("double bar chart state: ", this.state.data);
@@ -566,18 +567,18 @@ class SetDoubleBarChart extends React.Component {
         }
         
         //console.log("this.state.data LOOK", sorted_data_array);
-        var dummy_y = 95;
-        var y_interval = 20.5;
+        var dummy_y = 95*S.yScale;
+        var y_interval = 20.5*S.yScale;
         var sorted_data = sorted_data_array.sort((a, b)=>{return Number(b.cluster)-Number(a.cluster)})
         for(let i = 0; i < sorted_data.length; i++)
         {
             dummy_y = dummy_y + y_interval;
         }
-        dummy_y = dummy_y + 50;
+        dummy_y = dummy_y + 30*S.yScale;
         this.baseSVG(dummy_y);
         this.writeBase(dummy_y);
         this.writeTitle();
-        this.writeLegend();  
+        this.writeLegend();
         //console.log("sorted_data LOOK", sorted_data);
 
         var total_y_length = (y_interval * this.state.data.cluster.length);
@@ -598,8 +599,8 @@ class SetDoubleBarChart extends React.Component {
         //plot chart
       }
       else{
-        this.baseSVG(1300);
-        this.writeBase(1300);
+        this.baseSVG(0);
+        this.writeBase(0);
       }
       return(
         null

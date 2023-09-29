@@ -2,6 +2,7 @@
 //the user in a .csv file.
 export function downloadExonPlotData(downloadableFileName, contentToDownload){
   var blob_text = "";
+  console.log("content to download", contentToDownload);
   for (const [key, value] of Object.entries(contentToDownload[0])) {
         blob_text = blob_text.concat(key);
         blob_text = blob_text.concat(",");
@@ -31,4 +32,7 @@ export function downloadExonPlotData(downloadableFileName, contentToDownload){
   link.click();
   // Cleanup the DOM
   document.body.removeChild(link);
+}
+
+export function downloadPDF(){
 }

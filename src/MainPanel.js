@@ -195,8 +195,8 @@ function MainPanel(props){
           <Authentication updateQH={updateQH}/>
         </div>*/
   return (
-    <div className={classes.root} style={{ fontFamily: 'Roboto' }}>
-      <div className={classes.demo2}>
+    <div className={classes.root} style={{ fontFamily: 'Roboto'}}>
+      <div id="navBarHolder" className={classes.demo2}>
         <div className={classes.tabholder}>
         <div>
           <Header setViewPane={setViewPane} setPanCancerState={setPanCancerState}/>
@@ -208,10 +208,10 @@ function MainPanel(props){
       {mpstate.value === 1 && <ViewPanelWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
       {mpstate.value === 2 && <QueryHistoryPanelWrapper user={mpstate.authentication.user} data={mpstate.authentication.data}/>}
       </div>
-      <div id="pancancerpanel" style={{display: "block"}}>
+      <div id="pancancerpanel" style={{display: "none"}}>
         <PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer}/>
       </div>
-      <div id="aboutpanel" style={{display: "none", margin: 15}}>
+      <div id="aboutpanel" style={{display: "none", backgroundColor: "#0f6a8b"}}>
         <AboutUs />
       </div>
       <div id="contactpanel" style={{display: "none", margin: 15}}>

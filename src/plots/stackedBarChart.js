@@ -711,7 +711,7 @@ class SetStackedBarChart extends React.Component {
             this.drawBar(sorted_data, i, y_val, maxValue);
             y_val = y_val + y_interval;
         }
-        console.log("TOHSMODFSKO", this.state.selectedGroup);
+        //console.log("TOHSMODFSKO", this.state.selectedGroup);
         if(this.state.selectedGroup != undefined)
         {
           d3.select(document.getElementById(this.state.selectedGroup)).attr("stroke-width", 3).style("stroke", "red");

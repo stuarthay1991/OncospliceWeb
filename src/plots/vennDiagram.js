@@ -19,7 +19,7 @@ function retrieveDataForVenn(comparedSignature, homeSignature, typeFor, setTable
     headers: { "Content-Type": "application/json" },
   })
     .then(function (response) {
-      console.log(response);
+      //console.log(response);
       var sigToUse = homeSignature.name;
       document.getElementById("tableLoadingDiv").style.display = "none";
       document.getElementById("rootTable").style.opacity = 1;
@@ -36,7 +36,9 @@ function retrieveDataForVenn(comparedSignature, homeSignature, typeFor, setTable
         data: response["data"]["output"],
         sortedColumn: "UID",
         signature: sigToUse,
-        annotation: annot
+        annotation: annot,
+        page: 0,
+        pageSize: 10
       });
   })
 }
@@ -88,7 +90,7 @@ function CreateVennDiagram(props) {
     const w_scale = width / 280;
     const h_scale = height / 259;
     const font_scale = (w_scale + h_scale) / 2.0;
-    console.log("venn height and width", width, height);
+    //console.log("venn height and width", width, height);
 
     const [vennState, setVennState] = React.useState({data: props.vennState});
     const [idState, setIdState] = React.useState({id1: "false", id2: "false", id3: "false"});

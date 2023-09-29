@@ -24,7 +24,7 @@ function uiFields(arg, targeturl)
 	{
 		var samples = response["data"]["samples"];
 		var pctable = response["data"]["pancancersignature"];
-		console.log("fer1", response["data"]["pancancersignature"]);
+		console.log("fer1", samples);
 		console.log("fer2", response["data"]["uniqueclusters"]);
 		//console.log("pctable", response["data"]);
 		callback(samples);

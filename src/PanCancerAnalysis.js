@@ -99,7 +99,7 @@ function stackedBarChartRequest(setStackedBarChartState){
 }
 
 function concordanceRequest(signature, cancer, setConcordanceState, type, annot="none"){
-  console.log("concordreq, signature is... ", signature);
+  //console.log("concordreq, signature is... ", signature);
   //Write concordance request
   var tempnode = document.getElementById("concordanceDiv");
   while (tempnode.firstChild) {
@@ -262,7 +262,9 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
   const pageIterate = (inputValue) => {
     if(inputValue == "next")
     {
-      nextPage();
+      //nextPage();
+      console.log("tableState.page", tableState.page);
+      gotoPage(tableState.page+1);
       setTableState({...tableState, page: tableState.page+1});
     }
     else if(inputValue == "previous")
@@ -293,7 +295,7 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
       }})
     }
   })
-  console.log("sorted_column", sortedColumn);
+  //console.log("sorted_column", sortedColumn);
 
   return (
     <>
@@ -374,19 +376,19 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
         <span>
           Page{" "}
           <strong>
-            {pageIndex + 1} of {pageOptions.length}
+            {pageIndex+1} of {pageOptions.length}
           </strong>{" "}
         </span>
         <span>
           | Go to page:{" "}
           <input
             type="number"
-            defaultValue={pageIndex + 1}
+            defaultValue={pageIndex}
             onChange={(e) => {
               const page = e.target.value ? Number(e.target.value) - 1 : 0;
               gotoPage(page);
               //console.log("fsfsfooo", Number(e.target.value));
-              setTableState({...tableState, page: Number(e.target.value)});
+              setTableState({...tableState, page: Number(e.target.value) - 1});
             }}
             style={{ width: "100px" }}
           />
@@ -518,6 +520,7 @@ function PanCancerAnalysis(props){
     //var standard_height = 707;
     var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/testing/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
 
+    console.log("cWindow", window.innerHeight);
     var scaled_width = window.innerWidth / 1438;
     var scaled_height = window.innerHeight / 707;
     const [exonPlotState, setExonPlotState] = React.useState({
@@ -555,7 +558,7 @@ function PanCancerAnalysis(props){
         },
         signature: undefined,
         annotation: "none",
-        page: 0,
+        page: 1,
         pageSize: 10
     });
 
@@ -589,7 +592,7 @@ function PanCancerAnalysis(props){
         },
         signature: undefined,
         annotation: "none",
-        page: 0,
+        page: 1,
         pageSize: 10
       })
       setExonPlotState({
