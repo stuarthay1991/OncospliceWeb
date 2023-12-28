@@ -3,8 +3,9 @@ import axios from 'axios';
 import { global_colors } from '../utilities/constants.js';
 import targeturl from '../targeturl.js';
 import { isBuild } from '../utilities/constants.js';
+import {ExpandedPlotViewButton} from '../components/ExpandedPlotView';
 
-var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 export function gtexSend(UID, setGtexState, gtexState) {
   var postedData = {"data": {"uid": UID}}
@@ -17,11 +18,11 @@ export function gtexSend(UID, setGtexState, gtexState) {
     .then(function (response) {
       var new_vec = response["data"]["result"][0];
       //console.log("new_vec", new_vec);
-      gtexPlotPanel(new_vec, setGtexState, gtexState);
+      gtexPlot(new_vec, setGtexState);
   })  
 }
 
-function gtexPlotPanel(vec, setGtexState, gtexState){
+export function gtexPlot(vec, setGtexState, flag="NO"){
   var datarray = [];
   var counter = 0;
   for (const [key, value] of Object.entries(vec)) {
@@ -45,15 +46,18 @@ function gtexPlotPanel(vec, setGtexState, gtexState){
 
   var available_width = window.innerWidth;
   var available_height = window.innerHeight;
+  var width_to_use = flag == "NO" ? 0.260 * available_width : 0.520 * available_width;
+  var height_to_use = flag == "NO" ? 500 : 600;
+  var id_to_use = flag == "NO" ? "munch2" : "bunch2";
 
-  const plotobj = <Plot
+  const plotobj = <><div id={id_to_use}><Plot
               data={datarray}
-              layout={ {width: 0.260 * available_width, 
-                        height: 450,
+              layout={ {width: width_to_use, 
+                        height: height_to_use,
                         margin: {
                           l: 48,
                           r: 32,
-                          b: 200,
+                          b: 250,
                           t: 40
                         },
                         showlegend: false,
@@ -85,6 +89,33 @@ function gtexPlotPanel(vec, setGtexState, gtexState){
                           }
                         }
                       }} }
-  />
-  setGtexState({gtexPlot: plotobj})
+  /></div><div style={{display:"inline-block", width:"100%"}}>
+  <span style={{float: "right"}}>
+    <ExpandedPlotViewButton inputType={"gtex"}></ExpandedPlotViewButton>
+  </span>
+  </div></>
+  if(flag == "NO")
+  {
+    setGtexState({gtexPlot: plotobj})
+  }
 }
+
+/*function gtexPlotPanel(vec, setGtexState)
+{
+  var gtexPlotObj = gtexPlot(vec, setGtexState);
+  var expandObject = expandedPlotViewSetup(vec, setGtexState)
+  var ocvPanel = <>
+  {gtexPlotObj}
+  {expandObject}
+  </>;
+  return ocvPanel;
+}
+
+function expandedPlotViewSetup(vec, setGtexState, flag="YES")
+{
+  var inputData = {"vec": vec,
+    "setGtexState": setGtexState,
+    "flag": flag}
+  var returnobj = <><ExpandedPlotViewButton inputData={inputData} inputFunction={gtexPlot} inputType={"gtex"}></ExpandedPlotViewButton></>
+  return returnobj;
+}*/

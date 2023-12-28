@@ -3,7 +3,7 @@ import axios from 'axios';
 import { isBuild } from '../utilities/constants.js';
 import React, { useRef } from "react";
 import targeturl from '../targeturl.js';
-var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 function retrieveDataForVenn(comparedSignature, homeSignature, typeFor, setTableState, annot){
   //homeSignature = homeSignature.name;

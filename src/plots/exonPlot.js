@@ -71,6 +71,8 @@ class EXON_PLOT extends React.Component {
     this.doc = this.props.doc;
     this.div = null;
     this.ens_map = {};
+    this.farthestY = 0;
+    this.farthestX = 0;
     this.state = {
       exons: this.props.exonPlotState.exons,
       transcripts: this.props.exonPlotState.transcripts,
@@ -88,25 +90,18 @@ class EXON_PLOT extends React.Component {
       .append("svg")
       .attr("width", w)
       .attr("height", h)
-      .attr("id", (this.target_div.concat("_svg")));
+      .attr("id", (this.target_div.concat("_svg")));  
 
     this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-      
-    this.SVG_main_group.append("rect")
-      .attr("width", w)
-      .attr("height", h)
-      .style("stroke", "White")
-      .attr("stroke-width", 0)
-      .attr("type", "canvas")
-      .attr("fill", "White");    
+         
   }
 
-  writeBase()
+  writeBase(h=1500)
   {
     this.SVG_main_group.append("rect")
       .attr("width", "100%")
-      .attr("height", 1500)
-      .style("opacity", 1.0)
+      .attr("height", h)
+      .style("opacity", 0.0)
       .attr("fill", "White");
 
     this.rect = d3.select("body").append("rect") 
@@ -323,6 +318,14 @@ class EXON_PLOT extends React.Component {
       y_start = y_start + 20;
 
     }
+    this.farthestY = y_start + 20;
+    this.SVG_main_group.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .style("opacity", 0)
+      .attr("id", parent.target_div.concat("_dimensions"))
+      .attr("farthestX", Math.ceil(parseInt(parent.farthestX)))
+      .attr("farthestY", parseInt(parent.farthestY));
   }
 
   tempCircleAdd(flag, x, y)
@@ -976,6 +979,10 @@ class EXON_PLOT extends React.Component {
               parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "remove")
           });
       }
+      if(this.farthestX < (x_pos_2 + x_offset))
+      {
+        this.farthestX = x_pos_2 + x_offset;
+      }
 
       this.ens_map[exon_input[i]["start"]] = {};
       this.ens_map[exon_input[i]["start"]]["name"] = exname;
@@ -1018,12 +1025,18 @@ class EXON_PLOT extends React.Component {
     while (tempnode.firstChild) {
         tempnode.removeChild(tempnode.firstChild);
     }
-    this.baseSVG();
-    this.writeBase();
     //console.log("in exon plot", this.state.gene_specific_data);
     //console.log("TRANSCRIPT LIST: ", this.state.transcripts);
     if(this.state.exons != null && this.state.transcripts != null && this.state.junctions != null)
     {
+      var ysim = 110;
+      for (const [key, value] of Object.entries(this.state.transcripts))
+      {
+        ysim = ysim + 20;
+      }
+      ysim = ysim + 35;
+      this.baseSVG(2000, ysim);
+      this.writeBase(ysim);
       var sorted_exons = this.state.exons.sort((a, b)=>{return Number(a["start"])-Number(b["start"])})
       //console.log("sorted_exons", sorted_exons);
       var retainedIntrons = this.findRetainedIntrons(this.state.gene_specific_data);
@@ -1040,6 +1053,8 @@ class EXON_PLOT extends React.Component {
     }
     else
     {
+      this.baseSVG();
+      this.writeBase();
       var cur_obj = this.SVG_main_group.append("text")
           .attr("x", 25)
           .attr("y", 20)

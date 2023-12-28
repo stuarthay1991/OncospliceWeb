@@ -9,6 +9,7 @@ import React, { useRef } from "react";
 import { Typography } from "@material-ui/core";
 import jsonGBM from "../gbmBasic.js";
 import jsonBLCA from "../BLCAbasic.js";
+import jsonBLCAsignature from "../BLCAsignature.js";
 
 const StyledDropdown = withStyles({
   root: {
@@ -74,32 +75,16 @@ function Header({setViewPane, setPanCancerState}){
     const [sampleListState, setSampleListState] = React.useState(jsonBLCA);
     const [sampleOptions, setSampleOptions] = React.useState({"key": undefined, "options": []});
     
-    const [signatureState, setSignatureState] = React.useState({"signature": "psi_tcga_gbm_r1_v2_vs_others", "simpleName": "R1-V2", "oncocluster": "R1-V2", "initialized": false});
+    const [signatureState, setSignatureState] = React.useState({"signature": "psi_r2_v15_vs_others", "simpleName": "R2-V15", "oncocluster": "R2-V15", "initialized": false});
     const [coordState, setCoordState] = React.useState();
     const [geneState, setGeneState] = React.useState();
     const [pageTypeState, setPageTypeState] = React.useState({"value": "Individual Signatures", "initialized": false})
 
     //signatureState, setSignatureState
 
-    const [cancerSignatureGroupState, setCancerSignatureGroupState] = React.useState({"cancerType": "GBM", "initialized": false});
-    const [signatureListState, setSignatureListState] = React.useState({
-    'psi_tcga_gbm_r1_v2_vs_others': 'R1-V2 (WT-IDH1)',
-    'psi_tcga_gbm_r2_v16_vs_others': 'R2-V16 (Proneural_Splicing Enriched)',
-    'psi_tcga_gbm_r2_v2_vs_others': 'R2-V2 (Mesenchymal)',
-    'psi_tcga_gbm_r2_v22_vs_others': 'R2-V22 (Neural_Splicing Enriched)',
-    'psi_tcga_gbm_r2_v27_vs_others': 'R2-V27 (Un-IDH1)',
-    'psi_tcga_gbm_r2_v29_vs_others': 'R2-V29 (Good Survival)',
-    'psi_tcga_gbm_r2_v3_vs_others': 'R2-V3 (Proneural)',
-    'psi_tcga_gbm_r2_v4_vs_others': 'R2-V4 (G-CIMP)',
-    'psi_tcga_gbm_r2_v6_vs_others': 'R2-V6 (Splicing Enriched)',
-    'psi_tcga_gbm_r2_v8_vs_others': 'R2-V8 (Splicing Enriched)',
-    'psi_tcga_gbm_r1_v1_vs_others': 'R1-V1',
-    'psi_tcga_gbm_r2_v5_vs_others': 'R2-V5',
-    'psi_tcga_gbm_r3_v1_vs_others': 'R3-V1'
-    });
-    const [eventFontState, setEventFontState] = React.useState({"sigFontColor": "blue",
-    "coordFontColor": "grey",
-    "geneFontColor": "grey"})
+    const [cancerSignatureGroupState, setCancerSignatureGroupState] = React.useState({"cancerType": "BLCA", "initialized": false});
+    const [signatureListState, setSignatureListState] = React.useState(jsonBLCAsignature);
+    const [eventFontState, setEventFontState] = React.useState({"sigFontColor": "blue","coordFontColor": "grey","geneFontColor": "grey"})
 
     const cancerSelectHandle = (e) => {
         setCancerTypeState({"cancerType": e, "initialized": true});
@@ -442,7 +427,7 @@ function Header({setViewPane, setPanCancerState}){
         size="xs"
         trigger = "hover">                
                 {(() => {
-                    //console.log("good", Object.entries(signatureListState));
+                    console.log("good", Object.entries(signatureListState));
                     const dropdownItems = [];
                     for(var i = 0; i < sampleOptions.options.length; i++)
                     {

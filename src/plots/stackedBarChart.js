@@ -697,7 +697,7 @@ class SetStackedBarChart extends React.Component {
         var sorted_data = sorted_data_array.sort((a, b)=>{return Number(b.sum)-Number(a.sum)});
         //console.log("STACKED_SORTED:", sorted_data);
         var y_interval = 20.5;
-        var total_y_length = (y_interval * sorted_data.length);
+        var total_y_length = (y_interval * sorted_data.length) * this.state.yScale;
         var total_x_length = maxValue + 10;
         this.baseSVG(total_y_length+160);
         this.writeBase(total_y_length+160);

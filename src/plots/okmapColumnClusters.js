@@ -30,6 +30,7 @@ class OKMAP_COLUMN_CLUSTERS extends React.Component {
       .style("stroke", "White")
       .attr("stroke-width", 0)
       .attr("type", "canvas")
+      .style("opacity", 0.0)
       .attr("fill", "White");    
   }
 
@@ -38,7 +39,7 @@ class OKMAP_COLUMN_CLUSTERS extends React.Component {
     this.SVG_main_group.append("rect")
       .attr("width", ((cols.length * (xscale - 0.1)) + 75))
       .attr("height", yscale)
-      .style("opacity", 1.0)
+      .style("opacity", 0.0)
       .attr("fill", "White");
   }
 

@@ -30,6 +30,7 @@ class OKMAP_OncospliceClusters extends React.Component {
       .attr("height", h)
       .style("stroke", "White")
       .attr("stroke-width", 0)
+      .style("opacity", 0.0)
       .attr("type", "canvas")
       .attr("fill", "White");    
   }
@@ -39,7 +40,7 @@ class OKMAP_OncospliceClusters extends React.Component {
     this.SVG_main_group.append("rect")
       .attr("width", ((cols.length * (xscale - 0.1)) + 75))
       .attr("height", yscale)
-      .style("opacity", 1.0)
+      .style("opacity", 0.0)
       .attr("fill", "White");
   }
 

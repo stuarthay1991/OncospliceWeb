@@ -1,23 +1,22 @@
 import Plot from 'react-plotly.js';
 import CbioportalLinkout from '../components/cBioportalLinkout';
+import {ExpandedPlotViewButton} from '../components/ExpandedPlotView';
+import Grid from '@material-ui/core/Grid';
 import { global_colors } from '../utilities/constants.js';
 
-//This function takes the samples that are associated with oncosplice clusters and outputs two components:
-//1. A violin plot (using Plotly.js) that compares expression between oncosplice cluster samples.
-//2. A dynamically created linkout (via a button) to the website cbioportal that creates a survival plot with the given samples and their respective clusters.
-function oncospliceClusterViolinPlotPanel(selectedRow, selectedExpressionArray, heatmapColumnArray, 
-                                          oncospliceSampleLabels, selectedOncospliceSignature, cancer)
+//This object takes the samples that are associated with oncosplice clusters and outputs two components:
+//A violin plot (using Plotly.js) that compares expression between oncosplice cluster samples.
+
+export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer, flag="NO")
 {
   console.log("ONCO_PANTS", oncospliceSampleLabels, selectedOncospliceSignature);
   var expressionArrayClusters = {"cluster0": [], "cluster1": []};
-  var cBioportalInputData = {"cluster0": [], "cluster1": []};
   for(var i = 0; i < heatmapColumnArray.length; i++)
   {
     var curcol = heatmapColumnArray[i];
     if(oncospliceSampleLabels[curcol] == "0")
     {
       expressionArrayClusters["cluster0"].push(selectedExpressionArray[curcol]);
-      cBioportalInputData["cluster0"].push(curcol);
     }
   }
   for(var i = 0; i < heatmapColumnArray.length; i++)
@@ -26,14 +25,14 @@ function oncospliceClusterViolinPlotPanel(selectedRow, selectedExpressionArray, 
     if(oncospliceSampleLabels[curcol] == "1")
     {
       expressionArrayClusters["cluster1"].push(selectedExpressionArray[curcol]);
-      cBioportalInputData["cluster1"].push(curcol);
     }
   }
-  console.log("cBioportalInputData_Onco", cBioportalInputData);
-  var toCBioLabels = ["others", selectedOncospliceSignature];
   var available_width = window.innerWidth;
   var available_height = window.innerHeight;
-  var plotobj = <><Plot
+  var width_to_use = flag == "NO" ? 0.260 * available_width : 0.520 * available_width;
+  var height_to_use = flag == "NO" ? 200 : 400;
+  var id_to_use = flag == "NO" ? "munch" : "bunch";
+  var plotobj = <div id={id_to_use}><Plot
             data={[
               {
                 x: "Group1",
@@ -53,12 +52,12 @@ function oncospliceClusterViolinPlotPanel(selectedRow, selectedExpressionArray, 
               }
             ]}
 
-            layout={ {width: 0.260 * available_width,
+            layout={ {width: width_to_use,
                       margin: {
-                          l: 48,
-                          r: 48,
-                          b: 48,
-                          t: 40
+                          l: flag == "NO" ? 48 : 2,
+                          r: flag == "NO" ? 48 : 2,
+                          b: flag == "NO" ? 48 : 2,
+                          t: flag == "NO" ? 40 : 2
                       },
                       title: {
                           text: selectedRow["pancanceruid"],
@@ -89,11 +88,65 @@ function oncospliceClusterViolinPlotPanel(selectedRow, selectedExpressionArray, 
                           }
                         }
                       },
-                      height: 200} }
-  />
-  <CbioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/>
-  </>;
+                      height: height_to_use} }
+  />;
+  </div>
   return plotobj;
 }
+
+//A dynamically created linkout (via a button) to the website cbioportal that creates a survival plot with the given samples and their respective clusters.
+function cbioSetup(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer)
+{
+  var cBioportalInputData = {"cluster0": [], "cluster1": []};
+  for(var i = 0; i < heatmapColumnArray.length; i++)
+  {
+    var curcol = heatmapColumnArray[i];
+    if(oncospliceSampleLabels[curcol] == "0")
+    {
+      cBioportalInputData["cluster0"].push(curcol);
+    }
+  }
+  for(var i = 0; i < heatmapColumnArray.length; i++)
+  {
+    var curcol = heatmapColumnArray[i];
+    if(oncospliceSampleLabels[curcol] == "1")
+    {
+      cBioportalInputData["cluster1"].push(curcol);
+    }
+  }
+  console.log("cBioportalInputData_Onco", cBioportalInputData);
+  var toCBioLabels = ["others", selectedOncospliceSignature];
+  var returnobj = <><CbioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/></>
+  return returnobj;
+}
+
+//The holding panel.
+function oncospliceClusterViolinPlotPanel(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer)
+{
+  var cbioObject = cbioSetup(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer);
+  var ocvPlot = oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer)
+  //var expandObject = expandedPlotViewSetup(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer)
+  var ocvPanel = <>
+  {ocvPlot}
+  <div style={{display:"inline-block", width:"100%"}}>
+  <span>{cbioObject}</span>
+  <span style={{float: "right"}}><ExpandedPlotViewButton inputType={"oncosplice"}></ExpandedPlotViewButton></span>
+  </div>
+  </>;
+  return ocvPanel;
+}
+
+/*function expandedPlotViewSetup(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer, flag="YES")
+{
+  var inputData = {"selectedRow": selectedRow,
+    "selectedExpressionArray": selectedExpressionArray,
+    "heatmapColumnArray": heatmapColumnArray,
+    "oncospliceSampleLabels": oncospliceSampleLabels,
+    "selectedOncospliceSignature": selectedOncospliceSignature,
+    "cancer": cancer,
+    "flag": flag}
+  var returnobj = <><ExpandedPlotViewButton inputData={inputData} inputFunction={oncospliceClusterViolinPlot} inputType={"oncosplice"}></ExpandedPlotViewButton></>
+  return returnobj;
+}*/
 
 export default oncospliceClusterViolinPlotPanel;

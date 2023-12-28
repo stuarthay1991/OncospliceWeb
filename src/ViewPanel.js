@@ -44,14 +44,14 @@ import oncospliceClusterViolinPlotPanel from './plots/oncospliceClusterViolinPlo
 import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterViolinPlotPanel';
 import sampleFilterViolinPlotPanel from './plots/sampleFilterViolinPlotPanel';
 import { gtexSend } from './plots/gtexPlotPanel.js';
-import { downloadExonPlotData, downloadPDF} from './downloadDataFile.js';
+import { downloadExonPlotData, downloadPdfFunction, downloadHeatmapFunction} from './downloadDataFile.js';
 import SetExonPlot from './plots/exonPlot.js';
 import OKMAP_COLUMN_CLUSTERS from './plots/okmapColumnClusters.js';
 import OKMAP_OncospliceClusters from './plots/okmapOncospliceClusters.js';
 import PlotPanel from './plots/plotPanel.js';
 import { isBuild } from './utilities/constants.js';
 
-var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 var global_meta = [];
 var global_sig = [];
@@ -123,7 +123,7 @@ function exonRequest(GENE, in_data, setViewState, viewState, exonPlotState, setE
   })
     .then(function (response) {
       var resp = response["data"];
-      console.log("blobbings", resp["blob"]);
+      //console.log("blobbings", resp["blob"]);
       setViewState({
         toDownloadExon: resp["blob"]["trans"],
         toDownloadGeneModel: resp["blob"]["genemodel"],
@@ -576,12 +576,13 @@ class OKMAP_LABEL extends React.Component {
       .attr("id", (this.target_div.concat("_svg")));
 
     this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-      
+
     this.SVG_main_group.append("rect")
       .attr("width", w)
       .attr("height", h)
       .style("stroke", "White")
       .attr("type", "canvas")
+      .style("opacity", 0.0)
       .attr("fill", "White");    
   }
 
@@ -591,8 +592,40 @@ class OKMAP_LABEL extends React.Component {
       .style("stroke-width", 0)
       .attr("width", ((cols.length * (xscale - 0.1)) + 75))
       .attr("height", yscale)
-      .style("opacity", 1.0)
+      .style("opacity", 0.0)
       .attr("fill", "White");
+
+    var numbo = document.getElementById(this.target_div.concat("_svg")).offsetWidth;
+
+    this.SVG_main_group.append("rect")
+      .attr("x", (cols.length * (xscale - 0.1) + 75))
+      .attr("y", 0)
+      .attr("width", 108)
+      .attr("height", 28)
+      .style("float", "right")
+      .style("fill", "#0F6A8B")
+      .style("stroke", "#0F6A8B")
+      .style("stroke-width", 2);
+
+    this.SVG_main_group.append("text")
+      .attr("x", (cols.length * (xscale - 0.1) + 95))
+      .attr("y", 20)
+      .attr("text-anchor", "start")
+      .style("font-size", "15px")
+      .style('fill', 'white')
+      .text("Download")
+      .on("mouseover", function(){
+            d3.select(this).style("fill", "#EFAD18")
+            .style("cursor", "pointer");
+      })
+      .on("mouseout", function(){
+            d3.select(this).style("fill", "white")
+            .style("cursor", "default");
+      })
+      .on("click", function(){
+            downloadHeatmapFunction("heatmap")
+      })
+
   }
 
   writeBlocks(retcols, xscale, writecols)
@@ -767,6 +800,7 @@ class OKMAP extends React.Component {
     this.total_height = this.props.len;
     this.dataset = this.props.dataset;
     this.CURRENT_SELECTED_UID = null;
+    this.farthestX = 0;
     this.state = {
       zoom_level: this.props.yscale
     };
@@ -783,14 +817,17 @@ class OKMAP extends React.Component {
       .attr("height", h)
       .attr("id", (this.target_div.concat("_svg")));
 
-    this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-      
+    this.SVG_main_group = this.SVG;
+    //this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
+
     this.SVG_main_group.append("rect")
       .attr("width", w)
       .attr("height", h)
       .style("stroke", "White")
       .attr("type", "canvas")
+      .style("opacity", 0.0)
       .attr("fill", "White"); 
+
   }
 
   writeBase(yscale, xscale, cols, height)
@@ -798,6 +835,7 @@ class OKMAP extends React.Component {
     this.SVG_main_group.append("rect")
       .attr("width", (cols.length * (xscale - 0.1)))
       .attr("height", (height * yscale))
+      .attr("id", "svg_base_rect_id")
       .style("opacity", 1.0)
       .attr("fill", "Black");
   }
@@ -817,16 +855,18 @@ class OKMAP extends React.Component {
       .attr("height", h)
       .style("stroke", "White")
       .attr("type", "canvas")
+      .style("opacity", 0.0)
       .attr("fill", "White");
   }
 
   writeBaseRLSVG(yscale, height)
   {
     this.SVG_rlg.append("rect")
-      .attr("width", "280px")
+      .attr("width", 280)
       .attr("height", (height * yscale))
-      .style("opacity", 1.0)
-      .attr("fill", "White");
+      .style("opacity", 0.0)
+      .attr("fill", "White")
+      .attr("id", "heatmaprowlabeldimensionsid");
   }
 
   writeHead(xscale, col_list)
@@ -872,8 +912,16 @@ class OKMAP extends React.Component {
             {
               integerval = 255;
             }
+            if(integerval < 0)
+            {
+              integerval = 0;
+            }
+            integerval = Math.floor(integerval);
+            var magic_others = Math.floor(cur_square_val * 100);
+            if(magic_others < 0){magic_others = 0}
+            if(magic_others > 255){magic_others = 255}
             var magic_blue = (integerval).toString();
-            var magic_others = (cur_square_val * 100).toString();
+            magic_others = magic_others.toString();
             selected_color = "rgb(".concat(magic_others).concat(", ").concat(magic_blue).concat(", ").concat(magic_blue).concat(")");
       }
       else
@@ -883,9 +931,17 @@ class OKMAP extends React.Component {
             {
               integerval2 = 255;
             }
+            if(integerval2 < 0)
+            {
+              integerval2 = 0;
+            }
+            integerval2 = Math.floor(integerval2);
+            var magic_others = Math.floor(cur_square_val * 10);
+            if(magic_others < 0){magic_others = 0}
+            if(magic_others > 255){magic_others = 255}
             var magic_yellow = (integerval2).toString();
             var magic_yellow2 = (integerval2).toString();
-            var magic_others = (cur_square_val * 10).toString();
+            magic_others = magic_others.toString();
             selected_color = "rgb(".concat(magic_yellow).concat(", ").concat(magic_yellow2).concat(", ").concat(magic_others).concat(")");
       }
 
@@ -899,6 +955,18 @@ class OKMAP extends React.Component {
         
       x_pointer = x_pointer + ((1 * x_scale) - 0.1);
     }
+    this.farthestX = x_pointer;
+    var colorei = this.farthestX;
+    //console.log("this.farthestX", this.farthestX);
+    this.SVG_main_group.append("rect")
+      .style("stroke-width", 0)
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", 1)
+      .attr("height", 1)
+      .attr("farthestX", colorei)
+      .attr("id", "wompumio")
+      .style("opacity", 0);
   }
 
   writeRowLabel(y_point, data, yscale, iterationNumber)
@@ -1218,6 +1286,7 @@ function ViewPanel(props) {
 
   //Refactor after this
   var Selection = selectionState.selection;
+  //console.log("selectionpants", Selection);
   var set = null;
   var plotobj1, plotobj2, plotobj3 = null;
   var elm1 = filterState.filters;
@@ -1306,14 +1375,13 @@ function ViewPanel(props) {
         maxConstraints={[panel_B.maxWidth, panel_B.maxHeight]}
       >
         <div style={{overflow: "scroll", height: "100%", width: "100%", display: "inline-block"}}>
+        <PlotPanel plotLabel={"OncoClusters"} inputType={"oncosplice"}>{plotobj1}</PlotPanel>
 
-        <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
+        <PlotPanel plotLabel={"HierarchyClusters"} inputType={"hierarchical"}>{plotobj2}</PlotPanel>
 
-        <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
+        <PlotPanel plotLabel={"Filters"} inputType={"samplefilter"}>{plotobj3}</PlotPanel>
 
-        <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
-
-        <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
+        <PlotPanel plotLabel={"GTEX"} inputType={"gtex"}>{plotobj4}</PlotPanel>
 
         <Stats></Stats>
         <SetExonPlot exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></SetExonPlot>
@@ -1346,7 +1414,7 @@ function ViewPanel(props) {
               <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button>
             </Grid>
             <Grid item>
-              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadPDF()}>Download PDF</Button>
+              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadPdfFunction(selectionState.selection)}>Download PDF</Button>
             </Grid>
           </Grid>
           <Box borderColor="#dbdbdb" {...spboxProps}>
@@ -1361,10 +1429,13 @@ function ViewPanel(props) {
 function ViewPanel_Side(props) {
   return(
     <div>
-    <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>{"Cancer: ".concat(props.QueryExport["cancer"])}</h3>
+    <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>
+      {"Cancer: ".concat(props.QueryExport["cancer"])}
+    </h3>
     </div>
   )
 }
+
 //Test comment
 function ViewPanel_Main(props) {
     const classes = useStyles();

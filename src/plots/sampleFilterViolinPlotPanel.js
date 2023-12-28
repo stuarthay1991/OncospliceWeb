@@ -1,6 +1,7 @@
 import Plot from 'react-plotly.js';
 import CbioportalLinkout from '../components/cBioportalLinkout';
 import { global_colors } from '../utilities/constants.js';
+import {ExpandedPlotViewButton} from '../components/ExpandedPlotView';
 
 //This function groups samples by their atrributes and outputs two components:
 //1. A violin plot (using Plotly.js) that compares expression between sample atrribute groups.
@@ -37,7 +38,7 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
   }
   var available_width = window.innerWidth;
   var available_height = window.innerHeight;
-  var plotobj = <><Plot
+  var plotobj = <div id="lub2"><Plot
               data={datarray}
               layout={ {width: 0.260 * available_width, 
                         height: 300,
@@ -77,8 +78,15 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
                         }
                       }} }
   />
-  <CbioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/>
-  </>;
+  <div style={{display:"inline-block", width:"100%"}}>
+  <span style={{float: "left"}}>
+    <CbioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/>
+  </span>
+  <span style={{float: "right"}}>
+    <ExpandedPlotViewButton inputType={"samplefilter"}></ExpandedPlotViewButton>
+  </span>
+  </div>
+  </div>;
   return plotobj;
 }
 

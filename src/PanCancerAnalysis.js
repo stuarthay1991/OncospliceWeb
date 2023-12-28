@@ -20,7 +20,7 @@ import SetVennDiagram from './plots/vennDiagram.js';
 import loadingGif from './images/loading.gif';
 //import SetConcordanceGraph from './plots/concordanceGraph.js';
 
-var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 const Styles = tableStyledDiv;
 function exonRequest(GENE, in_data, fulldata, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn) {

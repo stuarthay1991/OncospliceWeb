@@ -5,7 +5,7 @@ import axios from 'axios';
 import { isBuild } from '../utilities/constants.js';
 import targeturl from '../targeturl.js';
 
-var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 function goToCBio(uuid)
 {
@@ -39,7 +39,7 @@ function sendSamplesRetrieveURL(props)
 		headers: { "Content-Type": "application/json"},
 	})
 	.then(function (res) {
-		console.log("Wagga", res["data"]);
+		//console.log("Wagga", res["data"]);
 		studyID = res["data"];
 		let curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
 
@@ -62,7 +62,7 @@ function sendSamplesRetrieveURL(props)
 		}
 
 		var cBioportalFormData = curlCommandJsonDataObject;
-		console.log("pre-cbio", cBioportalFormData);
+		//console.log("pre-cbio", cBioportalFormData);
 		axios({
 		    method: "post",
 		    url: (routeurl.concat("/api/datasets/cbioCurlCommand")),
@@ -70,7 +70,7 @@ function sendSamplesRetrieveURL(props)
 		    headers: { "Content-Type": "application/json" },
 		})
 		    .then(function (response) {
-		      console.log("cbio", response);
+		      //console.log("cbio", response);
 		      var returned_uuid = response["data"]["id"];
 		      //uuid in this case is a comparison id returned by the curl command. It gives us the correct destination for our survival plot.
 		      goToCBio(returned_uuid);

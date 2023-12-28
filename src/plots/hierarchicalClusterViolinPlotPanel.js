@@ -1,6 +1,7 @@
 import Plot from 'react-plotly.js';
 import CbioportalLinkout from '../components/cBioportalLinkout.js';
 import { global_colors } from '../utilities/constants.js';
+import {ExpandedPlotViewButton} from '../components/ExpandedPlotView';
 
 //This function takes the samples that are associated with hierarchical clusters and outputs two components:
 //1. A violin plot (using Plotly.js) that compares expression between hierarchical cluster samples.
@@ -65,7 +66,7 @@ function hierarchicalClusterViolinPlotPanel(selectedExpressionArray, selectedRow
 
   var available_width = window.innerWidth;
   var available_height = window.innerHeight;
-  var plotobj = <><Plot
+  var plotobj = <div id="kobra"><Plot
               data={plotInputData}
               layout={ {width: 0.260 * available_width,
                         height: 200,
@@ -105,8 +106,15 @@ function hierarchicalClusterViolinPlotPanel(selectedExpressionArray, selectedRow
                         }
                       }} }
     />
-    <CbioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}></CbioportalLinkout>
-  </>;
+  <div style={{display:"inline-block", width:"100%"}}>
+  <span style={{float: "left"}}>
+    <CbioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/>
+  </span>
+  <span style={{float: "right"}}>
+    <ExpandedPlotViewButton inputType={"samplefilter"}></ExpandedPlotViewButton>
+  </span>
+  </div>
+  </div>;
   return plotobj;
 }
 

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 import { isBuild } from '../utilities/constants.js';
 
-var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 function defaultQuery(arg, targeturl)
 {
@@ -12,12 +12,12 @@ function defaultQuery(arg, targeturl)
   const pancancercallback = arg["pancancerupdate"];
   const document = arg["doc"];
   const curCancer = "BLCA";
-  const compCancer = "GBM";
+  const compCancer = "BLCA";
   var sampleFilters = [];
-  var signatureFilters = ["psi_er_negative_r1_v24_vs_others"];
+  var signatureFilters = ["psi_r2_v15_vs_others"];
   var geneFilters = [];
   var coordinateFilters = [];
-  var oncospliceClusters = "R1-V24 (ER Negative Splice Enriched)";
+  var oncospliceClusters = "R2-V15";
   var postData = {"data": {"cancerName": curCancer, 
   "comparedCancer": compCancer,
   "oncospliceClusters": oncospliceClusters,
@@ -50,7 +50,7 @@ function defaultQuery(arg, targeturl)
       var splicingcc = response["data"]["cci"];
       exportView["filter"] = [];
       exportView["cancer"] = "BLCA";
-      exportView["single"] = ["PSI er negative r1 v24 vs others"];
+      exportView["single"] = ["PSI r2 v15 vs others"];
       var splicingrpsi = response["data"]["oncospliceClusterIndices"];
       var splicingtrans = response["data"]["oncospliceClusterName"];
       defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exportView, callback, document, targeturl, pancancercallback);
@@ -59,7 +59,7 @@ function defaultQuery(arg, targeturl)
 
 function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exp, callback, doc, targeturl, pancancercallback)
 {
-  var postdata = {"data": {"cancerName": "BLCA", "signature": "psi_er_negative_r1_v24_vs_others"}};
+  var postdata = {"data": {"cancerName": "BLCA", "signature": "psi_r2_v15_vs_others"}};
   axios({
     method: "post",
     data: postdata,
