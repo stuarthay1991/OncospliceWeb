@@ -435,7 +435,7 @@ class SetStackedBarChart extends React.Component {
     drawAxis(xLength, yLength)
     {
         var S = this.state;
-        yLength = yLength * S.yScale;
+        yLength = yLength;
         this.SVG_main_group.append("rect")
             .attr("x", (this.x_offset*S.xScale)-(2*S.xScale))
             .attr("y", 95*S.yScale)
@@ -457,7 +457,7 @@ class SetStackedBarChart extends React.Component {
     {
         var S = this.state;
         var xTickInterval = (200 / 10)*S.xScale;
-        yLength = yLength * S.yScale;
+        yLength = yLength;
 
         for(var i = 0; i < 12; i++)
         {
@@ -466,7 +466,7 @@ class SetStackedBarChart extends React.Component {
             //console.log("xVal", xVal);
             this.SVG_main_group.append("rect")
                 .attr("x", xVal)
-                .attr("y", (yLength+94*S.yScale))
+                .attr("y", (yLength+(94*S.yScale)))
                 .attr("width", 2*S.xScale)
                 .attr("height", 4*S.yScale)
                 .attr("fill", "rgb(131, 131, 131)");
@@ -545,7 +545,7 @@ class SetStackedBarChart extends React.Component {
         var S = this.state;
         var x_offset = 90*S.xScale;
         const annotVal = inputData[index];
-        ypos = ypos * S.yScale;
+        ypos = ypos;
         var x_now = x_offset;
         var parent = this;
 
@@ -646,8 +646,8 @@ class SetStackedBarChart extends React.Component {
           while (tempnode.firstChild) {
               tempnode.removeChild(tempnode.firstChild);
           }
-          this.baseSVG(1000);
-          this.writeBase(1000);
+          this.baseSVG(2000);
+          this.writeBase(2000);
           this.setState({
             data: this.props.stackedBarChartState.data
           })
@@ -665,7 +665,7 @@ class SetStackedBarChart extends React.Component {
       }
 
       //console.log("TRANSCRIPT LIST: ", this.state.transcripts);
-      var y_start = 95;
+      var y_start = 95 * this.state.yScale;
       var y_val = y_start;
       var maxValue = 0;
       //console.log("stacked bar chart state: ", this.state.data);
@@ -696,11 +696,11 @@ class SetStackedBarChart extends React.Component {
 
         var sorted_data = sorted_data_array.sort((a, b)=>{return Number(b.sum)-Number(a.sum)});
         //console.log("STACKED_SORTED:", sorted_data);
-        var y_interval = 20.5;
-        var total_y_length = (y_interval * sorted_data.length) * this.state.yScale;
+        var y_interval = 20.5 * this.state.yScale;
+        var total_y_length = (y_interval * sorted_data.length);
         var total_x_length = maxValue + 10;
-        this.baseSVG(total_y_length+160);
-        this.writeBase(total_y_length+160);
+        this.baseSVG(total_y_length + (160 * this.state.yScale));
+        this.writeBase(total_y_length + (160 * this.state.yScale));
         this.writeTitle();
         this.writeLegend();
         this.drawAxis(total_x_length, total_y_length);
@@ -720,8 +720,8 @@ class SetStackedBarChart extends React.Component {
       }
       else
       {
-        this.baseSVG(1000);
-        this.writeBase(1000);
+        this.baseSVG(2000);
+        this.writeBase(2000);
       }
       return(
         null
