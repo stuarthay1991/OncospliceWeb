@@ -30,7 +30,7 @@ export function gtexPlot(vec, setGtexState, flag="NO"){
           {
           //console.log(key, value);
           var tmparr = value.split("|");
-          
+          key = key.replace(/\_/g, " ");
           var curcolor = global_colors[counter];
           datarray.push({
             y: tmparr,
@@ -39,14 +39,13 @@ export function gtexPlot(vec, setGtexState, flag="NO"){
             name: key,
             marker: {color: curcolor},
           });
-
           counter = counter + 1;
           }
   }
 
   var available_width = window.innerWidth;
   var available_height = window.innerHeight;
-  var width_to_use = flag == "NO" ? 0.260 * available_width : 0.520 * available_width;
+  var width_to_use = flag == "NO" ? 0.25 * available_width : 0.520 * available_width;
   var height_to_use = flag == "NO" ? 500 : 600;
   var id_to_use = flag == "NO" ? "munch2" : "bunch2";
 
@@ -56,7 +55,7 @@ export function gtexPlot(vec, setGtexState, flag="NO"){
                         height: height_to_use,
                         margin: {
                           l: 48,
-                          r: 32,
+                          r: 16,
                           b: 250,
                           t: 40
                         },

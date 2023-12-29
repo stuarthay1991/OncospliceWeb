@@ -40,12 +40,12 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
   var available_height = window.innerHeight;
   var plotobj = <div id="lub2"><Plot
               data={datarray}
-              layout={ {width: 0.260 * available_width, 
+              layout={ {width: 0.25 * available_width, 
                         height: 300,
                         margin: {
                           l: 48,
-                          r: 50,
-                          b: 100,
+                          r: 16,
+                          b: 160,
                           t: 40
                         },
                         title: {

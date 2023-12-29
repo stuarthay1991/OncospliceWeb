@@ -1320,7 +1320,7 @@ function ViewPanel(props) {
     maxHeight: 0.8 * available_height
   }
   var panel_B = {
-    width: 0.290 * available_width,
+    width: 0.296 * available_width,
     height: 0.6 * available_height,
     minWidth: 0.148 * available_width,
     minHeight: 0.3 * available_height,

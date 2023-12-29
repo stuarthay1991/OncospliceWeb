@@ -29,7 +29,7 @@ export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray
   }
   var available_width = window.innerWidth;
   var available_height = window.innerHeight;
-  var width_to_use = flag == "NO" ? 0.260 * available_width : 0.520 * available_width;
+  var width_to_use = flag == "NO" ? 0.25 * available_width : 0.520 * available_width;
   var height_to_use = flag == "NO" ? 200 : 400;
   var id_to_use = flag == "NO" ? "munch" : "bunch";
   var plotobj = <div id={id_to_use}><Plot
@@ -55,7 +55,7 @@ export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray
             layout={ {width: width_to_use,
                       margin: {
                           l: flag == "NO" ? 48 : 2,
-                          r: flag == "NO" ? 48 : 2,
+                          r: flag == "NO" ? 16 : 2,
                           b: flag == "NO" ? 48 : 2,
                           t: flag == "NO" ? 40 : 2
                       },

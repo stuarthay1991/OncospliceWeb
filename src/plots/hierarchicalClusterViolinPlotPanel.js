@@ -68,11 +68,11 @@ function hierarchicalClusterViolinPlotPanel(selectedExpressionArray, selectedRow
   var available_height = window.innerHeight;
   var plotobj = <div id="kobra"><Plot
               data={plotInputData}
-              layout={ {width: 0.260 * available_width,
+              layout={ {width: 0.25 * available_width,
                         height: 200,
                         margin: {
                           l: 48,
-                          r: 48,
+                          r: 16,
                           b: 48,
                           t: 40
                         },
