@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import QueueMessage from '../components/QueueMessage';
 import axios from 'axios';
 
 function fetchHeatmapData(arg, targeturl)

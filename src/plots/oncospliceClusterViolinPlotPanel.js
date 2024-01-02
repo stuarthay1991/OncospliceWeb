@@ -1,8 +1,6 @@
 import Plot from 'react-plotly.js';
 import CbioportalLinkout from '../components/cBioportalLinkout';
 import {ExpandedPlotViewButton} from '../components/ExpandedPlotView';
-import Grid from '@material-ui/core/Grid';
-import { global_colors } from '../utilities/constants.js';
 
 //This object takes the samples that are associated with oncosplice clusters and outputs two components:
 //A violin plot (using Plotly.js) that compares expression between oncosplice cluster samples.

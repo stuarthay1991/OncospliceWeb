@@ -15,11 +15,9 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import './App.css';
 import Header from './components/NavBarDropdown.js';
-import BQPanel from './pages/BuildQuery/BuildQueryPanel.js';
 import ViewPanelWrapper from './ViewPanelWrapper.js';
 import { makeRequest } from './request/CancerDataManagement.js';
 //import Authentication from './Authentication.js';
-import QueryHistoryPanelWrapper from './QueryHistoryPanelWrapper.js';
 import PanCancerAnalysis from './PanCancerAnalysis.js';
 
 const spcTabStyles = makeStyles({
@@ -92,7 +90,7 @@ function MainPanel(props){
 
   if(process.env.NODE_ENV == "build")
   {
-    var routeurl = "/ICGS/Oncosplice/build/index.html/";
+    var routeurl = "/ICGS/Oncosplice/testing/index.html/";
   }
   else
   {
@@ -204,9 +202,7 @@ function MainPanel(props){
         </div>
       </div>
       <div id="tabcontent" style={{display: "block"}}>
-      {mpstate.value === 0 && <BQPanel setViewPane={setViewPane}/>}
       {mpstate.value === 1 && <ViewPanelWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
-      {mpstate.value === 2 && <QueryHistoryPanelWrapper user={mpstate.authentication.user} data={mpstate.authentication.data}/>}
       </div>
       <div id="pancancerpanel" style={{display: "none"}}>
         <PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer}/>
