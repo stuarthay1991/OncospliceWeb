@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { global_colors } from '../constants.js';
+import { global_colors } from '../utilities/constants.js';
 
 class SetExonPlot extends React.Component {
   constructor(props) {
@@ -22,7 +22,8 @@ class SetExonPlot extends React.Component {
         exonPlotState={this.props.exonPlotState} 
         setExonPlotState={this.props.setExonPlotState} 
         doc={document} 
-        target_div_id={"supp1"}>
+        target_div_id={this.props.exonPlotState.targetdiv}
+        downscale={this.props.exonPlotState.downscale}>
         </EXON_PLOT>
     })
   }
@@ -43,7 +44,8 @@ class SetExonPlot extends React.Component {
           exonPlotState={this.props.exonPlotState} 
           setExonPlotState={this.props.setExonPlotState} 
           doc={document} 
-          target_div_id={"supp1"}>
+          target_div_id={this.props.exonPlotState.targetdiv}
+          downscale={this.props.exonPlotState.downscale}>
           </EXON_PLOT>
       })
     }
@@ -69,40 +71,37 @@ class EXON_PLOT extends React.Component {
     this.doc = this.props.doc;
     this.div = null;
     this.ens_map = {};
+    this.farthestY = 0;
+    this.farthestX = 0;
     this.state = {
       exons: this.props.exonPlotState.exons,
       transcripts: this.props.exonPlotState.transcripts,
       junctions: this.props.exonPlotState.junctions,
       in_data: this.props.exonPlotState.in_data,
-      scaled: this.props.exonPlotState.scaled
+      scaled: this.props.exonPlotState.scaled,
+      downscale: this.props.exonPlotState.downscale,
+      gene_specific_data: this.props.exonPlotState.gene_specific_data,
     };
   }
 
-  baseSVG(w="100%", h=2000) 
+  baseSVG(w=2000, h=2000) 
   {
     this.SVG = d3.select("#".concat(this.target_div))
       .append("svg")
       .attr("width", w)
       .attr("height", h)
-      .attr("id", (this.target_div.concat("_svg")));
+      .attr("id", (this.target_div.concat("_svg")));  
 
     this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-      
-    this.SVG_main_group.append("rect")
-      .attr("width", w)
-      .attr("height", h)
-      .style("stroke", "White")
-      .attr("stroke-width", 0)
-      .attr("type", "canvas")
-      .attr("fill", "White");    
+         
   }
 
-  writeBase()
+  writeBase(h=1500)
   {
     this.SVG_main_group.append("rect")
       .attr("width", "100%")
-      .attr("height", 2000)
-      .style("opacity", 1.0)
+      .attr("height", h)
+      .style("opacity", 0.0)
       .attr("fill", "White");
 
     this.rect = d3.select("body").append("rect") 
@@ -224,14 +223,15 @@ class EXON_PLOT extends React.Component {
   {
     var parent = this;
     var y_start = 110;
+    var fontsize = 13 / (this.state.downscale / 1.17);
     for (const [key, value] of Object.entries(trans_input)) 
     {
       
       var cur_obj = this.SVG_main_group.append("text")
-          .attr("x", 8)
+          .attr("x", 1)
           .attr("y", (y_start + 15))
           .attr("text-anchor", "start")
-          .style("font-size", "13px")
+          .style("font-size", fontsize)
           .style("opacity", 1.0)
           .attr("fill", "black")
           .text(key);
@@ -300,7 +300,7 @@ class EXON_PLOT extends React.Component {
               var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
               //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
               parent.tempOnHover(temp_x, temp_y, [current_unit["name"], hard_start, hard_stop, hard_width_string], "add")
-              })          
+              })
           .on("mouseout", function(d) {   
               //parent.tempTextRemove();
               var pretg = d3.select(this);
@@ -318,6 +318,14 @@ class EXON_PLOT extends React.Component {
       y_start = y_start + 20;
 
     }
+    this.farthestY = y_start + 20;
+    this.SVG_main_group.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .style("opacity", 0)
+      .attr("id", parent.target_div.concat("_dimensions"))
+      .attr("farthestX", Math.ceil(parseInt(parent.farthestX)))
+      .attr("farthestY", parseInt(parent.farthestY));
   }
 
   tempCircleAdd(flag, x, y)
@@ -392,6 +400,159 @@ class EXON_PLOT extends React.Component {
     }
   }
 
+  findRetainedIntrons(GSD)
+  {
+    var retarray = []
+    if(GSD != undefined)
+    {
+      for(var i = 0; i < GSD.length; i++)
+      {
+        var pull_split = GSD[i].uid.split("|");
+        var first_split = pull_split[0].split(":");
+        var second_split = pull_split[1].split(":");
+        
+        var area1 = first_split[2];
+        var area2 = second_split[1];
+
+        var value1 = area1.split("-")[0];
+        var value2 = area1.split("-")[1];
+        var value3 = area2.split("-")[0];
+        var value4 = area2.split("-")[1];
+        if(value1.indexOf("I") != -1)
+        {
+          retarray.push(value1);
+        }
+        if(value2.indexOf("I") != -1)
+        {
+          retarray.push(value2);
+        }
+        if(value3.indexOf("I") != -1)
+        {
+          retarray.push(value3);
+        }
+        if(value4.indexOf("I") != -1)
+        {
+          retarray.push(value4);
+        }
+      }
+    }
+    return retarray;
+  }
+
+  writeGeneSymbol(symbol)
+  {
+    var textToWrite = "Gene: ".concat(symbol);
+    var burger = this.SVG_main_group.append("text")
+    .attr("x", 7)
+    .attr("y", 21)
+    .attr("text-anchor", "start")
+    .style("font-size", 15)
+    .style("opacity", 1.0)
+    .attr("fill", "black")
+    .text(textToWrite);
+  }
+
+  writeGSD(GSD)
+  {
+
+    var addon_id = "big";
+
+    if(this.state.downscale == true)
+    {
+      addon_id = "small";
+    }
+
+
+
+    if(GSD != undefined)
+    {
+    for(var i = 0; i < GSD.length; i++)
+    {
+      var pull_split = GSD[i].uid.split("|");
+      var first_split = pull_split[0].split(":");
+      var second_split = pull_split[1].split(":");
+      
+      var area1 = first_split[2];
+      var area2 = second_split[1];
+
+      //console.log("table_stuff", area1, area2);
+
+      var bl1 = document.getElementById(area1.concat(addon_id).concat("_global_id"));
+      var bl2 = document.getElementById(area2.concat(addon_id).concat("_global_id"));
+
+      var pl1 = document.getElementById(area1.concat(addon_id).concat("_path_global_id"));
+      var pl2 = document.getElementById(area2.concat(addon_id).concat("_path_global_id"));
+
+      var dpsi = parseFloat(GSD[i].dpsi);
+      var rectColor = "blue";
+      if(dpsi > 0.0)
+      {
+        rectColor = "red";
+      }
+
+      //console.log("id found: ", bl1);
+      //console.log("id found: ", bl2);
+
+      if(bl1 != null)
+      {
+        if(dpsi > 0.0)
+        {
+          rectColor = "red";
+        }
+        else
+        {
+          rectColor = "blue";
+        }
+        var pretg1 = d3.select(bl1);
+        pretg1.style('fill', rectColor);
+      }
+
+      if(bl2 != null)
+      {
+        if(dpsi > 0.0)
+        {
+          rectColor = "blue";
+        }
+        else
+        {
+          rectColor = "red";
+        }
+        var pretg2 = d3.select(bl2);
+        pretg2.style('fill', rectColor);
+      }
+
+      if(pl1 != null)
+      {
+        if(dpsi > 0.0)
+        {
+          rectColor = "red";
+        }
+        else
+        {
+          rectColor = "blue";
+        }
+        var gretg1 = d3.select(pl1);
+        gretg1.attr('stroke', rectColor);
+      }
+
+      if(pl2 != null)
+      {
+        if(dpsi > 0.0)
+        {
+          rectColor = "blue";
+        }
+        else
+        {
+          rectColor = "red";
+        }
+        var gretg2 = d3.select(pl2);
+        gretg2.attr('stroke', rectColor);
+      }
+ 
+    }
+    }
+  }
+
   writeJunctions(junc_input, in_data)
   {
     var parent = this;
@@ -399,6 +560,7 @@ class EXON_PLOT extends React.Component {
     var juncpointset = [];
     var juncpointset8 = [];
     var juncpointset12 = [];
+    //console.log("coordinates_", in_data);
     for(var i = 0; i < junc_input.length; i++)
     {
       try {
@@ -418,8 +580,15 @@ class EXON_PLOT extends React.Component {
         var finishing_exon = parse[0];
       }
 
-      const get_1 = document.getElementById(starting_exon.concat("_global_id"));
-      const get_2 = document.getElementById(finishing_exon.concat("_global_id"));
+      var addon_id = "big";
+
+      if(this.state.downscale == true)
+      {
+        addon_id = "small";
+      }      
+
+      const get_1 = document.getElementById(starting_exon.concat(addon_id).concat("_global_id"));
+      const get_2 = document.getElementById(finishing_exon.concat(addon_id).concat("_global_id"));
 
       const gmos_1 = get_1["attributes"]["exname"]["nodeValue"];
       var temp_x_1 = parseFloat(get_1["attributes"]["x"]["nodeValue"]);
@@ -509,6 +678,7 @@ class EXON_PLOT extends React.Component {
       this.SVG_main_group.append('path')
         .attr('d', curve(points))
         .attr('stroke', junction_color)
+        .attr('id', cur_junc.concat(addon_id).concat("_path_global_id"))
         // with multiple points defined, if you leave out fill:none,
         // the overlapping space defined by the points is filled with
         // the default value of 'black'
@@ -518,7 +688,7 @@ class EXON_PLOT extends React.Component {
         .attr('cx', t_x_s)
         .attr('cy', finy)
         .attr('r', 5)
-        .attr('id', cur_junc.concat("_global_id"))
+        .attr('id', cur_junc.concat(addon_id).concat("_global_id"))
         .style('fill', circle_color)
         .on("mouseover", function() {
               var pretg = d3.select(this);
@@ -549,7 +719,7 @@ class EXON_PLOT extends React.Component {
     }
   }
 
-  writeExons(exon_input)
+  writeExons(exon_input, retained_introns)
   {
     var parent = this;
     var starting_point = exon_input[0]["start"];
@@ -557,15 +727,22 @@ class EXON_PLOT extends React.Component {
     var to_x_scale = 0;
     var min_exon_length = 3;
     var max_exon_length = 20;
-    var x_offset = 150;
+    var x_offset = 150 / this.state.downscale;
+    var addon_id = "big";
+
+    if(this.state.downscale == true)
+    {
+      addon_id = "small";
+    }
+
     for(var i = 0; i < exon_input.length; i++)
     {
       var exname = exon_input[i]["exon_name"];
 
       if(i == 0)
       {
-        var x_pos_1 = exon_input[i]["start"] - starting_point;
-        var x_pos_2 = exon_input[i]["stop"] - starting_point;
+        var x_pos_1 = (exon_input[i]["start"] - starting_point) / this.state.downscale;
+        var x_pos_2 = (exon_input[i]["stop"] - starting_point) / this.state.downscale;
         if(this.state.scaled == true)
         {
           if((x_pos_2 - x_pos_1) > 20)
@@ -588,7 +765,20 @@ class EXON_PLOT extends React.Component {
       }
       else
       {
+        var retainedFound1 = true;
         if(exname.charAt(0) == "I")
+        {
+          retainedFound1 = false;
+          for(var pk = 0; pk < retained_introns.length; pk++)
+          {
+            if(exname == retained_introns[pk])
+            {
+              retainedFound1 = true;
+              break;
+            }
+          }
+        }
+        if(retainedFound1 == false)
         {
           scale_exon_stop = this.state.scaled == true ? scale_exon_stop + 20 : scale_exon_stop + 200;
           continue;
@@ -596,7 +786,7 @@ class EXON_PLOT extends React.Component {
         else
         {
           var x_pos_1 = scale_exon_stop;
-          var x_pos_2 = scale_exon_stop + (exon_input[i]["stop"] - exon_input[i]["start"]);
+          var x_pos_2 = scale_exon_stop + ((exon_input[i]["stop"] - exon_input[i]["start"])  / this.state.downscale);
           if(this.state.scaled == true)
           {
             if((exon_input[i]["stop"] - exon_input[i]["start"]) < 3)
@@ -620,11 +810,12 @@ class EXON_PLOT extends React.Component {
       }
     }
 
-    to_x_scale = (window.innerWidth / 1.25) / scale_exon_stop;
+    to_x_scale = ((window.innerWidth / 1.25) / this.state.downscale) / scale_exon_stop;
 
     var last_exon_stop = 0;
     for(var i = 0; i < exon_input.length; i++)
     {
+      var special_intron_flag = false;
       const exname = exon_input[i]["exon_name"];
       const hard_start = "Start: ".concat(exon_input[i]["start"].toString()).concat(" bp");
       const hard_stop = "Stop: ".concat(exon_input[i]["stop"].toString()).concat(" bp");
@@ -634,8 +825,8 @@ class EXON_PLOT extends React.Component {
 
       if(i == 0)
       {
-        var x_pos_1 = exon_input[i]["start"] - starting_point;
-        var x_pos_2 = exon_input[i]["stop"] - starting_point;
+        var x_pos_1 = (exon_input[i]["start"] - starting_point) / this.state.downscale;
+        var x_pos_2 = (exon_input[i]["stop"] - starting_point) / this.state.downscale;
         if(this.state.scaled == true)
         {
           if((x_pos_2 - x_pos_1) > 20)
@@ -660,7 +851,20 @@ class EXON_PLOT extends React.Component {
       }
       else
       {
+        var retainedFound2 = true;
         if(exname.charAt(0) == "I")
+        {
+          retainedFound2 = false;
+          for(var pk = 0; pk < retained_introns.length; pk++)
+          {
+            if(exname == retained_introns[pk]){
+              retainedFound2 = true;
+              special_intron_flag = true;
+              break;
+            }
+          }
+        }
+        if(retainedFound2 == false)
         {
           if(this.state.scaled == true)
           {
@@ -675,7 +879,7 @@ class EXON_PLOT extends React.Component {
         else
         {
           var x_pos_1 = last_exon_stop;
-          var x_pos_2 = last_exon_stop + (exon_input[i]["stop"] - exon_input[i]["start"]);
+          var x_pos_2 = last_exon_stop + ((exon_input[i]["stop"] - exon_input[i]["start"]) / this.state.downscale);
           if(this.state.scaled == true)
           {
             if((exon_input[i]["stop"] - exon_input[i]["start"]) < 3)
@@ -705,21 +909,23 @@ class EXON_PLOT extends React.Component {
 
       var higs = this.div;
 
-      var cur_obj = this.SVG_main_group.append("rect")
-        .attr("x", (x_offset + x_pos_1))
-        .attr("y", 90)
-        .attr("width", (x_pos_2 - x_pos_1))
-        .attr("height", 10)
-        .style("stroke", "grey")
-        .style("stroke-width", "1")
-        .style("opacity", 1.0)
-        .attr("fill", "#e6e6e6")
-        .attr("id", exname.concat("_global_id"))
-        .attr("exname", exname)
-        .attr("ensembl_exon_id", exon_input[i]["ensembl_exon_id"])
-        .attr("start", exon_input[i]["start"])
-        .attr("stop", exon_input[i]["stop"])
-        .on("mouseover", function() {
+      if(special_intron_flag)
+      {
+        var cur_obj2 = this.SVG_main_group.append("rect")
+          .attr("x", (x_offset + x_pos_1))
+          .attr("y", 92)
+          .attr("width", (x_pos_2 - x_pos_1))
+          .attr("height", 6)
+          .style("stroke", "grey")
+          .style("stroke-width", "1")
+          .style("opacity", 0.5)
+          .attr("fill", "red")
+          .attr("id", exname.concat(addon_id).concat("_global_id"))
+          .attr("exname", exname)
+          .attr("ensembl_exon_id", exon_input[i]["ensembl_exon_id"])
+          .attr("start", exon_input[i]["start"])
+          .attr("stop", exon_input[i]["stop"])
+          .on("mouseover", function() {
             //console.log(cur_obj);
             var pretg = d3.select(this);
             var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
@@ -729,14 +935,54 @@ class EXON_PLOT extends React.Component {
             //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
             parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "add")
             })          
-        .on("mouseout", function(d) {   
-            //parent.tempTextRemove();
-            var pretg = d3.select(this);
-            var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
-            var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
-            var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
-            parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "remove")
-        });
+          .on("mouseout", function(d) {   
+              //parent.tempTextRemove();
+              var pretg = d3.select(this);
+              var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
+              var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
+              var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
+              parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "remove")
+          });
+      }
+      else
+      {
+        var cur_obj = this.SVG_main_group.append("rect")
+          .attr("x", (x_offset + x_pos_1))
+          .attr("y", 90)
+          .attr("width", (x_pos_2 - x_pos_1))
+          .attr("height", 10)
+          .style("stroke", "grey")
+          .style("stroke-width", "1")
+          .style("opacity", 1.0)
+          .attr("fill", "#e6e6e6")
+          .attr("id", exname.concat(addon_id).concat("_global_id"))
+          .attr("exname", exname)
+          .attr("ensembl_exon_id", exon_input[i]["ensembl_exon_id"])
+          .attr("start", exon_input[i]["start"])
+          .attr("stop", exon_input[i]["stop"])
+          .on("mouseover", function() {
+              //console.log(cur_obj);
+              var pretg = d3.select(this);
+              var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
+              var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
+              var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
+              const pip = exname.concat("_global_id")
+              //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
+              parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "add")
+              })          
+          .on("mouseout", function(d) {   
+              //parent.tempTextRemove();
+              var pretg = d3.select(this);
+              var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
+              var temp_x = pretg["_groups"][0][0]["attributes"]["x"]["nodeValue"];
+              var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
+              parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "remove")
+          });
+      }
+      if(this.farthestX < (x_pos_2 + x_offset))
+      {
+        this.farthestX = x_pos_2 + x_offset;
+      }
 
       this.ens_map[exon_input[i]["start"]] = {};
       this.ens_map[exon_input[i]["start"]]["name"] = exname;
@@ -764,7 +1010,8 @@ class EXON_PLOT extends React.Component {
         transcripts: this.props.exonPlotState.transcripts,
         junctions: this.props.exonPlotState.junctions,
         in_data: this.props.exonPlotState.in_data,
-        scaled: this.props.exonPlotState.scaled
+        scaled: this.props.exonPlotState.scaled,
+        gene_specific_data: this.props.exonPlotState.gene_specific_data
       })
       return(
         null
@@ -778,14 +1025,44 @@ class EXON_PLOT extends React.Component {
     while (tempnode.firstChild) {
         tempnode.removeChild(tempnode.firstChild);
     }
-    this.baseSVG();
-    this.writeBase();
+    //console.log("in exon plot", this.state.gene_specific_data);
+    //console.log("TRANSCRIPT LIST: ", this.state.transcripts);
     if(this.state.exons != null && this.state.transcripts != null && this.state.junctions != null)
     {
+      var ysim = 110;
+      for (const [key, value] of Object.entries(this.state.transcripts))
+      {
+        ysim = ysim + 20;
+      }
+      ysim = ysim + 35;
+      this.baseSVG(2000, ysim);
+      this.writeBase(ysim);
       var sorted_exons = this.state.exons.sort((a, b)=>{return Number(a["start"])-Number(b["start"])})
-      this.writeExons(sorted_exons);
+      //console.log("sorted_exons", sorted_exons);
+      var retainedIntrons = this.findRetainedIntrons(this.state.gene_specific_data);
+      //console.log("retained Introns", retainedIntrons);
+      this.writeExons(sorted_exons, retainedIntrons);
       this.writeJunctions(this.state.junctions, this.state.in_data);
-      this.writeTranscripts(this.state.transcripts)
+      this.writeTranscripts(this.state.transcripts);
+      if(this.state.gene_specific_data != undefined)
+      {
+        var geneSymbol = this.state.gene_specific_data[0].uid.split(":")[0];
+        this.writeGeneSymbol(geneSymbol);
+        this.writeGSD(this.state.gene_specific_data);
+      }
+    }
+    else
+    {
+      this.baseSVG();
+      this.writeBase();
+      var cur_obj = this.SVG_main_group.append("text")
+          .attr("x", 25)
+          .attr("y", 20)
+          .attr("text-anchor", "start")
+          .style("font-size", 18)
+          .style("opacity", 1.0)
+          .attr("fill", "black")
+          .text("Selection required from the table above.");
     }
     return(
       null

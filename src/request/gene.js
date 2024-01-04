@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import QueueMessage from '../components/QueueMessage';
 import axios from 'axios';
+import { isBuild } from '../utilities/constants.js';
+
+var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 function gene(arg, targeturl)
 {
@@ -22,7 +24,7 @@ function gene(arg, targeturl)
   bodyFormData.append("CANCER",curCancer);
   axios({
     method: "post",
-    url: (targeturl.concat("/backend/getgene.php")),
+    url: (routeurl.concat("/backend/getgene.php")),
     data: bodyFormData,
     headers: { "Content-Type": "multipart/form-data" },
   })

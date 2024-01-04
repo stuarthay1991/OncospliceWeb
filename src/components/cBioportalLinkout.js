@@ -2,7 +2,10 @@ import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import axios from 'axios';
+import { isBuild } from '../utilities/constants.js';
 import targeturl from '../targeturl.js';
+
+var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 function goToCBio(uuid)
 {
@@ -29,23 +32,22 @@ function sendSamplesRetrieveURL(props)
 		}
 	}
 	var studyID;
-	let cbioportalCancerDictionaryPromise = [];
-	var cbioportalCancerDictionaryFormData = new FormData();
-	cbioportalCancerDictionaryFormData.append("DATA",props.cancer);
 	axios({
-		    method: "post",
-		    url: (targeturl.concat("/backend/cBioportalTranslateStudies.php")),
-		    data: cbioportalCancerDictionaryFormData,
-		    headers: { "Content-Type": "multipart/form-data" },
+		method: "post",
+		url: (routeurl.concat("/api/datasets/translatecbio")),
+		data: ({"data": {"cancerType": props.cancer}}),
+		headers: { "Content-Type": "application/json"},
 	})
 	.then(function (res) {
+		//console.log("Wagga", res["data"]);
 		studyID = res["data"];
 		let curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
 
 		for(let i in cBioportalJsonData)
 		{
+			let nameSet = Array.isArray(props.label[i]) == true ? props.label[i][0] : props.label[i];
 			curlCommandJsonDataObject["groups"][i] = {};
-			curlCommandJsonDataObject["groups"][i]["name"] = props.label[i];
+			curlCommandJsonDataObject["groups"][i]["name"] = nameSet;
 			curlCommandJsonDataObject["groups"][i]["description"] = "";
 			curlCommandJsonDataObject["groups"][i]["studies"] = [];
 			curlCommandJsonDataObject["groups"][i]["studies"][0] = {};
@@ -54,20 +56,21 @@ function sendSamplesRetrieveURL(props)
 			curlCommandJsonDataObject["groups"][i]["studies"][0]["patients"] = cBioportalJsonData[i];
 			curlCommandJsonDataObject["groups"][i]["origin"] = [];
 			curlCommandJsonDataObject["groups"][i]["origin"][0] = studyID;
-			curlCommandJsonDataObject["groups"][i]["uid"] = "62665b890934121b56df06b5".concat(i.toString());
+			curlCommandJsonDataObject["groups"][i]["uid"] = "62665b890934121b56df06b".concat(i.toString());
 			curlCommandJsonDataObject["groups"][i]["isSharedGroup"] = false;
 			curlCommandJsonDataObject["groups"][i]["nonExistentSamples"] = [];
 		}
 
-		var cBioportalFormData = new FormData();
-		cBioportalFormData.append("DATA",JSON.stringify(curlCommandJsonDataObject));
+		var cBioportalFormData = curlCommandJsonDataObject;
+		//console.log("pre-cbio", cBioportalFormData);
 		axios({
 		    method: "post",
-		    url: (targeturl.concat("/backend/cbioportal.php")),
+		    url: (routeurl.concat("/api/datasets/cbioCurlCommand")),
 		    data: cBioportalFormData,
-		    headers: { "Content-Type": "multipart/form-data" },
+		    headers: { "Content-Type": "application/json" },
 		})
 		    .then(function (response) {
+		      //console.log("cbio", response);
 		      var returned_uuid = response["data"]["id"];
 		      //uuid in this case is a comparison id returned by the curl command. It gives us the correct destination for our survival plot.
 		      goToCBio(returned_uuid);
@@ -78,9 +81,9 @@ function sendSamplesRetrieveURL(props)
 
 //This component facilitates the retrieval of information from cBioportal (using our selected sample names) to complete a URL linkout for visualizing
 //survival plots.
-function CBioportalLinkout(props)
+function CbioportalLinkout(props)
 {
-	var isDisabled = cancerCodeTranslate[props.cancer] == null ? true : false;
+	var isDisabled = props.cancer == "AML_Leucegene" ? true : false;
 	var buttonStyles = isDisabled == false ? {"cursor":'pointer', "backgroundColor":'#EFAD18', "opacity":1} : {"cursor":'not-allowed', "backgroundColor":'grey', "opacity":0.5};
 	var tooltipMessage = isDisabled == false ? "View cBioportal analysis" : "cBioportal analysis not available for this cancer";
 	return(
@@ -104,4 +107,4 @@ function CBioportalLinkout(props)
 	)
 }
 
-export default CBioportalLinkout;
+export default CbioportalLinkout;

@@ -1,0 +1,7 @@
+
+.containerSidebar{
+    position:absolute;
+    height:50vh;
+    width: 200px;
+    z-index: 3;
+}

@@ -1,6 +1,7 @@
 import Plot from 'react-plotly.js';
-import CBioportalLinkout from '../components/CBioportalLinkout';
-import { global_colors } from '../constants.js';
+import CbioportalLinkout from '../components/cBioportalLinkout';
+import { global_colors } from '../utilities/constants.js';
+import {ExpandedPlotViewButton} from '../components/ExpandedPlotView';
 
 //This function groups samples by their atrributes and outputs two components:
 //1. A violin plot (using Plotly.js) that compares expression between sample atrribute groups.
@@ -35,14 +36,16 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
         marker: {color: curcolor},
       });
   }
-  var plotobj = <><Plot
+  var available_width = window.innerWidth;
+  var available_height = window.innerHeight;
+  var plotobj = <div id="lub2"><Plot
               data={datarray}
-              layout={ {width: 535, 
+              layout={ {width: 0.25 * available_width, 
                         height: 300,
                         margin: {
                           l: 48,
-                          r: 48,
-                          b: 100,
+                          r: 16,
+                          b: 160,
                           t: 40
                         },
                         title: {
@@ -53,6 +56,7 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
                             color: '#7f7f7f'
                             }
                         },
+                        showlegend: false,
                         yaxis:{
                         range: [0, 1],
                         title: {
@@ -74,8 +78,15 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
                         }
                       }} }
   />
-  <CBioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/>
-  </>;
+  <div style={{display:"inline-block", width:"100%"}}>
+  <span style={{float: "left"}}>
+    <CbioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/>
+  </span>
+  <span style={{float: "right"}}>
+    <ExpandedPlotViewButton inputType={"samplefilter"}></ExpandedPlotViewButton>
+  </span>
+  </div>
+  </div>;
   return plotobj;
 }
 

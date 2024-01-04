@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import useStyles from './useStyles.js';
+import useStyles from './css/useStyles.js';
 import AboutUs from './components/AboutUs';
 import '@fontsource/roboto';
 import Button from '@material-ui/core/Button';
@@ -14,27 +14,28 @@ import LockIcon from '@material-ui/icons/Lock';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import './App.css';
-import BQPanel from './pages/BuildQuery/BuildQueryPanel.js';
+import Header from './components/NavBarDropdown.js';
 import ViewPanelWrapper from './ViewPanelWrapper.js';
+import { makeRequest } from './request/CancerDataManagement.js';
 //import Authentication from './Authentication.js';
-import QueryHistoryPanelWrapper from './QueryHistoryPanelWrapper.js';
+import PanCancerAnalysis from './PanCancerAnalysis.js';
 
 const spcTabStyles = makeStyles({
   root: {
     backgroundColor: "#edf0f5",
     color: '#0F6A8B',
-    fontSize: "1.36em",
-    paddingRight: 43,
-    paddingLeft: 43,
+    fontSize: "1em",
+    paddingRight: 34,
+    paddingLeft: 34,
     marginLeft: 5,
     marginRight: 5
   },
   selected: {
     backgroundColor: "white",
     color: '#0F6A8B',
-    fontSize: "1.36em",
-    paddingRight: 43,
-    paddingLeft: 43,
+    fontSize: "1em",
+    paddingRight: 34,
+    paddingLeft: 34,
     marginLeft: 5,
     marginRight: 5
   }
@@ -58,28 +59,14 @@ function MainPanel(props){
 
   //Each time the user selects an option, it is recorded in the "pagelist" cache variable which is not used now, but could be useful later.
   props.addPage(page);
-
-  //This is a hack I used to solve a serious problem I was having with storing cache data in the website router. Basically, whenever a user would
-  //select a new tab, serious bugs would start appearing. The history was recorded in the cache and it would display properly at first, but I was
-  //running into a multitude of serious errors that were taking way to long to fix. The solution Nathan & I agreed upon was to just reload the entire
-  //application whenever a user moved back to the "build query" pane.
-  if(props.pagelist.length > 1 && page=="build")
-  {
-    window.location.reload(true);
-  }
-  if(params["options"] != undefined){
-    console.log(params["options"]);
-  }
-
+  
   //These are just basic converters to change the url appendage "page" to an integer value so it can be compatible with the tab system that I'm using.
   const tabNameToIndex = {
-    0: "build",
     1: "explore",
     2: "history"
   };
 
   const indexToTabName = {
-    build: 0,
     explore: 1,
     history: 2
   };
@@ -98,36 +85,9 @@ function MainPanel(props){
     authentication: {
       user: "Default",
       data: []
-    },
-    //"bqstate" describes what will be shown on the "build query" tab. This is where most of the problems lie. It is needlessly complicated at present and could
-    //use redesign, but currently it is too risky to move anything.
-    bqstate: {
-      defaultQuery: false, //This informs whether or not the "default query" selection has been ticked.
-      queueboxValues: {"children": undefined, "signatures": undefined}, //This represents what will be populated into the queuebox on the right hand side of the build query pane. As the user selects options, the list will populate.
-      preQueueboxValues: {"children": {}, "signatures": {}}, //This is currently just used to store some information for clinical metadata and signature queries. It holds the same keys as queryboxchildren, but it used much less and will likely be replaced with a more pertinent variable in the future.
-      eventfilterSet: null, //This denotes whether the event filter has been selected or not; will likely remove in the future as it is redundant.
-      resultAmount: {"samples": 0, "events": 0}, //This informs the "prospective results" at the bottom of the querybox. 
-      childrenFilters: {}, //When a filter is selected on the left hand side of the build query pane, a set of sub-options for that filter will appear in the queuebox on the right. For example, if a user selects "Age" the age ranges will appear in a combobox inside the queuebox. This varaible holds those values.
-      listOfSelectedSignatures: [], // When a signature is selected, it is added to this variable. Using "keys" to retrieve it, it is used in both the query and populating the queuebox.
-      queryFilter: {}, // This currently holds the same information as childrenFilters and will likely be deleted soon.
-      querySignature: {}, // This currently holds the same information as listOfSelectedSignatures and will likely be deleted soon.
-      clientCoord: [], //If the user has selected genomic coordinates in their query, this list will hold them. This list is sent directly to the database for retrieval.
-      clientGenes: [], //If the user has selected genes in their query, this list will hold them. This list is sent directly to the database for retrieval.
-      keys: {"filter": [], "single": []}, //The "keys" are crucial. These are a way to keep track of every filter and signature that has been selected, a unique ID is created on the fly for each one and stored here.
-      range: undefined, //Some filters have numerical, rather than categorical, values. This keeps track of whether or not the chosen filter is numerical, and whether or not that numerical filter has ranges of numbers, as opposed to individual numbers. For example, instead of individual ages of patients, a RANGE will have groups of ages, such as "18-30", "31-50", etc.
-      cancer: "", //This informs the currently selected cancer.
-      uiFields: {}, //This is important. When the user initially selects a cancer, there are a set of clinical metadata filters specific to that cancer that must be retrieved from the database. These are then used to populate the UI. This object informs that process.
-      export: {}, //This is misc information that is sent to the "export" object in viewpaneobj.
-      genes: [], //I'm almost certain this is deprecated and will be removed soon.
-      coordinates: [], //I'm almost certain this is deprecated and will be removed soon.
-      signatures: undefined, // When a cancer for signatures specifically is selected, the list to choose from each signature is populated here.
-      sigTranslate: undefined, //The signatures have two different values: one is a strict literature value, and another is a more readable, shortened version. This dictionary allows us to switch between the two.
-      filterboxSEF: "", //"Select Event Filter object." This informs the the associated dropdown menu, allowing the user to select between genes, coordinates or signatures.
-      SEFobj: null, //This directly holds the UI object of the Select Event Filter. It's a sloppy solution that I may change quite soon.
-      comparedCancer: null, //If the signature filter has been selected, a user may choose any other cancer's signatures to match with the current cancer. The cancer chosen will appear here.
-      sigdisplay: "none" //This informs whether or not to display the signatures div. It's a sloppy solution that I may change quite soon.
     }
   });
+
   if(process.env.NODE_ENV == "build")
   {
     var routeurl = "/ICGS/Oncosplice/testing/index.html/";
@@ -154,14 +114,14 @@ function MainPanel(props){
       setMpstate({
         ...mpstate,
         value: newValue,
-        bqstate: mpstate.bqstate,
         viewpaneobj: temp_view_obj,
       });
   };
 
   //The purpose of this function is to allow the "build query" pane to transition to the "data exploration" pane when a query has been sent through.
-  const setViewPane = (list1, list2, list3, list4, list5, exp, bqstate) => {
+  const setViewPane = (list1, list2, list3, list4, list5, exp) => {
     var stateobj = {};
+    //console.log("heatmap updating...", list1)
     stateobj["heatmapInputData"] = list1;
     stateobj["inCols"] = list2;
     stateobj["inCC"] = list3;
@@ -172,10 +132,11 @@ function MainPanel(props){
     setMpstate({
         viewpaneobj: stateobj,
         authentication: mpstate.authentication,
-        value: 1,
-        bqstate: bqstate,
+        value: 1
     });
   }
+
+  const [panCancerState, setPanCancerState] = React.useState({"DEtableData": undefined, "tableData": undefined, "clusterLength": undefined, "cancer": undefined});
 
   //update query history function
   const updateQH = (new_user, data) => {
@@ -188,9 +149,14 @@ function MainPanel(props){
         });    
   }
 
+
   //This is a hack I useed. For whatever reason, I would sometimes have issues getting the correct tab to show up. This function fixed it, ahd while
   //I'm not 100% sure why, it works, and so therefore it stays.
+  
+  var mpv = mpstate.viewpaneobj;
+  //console.log("mpv", mpv);
   React.useEffect(() => {
+    //console.log("mpstate updating...", mpstate.viewpaneobj)
     if(mpstate.value != indexToTabName[page])
     {
         setMpstate({
@@ -200,6 +166,26 @@ function MainPanel(props){
     }
   }, [mpstate.value])
 
+  //Fetch data from the heatmap
+  /*React.useEffect(() => {
+    console.log("mpstate updating...", mpstate.viewpaneobj)
+    if(mpv !== mpstate.viewpaneobj)
+    {
+
+    }
+  }, [mpstate.viewpaneobj])*/
+
+  if(props.pagelist.length <= 1 && page == "explore")
+  {
+    var args = {};
+    var functionpointer = makeRequest;
+    args["setState"] = setViewPane;
+    args["pancancerupdate"] = setPanCancerState;
+    args["export"] = {};
+    args["cancer"] = "BRCA";
+    args["doc"] = document;
+    makeRequest("defaultQuery", args);
+  }
   //This is the layout of the main pane in action.
   //It's important to note that the "Tabs" element informs the UI for the Tabs, while further down the "tabcontent" div informs the actual substance of those tab selections.
   //"Authentication" informs the currently broken google authentication feature, which will be crucial to implementing the UUID based routing framework.
@@ -207,31 +193,21 @@ function MainPanel(props){
           <Authentication updateQH={updateQH}/>
         </div>*/
   return (
-    <div className={classes.root} style={{ fontFamily: 'Roboto' }}>
-      <div className={classes.demo2}>
+    <div className={classes.root} style={{ fontFamily: 'Roboto'}}>
+      <div id="navBarHolder" className={classes.demo2}>
         <div className={classes.tabholder}>
-        <Grid container spacing={0}>
-        <Grid item sm={12} md={9}>
-        <Typography className={classes.padding} />
-        <Tabs id="tabset" value={mpstate.value} onChange={handleChange} aria-label="simple tabs example" TabIndicatorProps={{style: {background:'#EFAD18'}}}>
-          <Tab classes={tabstyle} label="Build Query" style={{ textTransform: 'none'}}/>
-          <Tab classes={tabstyle} label="Explore Data" style={{ textTransform: 'none'}}/>
-          <Tab classes={tabstyle} icon={<LockIcon />} label="Query History" style={{ textTransform: 'none'}}></Tab>
-        </Tabs>
-        </Grid>
-        <Grid item sm={12} md={3}>
-        <Typography className={classes.padding} />
-
-        </Grid>
-        </Grid>
+        <div>
+          <Header setViewPane={setViewPane} setPanCancerState={setPanCancerState}/>
+        </div>
         </div>
       </div>
       <div id="tabcontent" style={{display: "block"}}>
-      {mpstate.value === 0 && <BQPanel setViewPane={setViewPane}/>}
       {mpstate.value === 1 && <ViewPanelWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
-      {mpstate.value === 2 && <QueryHistoryPanelWrapper user={mpstate.authentication.user} data={mpstate.authentication.data}/>}
       </div>
-      <div id="aboutpanel" style={{display: "none", margin: 15}}>
+      <div id="pancancerpanel" style={{display: "none"}}>
+        <PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer}/>
+      </div>
+      <div id="aboutpanel" style={{display: "none", backgroundColor: "#0f6a8b"}}>
         <AboutUs />
       </div>
       <div id="contactpanel" style={{display: "none", margin: 15}}>

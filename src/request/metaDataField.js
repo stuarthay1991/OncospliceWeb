@@ -1,20 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import QueueMessage from '../components/QueueMessage';
 import axios from 'axios';
+import { isBuild } from '../utilities/constants.js';
+
+var routeurl = isBuild ? "http://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 function metaDataField(arg, targeturl)
 {
-	const filter = arg["filter"];
-	const keys = arg["keys"];
-	const number = arg["number"];
-	var value = arg["value"];
-	var name = arg["name"];
-	const cancer = arg["cancer"];
-	const preQ = arg["pre_queueboxchildren"];
-	const stateQboxchildren = arg["queueboxchildren"];
-	const exportView = arg["export"];
-  	var bodyFormData = new FormData();
+  	const filter = arg["filter"];
+  	const keys = arg["keys"];
+  	const number = arg["number"];
+  	var value = arg["value"];
+  	var name = arg["name"];
+  	const cancer = arg["cancer"];
+  	const preQ = arg["pre_queueboxchildren"];
+  	const stateQboxchildren = arg["queueboxchildren"];
+  	const exportView = arg["export"];
+    var postedData = {};
+    var selectedFields = {};
+    var prevFields = [];
+
   	exportView["filter"] = [];
 
   	for(var i = 0; i < keys[filter].length; i++)
@@ -22,19 +27,19 @@ function metaDataField(arg, targeturl)
   		var item = preQ["children"][keys[filter][i]];
     	var queryString = item.props.value;
     	queryString = queryString.replace(/(\r\n|\n|\r)/gm, "");
-    	bodyFormData.append(item.props.name, queryString);
+      prevFields.push({"key": item.props.name, "value": queryString});
     	exportView["filter"].push((item.props.name.concat("#").concat(queryString)));
     	//sendToViewPane["filter"].push((item.props.name.concat("#").concat(myString)));
   	}
   	name = name.replace(/(\r\n|\n|\r)/gm, "");
   	value = value.replace(/(\r\n|\n|\r)/gm, "");
-  	bodyFormData.append(("SEL".concat(name)), value);
-  	bodyFormData.append("CANCER",cancer);
+    postedData = {"data": {"cancerType": cancer, "prevFields": prevFields, "selectedField": {"key": name, "value": value}}};
+
   	axios({
     	method: "post",
-    	url: (targeturl.concat("/backend/getsinglemeta.php")),
-    	data: bodyFormData,
-    	headers: { "Content-Type": "multipart/form-data" },
+    	url: routeurl.concat("/api/datasets/getsamples"),
+    	data: postedData,
+    	headers: { "Content-Type": "application/json" },
   	})
     .then(function (response) {
       //console.log("selectfield response code starting...");

@@ -25,21 +25,33 @@ import downloadHeatmapText from './components/downloadHeatmapText';
 import axios from 'axios';
 import Tooltip from '@material-ui/core/Tooltip';
 import targeturl from './targeturl.js';
+import GridLayout from "react-grid-layout";
+import { Responsive, WidthProvider } from "react-grid-layout";
+import { Resizable, ResizableBox } from "react-resizable";
+import loadingGif from './images/loading.gif';
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
+import './css/sidebar.css';
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 import Plot from 'react-plotly.js';
 import * as d3 from 'd3';
-import useStyles from './useStyles.js';
-import { global_colors } from './constants.js';
+import useStyles from './css/useStyles.js';
+import { global_colors } from './utilities/constants.js';
 
 import oncospliceClusterViolinPlotPanel from './plots/oncospliceClusterViolinPlotPanel';
 import hierarchicalClusterViolinPlotPanel from './plots/hierarchicalClusterViolinPlotPanel';
 import sampleFilterViolinPlotPanel from './plots/sampleFilterViolinPlotPanel';
 import { gtexSend } from './plots/gtexPlotPanel.js';
-import { downloadExonPlotData} from './downloadDataFile.js';
+import { downloadExonPlotData, downloadPdfFunction, downloadHeatmapFunction} from './downloadDataFile.js';
 import SetExonPlot from './plots/exonPlot.js';
 import OKMAP_COLUMN_CLUSTERS from './plots/okmapColumnClusters.js';
 import OKMAP_OncospliceClusters from './plots/okmapOncospliceClusters.js';
 import PlotPanel from './plots/plotPanel.js';
+import { isBuild } from './utilities/constants.js';
+
+var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 var global_meta = [];
 var global_sig = [];
@@ -57,7 +69,7 @@ var global_heat_len = "";
 var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
 var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
 
-function metarepost(name) {
+function metarepost(name, setFilterState) {
   var bodyFormData = new FormData();
   if(name != "age range")
   {
@@ -66,28 +78,34 @@ function metarepost(name) {
   }
   bodyFormData.append("NAME", name);
   bodyFormData.append("CANCER", global_cancer);
+  var postData = {"data": {
+    "name": name,
+    "cancerType": global_cancer
+  }}
   axios({
     method: "post",
-    url: (targeturl.concat("/backend/single.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
+    url: routeurl.concat("/api/datasets/interactiveFilter"),
+    data: postData,
+    headers: { "Content-Type": "application/json" },
   })
     .then(function (response) {
       var ret = response["data"];
       updateOkmapLabel(ret);
-      supFilterUpdate(ret);
+      setFilterState({filters: ret["out"], filterset: ret["set"]});
     })
 }
 
 function oneUIDrequest(UID) {
   var bodyFormData = new FormData();
-  bodyFormData.append("UID",UID);
-  bodyFormData.append("CANCER",global_cancer);
+  var postData = {"data": {
+    "uid": UID,
+    "cancerType": global_cancer
+  }}
   axios({
     method: "post",
-    url: (targeturl.concat("/backend/one_uid_retrieve.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
+    url: routeurl.concat("/api/datasets/singleUidData"),
+    data: postData,
+    headers: { "Content-Type": "application/json" },
   })
     .then(function (response) {
       plotUIDupdate(response["data"]["result"][0])
@@ -96,15 +114,16 @@ function oneUIDrequest(UID) {
 
 function exonRequest(GENE, in_data, setViewState, viewState, exonPlotState, setExonPlotState) {
   var bodyFormData = new FormData();
-  bodyFormData.append("GENE",GENE);
+  var postedData = {"data": {"gene": GENE}}
   axios({
     method: "post",
-    url: (targeturl.concat("/backend/exon_retrieve.php")),
-    data: bodyFormData,
-    headers: { "Content-Type": "multipart/form-data" },
+    url: routeurl.concat("/api/datasets/exonViewerData"),
+    data: postedData,
+    headers: { "Content-Type": "application/json" },
   })
     .then(function (response) {
       var resp = response["data"];
+      //console.log("blobbings", resp["blob"]);
       setViewState({
         toDownloadExon: resp["blob"]["trans"],
         toDownloadGeneModel: resp["blob"]["genemodel"],
@@ -112,10 +131,12 @@ function exonRequest(GENE, in_data, setViewState, viewState, exonPlotState, setE
       });
       setExonPlotState({
         exons: resp["gene"], 
-        transcripts: resp["trans"], 
+        transcripts: resp["transcript"], 
         junctions: resp["junc"],
         in_data: in_data,
-        scaled: exonPlotState.scaled
+        scaled: exonPlotState.scaled,
+        targetdiv: "supp1",
+        downscale: 1
       });
   })
 }
@@ -127,13 +148,6 @@ function plotUIDupdate(dat)
   })    
 }
 
-function plot4update(vec)
-{
-  this.setState({
-    plot4: vec
-  })  
-}
-
 const defaultProps = {
   m: 0.1,
 };
@@ -141,6 +155,11 @@ const defaultProps = {
 const boxProps = {
   border: 3,
 };
+
+const gridLayoutStyle = {
+  overflow: "scroll",
+  margin: 1
+}
 
 const boxProps_padding = {
   border: 3,
@@ -236,7 +255,7 @@ var rows = [
 function FilterHeatmapSelect(props) {
   const classes = useStyles();
   const [state, setState] = React.useState({
-    value: Object.entries(global_uifielddict)[0][0],
+    "value": Object.entries(global_uifielddict)[0][0],
     name: 'hai',
   });
 
@@ -245,19 +264,20 @@ function FilterHeatmapSelect(props) {
     setState({
       ...state,
       [name]: event.target.value,
+      "value": event.target.value
     });
-    metarepost(event.target.value);
+    metarepost(event.target.value, props.setFilterState);
   }
 
   return (
     <div>
       <SpcInputLabel label={"Show Sample"} customFontSize={"1em"} noSpaceAbove={true}/>
-      <FormControl variant="outlined" className={classes.formControl}>
-        <Tooltip title="Filter heatmap columns by categories of patient data.">
+      <FormControl variant="filled" className={classes.formControl}>
         <Select
           native
           value={state.value}
           onChange={handleChange}
+          style={{backgroundColor: "white", borderColor:'#EFAD18', border:'2px'}}
           inputProps={{
             name: 'value',
             id: "HeatmapFilterSelect_id",
@@ -274,7 +294,6 @@ function FilterHeatmapSelect(props) {
             return options;
           })()}
         </Select>
-        </Tooltip>
       </FormControl>
     </div>
   );
@@ -321,12 +340,13 @@ class Heatmap extends React.Component {
     };
   }
   componentDidMount() { 
+    //console.log("HEATMAP RE-MOUNTED:", this.props.data);
     var base_re_wid = window.innerWidth;
     var base_re_high = window.innerHeight;
     var standard_width = 1438;
     var standard_height = 707;
-    var adjust_width = (base_re_wid / standard_width) * 1.28;
-    var adjust_height = (base_re_high / standard_height) * 1.28;
+    var adjust_width = (base_re_wid / standard_width) * 1.5;
+    var adjust_height = (base_re_high / standard_height) * 1.5;
     var xscale = ((500/this.props.cols.length) * adjust_width);
     this.xscale = xscale;
     var y_start = 0;
@@ -354,13 +374,20 @@ class Heatmap extends React.Component {
                 gtexState={this.props.gtexState}
                 setGtexState={this.props.setGtexState}
                 exonPlotState={this.props.exonPlotState}
-                setExonPlotState={this.props.setExonPlotState}>
+                setExonPlotState={this.props.setExonPlotState}
+                selectionState={this.props.selectionState}
+                setSelectionState={this.props.setSelectionState}
+                filterState={this.props.filterState}
+                setFilterState={this.props.setFilterState}
+                plotUIDstate={this.props.plotUIDstate}
+                setPlotUIDstate={this.props.setPlotUIDstate}>
                 </OKMAP>,
       label: <OKMAP_LABEL 
                 target_div_id={"HEATMAP_LABEL"} 
                 column_names={this.props.cols} 
                 doc={document} 
-                xscale={xscale}/>,
+                xscale={xscale}
+                setFilterState={this.props.setFilterState}/>,
       CC: <OKMAP_COLUMN_CLUSTERS 
                 target_div_id={"HEATMAP_CC"} 
                 column_names={this.props.cc} 
@@ -377,14 +404,16 @@ class Heatmap extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if((this.props.data.length !== prevProps.data.length) || (this.props.cols.length !== prevProps.cols.length))
+    //console.log("HHprop", this.props.QueryExport["single"], prevProps.QueryExport["single"])
+    if((this.props.data.length !== prevProps.data.length) || (this.props.cols.length !== prevProps.cols.length) || (this.props.QueryExport["single"] !== prevProps.QueryExport["single"]))
     {
+      //console.log("HEATMAP RE-RENDERED:", this.props.QueryExport["single"]);
       var base_re_wid = window.innerWidth;
       var base_re_high = window.innerHeight;
       var standard_width = 1438;
       var standard_height = 707;
-      var adjust_width = (base_re_wid / standard_width) * 1.28;
-      var adjust_height = (base_re_high / standard_height) * 1.28;
+      var adjust_width = (base_re_wid / standard_width) * 1.5;
+      var adjust_height = (base_re_high / standard_height) * 1.5;
       var xscale = ((500/this.props.cols.length) * adjust_width);
       this.xscale = xscale;
       var y_start = 0;
@@ -408,19 +437,26 @@ class Heatmap extends React.Component {
                   xscale={this.xscale} 
                   yscale={y_scaling} 
                   norm={1}
+                  signatureName={this.props.QueryExport["single"]}
                   viewState={this.props.viewState}
                   setViewState={this.props.setViewState}
                   gtexState={this.props.gtexState}
                   setGtexState={this.props.setGtexState}
                   exonPlotState={this.props.exonPlotState}
                   setExonPlotState={this.props.setExonPlotState}
-                  >
+                  selectionState={this.props.selectionState}
+                  setSelectionState={this.props.setSelectionState}
+                  filterState={this.props.filterState}
+                  setFilterState={this.props.setFilterState}
+                  plotUIDstate={this.props.plotUIDstate}
+                  setPlotUIDstate={this.props.setPlotUIDstate}>
                   </OKMAP>,
         label: <OKMAP_LABEL 
                   target_div_id={"HEATMAP_LABEL"} 
                   column_names={this.props.cols} 
                   doc={document} 
                   xscale={this.xscale}
+                  setFilterState={this.props.setFilterState}
                   />,
         CC: <OKMAP_COLUMN_CLUSTERS 
                   target_div_id={"HEATMAP_CC"} 
@@ -540,12 +576,13 @@ class OKMAP_LABEL extends React.Component {
       .attr("id", (this.target_div.concat("_svg")));
 
     this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-      
+
     this.SVG_main_group.append("rect")
       .attr("width", w)
       .attr("height", h)
       .style("stroke", "White")
       .attr("type", "canvas")
+      .style("opacity", 0.0)
       .attr("fill", "White");    
   }
 
@@ -555,8 +592,40 @@ class OKMAP_LABEL extends React.Component {
       .style("stroke-width", 0)
       .attr("width", ((cols.length * (xscale - 0.1)) + 75))
       .attr("height", yscale)
-      .style("opacity", 1.0)
+      .style("opacity", 0.0)
       .attr("fill", "White");
+
+    var numbo = document.getElementById(this.target_div.concat("_svg")).offsetWidth;
+
+    this.SVG_main_group.append("rect")
+      .attr("x", (cols.length * (xscale - 0.1) + 75))
+      .attr("y", 0)
+      .attr("width", 108)
+      .attr("height", 28)
+      .style("float", "right")
+      .style("fill", "#0F6A8B")
+      .style("stroke", "#0F6A8B")
+      .style("stroke-width", 2);
+
+    this.SVG_main_group.append("text")
+      .attr("x", (cols.length * (xscale - 0.1) + 95))
+      .attr("y", 20)
+      .attr("text-anchor", "start")
+      .style("font-size", "15px")
+      .style('fill', 'white')
+      .text("Download")
+      .on("mouseover", function(){
+            d3.select(this).style("fill", "#EFAD18")
+            .style("cursor", "pointer");
+      })
+      .on("mouseout", function(){
+            d3.select(this).style("fill", "white")
+            .style("cursor", "default");
+      })
+      .on("click", function(){
+            downloadHeatmapFunction("heatmap")
+      })
+
   }
 
   writeBlocks(retcols, xscale, writecols)
@@ -681,8 +750,8 @@ class OKMAP_LABEL extends React.Component {
       if(this.state.retcols != "NULL")
       {
         this.writeBlocks(this.state.retcols, this.props.xscale, this.props.column_names);
-        metarepost(Object.entries(global_uifielddict)[0][0]); 
-        document.getElementById("HeatmapFilterSelect_id").value = Object.entries(global_uifielddict)[0][0];
+        metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState); 
+        //document.getElementById("HeatmapFilterSelect_id").value = Object.entries(global_uifielddict)[0][0];
       }
       return(
         null
@@ -693,7 +762,7 @@ class OKMAP_LABEL extends React.Component {
   componentDidMount() {
     this.baseSVG("100%", 20);
     this.writeBase(20);
-    metarepost(Object.entries(global_uifielddict)[0][0]);
+    metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState);
   }  
 
   render (){
@@ -731,9 +800,11 @@ class OKMAP extends React.Component {
     this.total_height = this.props.len;
     this.dataset = this.props.dataset;
     this.CURRENT_SELECTED_UID = null;
+    this.farthestX = 0;
     this.state = {
       zoom_level: this.props.yscale
     };
+    this.firstUID = "";
     const setViewState = this.props.setViewState;
     updateOkmap = updateOkmap.bind(this)
   }
@@ -746,14 +817,17 @@ class OKMAP extends React.Component {
       .attr("height", h)
       .attr("id", (this.target_div.concat("_svg")));
 
-    this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-      
+    this.SVG_main_group = this.SVG;
+    //this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
+
     this.SVG_main_group.append("rect")
       .attr("width", w)
       .attr("height", h)
       .style("stroke", "White")
       .attr("type", "canvas")
+      .style("opacity", 0.0)
       .attr("fill", "White"); 
+
   }
 
   writeBase(yscale, xscale, cols, height)
@@ -761,6 +835,7 @@ class OKMAP extends React.Component {
     this.SVG_main_group.append("rect")
       .attr("width", (cols.length * (xscale - 0.1)))
       .attr("height", (height * yscale))
+      .attr("id", "svg_base_rect_id")
       .style("opacity", 1.0)
       .attr("fill", "Black");
   }
@@ -780,16 +855,18 @@ class OKMAP extends React.Component {
       .attr("height", h)
       .style("stroke", "White")
       .attr("type", "canvas")
+      .style("opacity", 0.0)
       .attr("fill", "White");
   }
 
   writeBaseRLSVG(yscale, height)
   {
     this.SVG_rlg.append("rect")
-      .attr("width", "280px")
+      .attr("width", 280)
       .attr("height", (height * yscale))
-      .style("opacity", 1.0)
-      .attr("fill", "White");
+      .style("opacity", 0.0)
+      .attr("fill", "White")
+      .attr("id", "heatmaprowlabeldimensionsid");
   }
 
   writeHead(xscale, col_list)
@@ -835,8 +912,16 @@ class OKMAP extends React.Component {
             {
               integerval = 255;
             }
+            if(integerval < 0)
+            {
+              integerval = 0;
+            }
+            integerval = Math.floor(integerval);
+            var magic_others = Math.floor(cur_square_val * 100);
+            if(magic_others < 0){magic_others = 0}
+            if(magic_others > 255){magic_others = 255}
             var magic_blue = (integerval).toString();
-            var magic_others = (cur_square_val * 100).toString();
+            magic_others = magic_others.toString();
             selected_color = "rgb(".concat(magic_others).concat(", ").concat(magic_blue).concat(", ").concat(magic_blue).concat(")");
       }
       else
@@ -846,9 +931,17 @@ class OKMAP extends React.Component {
             {
               integerval2 = 255;
             }
+            if(integerval2 < 0)
+            {
+              integerval2 = 0;
+            }
+            integerval2 = Math.floor(integerval2);
+            var magic_others = Math.floor(cur_square_val * 10);
+            if(magic_others < 0){magic_others = 0}
+            if(magic_others > 255){magic_others = 255}
             var magic_yellow = (integerval2).toString();
             var magic_yellow2 = (integerval2).toString();
-            var magic_others = (cur_square_val * 10).toString();
+            magic_others = magic_others.toString();
             selected_color = "rgb(".concat(magic_yellow).concat(", ").concat(magic_yellow2).concat(", ").concat(magic_others).concat(")");
       }
 
@@ -862,10 +955,23 @@ class OKMAP extends React.Component {
         
       x_pointer = x_pointer + ((1 * x_scale) - 0.1);
     }
+    this.farthestX = x_pointer;
+    var colorei = this.farthestX;
+    //console.log("this.farthestX", this.farthestX);
+    this.SVG_main_group.append("rect")
+      .style("stroke-width", 0)
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", 1)
+      .attr("height", 1)
+      .attr("farthestX", colorei)
+      .attr("id", "wompumio")
+      .style("opacity", 0);
   }
 
-  writeRowLabel(y_point, data, yscale)
+  writeRowLabel(y_point, data, yscale, iterationNumber)
   {
+    //console.log("iterationNumber: ", iterationNumber);
     var parent = this;
     var converteduid = this.uidConvert(data["uid"]);
     var y_set = (y_point + yscale/1.7);
@@ -889,11 +995,11 @@ class OKMAP extends React.Component {
       .text(converteduid)
       .on("click", function(){
           updateOkmapTable(data);
-          selectionToSup(data);
+          parent.props.setSelectionState({selection: data["uid"]});
           gtexSend(data["examined_junction"], parent.props.setGtexState, parent.props.gtexState);
           var toex = data["examined_junction"].split(":");
           exonRequest(toex[0], data, parent.props.setViewState, parent.props.viewState, parent.props.exonPlotState, parent.props.setExonPlotState);
-          oneUIDrequest(data["uid"]);
+          parent.props.setPlotUIDstate({fulldat: data});
           parent.setSelected(converteduid);
       })
       .on("mouseover", function(){
@@ -902,6 +1008,18 @@ class OKMAP extends React.Component {
       .on("mouseout", function(){
             d3.select(this).style("fill", "black");
       });
+    
+    if(iterationNumber == 0)
+    {
+      //console.log("Matched: ", iterationNumber, data["uid"]);
+      updateOkmapTable(data);
+      parent.props.setSelectionState({selection: data["uid"]});
+      gtexSend(data["examined_junction"], parent.props.setGtexState, parent.props.gtexState);
+      var toex = data["examined_junction"].split(":");
+      exonRequest(toex[0], data, parent.props.setViewState, parent.props.viewState, parent.props.exonPlotState, parent.props.setExonPlotState);
+      parent.props.setPlotUIDstate({fulldat: data});
+      parent.setSelected(converteduid);      
+    }
   }
 
   uidConvert(uid)
@@ -964,7 +1082,7 @@ class OKMAP extends React.Component {
   }
 
   componentDidUpdate (prevProps){
-    if((this.props.dataset.length !== prevProps.dataset.length) || (this.props.column_names.length !== prevProps.column_names.length))
+    if((this.props.dataset.length !== prevProps.dataset.length) || (this.props.column_names.length !== prevProps.column_names.length || this.props.signatureName != prevProps.signatureName))
     {
       var tempnode = document.getElementById(this.target_div);
       var y_start = 0;
@@ -987,7 +1105,7 @@ class OKMAP extends React.Component {
       {
         setTimeout(() => {
         this.writeSingle5(y_start, this.props.dataset[i], 15, this.props.xscale, this.props.column_names, 1);
-        this.writeRowLabel(y_start, this.props.dataset[i], 15);
+        this.writeRowLabel(y_start, this.props.dataset[i], 15, i);
         y_start = y_start + 15;
         }, 50);      
       }
@@ -1006,11 +1124,12 @@ class OKMAP extends React.Component {
       this.writeBaseRLSVG(this.state.zoom_level);
       }, 50);
 
+      //console.log("rendering heatmap...", this.props.dataset);
       for(let i = 0; i < this.props.dataset.length; i++)
       {
         setTimeout(() => {
         this.writeSingle5(y_start, this.props.dataset[i], this.state.zoom_level, this.props.xscale, this.props.column_names, 1);
-        this.writeRowLabel(y_start, this.props.dataset[i], this.state.zoom_level);
+        this.writeRowLabel(y_start, this.props.dataset[i], this.state.zoom_level, i);
         y_start = y_start + this.state.zoom_level;
         }, 50);
       }
@@ -1025,7 +1144,7 @@ class OKMAP extends React.Component {
       for(let k = 0; k < this.props.dataset.length; k++)
       {
         setTimeout(() => {
-        this.writeRowLabel(yRL_start, this.props.dataset[k], this.state.zoom_level);
+        this.writeRowLabel(yRL_start, this.props.dataset[k], this.state.zoom_level, k);
         yRL_start = yRL_start + this.state.zoom_level;
         }, 50);
       }
@@ -1051,79 +1170,6 @@ function supFilterUpdate(data)
     filters: data["out"],
     filterset: data["set"]
   })  
-}
-
-class SupplementaryPlot extends React.Component {
-  constructor(props) 
-  {
-    super(props);
-    this.state = {
-      selection: null,
-      filters: null,
-      filterset: null,
-      matches: null,
-      fulldat: null,
-      gtex: this.props.gtexState.gtexPlot
-    };
-    //var other_gene_matches = [];
-    selectionToSup = selectionToSup.bind(this);
-    supFilterUpdate = supFilterUpdate.bind(this);
-    plot4update = plot4update.bind(this);
-    plotUIDupdate = plotUIDupdate.bind(this);
-  }
-
-  componentDidUpdate(prevProps){
-    if(this.props.gtexState.gtexPlot !== this.state.gtex)
-    {
-      this.setState({
-        gtex: this.props.gtexState.gtexPlot
-      })
-    }
-  }
-
-  componentDidMount(){
-      var Data = this.props.Data;
-      updateOkmapTable(Data[0]);
-      selectionToSup(Data[0]);
-  }
-
-  render(){
-    var Data = this.props.Data;
-    var Cols = this.props.Cols;
-    var Selection = this.state.selection;
-    var set = null;
-    var plotobj1, plotobj2, plotobj3 = null;
-    var elm1 = this.state.filters;
-    var elm2 = this.state.filterset;
-    if(Selection != null && this.state.filterset != null && this.state.fulldat != null)
-    {
-      var plotobj1 = oncospliceClusterViolinPlotPanel(Selection, this.state.fulldat, this.props.Cols, this.props.OncospliceClusters, this.props.TRANS, global_cancer);
-      var plotobj2 = hierarchicalClusterViolinPlotPanel(this.state.fulldat, Selection, this.props.Cols, this.props.CC, global_cancer);
-      var plotobj3 = sampleFilterViolinPlotPanel(Selection, this.state.fulldat, this.props.Cols, elm1, elm2, global_cancer);
-    }
-    else
-    {
-      var plotobj1, plotobj2, plotobj3 = <h4>No selection set</h4>;
-    }
-
-    if(Selection != null && this.state.gtex != null)
-    {
-      var plotobj4 = this.state.gtex;
-    }
-    else
-    {
-      var plotobj4 = this.state.fulldat == null ? <h4>No selection set</h4> : <h4>No GTEX available for given UID</h4>;
-    }
-
-    return(
-      <>
-      <PlotPanel plotLabel={"OncoClusters"}>{plotobj1}</PlotPanel>
-      <PlotPanel plotLabel={"HierarchyClusters"}>{plotobj2}</PlotPanel>
-      <PlotPanel plotLabel={"Filters"}>{plotobj3}</PlotPanel>
-      <PlotPanel plotLabel={"GTEX"}>{plotobj4}</PlotPanel>
-      </>
-    )
-  }
 }
 
 function updateExPlot(exons, transcripts, junctions, in_data){
@@ -1164,7 +1210,9 @@ function ScalingCheckbox(props)
                         transcripts: props.exonPlotState.transcripts,
                         junctions: props.exonPlotState.junctions,
                         in_data: props.exonPlotState.in_data,
-                        scaled: event.target.checked 
+                        scaled: event.target.checked,
+                        targetdiv: "supp1",
+                        downscale: 1
       })
     };
 
@@ -1186,15 +1234,28 @@ function ScalingCheckbox(props)
   );
 }
 
+function resizeFunction(event, { element, size }) {
+  this.setState({ width: size.width, height: size.height });
+}
+
 function ViewPanel(props) {
   const classes = useStyles();
   global_meta = props.Cols;
   global_cancer = props.QueryExport["cancer"];
   global_signature = props.QueryExport["single"];
+  //console.log("new signature!", props.QueryExport["single"]);
   global_cols = props.Cols;
   global_cc = props.CC;
   global_OncospliceClusters = props.OncospliceClusters;
   global_trans = props.TRANS;
+  /*
+  var available_width = screen.width;
+  var available_height = screen.height;
+  */
+  var available_width = window.innerWidth;
+  var available_height = window.innerHeight;
+  //console.log("width and height", available_width, available_height);
+  //console.log("VIEW DATA ENTERED:", props.Data);
   const [viewState, setViewState] = React.useState({
     toDownloadExon: undefined,
     toDownloadGeneModel: undefined,
@@ -1205,164 +1266,236 @@ function ViewPanel(props) {
       transcripts: null,
       junctions: null,
       in_data: null,
-      scaled: false
+      scaled: false,
+      targetdiv: "supp1",
+      downscale: 1
   });
+
+  const [selectionState, setSelectionState] = React.useState({selection: null});
+  const [filterState, setFilterState] = React.useState({filters: null, filterset: null});
+  const [plotUIDstate, setPlotUIDstate] = React.useState({fulldat: null});
+
   const [gtexState, setGtexState] = React.useState({gtexPlot: null});
   const [okmapLabelState, setOkmapLabelState] = React.useState({okmapLabel: null});
-  global_uifielddict = props.QueryExport["ui_field_dict"];
-  return (
-    <div style={{ fontFamily: 'Arial' }}>
-    <Grid container spacing={1}>
-      <Grid item xs={8}>
-        <ViewPanel_Top 
-          Data={props.Data} 
-          Cols={props.Cols} 
-          CC={props.CC} 
-          OncospliceClusters={props.OncospliceClusters} 
-          QueryExport={props.QueryExport}
-        />
-        <Typography className={classes.padding} />
-        <ViewPanel_Main 
-          Data={props.Data} 
-          Cols={props.Cols} 
-          CC={props.CC} 
-          OncospliceClusters={props.OncospliceClusters} 
-          QueryExport={props.QueryExport}
-          viewState={viewState}
-          setViewState={setViewState}
-          gtexState={gtexState}
-          setGtexState={setGtexState}
-          exonPlotState={exonPlotState}
-          setExonPlotState={setExonPlotState}
-        />
-      </Grid>
-      <Grid item xs={4}>
-        <ViewPanel_Side 
-          Data={props.Data} 
-          Cols={props.Cols} 
-          CC={props.CC} 
-          OncospliceClusters={props.OncospliceClusters} 
-          TRANS={props.TRANS} 
-          QueryExport={props.QueryExport}
-          viewState={viewState}
-          setViewState={setViewState}
-          gtexState={gtexState}
-          setGtexState={setGtexState}
-          exonPlotState={exonPlotState}
-          setExonPlotState={setExonPlotState}
-        />
-      </Grid>
-    </Grid>
-    <div style={{margin: 10}}>
-      <Grid container spacing={1}>
-      <Grid item xs={2}>
-      <SpcInputLabel label={"ExonPlot"} />
-      </Grid>
-      <Grid item>
-        <ScalingCheckbox exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}/>
-      </Grid>
-      <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("transcript.csv", viewState.toDownloadExon)}>Download Transcript</Button>
-      </Grid>
-      <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("genemodel.csv", viewState.toDownloadGeneModel)}>Download Gene Model</Button>
-      </Grid>
-      <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button>
-      </Grid>
-      <Grid item>
-        <Button variant="contained" style={{backgroundColor: '#0F6A8B', color: "white"}}>Download PDF</Button>
-      </Grid>
-      </Grid>
-      <Box borderColor="#dbdbdb" {...spboxProps}>
-        <div style={{marginLeft: 20, marginTop: 10, marginBottom: 10}} id="supp1"></div>
-      </Box>
-    </div>
-    </div>
-  );
-}
 
-function ViewPanel_Top(props) {
-  const classes = useStyles();
+  const [resizeState, setResizeState] = React.useState({heatmapBox: null, sidePanel: null});
+
+  global_uifielddict = props.QueryExport["ui_field_dict"];
+
+  const resizeHandles = ['s','w','e','n','sw','nw','se','ne'];
+
+  //Refactor after this
+  var Selection = selectionState.selection;
+  //console.log("selectionpants", Selection);
+  var set = null;
+  var plotobj1, plotobj2, plotobj3 = null;
+  var elm1 = filterState.filters;
+  var elm2 = filterState.filterset;
+  if(Selection != null && filterState.filterset != null && plotUIDstate.fulldat != null)
+  {
+    var plotobj1 = oncospliceClusterViolinPlotPanel(Selection, plotUIDstate.fulldat, props.Cols, props.OncospliceClusters, props.TRANS, global_cancer);
+    var plotobj2 = hierarchicalClusterViolinPlotPanel(plotUIDstate.fulldat, Selection, props.Cols, props.CC, global_cancer);
+    var plotobj3 = sampleFilterViolinPlotPanel(Selection, plotUIDstate.fulldat, props.Cols, elm1, elm2, global_cancer);
+  }
+  else
+  {
+    var plotobj1, plotobj2, plotobj3 = <h4>No selection set</h4>;
+  }
+
+  if(Selection != null && gtexState.gtexPlot != null)
+  {
+    var plotobj4 = gtexState.gtexPlot;
+  }
+  else
+  {
+    var plotobj4 = plotUIDstate.fulldat == null ? <h4>No selection set</h4> : <h4>No GTEX available for given UID</h4>;
+  }
+
+  var panel_A = {
+    width: 0.690 * available_width,
+    height: 0.6 * available_height,
+    minWidth: 0.699 * available_width,
+    minHeight: 0.3 * available_height,
+    maxWidth:  0.809 * available_width,
+    maxHeight: 0.8 * available_height
+  }
+  var panel_B = {
+    width: 0.296 * available_width,
+    height: 0.6 * available_height,
+    minWidth: 0.148 * available_width,
+    minHeight: 0.3 * available_height,
+    maxWidth: 0.809 * available_width,
+    maxHeight: 0.8 * available_height
+  }
+  var panel_C = {
+    width: 0.98 * available_width,
+    height: 0.7 * available_height,
+    minWidth: 0.98 * available_width,
+    minHeight: 0.7 * available_height,
+    maxWidth: 0.98 * available_width,
+    maxHeight: 0.7 * available_height
+  }
+
   return (
-    <div>
-      <Grid container spacing={1}>    
-        <Grid item xs={2}>
-          <div className={classes.cntr_viewpane}><h3 style={{ fontSize: 27, color: '#0F6A8B', marginTop: 24}}>Plot Settings</h3></div>
-        </Grid>
-        <Grid item xs={2}>
-          <FilterHeatmapSelect />
-        </Grid>
-        <Grid item xs={5}>
-          <span className={classes.cntr_btn}>
-          <Tooltip title="Increase row height of heatmap and font size for labels.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomInIcon onClick={zoomInHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
-          </Tooltip>
-          <Tooltip title="Decrease row height of heatmap and font size for labels.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><ZoomOutIcon onClick={zoomOutHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
-          </Tooltip>
-          <Tooltip title="Fit all rows in the heatmap to the window size.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
-          </Tooltip>
-          <Tooltip title="Download heatmap in text format.">
-          <Button variant="contained" style={{backgroundColor: '#0F6A8B', marginTop: 28, marginLeft: 8}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 36}}/></Button>
-          </Tooltip>
-          </span>
-        </Grid>
-      </Grid>
-    </div>   
+    <><div style={{ fontFamily: 'Arial', display: 'flex', flexWrap: 'wrap' }}>
+      <ResizableBox
+        className="box"
+        width={panel_A.width}
+        height={panel_A.height}
+        margin={10}
+        minConstraints={[panel_A.minWidth, panel_A.minHeight]}
+        maxConstraints={[panel_A.maxWidth, panel_A.maxHeight]}
+      >
+        <ViewPanel_Main
+          Data={props.Data}
+          Cols={props.Cols}
+          CC={props.CC}
+          OncospliceClusters={props.OncospliceClusters}
+          QueryExport={props.QueryExport}
+          viewState={viewState}
+          setViewState={setViewState}
+          gtexState={gtexState}
+          setGtexState={setGtexState}
+          exonPlotState={exonPlotState}
+          setExonPlotState={setExonPlotState}
+          selectionState={selectionState}
+          setSelectionState={setSelectionState}
+          filterState={filterState}
+          setFilterState={setFilterState}
+          plotUIDstate={plotUIDstate}
+          setPlotUIDstate={setPlotUIDstate} />
+      </ResizableBox>
+
+      <ResizableBox
+        className="box"
+        width={panel_B.width}
+        height={panel_B.height}
+        margin={10}
+        minConstraints={[panel_B.minWidth, panel_B.minHeight]}
+        maxConstraints={[panel_B.maxWidth, panel_B.maxHeight]}
+      >
+        <div style={{overflow: "scroll", height: "100%", width: "100%", display: "inline-block"}}>
+        <PlotPanel plotLabel={"OncoClusters"} inputType={"oncosplice"}>{plotobj1}</PlotPanel>
+
+        <PlotPanel plotLabel={"HierarchyClusters"} inputType={"hierarchical"}>{plotobj2}</PlotPanel>
+
+        <PlotPanel plotLabel={"Filters"} inputType={"samplefilter"}>{plotobj3}</PlotPanel>
+
+        <PlotPanel plotLabel={"GTEX"} inputType={"gtex"}>{plotobj4}</PlotPanel>
+
+        <Stats></Stats>
+        <SetExonPlot exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></SetExonPlot>
+        </div>
+      </ResizableBox>
+    </div><div>
+        <ResizableBox
+          className="box"
+          width={panel_C.width}
+          height={panel_C.height}
+          margin={10}
+          minConstraints={[panel_C.minWidth, panel_C.minHeight]}
+          maxConstraints={[panel_C.maxWidth, panel_C.maxHeight]}
+        >
+          <div style={{overflow: "scroll", height: "100%", width: "100%"}}>
+          <Grid container spacing={1}>
+            <Grid item xs={2}>
+              <SpcInputLabel label={"ExonPlot"} />
+            </Grid>
+            <Grid item>
+              <ScalingCheckbox exonPlotState={exonPlotState} setExonPlotState={setExonPlotState} />
+            </Grid>
+            <Grid item>
+              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("transcript.csv", viewState.toDownloadExon)}>Download Transcript</Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("genemodel.csv", viewState.toDownloadGeneModel)}>Download Gene Model</Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadPdfFunction(selectionState.selection)}>Download PDF</Button>
+            </Grid>
+          </Grid>
+          <Box borderColor="#dbdbdb" {...spboxProps}>
+            <div style={{ marginLeft: 20, marginTop: 10, marginBottom: 10 }} id="supp1"></div>
+          </Box>
+          </div>
+        </ResizableBox>
+      </div></>
   );
 }
 
 function ViewPanel_Side(props) {
   return(
     <div>
-    <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>{"Cancer: ".concat(props.QueryExport["cancer"])}</h3>
-    <LabelHeatmap title={"Selected Sample Subsets"} type={"filter"} QueryExport={props.QueryExport}></LabelHeatmap>
-    <LabelHeatmap title={"Selected Signatures"} type={"single"} QueryExport={props.QueryExport}></LabelHeatmap>
-    <SupplementaryPlot 
-      CC={props.CC} 
-      OncospliceClusters={props.OncospliceClusters} 
-      TRANS={props.TRANS} 
-      Data={props.Data} 
-      Cols={props.Cols}
-      viewState={props.viewState}
-      setViewState={props.setViewState}
-      gtexState={props.gtexState}
-      setGtexState={props.setGtexState}>
-    </SupplementaryPlot>
-    <Stats></Stats>
-    <SetExonPlot exonPlotState={props.exonPlotState} setExonPlotState={props.setExonPlotState}></SetExonPlot>
+    <h3 style={{ fontFamily: 'Arial', color:'#0F6A8B'}}>
+      {"Cancer: ".concat(props.QueryExport["cancer"])}
+    </h3>
     </div>
   )
 }
 
+//Test comment
 function ViewPanel_Main(props) {
     const classes = useStyles();
+    var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/testing/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
+    const [isShown, setIsShown] = React.useState(false);
     return(
-    <div id="ViewPane_MainPane">
-      <Box {...defaultProps}>
-        <div id="HEATMAP_LABEL"></div>
-        <div id="HEATMAP_CC"></div>
-        <div id="HEATMAP_OncospliceClusters"></div>
-        <div className={classes.flexparent}>
-        <span id="HEATMAP_0"></span>
+    <div id="ViewPane_MainPane" style={{overflow: "scroll", height: "100%", width: "100%", display: "flex"}}>
+        <div className="containerSidebar" onMouseEnter={() => setIsShown(true)} onMouseLeave={() => setIsShown(false)}>
+          {isShown && (
+          <div className="sidebar" style={{marginLeft: 5}}>
+            <div>
+            <Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><ZoomInIcon onClick={zoomInHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
+            </div>
+            <div>
+            <Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><ZoomOutIcon onClick={zoomOutHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
+            </div>
+            <div>
+            <Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
+            </div>
+            <div>
+            <Button variant="contained" style={{marginTop: "5px", marginBottom: "5px", backgroundColor: '#0F6A8B'}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
+            </div>
+            <div><Typography className={classes.smallpadding} /></div>
+            <div><FilterHeatmapSelect setFilterState={props.setFilterState} /></div>
+          </div>
+          )}
+        </div>
+        <div style= {{flex: 1}}>
+        <Typography className={classes.padding} />
+        <div id="heatmapLoadingDiv" style={{position: "absolute", marginLeft: 35, marginTop: 5, display: "none", textAlign: "center", marginTop: 30}}>
+              {loading_Gif}
+        </div>
+        <div style={{marginLeft: 5}} id="HEATMAP_LABEL"></div>
+        <div style={{marginLeft: 5}} id="HEATMAP_CC"></div>
+        <div style={{marginLeft: 5}} id="HEATMAP_OncospliceClusters"></div>
+        <div className={classes.flexparent} style={{marginLeft: 5}}>
+        <span id="HEATMAP_0" ></span>
         <span id="HEATMAP_ROW_LABEL" style={{width: "280px"}}></span>
         </div>
-      </Box> 
       <Heatmap 
         data={props.Data} 
         cols={props.Cols} 
         cc={props.CC} 
+        QueryExport={props.QueryExport}
         OncospliceClusters={props.OncospliceClusters}
         viewState={props.viewState}
         setViewState={props.setViewState}
         gtexState={props.gtexState}
         setGtexState={props.setGtexState}
         exonPlotState={props.exonPlotState}
-        setExonPlotState={props.setExonPlotState}>
+        setExonPlotState={props.setExonPlotState}
+        selectionState={props.selectionState}
+        setSelectionState={props.setSelectionState}
+        filterState={props.filterState}
+        setFilterState={props.setFilterState}
+        plotUIDstate={props.plotUIDstate}
+        setPlotUIDstate={props.setPlotUIDstate}>
       </Heatmap>
-    </div>  
+      </div>
+    </div>
     );
 }
 

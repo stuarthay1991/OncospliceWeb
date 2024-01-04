@@ -1,6 +1,6 @@
 import React from 'react';
 import * as d3 from 'd3';
-import { global_colors } from '../constants.js';
+import { global_colors } from '../utilities/constants.js';
 
 class OKMAP_OncospliceClusters extends React.Component {
   constructor(props)
@@ -30,6 +30,7 @@ class OKMAP_OncospliceClusters extends React.Component {
       .attr("height", h)
       .style("stroke", "White")
       .attr("stroke-width", 0)
+      .style("opacity", 0.0)
       .attr("type", "canvas")
       .attr("fill", "White");    
   }
@@ -39,7 +40,7 @@ class OKMAP_OncospliceClusters extends React.Component {
     this.SVG_main_group.append("rect")
       .attr("width", ((cols.length * (xscale - 0.1)) + 75))
       .attr("height", yscale)
-      .style("opacity", 1.0)
+      .style("opacity", 0.0)
       .attr("fill", "White");
   }
 
@@ -77,13 +78,22 @@ class OKMAP_OncospliceClusters extends React.Component {
     }
 
     x_pointer = x_pointer + 6;
+    var clusterName = this.props.trans;
+    if(clusterName != undefined)
+    {
+      clusterName = clusterName.concat(" Clusters");
+    }
+    else
+    {
+      clusterName = "NA"
+    }
     this.SVG_main_group.append("text")
         .attr("x", x_pointer)
         .attr("y", 10)
         .attr("text-anchor", "start")
         .style("font-size", "11px")
         .style('fill', 'black')
-        .text(this.props.trans.concat(" Clusters"));
+        .text(clusterName);
 
   }
 

@@ -1,36 +1,42 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
+import { makeRequest } from './CancerDataManagement.js';
+import { isBuild } from '../utilities/constants.js';
+
+var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 function updateSignature(arg, targeturl)
 {
   const export_dict = {};
-  const cancername = arg["cancername"];
-  const callback = arg["setState"];
-  const BQstate = arg["BQstate"];
-  const P = arg["P"];
-  const none = arg["none"];
-  const targetsigobj = BQstate.comparedCancer_signature;
-  console.log("updateSignature_1", callback);
-  var keys = arg["keys"];
-  keys["single"] = [];
-  const bodyFormData = new FormData();
-  bodyFormData.append("cancer_type", cancername);
-  let promises = [];
-  var sigFilters;
-  var sigTranslate;
+  const cancername = arg["cancerType"];
+  const callbackForSignatureList = arg["callbackOne"];
+  const callbackForSelectedSignature = arg["callbackTwo"];
+  //console.log("updateSignature_1", callbackOne);
+  var postdata = {"data": cancername};
   axios({
         method: "post",
-        url: (targeturl.concat("/backend/update_signature_ui_fields.php")),
-        data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
+        url: routeurl.concat("/api/datasets/signatures"),
+        data: postdata,
+        headers: { "Content-Type": "application/json" },
     })
   .then(function (response) 
   {
-      console.log("CANCER RESPONSE", response);
-      console.log("cancername", cancername);
-      callback(cancername, response["data"]["sig"], response["data"]["sigtranslate"], keys);
-
+      console.log("CALLBACK RESPONSE", response);
+      //console.log("cancername", cancername);
+      //console.log("updateHeatmapArgs", args["updateHeatmapArgs"]);
+      let sigTranslateVar = response["data"]["signatureTranslate"];
+      let firstEntry = Object.keys(response["data"]["signatureTranslate"])[0];
+      let simpleNameVar = sigTranslateVar[firstEntry];
+      callbackForSignatureList(response["data"]["signatureTranslate"]);
+      callbackForSelectedSignature({"signature": Object.keys(response["data"]["signatureTranslate"])[0],
+                                    "simpleName": simpleNameVar,
+                                    "oncocluster": simpleNameVar,
+                                    "initialized": true});
+      //This function can't directly call updateHeatmapData because it isn't using the state of the navBar object.
+      //This causes problems with certain selections and needs to be fixed ASAP. 
+      //arg["updateHeatmapArgs"]["signature"] = [Object.keys(response["data"]["signatureTranslate"])[0]];
+      makeRequest("updateHeatmapData", arg["updateHeatmapArgs"])
   });
 }
 

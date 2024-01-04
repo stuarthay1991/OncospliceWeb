@@ -10,6 +10,7 @@ function downloadHeatmapText(data,cols,QueryExport,CC,RPSI)
   var local_data = data;
   var local_cols = cols;
   var local_QE = QueryExport;
+  //console.log(data, cols, QueryExport, "oops");
   //console.log("local_QE", local_QE);
   //console.log("local_cols", local_cols[0]);
   //console.log("local_cols", local_cols.length);
@@ -37,11 +38,16 @@ function downloadHeatmapText(data,cols,QueryExport,CC,RPSI)
   content = content.concat(content_line);
   content = content.concat("\n");
 
-  content = content.concat("uid,altexons,clusterid,dpsi,symbol");
+  content = content.concat("UID,AltExons,ClusterID,dPSI,Symbol");
   
   for(var i = 0; i < local_cols.length; i++)
   {
-  	content = content.concat(",").concat(local_cols[i]);
+    var sampleNameEdit = local_cols[i];
+    sampleNameEdit = sampleNameEdit.substring(0, sampleNameEdit.length - 4);
+    sampleNameEdit = sampleNameEdit.toUpperCase();
+    sampleNameEdit = sampleNameEdit.replace(/_/g,"-");
+    sampleNameEdit = sampleNameEdit.concat(".bed");
+  	content = content.concat(",").concat(sampleNameEdit);
   }
   content = content.concat("\n");
 
@@ -56,7 +62,7 @@ function downloadHeatmapText(data,cols,QueryExport,CC,RPSI)
   	{
   		content_line = content_line.concat(",").concat(local_data[i][local_cols[k]]);
   	}
-  	//content_line = content_line.concat("\n");
+  	content_line = content_line.concat("\n");
   	content = content.concat(content_line);
   }
 
