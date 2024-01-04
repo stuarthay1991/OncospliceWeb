@@ -110,6 +110,7 @@ class SetDoubleBarChart extends React.Component {
         fontScale: ((this.props.xScale+this.props.yScale)/2),
         selectedGroup: undefined
       };
+      this.defaultSelection = undefined;
     }
   
     baseSVG(h_in) 
@@ -452,7 +453,7 @@ class SetDoubleBarChart extends React.Component {
                 var selectedSignature = pretg["_groups"][0][0]["attributes"]["signature"]["nodeValue"];
                 var selectedType = pretg["_groups"][0][0]["attributes"]["type"]["nodeValue"];
                 parent.onBarSelect(pretg, selectedSignature, selectedType, parent.props.setTableState, parent.props.tablePlotRequest, parent.props.setConcordanceState, parent.props.concordanceRequest)
-            });    
+            });
 
         this.SVG_main_group.append("rect")
             .attr("x", x_offset)
@@ -484,7 +485,16 @@ class SetDoubleBarChart extends React.Component {
                 var selectedType = pretg["_groups"][0][0]["attributes"]["type"]["nodeValue"];
                 parent.onBarSelect(pretg, selectedSignature, selectedType, parent.props.setTableState, parent.props.tablePlotRequest, parent.props.setConcordanceState, parent.props.concordanceRequest)
             });
-            
+        
+        if(index == 0)
+        {
+        var currentAddedObject = d3.select("#".concat(group_identifier.concat("_gene")));
+        var currentAddedObjectSelectedSignature = currentAddedObject["_groups"][0][0]["attributes"]["signature"]["nodeValue"];
+        var currentAddedObjectSelectedType = currentAddedObject["_groups"][0][0]["attributes"]["type"]["nodeValue"];
+        this.defaultSelection = {"object": currentAddedObject,
+        "selectedSignature": currentAddedObjectSelectedSignature,
+        "selectedType": currentAddedObjectSelectedType}
+        }
         this.SVG_main_group.append("rect")
             .attr("x", x_offset-(5*S.xScale))
             .attr("y", (ypos+7*S.yScale))
@@ -595,6 +605,10 @@ class SetDoubleBarChart extends React.Component {
         if(this.state.selectedGroup != undefined)
         {
           d3.select(document.getElementById(this.state.selectedGroup)).attr("fill", "red").style("font-size", 13*this.state.fontScale);
+        }
+        if(this.state.selectedGroup == undefined)
+        {
+        this.defaultSelection
         }
         //plot chart
       }

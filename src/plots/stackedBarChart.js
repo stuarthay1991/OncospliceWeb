@@ -299,21 +299,23 @@ class SetStackedBarChart extends React.Component {
           .attr("opacity", 0.7)
           .attr("fill", "white");
 
+        var textXPosition = parseInt(xToMove + 6) + parseInt((90 * S.xScale) / 2.0);
+        console.log("textXPosition", textXPosition);
         this.SVG_main_group.append("text")
-          .attr("x", xToMove+6)
+          .attr("x", textXPosition)
           .attr("y", yToMove-(31*S.yScale))
           .attr("id", "tooltipForStacked_text_1_id")
-          .attr("text-anchor", "start")
-          .style("font-size", 12)
+          .attr("text-anchor", "middle")
+          .style("font-size", 12 * S.fontScale)
           .attr("fill", "red")
           .text(selectedObject.attr("annotation"));
 
         this.SVG_main_group.append("text")
-          .attr("x", xToMove+6)
+          .attr("x", textXPosition)
           .attr("y", yToMove-(14*S.yScale))
           .attr("id", "tooltipForStacked_text_2_id")
-          .attr("text-anchor", "start")
-          .style("font-size", 12)
+          .attr("text-anchor", "middle")
+          .style("font-size", 12 * S.fontScale)
           .attr("fill", "red")
           .text(selectedObject.attr("annot_val"));
 
