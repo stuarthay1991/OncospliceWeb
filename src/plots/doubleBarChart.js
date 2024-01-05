@@ -534,7 +534,7 @@ class SetDoubleBarChart extends React.Component {
           //this.baseSVG(1300);
           //this.writeBase(1300);
           this.setState({
-            data: this.props.doubleBarChartState,
+            data: this.props.doubleBarChartState
           })
           return(
             null
@@ -608,7 +608,10 @@ class SetDoubleBarChart extends React.Component {
         }
         if(this.state.selectedGroup == undefined)
         {
-        this.defaultSelection
+          var arg1 = this.defaultSelection.object;
+          var arg2 = this.defaultSelection.selectedSignature;
+          var arg3 = this.defaultSelection.selectedType;
+          this.onBarSelect(arg1, arg2, arg3, this.props.setTableState, this.props.tablePlotRequest, this.props.setConcordanceState, this.props.concordanceRequest)
         }
         //plot chart
       }

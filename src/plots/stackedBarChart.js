@@ -126,6 +126,7 @@ class SetStackedBarChart extends React.Component {
         fontScale: ((this.props.xScale+this.props.yScale)/2),
         selectedGroup: undefined
       };
+      this.defaultSelection = undefined;
     }
   
     baseSVG(h_in) 
@@ -599,6 +600,18 @@ class SetStackedBarChart extends React.Component {
             x_now = x_now + widthScale;
         }
 
+        if(index == 0)
+        {
+        var id_to_use = inputData[0].signature_name.concat(this.annotation_names[4]).concat("4");
+        var currentAddedObject = d3.select("#".concat(id_to_use));
+        var currentAddedObjectSelectedSignature = currentAddedObject["_groups"][0][0]["attributes"]["signature"]["nodeValue"];
+        var currentAddedObjectSelectedAnnotation = currentAddedObject["_groups"][0][0]["attributes"]["annotation"]["nodeValue"];
+        this.defaultSelection = {"object": currentAddedObject,
+        "selectedSignature": currentAddedObjectSelectedSignature,
+        "selectedAnnotation": currentAddedObjectSelectedAnnotation}
+        }
+
+
         /*
         this.SVG_main_group.append("rect")
           .attr("x", x_offset)
@@ -717,6 +730,13 @@ class SetStackedBarChart extends React.Component {
         if(this.state.selectedGroup != undefined)
         {
           d3.select(document.getElementById(this.state.selectedGroup)).attr("stroke-width", 3).style("stroke", "red");
+        }
+        if(this.state.selectedGroup == undefined)
+        {
+          var arg1 = this.defaultSelection.object;
+          var arg2 = this.defaultSelection.selectedSignature;
+          var arg3 = this.defaultSelection.selectedAnnotation;
+          this.onSelect(arg1, arg2, arg3, this.props.setTableState, this.props.tablePlotRequest, this.props.setConcordanceState, this.props.concordanceRequest);
         }
         //plot chart
       }

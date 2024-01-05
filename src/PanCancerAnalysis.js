@@ -562,7 +562,6 @@ function PanCancerAnalysis(props){
         pageSize: 10
     });
 
-    var doubleBarChartData = {cluster: null, gene: null, targetdiv: "doubleBarChartDiv"};
     const [stackedBarChartData, setStackedBarChartData] = React.useState({
       data: null,
       targetdiv: "stackedBarChartDiv" 
@@ -635,14 +634,16 @@ function PanCancerAnalysis(props){
         const plotobjs = [];
         var counter = 0;
 
-        doubleBarChartData = {cluster: [], gene: [], key: [], targetdiv: "doubleBarChartDiv"};
-
+        var doubleBarChartData = {cluster: [], gene: [], key: [], targetdiv: "doubleBarChartDiv"};
         for (const [key, value] of Object.entries(props.clusterLength)) {
-
             doubleBarChartData.cluster.push(value.length);
             doubleBarChartData.gene.push(BLCA_vals[key]);
             doubleBarChartData.key.push(key);
         }
+    }
+    else
+    {
+      var doubleBarChartData = {cluster: null, gene: null, targetdiv: "doubleBarChartDiv"};
     }
 
     var panel_CancerSummary = {
