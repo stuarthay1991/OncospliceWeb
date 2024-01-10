@@ -90,7 +90,7 @@ function MainPanel(props){
 
   if(process.env.NODE_ENV == "build")
   {
-    var routeurl = "/ICGS/Oncosplice/testing/index.html/";
+    var routeurl = "/ICGS/Oncosplice/build/index.html/";
   }
   else
   {

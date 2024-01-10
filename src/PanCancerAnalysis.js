@@ -154,6 +154,7 @@ function tablePlotRequest(SIGNATURE, type, setTableState, annotation="none") {
           name: "UID",
           order: false
         },
+        firstID: undefined,
         signature: SIGNATURE,
         annotation: annotation,
         page: 0
@@ -235,7 +236,8 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
     useSortBy,
     usePagination
   )
-
+  var firstID = undefined;
+  var count = 0;
   /*React.useEffect(() => {
     var allSelected = document.getElementsByClassName("HselectedRow");
     if(allSelected.length > 0)
@@ -293,8 +295,22 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
         name: sortedColumn.id,
         order: sortedColumn.isSortedDesc
       }})
+      /*if(firstID != undefined)
+      {
+      popUID(firstID.id, firstID.setClick, firstID.inputcoords, firstID.data, firstID.exonPlotStateScaled, firstID.setExonPlotState, firstID.tableState, firstID.setTableState, firstID.sortedColumn)
+      }*/
     }
   })
+
+  React.useEffect(() => {
+    console.log("Lug into effect.")
+    if(firstID != undefined)
+    {
+      //firstID = {id, setClick, inputcoords, data, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn}
+      popUID(firstID.id, firstID.setClick, firstID.inputcoords, firstID.data, firstID.exonPlotStateScaled, firstID.setExonPlotState, firstID.tableState, firstID.setTableState, firstID.sortedColumn)
+    }
+  }, [tableState])
+  
   //console.log("sorted_column", sortedColumn);
 
   return (
@@ -325,10 +341,15 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
           {page.map(
             (row, i) => {
               prepareRow(row);
+              
               //console.log("ROW", row);
               const setClick = row.original.uid;
               const inputcoords = row.original.coordinates;
               const id = uuidv4();
+              if(count == 0){
+                firstID = {id, setClick, inputcoords, data, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn}
+              }
+              count = count + 1;
               //console.log("input_coords", inputcoords);
               return (
                 <tr {...row.getRowProps()} id={id} onClick={() => popUID(id, setClick, inputcoords, data, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn)}>
@@ -518,7 +539,7 @@ function PanCancerAnalysis(props){
     //var scaled_height = window.innerHeight / 985;
     //var standard_width = 1438;
     //var standard_height = 707;
-    var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/testing/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
+    var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/build/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
 
     console.log("cWindow", window.innerHeight);
     var scaled_width = window.innerWidth / 1438;
@@ -556,6 +577,7 @@ function PanCancerAnalysis(props){
           name: "UID",
           order: false
         },
+        firstID: undefined,
         signature: undefined,
         annotation: "none",
         page: 1,
@@ -589,6 +611,7 @@ function PanCancerAnalysis(props){
           name: "UID",
           order: false
         },
+        firstID: undefined,
         signature: undefined,
         annotation: "none",
         page: 1,
@@ -764,7 +787,9 @@ function PanCancerAnalysis(props){
               <div id="tableLoadingDiv" style={{position: "absolute", marginLeft: 15, display: "none", textAlign: "center", marginTop: 30}}>
               {loading_Gif}
               </div>
-                <RootTable input={tableState.data} type={tableState.type} exonPlotStateScaled={exonPlotState.scaled} setExonPlotState={setExonPlotState} tableState={tableState} setTableState={setTableState}></RootTable>
+                <RootTable input={tableState.data} type={tableState.type} 
+                exonPlotStateScaled={exonPlotState.scaled} setExonPlotState={setExonPlotState} 
+                tableState={tableState} setTableState={setTableState}></RootTable>
             </ResizableBox>
                     
             <ResizableBox

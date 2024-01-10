@@ -488,7 +488,7 @@ class SetDoubleBarChart extends React.Component {
         
         if(index == 0)
         {
-        var currentAddedObject = d3.select("#".concat(group_identifier.concat("_gene")));
+        var currentAddedObject = d3.select("#".concat(group_identifier.concat("_splice")));
         var currentAddedObjectSelectedSignature = currentAddedObject["_groups"][0][0]["attributes"]["signature"]["nodeValue"];
         var currentAddedObjectSelectedType = currentAddedObject["_groups"][0][0]["attributes"]["type"]["nodeValue"];
         this.defaultSelection = {"object": currentAddedObject,

@@ -1439,7 +1439,7 @@ function ViewPanel_Side(props) {
 //Test comment
 function ViewPanel_Main(props) {
     const classes = useStyles();
-    var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/testing/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
+    var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/build/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
     const [isShown, setIsShown] = React.useState(false);
     return(
     <div id="ViewPane_MainPane" style={{overflow: "scroll", height: "100%", width: "100%", display: "flex"}}>

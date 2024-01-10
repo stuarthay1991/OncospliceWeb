@@ -35,7 +35,7 @@ function loadContact()
 function TopNav() {
   const classes = useStyles();
   const [pageTypeState, setPageTypeState] = React.useState({"value": "Individual Signatures", "initialized": false})
-  var oncoimg = isBuild ? <img src="/ICGS/Oncosplice/testing/OncoLOGO2.png" alt="Logo" width="180" height="63"></img> : <img src={oncologo} alt="Logo" width="180" height="63"></img>;
+  var oncoimg = isBuild ? <img src="/ICGS/Oncosplice/build/OncoLOGO2.png" alt="Logo" width="180" height="63"></img> : <img src={oncologo} alt="Logo" width="180" height="63"></img>;
 
   const [maskPage, setMaskPage] = React.useState({"name": "data"});
 
