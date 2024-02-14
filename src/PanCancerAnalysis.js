@@ -647,27 +647,7 @@ function PanCancerAnalysis(props){
       })   
     }
 
-    if(props.cancerName == "BLCA")
-    {
-        var datarray_x1 = [];
-        var datarray_y1 = [];
-
-        var datarray_x2 = [];
-        var datarray_y2 = [];
-        const plotobjs = [];
-        var counter = 0;
-
-        var doubleBarChartData = {cluster: [], gene: [], key: [], targetdiv: "doubleBarChartDiv"};
-        for (const [key, value] of Object.entries(props.clusterLength)) {
-            doubleBarChartData.cluster.push(value.length);
-            doubleBarChartData.gene.push(BLCA_vals[key]);
-            doubleBarChartData.key.push(key);
-        }
-    }
-    else
-    {
-      var doubleBarChartData = {cluster: null, gene: null, targetdiv: "doubleBarChartDiv"};
-    }
+    var doubleBarChartData = {cluster: null, gene: null, targetdiv: "doubleBarChartDiv"};
 
     var panel_CancerSummary = {
         width: 0.235 * available_width,
