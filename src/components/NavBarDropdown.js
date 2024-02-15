@@ -75,7 +75,7 @@ function Header({setViewPane, setPanCancerState}){
     const [sampleListState, setSampleListState] = React.useState(jsonBLCA);
     const [sampleOptions, setSampleOptions] = React.useState({"key": undefined, "options": []});
     
-    const [signatureState, setSignatureState] = React.useState({"signature": "psi_r2_v15_vs_others", "simpleName": "R2-V15", "oncocluster": "R2-V15", "initialized": false});
+    const [signatureState, setSignatureState] = React.useState({"signature": "psi_r1_v7_vs_others", "simpleName": "R1-V7", "oncocluster": "R1-V7", "initialized": false});
     const [coordState, setCoordState] = React.useState();
     const [geneState, setGeneState] = React.useState();
     const [pageTypeState, setPageTypeState] = React.useState({"value": "Individual Signatures", "initialized": false})
@@ -384,16 +384,8 @@ function Header({setViewPane, setPanCancerState}){
         placement="bottomStart"
         size="xs"
         trigger = "hover">
-                <HayDropdown eventKey="LGG" displayName="Low-Grade Glioma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="LUAD" displayName="Lung Adenocarcinoma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="BRCA" displayName="Breast Invasive Carcinoma (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="BLCA" displayName="Bladder Cancer (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="GBM" displayName="Glioblastoma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="HNSCC" displayName="Head and Neck Squamous Cell Carcinoma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="SKCM" displayName="Skin Cutaneous Melanoma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="COAD" displayName="Colon Adenocarcinoma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="AML_Leucegene" displayName="Acute Myeloid Leukemia (Leucgene)"></HayDropdown>
-        </Dropdown>
+                <HayDropdown eventKey="PCPG" displayName="Pheochromocytoma and paraganglioma (TCGA)"></HayDropdown>        </Dropdown>
         <br/>
         <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerTypeState.cancerType}</strong></div>
         </Grid>
@@ -446,15 +438,8 @@ function Header({setViewPane, setPanCancerState}){
                 placement="bottomStart"
                 size="xs"
                 trigger = "hover">
-                <HayDropdown eventKey="LGG" displayName="Low-Grade Glioma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="LUAD" displayName="Lung Adenocarcinoma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="BRCA" displayName="Breast Invasive Carcinoma (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="BLCA" displayName="Bladder Cancer (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="GBM" displayName="Glioblastoma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="HNSCC" displayName="Head and Neck Squamous Cell Carcinoma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="SKCM" displayName="Skin Cutaneous Melanoma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="COAD" displayName="Colon Adenocarcinoma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="AML_Leucegene" displayName="Acute Myeloid Leukemia (Leucgene)"></HayDropdown>
+                <HayDropdown eventKey="PCPG" displayName="Pheochromocytoma and paraganglioma (TCGA)"></HayDropdown>
         </Dropdown>
         <br/>
         <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerSignatureGroupState.cancerType}</strong></div>
