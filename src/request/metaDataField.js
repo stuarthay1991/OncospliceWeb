@@ -53,7 +53,7 @@ function metaDataField(arg, targeturl)
       //updateQueueBox(curCancer, keys["filter"].length, queueboxchildren, queueboxsignatures);
       const callback = arg["setState"];
       callback(resamt, stateQboxchildren, preQ, keys, exportView);
-      console.log("meta...callback...ended", keys, callback);
+      //console.log("meta...callback...ended", keys, callback);
       //console.log("selectfield response code finished.");
   	})
 }

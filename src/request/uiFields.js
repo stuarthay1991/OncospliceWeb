@@ -28,7 +28,7 @@ function uiFields(arg, targeturl)
 		console.log("fer2", response["data"]["uniqueclusters"]);
 		//console.log("pctable", response["data"]);
 		callback(samples);
-		pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": cancername});
+		pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": cancername, "uniqueGenesPerSignature": response["data"]["pancancerGeneCount"]});
 	});
 }
 

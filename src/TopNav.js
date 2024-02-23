@@ -21,7 +21,7 @@ function loadHome()
   document.getElementById("aboutpanel").style.display = "none";
   document.getElementById("contactpanel").style.display = "none";
   document.getElementById("tabcontent").style.display = "block";
-  document.getElementById("pancancer").style.display = "none";  
+  document.getElementById("pancancer").style.display = "none";
   document.getElementById("dropdownOptionsDiv").style.display = "block";
 }
 
@@ -51,7 +51,7 @@ function TopNav() {
   }
 
   const onSelectAbout = (e) => {
-    console.log("wat a dolla");
+    //console.log("wat a dolla");
     setMaskPage({"name": "about"});
   }
 
@@ -82,7 +82,7 @@ function TopNav() {
           document.getElementById("gridItem4").style.display = "block";
           document.getElementById("gridItem5").style.display = "block";
           document.getElementById("gridItem6").style.display = "none";
-          document.getElementById("gridItem7").style.display = "none";      
+          document.getElementById("gridItem7").style.display = "none";
         }
       }
     }
@@ -92,10 +92,10 @@ function TopNav() {
   React.useEffect(() => {
     if(prevMaskPage.current != undefined)
     {
-      console.log("PM 1");
+      //console.log("PM 1");
       if(prevMaskPage.current != maskPage)
       {
-        console.log("PM 2", maskPage.name);
+        //console.log("PM 2", maskPage.name);
         if(maskPage.name == "data")
         {
           document.getElementById("rocket_magnum").style.display = "block";
@@ -114,14 +114,14 @@ function TopNav() {
           else
           {
             document.getElementById("tabcontent").style.display = "none";
-            document.getElementById("pancancerpanel").style.display = "block"; 
+            document.getElementById("pancancerpanel").style.display = "block";
             document.getElementById("gridItem1").style.display = "block";
             document.getElementById("gridItem2").style.display = "none";
             document.getElementById("gridItem3").style.display = "none";
             document.getElementById("gridItem4").style.display = "block";
             document.getElementById("gridItem5").style.display = "block";
             document.getElementById("gridItem6").style.display = "none";
-            document.getElementById("gridItem7").style.display = "none";       
+            document.getElementById("gridItem7").style.display = "none";
           }
           document.getElementById("aboutpanel").style.display = "none";
           document.getElementById("contactpanel").style.display = "none";

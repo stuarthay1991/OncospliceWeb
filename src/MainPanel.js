@@ -59,7 +59,7 @@ function MainPanel(props){
 
   //Each time the user selects an option, it is recorded in the "pagelist" cache variable which is not used now, but could be useful later.
   props.addPage(page);
-  
+
   //These are just basic converters to change the url appendage "page" to an integer value so it can be compatible with the tab system that I'm using.
   const tabNameToIndex = {
     1: "explore",
@@ -136,7 +136,7 @@ function MainPanel(props){
     });
   }
 
-  const [panCancerState, setPanCancerState] = React.useState({"DEtableData": undefined, "tableData": undefined, "clusterLength": undefined, "cancer": undefined});
+  const [panCancerState, setPanCancerState] = React.useState({"DEtableData": undefined, "tableData": undefined, "clusterLength": undefined, "cancer": undefined, "uniqueGenesPerSignature": undefined});
 
   //update query history function
   const updateQH = (new_user, data) => {
@@ -146,13 +146,13 @@ function MainPanel(props){
             user: new_user,
             data: data
           }
-        });    
+        });
   }
 
 
   //This is a hack I useed. For whatever reason, I would sometimes have issues getting the correct tab to show up. This function fixed it, ahd while
   //I'm not 100% sure why, it works, and so therefore it stays.
-  
+
   var mpv = mpstate.viewpaneobj;
   //console.log("mpv", mpv);
   React.useEffect(() => {
@@ -182,7 +182,7 @@ function MainPanel(props){
     args["setState"] = setViewPane;
     args["pancancerupdate"] = setPanCancerState;
     args["export"] = {};
-    args["cancer"] = "BRCA";
+    args["cancer"] = "BLCA";
     args["doc"] = document;
     makeRequest("defaultQuery", args);
   }
@@ -205,7 +205,7 @@ function MainPanel(props){
       {mpstate.value === 1 && <ViewPanelWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
       </div>
       <div id="pancancerpanel" style={{display: "none"}}>
-        <PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer}/>
+        <PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer} geneCount={panCancerState.uniqueGenesPerSignature}/>
       </div>
       <div id="aboutpanel" style={{display: "none", backgroundColor: "#0f6a8b"}}>
         <AboutUs />

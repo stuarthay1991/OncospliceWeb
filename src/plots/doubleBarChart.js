@@ -7,7 +7,20 @@ class SetDoubleBarChart extends React.Component {
         input: null,
       };
     }
-    componentDidMount() { 
+
+    componentDidMount() {
+        this.updateDoubleChart()
+    }
+
+    componentDidUpdate(prevProps) {
+      if(this.props !== prevProps)
+      {
+        this.updateDoubleChart()
+      }
+    }
+
+    updateDoubleChart()
+    {
       var base_re_wid = window.innerWidth;
       var base_re_high = window.innerHeight;
       var standard_width = 1438;
@@ -23,9 +36,9 @@ class SetDoubleBarChart extends React.Component {
       {
         this.props.heightRatio = 1;
       }
-  
+
       this.setState({
-        input: <DOUBLE_BAR_CHART 
+        input: <DOUBLE_BAR_CHART
           doubleBarChartState={this.props.doubleBarChartState}
           stackedBarRequest={this.props.stackedBarChartRequest}
           setStackedBarState={this.props.setStackedBarChartData}
@@ -35,6 +48,7 @@ class SetDoubleBarChart extends React.Component {
           setTableState={this.props.setTableState}
           tablePlotRequest={this.props.tablePlotRequest}
           resetBottomPanels={this.props.resetBottomPanels}
+          cancerName={this.props.cancerName}
           doc={document}
           target_div_id={this.props.doubleBarChartState.targetdiv}
           xScale={this.props.widthRatio}
@@ -42,46 +56,7 @@ class SetDoubleBarChart extends React.Component {
           </DOUBLE_BAR_CHART>
       })
     }
-  
-    componentDidUpdate(prevProps) {
-      if(this.props !== prevProps)
-      {
-        var base_re_wid = window.innerWidth;
-        var base_re_high = window.innerHeight;
-        var standard_width = 1438;
-        var standard_height = 707;
-        var adjust_width = (base_re_wid / standard_width) * 0.40;
-        var adjust_height = (base_re_high / standard_height) * 0.40;
-        var y_start = 0;
-        if(this.props.widthRatio == undefined)
-        {
-          this.props.widthRatio = 1;
-        }
-        if(this.props.heightRatio == undefined)
-        {
-          this.props.heightRatio = 1;
-        }
 
-        this.setState({
-          input: <DOUBLE_BAR_CHART 
-            doubleBarChartState={this.props.doubleBarChartState}
-            stackedBarRequest={this.props.stackedBarChartRequest}
-            setStackedBarState={this.props.setStackedBarChartData}            
-            concordanceRequest={this.props.concordanceRequest}
-            setConcordanceState={this.props.setConcordanceState}
-            resetDaugtherPanels={this.props.resetDaugtherPanels}
-            setTableState={this.props.setTableState}
-            tablePlotRequest={this.props.tablePlotRequest}
-            resetBottomPanels={this.props.resetBottomPanels}
-            doc={document} 
-            target_div_id={this.props.doubleBarChartState.targetdiv}
-            xScale={this.props.widthRatio}
-            yScale={this.props.heightRatio}>
-            </DOUBLE_BAR_CHART>
-        })
-      }
-    }
-  
     render()
     {
       return(
@@ -112,8 +87,8 @@ class SetDoubleBarChart extends React.Component {
       };
       this.defaultSelection = undefined;
     }
-  
-    baseSVG(h_in) 
+
+    baseSVG(h_in)
     {
       var w="100%";
       var h= h_in;
@@ -122,18 +97,18 @@ class SetDoubleBarChart extends React.Component {
         .attr("width", w)
         .attr("height", h)
         .attr("id", (this.target_div.concat("_svg")));
-  
+
       this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-        
+
       this.SVG_main_group.append("rect")
         .attr("width", w)
         .attr("height", h)
         .style("stroke", "White")
         .attr("stroke-width", 0)
         .attr("type", "canvas")
-        .attr("fill", "White");    
+        .attr("fill", "White");
     }
-  
+
     writeBase(h_in)
     {
       var parent = this;
@@ -144,13 +119,13 @@ class SetDoubleBarChart extends React.Component {
         .style("opacity", 1.0)
         .attr("fill", "White");
 
-      this.rect = d3.select("body").append("rect") 
+      this.rect = d3.select("body").append("rect")
         .attr("width", 30)
         .attr("height", 30)
         .style("opacity", 1.0)
         .attr("type", "canvas")
         .attr("fill", "White");
-  
+
     }
 
     writeTitle()
@@ -165,7 +140,7 @@ class SetDoubleBarChart extends React.Component {
             .style("opacity", 1.0)
             .attr("fill", "black")
             .text("Pancancer Summary");
-      
+
         this.SVG_main_group.append('circle')
             .attr('cx', 32*S.xScale)
             .attr('cy', 46*S.yScale)
@@ -191,7 +166,7 @@ class SetDoubleBarChart extends React.Component {
                 .attr("fill", "#0F6A8B")
                 .attr("opacity", 0.4);
               })
-            .on("mouseout", function(d) {   
+            .on("mouseout", function(d) {
               //parent.tempTextRemove();
               var pretg = d3.select(this).attr("stroke-width", 1)
               .attr("stroke", "black")
@@ -204,7 +179,7 @@ class SetDoubleBarChart extends React.Component {
               document.getElementById("stackedBarChartDiv").style.display = "block";
               parent.props.stackedBarRequest(parent.props.setStackedBarState);
               parent.props.resetDaugtherPanels();
-            }); 
+            });
 
         this.SVG_main_group.append("text")
             .attr("x", 44*S.xScale)
@@ -273,14 +248,14 @@ class SetDoubleBarChart extends React.Component {
             .attr("opacity", 0.8)
             .attr("height", (yLength) - (2*S.yScale))
             .attr("fill", "rgb(131, 131, 131)");
-        
+
         this.SVG_main_group.append("rect")
             .attr("x", (this.x_offset*S.xScale)-(2*S.xScale))
             .attr("y", (yLength)+(92*S.yScale))
             .attr("width", xLength*S.xScale)
             .attr("opacity", 0.8)
             .attr("height", 2*S.yScale)
-            .attr("fill", "rgb(131, 131, 131)");        
+            .attr("fill", "rgb(131, 131, 131)");
     }
 
     drawXTicks(xLength, yLength, maxValue)
@@ -291,7 +266,7 @@ class SetDoubleBarChart extends React.Component {
 
         for(var i = 0; i < 12; i++)
         {
-            
+
             var xVal = (88*S.xScale) + (xTickInterval * i);
             //console.log("xVal", xVal);
             this.SVG_main_group.append("rect")
@@ -354,7 +329,7 @@ class SetDoubleBarChart extends React.Component {
             .style("opacity", 1.0)
             .attr("fill", "black")
             .text("# of Unique Entries");
-      
+
     }
 
     tempOnHover(obj, mode)
@@ -369,7 +344,7 @@ class SetDoubleBarChart extends React.Component {
           if(d3.select(textgroup).attr("selected") == "false")
           {
             d3.select(textgroup).attr("fill", "red");
-          } 
+          }
         }
       }
       obj
@@ -387,12 +362,12 @@ class SetDoubleBarChart extends React.Component {
           {
             d3.select(textgroup).attr("fill", "black");
           }
-        }   
+        }
       }
       obj
         .attr("stroke-width", 0)
         .attr("srtoke", "purple");
-    }        
+    }
     }
 
     onBarSelect(obj, signature_name, bar_type, setTableState, tablePlotRequest, setConcordanceState, concordanceRequest)
@@ -441,7 +416,7 @@ class SetDoubleBarChart extends React.Component {
                 .attr("cursor", "pointer");
                 parent.tempOnHover(pretg, "add")
                 })
-            .on("mouseout", function(d) {   
+            .on("mouseout", function(d) {
                 //parent.tempTextRemove();
                 var pretg = d3.select(this).attr("stroke-width", 0)
                 .attr("stroke", "purple")
@@ -466,13 +441,13 @@ class SetDoubleBarChart extends React.Component {
             .attr("type", "gene")
             .attr("signature", inputData[index].key)
             .on("mouseover", function() {
-                //console.log(cur_obj);                
+                //console.log(cur_obj);
                 var pretg = d3.select(this).attr("stroke-width", 2)
                 .attr("stroke", "purple")
                 .attr("cursor", "pointer");
                 parent.tempOnHover(pretg, "add")
                 })
-            .on("mouseout", function(d) {   
+            .on("mouseout", function(d) {
                 //parent.tempTextRemove();
                 var pretg = d3.select(this).attr("stroke-width", 0)
                 .attr("stroke", "purple")
@@ -485,7 +460,7 @@ class SetDoubleBarChart extends React.Component {
                 var selectedType = pretg["_groups"][0][0]["attributes"]["type"]["nodeValue"];
                 parent.onBarSelect(pretg, selectedSignature, selectedType, parent.props.setTableState, parent.props.tablePlotRequest, parent.props.setConcordanceState, parent.props.concordanceRequest)
             });
-        
+
         if(index == 0)
         {
         var currentAddedObject = d3.select("#".concat(group_identifier.concat("_splice")));
@@ -500,7 +475,7 @@ class SetDoubleBarChart extends React.Component {
             .attr("y", (ypos+7*S.yScale))
             .attr("width", 3*S.xScale)
             .attr("height", 2*S.yScale)
-            .attr("fill", "rgb(131, 131, 131)");        
+            .attr("fill", "rgb(131, 131, 131)");
 
         var inputKey = inputData[index].key;
         inputKey = inputKey.replace('psi_', '');
@@ -538,9 +513,9 @@ class SetDoubleBarChart extends React.Component {
           })
           return(
             null
-          );    
+          );
         }
-    }  
+    }
 
     render (){
       var S = this.state;
@@ -575,7 +550,7 @@ class SetDoubleBarChart extends React.Component {
             sorted_data_array[i].gene = this.state.data.gene[i];
             sorted_data_array[i].key = this.state.data.key[i];
         }
-        
+
         //console.log("this.state.data LOOK", sorted_data_array);
         var dummy_y = 95*S.yScale;
         var y_interval = 20.5*S.yScale;
@@ -623,7 +598,7 @@ class SetDoubleBarChart extends React.Component {
         null
       );
     }
-  
+
   }
-  
+
 export default SetDoubleBarChart;

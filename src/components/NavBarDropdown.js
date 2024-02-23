@@ -47,7 +47,7 @@ const instance = (
 
 function HayDropdownParent(props){
   return(
-  <Dropdown    
+  <Dropdown
   title={props.title}
   activeKey={props.activeKey}
   onSelect={props.onSelect}
@@ -74,7 +74,7 @@ function Header({setViewPane, setPanCancerState}){
     const [sampleState, setSampleState] = React.useState();
     const [sampleListState, setSampleListState] = React.useState(jsonBLCA);
     const [sampleOptions, setSampleOptions] = React.useState({"key": undefined, "options": []});
-    
+
     const [signatureState, setSignatureState] = React.useState({"signature": "psi_r1_v7_vs_others", "simpleName": "R1-V7", "oncocluster": "R1-V7", "initialized": false});
     const [coordState, setCoordState] = React.useState();
     const [geneState, setGeneState] = React.useState();
@@ -150,10 +150,10 @@ function Header({setViewPane, setPanCancerState}){
             delimiter = "\n";
           }
         }
-      
+
         all_coords = all_coords.split(delimiter);
         var pile_of_coords = [];
-      
+
         for(var i=0; i<all_coords.length; i++)
         {
           if(all_coords[i] != "")
@@ -188,11 +188,11 @@ function Header({setViewPane, setPanCancerState}){
             delimiter = "\n";
           }
         }
-      
+
         all_uids = all_uids.split(delimiter);
-      
+
         var pile_of_uids = [];
-      
+
         for(var i=0; i<all_uids.length; i++)
         {
           if(all_uids[i] != "")
@@ -309,7 +309,7 @@ function Header({setViewPane, setPanCancerState}){
               heatmapArgs["genes"] = geneState;
               heatmapArgs["comparedCancer"] = cancerSignatureGroupState.cancerType;
               heatmapArgs["cancerType"] = cancerTypeState.cancerType;
-              makeRequest("updateHeatmapData", heatmapArgs);              
+              makeRequest("updateHeatmapData", heatmapArgs);
             }
 
             sampleArgs["cancerType"] = cancerTypeState.cancerType;
@@ -325,7 +325,7 @@ function Header({setViewPane, setPanCancerState}){
         prevSignatureState.current = signatureState;
         prevCoordState.current = coordState;
         prevGeneState.current = geneState;
-        
+
       }, [cancerTypeState, signatureState, coordState, geneState])
 
     React.useEffect(() => {
@@ -378,8 +378,8 @@ function Header({setViewPane, setPanCancerState}){
       <div id="dropdownOptionsDiv" style={{width: "120%"}}>
         <Grid container spacing={1}>
         <Grid id="gridItem1" item>
-        <Dropdown title="Cancer Type" 
-        onSelect={cancerSelectHandle} 
+        <Dropdown title="Cancer Type"
+        onSelect={cancerSelectHandle}
         activeKey={cancerTypeState.cancerType}
         placement="bottomStart"
         size="xs"
@@ -390,8 +390,8 @@ function Header({setViewPane, setPanCancerState}){
         <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerTypeState.cancerType}</strong></div>
         </Grid>
         <Grid id="gridItem2" item>
-        <Dropdown title="Sample Filter" 
-        activeKey="BLCA" 
+        <Dropdown title="Sample Filter"
+        activeKey="BLCA"
         onSelect={sampleMenuPopulate}
         placement="bottomStart"
         size="xs"
@@ -399,7 +399,7 @@ function Header({setViewPane, setPanCancerState}){
                 <div style={{maxHeight: "300px", overflowY: "scroll"}}>
                 {(() => {
                     //console.log("good", Object.entries(sampleListState));
-                    const dropdownItems = [];         
+                    const dropdownItems = [];
                     for (const [key, value] of Object.entries(sampleListState))
                     {
                         dropdownItems.push(<HayDropdown eventKey={key} displayName={key}></HayDropdown>)
@@ -417,9 +417,9 @@ function Header({setViewPane, setPanCancerState}){
         onSelect={selectSampleHandle}
         placement="bottomStart"
         size="xs"
-        trigger = "hover">                
+        trigger = "hover">
                 {(() => {
-                    console.log("good", Object.entries(signatureListState));
+                    //console.log("good", Object.entries(signatureListState));
                     const dropdownItems = [];
                     for(var i = 0; i < sampleOptions.options.length; i++)
                     {
@@ -455,7 +455,7 @@ function Header({setViewPane, setPanCancerState}){
                 <div style={{maxHeight: "300px", overflowY: "scroll"}}>
                 {(() => {
                     //console.log("good", Object.entries(signatureListState));
-                    const dropdownItems = [];         
+                    const dropdownItems = [];
                     for (const [key, value] of Object.entries(signatureListState))
                     {
                         dropdownItems.push(<HayDropdown eventKey={[key, value]} displayName={value}></HayDropdown>)
@@ -493,7 +493,7 @@ function Header({setViewPane, setPanCancerState}){
         </Grid>
         </Grid>
       </div>);
-    
+
 }
 
 export default Header;

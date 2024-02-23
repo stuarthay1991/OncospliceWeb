@@ -14,11 +14,11 @@ function defaultQuery(arg, targeturl)
   const curCancer = "BLCA";
   const compCancer = "BLCA";
   var sampleFilters = [];
-  var signatureFilters = ["psi_r2_v15_vs_others"];
+  var signatureFilters = ["psi_r3_v25_vs_others"];
   var geneFilters = [];
   var coordinateFilters = [];
-  var oncospliceClusters = "R2-V15";
-  var postData = {"data": {"cancerName": curCancer, 
+  var oncospliceClusters = "R3-V25";
+  var postData = {"data": {"cancerName": curCancer,
   "comparedCancer": compCancer,
   "oncospliceClusters": oncospliceClusters,
   "samples": sampleFilters,
@@ -59,7 +59,7 @@ function defaultQuery(arg, targeturl)
 
 function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exp, callback, doc, targeturl, pancancercallback)
 {
-  var postdata = {"data": {"cancerName": "BLCA", "signature": "psi_r2_v15_vs_others"}};
+  var postdata = {"data": {"cancerName": "BLCA", "signature": "psi_r3_v25_vs_others"}};
   axios({
     method: "post",
     data: postdata,
@@ -71,9 +71,9 @@ function defaultQueryUiFields(splicingreturned, splicingcols, splicingcc, splici
     exp["ui_field_dict"] = response["data"]["samples"];
     exp["ui_field_range"] = response["data"]["range"];
     console.log("fer4", response["data"]["pancancersignature"]);
-    console.log("fer5", response["data"]["uniqueclusters"]);
+    console.log("fer5", response["data"]);
     callback(splicingreturned, splicingcols, splicingcc, splicingrpsi, splicingtrans, exp);
-    pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": "BLCA"});
+    pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": "BLCA", "uniqueGenesPerSignature": response["data"]["pancancerGeneCount"]});
   })
 }
 

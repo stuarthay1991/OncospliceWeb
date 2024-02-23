@@ -8,7 +8,18 @@ class SetExonPlot extends React.Component {
       input: null,
     };
   }
-  componentDidMount() { 
+  
+  componentDidMount() {
+    this.updateExonPlot();
+  }
+
+  componentDidUpdate(prevProps) {
+    if(this.props !== prevProps){
+      this.updateExonPlot();
+    }
+  }
+
+  updateExonPlot(){
     var base_re_wid = window.innerWidth;
     var base_re_high = window.innerHeight;
     var standard_width = 1438;
@@ -18,45 +29,20 @@ class SetExonPlot extends React.Component {
     var y_start = 0;
 
     this.setState({
-      input: <EXON_PLOT 
-        exonPlotState={this.props.exonPlotState} 
-        setExonPlotState={this.props.setExonPlotState} 
-        doc={document} 
+      input: <EXON_PLOT
+        exonPlotState={this.props.exonPlotState}
+        setExonPlotState={this.props.setExonPlotState}
+        doc={document}
         target_div_id={this.props.exonPlotState.targetdiv}
         downscale={this.props.exonPlotState.downscale}>
         </EXON_PLOT>
     })
   }
 
-  componentDidUpdate(prevProps) {
-    if(this.props !== prevProps)
-    {
-      var base_re_wid = window.innerWidth;
-      var base_re_high = window.innerHeight;
-      var standard_width = 1438;
-      var standard_height = 707;
-      var adjust_width = (base_re_wid / standard_width) * 0.40;
-      var adjust_height = (base_re_high / standard_height) * 0.40;
-      var y_start = 0;
-
-      this.setState({
-        input: <EXON_PLOT 
-          exonPlotState={this.props.exonPlotState} 
-          setExonPlotState={this.props.setExonPlotState} 
-          doc={document} 
-          target_div_id={this.props.exonPlotState.targetdiv}
-          downscale={this.props.exonPlotState.downscale}>
-          </EXON_PLOT>
-      })
-    }
-  }
-
   render()
   {
     return(
-      <div>
-      {this.state.input}
-      </div>
+      <div>{this.state.input}</div>
     );
   }
 }
@@ -84,16 +70,16 @@ class EXON_PLOT extends React.Component {
     };
   }
 
-  baseSVG(w=2000, h=2000) 
+  baseSVG(w=2000, h=2000)
   {
     this.SVG = d3.select("#".concat(this.target_div))
       .append("svg")
       .attr("width", w)
       .attr("height", h)
-      .attr("id", (this.target_div.concat("_svg")));  
+      .attr("id", (this.target_div.concat("_svg")));
 
     this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-         
+
   }
 
   writeBase(h=1500)
@@ -104,7 +90,7 @@ class EXON_PLOT extends React.Component {
       .style("opacity", 0.0)
       .attr("fill", "White");
 
-    this.rect = d3.select("body").append("rect") 
+    this.rect = d3.select("body").append("rect")
       .attr("width", 30)
       .attr("height", 30)
       .style("opacity", 1.0)
@@ -119,7 +105,7 @@ class EXON_PLOT extends React.Component {
       .attr("x", originX)
       .attr("y", (originY - 30))
       .attr("text-anchor", "start")
-      .attr("id", "TEMPORARY_HIGHLIGHT") 
+      .attr("id", "TEMPORARY_HIGHLIGHT")
       .style("font-size", "16px")
       .style('fill', 'red')
       .text(name);
@@ -224,9 +210,9 @@ class EXON_PLOT extends React.Component {
     var parent = this;
     var y_start = 110;
     var fontsize = 13 / (this.state.downscale / 1.17);
-    for (const [key, value] of Object.entries(trans_input)) 
+    for (const [key, value] of Object.entries(trans_input))
     {
-      
+
       var cur_obj = this.SVG_main_group.append("text")
           .attr("x", 1)
           .attr("y", (y_start + 15))
@@ -248,7 +234,7 @@ class EXON_PLOT extends React.Component {
         if(cur_u["x"] < current_start)
         {
           current_start = cur_u["x"];
-        } 
+        }
         if(cur_u["x"] > current_end)
         {
           current_end = cur_u["x"];
@@ -257,7 +243,7 @@ class EXON_PLOT extends React.Component {
         catch(error)
         {
           console.log("FAIL", trans_input[key][i]);
-        }        
+        }
       }
 
       this.SVG_main_group.append("rect")
@@ -301,7 +287,7 @@ class EXON_PLOT extends React.Component {
               //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
               parent.tempOnHover(temp_x, temp_y, [current_unit["name"], hard_start, hard_stop, hard_width_string], "add")
               })
-          .on("mouseout", function(d) {   
+          .on("mouseout", function(d) {
               //parent.tempTextRemove();
               var pretg = d3.select(this);
               var gmos = pretg["_groups"][0][0]["attributes"]["t_ens_name"]["nodeValue"];
@@ -410,7 +396,7 @@ class EXON_PLOT extends React.Component {
         var pull_split = GSD[i].uid.split("|");
         var first_split = pull_split[0].split(":");
         var second_split = pull_split[1].split(":");
-        
+
         var area1 = first_split[2];
         var area2 = second_split[1];
 
@@ -471,7 +457,7 @@ class EXON_PLOT extends React.Component {
       var pull_split = GSD[i].uid.split("|");
       var first_split = pull_split[0].split(":");
       var second_split = pull_split[1].split(":");
-      
+
       var area1 = first_split[2];
       var area2 = second_split[1];
 
@@ -548,7 +534,7 @@ class EXON_PLOT extends React.Component {
         var gretg2 = d3.select(pl2);
         gretg2.attr('stroke', rectColor);
       }
- 
+
     }
     }
   }
@@ -585,7 +571,7 @@ class EXON_PLOT extends React.Component {
       if(this.state.downscale == true)
       {
         addon_id = "small";
-      }      
+      }
 
       const get_1 = document.getElementById(starting_exon.concat(addon_id).concat("_global_id"));
       const get_2 = document.getElementById(finishing_exon.concat(addon_id).concat("_global_id"));
@@ -645,7 +631,7 @@ class EXON_PLOT extends React.Component {
           {
             y_adj = 24;
           }
-        }        
+        }
       }
 
       if(y_adj == 24)
@@ -657,7 +643,7 @@ class EXON_PLOT extends React.Component {
           {
             y_adj = 36;
           }
-        }        
+        }
       }
 
       var points = [[potent_end, 90], [t_x_s, (65 - y_adj)], [temp_x_2, 90]];
@@ -699,7 +685,7 @@ class EXON_PLOT extends React.Component {
               parent.tempBorderHighlight("add", get_1, get_2, gmos_1, gmos_2)
 
               parent.tempOnHover(temp_x, temp_y, [cur_junc, junclength], "add")
-            })          
+            })
         .on("mouseout", function(d) {
               var pretg = d3.select(this);
               var temp_x = pretg["_groups"][0][0]["attributes"]["cx"]["nodeValue"];
@@ -873,7 +859,7 @@ class EXON_PLOT extends React.Component {
           }
           else{
             last_exon_stop = last_exon_stop + 200;
-            continue;            
+            continue;
           }
         }
         else
@@ -934,8 +920,8 @@ class EXON_PLOT extends React.Component {
             const pip = exname.concat("_global_id")
             //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
             parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "add")
-            })          
-          .on("mouseout", function(d) {   
+            })
+          .on("mouseout", function(d) {
               //parent.tempTextRemove();
               var pretg = d3.select(this);
               var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
@@ -969,8 +955,8 @@ class EXON_PLOT extends React.Component {
               const pip = exname.concat("_global_id")
               //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
               parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "add")
-              })          
-          .on("mouseout", function(d) {   
+              })
+          .on("mouseout", function(d) {
               //parent.tempTextRemove();
               var pretg = d3.select(this);
               var gmos = pretg["_groups"][0][0]["attributes"]["exname"]["nodeValue"];
@@ -992,7 +978,7 @@ class EXON_PLOT extends React.Component {
       this.ens_map[exon_input[i]["start"]]["h_stop"] = exon_input[i]["stop"];
 
     }
-    
+
   }
 
   componentDidUpdate (prevProps){
@@ -1015,7 +1001,7 @@ class EXON_PLOT extends React.Component {
       })
       return(
         null
-      );    
+      );
     }
   }
 

@@ -109,7 +109,7 @@ function oneUIDrequest(UID) {
   })
     .then(function (response) {
       plotUIDupdate(response["data"]["result"][0])
-  })  
+  })
 }
 
 function exonRequest(GENE, in_data, setViewState, viewState, exonPlotState, setExonPlotState) {
@@ -130,8 +130,8 @@ function exonRequest(GENE, in_data, setViewState, viewState, exonPlotState, setE
         toDownloadJunc: resp["blob"]["junc"]
       });
       setExonPlotState({
-        exons: resp["gene"], 
-        transcripts: resp["transcript"], 
+        exons: resp["gene"],
+        transcripts: resp["transcript"],
         junctions: resp["junc"],
         in_data: in_data,
         scaled: exonPlotState.scaled,
@@ -145,7 +145,7 @@ function plotUIDupdate(dat)
 {
   this.setState({
     fulldat: dat
-  })    
+  })
 }
 
 const defaultProps = {
@@ -181,30 +181,20 @@ function updateStats(id, input){
     });
 }
 
-function oldLinkOuts(instuff){
-  var peach2 = instuff;
-  var peach3 = peach2.replace("|", "<br>");
-  var peach = peach2.split("|");
-  var chr1 = peach[0];
-  var chr2 = peach[1];
-  var twor1 = chr1.split(":");
-  var twor2 = chr2.split(":");
-  var flatchr1 = twor1[0];
-  var flatchr2 = twor2[0];
-  var twor1_split = twor1[1].split("-");
-  var twor2_split = twor2[1].split("-");
+function oldLinkOuts(instuff) {
+  var [chr1, chr2] = instuff.split("|");
+  var [flatchr1, twor1_split] = chr1.split(":");
+  var [flatchr2, twor2_split] = chr2.split(":");
 
-  var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
-  var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
+  var link = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
 
-  return(
+  return (
     <div>
-    <a href={link1.concat(flatchr1).concat("%3A").concat(twor1_split[0]).concat("%2D").concat(twor1_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG")} target="_blank">{chr1}</a>
-    <br />
-    <a href={link2.concat(flatchr2).concat("%3A").concat(twor2_split[0]).concat("%2D").concat(twor2_split[1]).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG")} target="_blank">{chr2}</a>
+      <a href={`${link}${flatchr1}%3A${twor1_split}%2D${twor1_split[1]}&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG`} target="_blank">{chr1}</a>
+      <br />
+      <a href={`${link}${flatchr2}%3A${twor2_split}%2D${twor2_split[1]}&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG`} target="_blank">{chr2}</a>
     </div>
   );
-
 }
 
 function makeLinkOuts(chrm, c1, c2, c3, c4){
@@ -339,8 +329,21 @@ class Heatmap extends React.Component {
       OncospliceClusters: null
     };
   }
-  componentDidMount() { 
+  componentDidMount() {
     //console.log("HEATMAP RE-MOUNTED:", this.props.data);
+    this.updateHeatmap();
+  }
+
+  componentDidUpdate(prevProps) {
+    //console.log("HHprop", this.props.QueryExport["single"], prevProps.QueryExport["single"])
+    if((this.props.data.length !== prevProps.data.length) || (this.props.cols.length !== prevProps.cols.length) || (this.props.QueryExport["single"] !== prevProps.QueryExport["single"]))
+    {
+      //console.log("HEATMAP RE-RENDERED:", this.props.QueryExport["single"]);
+      this.updateHeatmap();
+    }
+  }
+
+  updateHeatmap() {
     var base_re_wid = window.innerWidth;
     var base_re_high = window.innerHeight;
     var standard_width = 1438;
@@ -350,25 +353,25 @@ class Heatmap extends React.Component {
     var xscale = ((500/this.props.cols.length) * adjust_width);
     this.xscale = xscale;
     var y_start = 0;
-    var universal_y = 15;
     document.getElementById("HEATMAP_0").style.transform = "scaleY(1)";
-    global_Y = universal_y;
+    global_Y = 15;
     global_adj_height = adjust_height;
     global_heat_len = this.props.data.length;
-    var y_scaling = universal_y;
     var escale = (this.props.cols.length * (this.xscale - 0.1));
 
     document.getElementById("HEATMAP_0").style.width = escale.toString().concat("px");
+
     this.setState({
-      output: <OKMAP 
-                dataset={this.props.data} 
-                column_names={this.props.cols} 
-                len={this.props.data.length} 
-                doc={document} 
-                target_div_id={"HEATMAP_0"} 
-                xscale={xscale} 
-                yscale={y_scaling} 
+      output: <OKMAP
+                dataset={this.props.data}
+                column_names={this.props.cols}
+                len={this.props.data.length}
+                doc={document}
+                target_div_id={"HEATMAP_0"}
+                xscale={this.xscale}
+                yscale={15}
                 norm={1}
+                signatureName={this.props.QueryExport["single"]}
                 viewState={this.props.viewState}
                 setViewState={this.props.setViewState}
                 gtexState={this.props.gtexState}
@@ -382,96 +385,26 @@ class Heatmap extends React.Component {
                 plotUIDstate={this.props.plotUIDstate}
                 setPlotUIDstate={this.props.setPlotUIDstate}>
                 </OKMAP>,
-      label: <OKMAP_LABEL 
-                target_div_id={"HEATMAP_LABEL"} 
-                column_names={this.props.cols} 
-                doc={document} 
-                xscale={xscale}
-                setFilterState={this.props.setFilterState}/>,
-      CC: <OKMAP_COLUMN_CLUSTERS 
-                target_div_id={"HEATMAP_CC"} 
-                column_names={this.props.cc} 
-                doc={document} 
-                xscale={xscale}/>,
-      OncospliceClusters: <OKMAP_OncospliceClusters 
-                target_div_id={"HEATMAP_OncospliceClusters"} 
-                refcols={this.props.cols} 
+      label: <OKMAP_LABEL
+                target_div_id={"HEATMAP_LABEL"}
+                column_names={this.props.cols}
+                doc={document}
+                xscale={this.xscale}
+                setFilterState={this.props.setFilterState}
+                />,
+      CC: <OKMAP_COLUMN_CLUSTERS
+                target_div_id={"HEATMAP_CC"}
+                column_names={this.props.cc}
+                doc={document}
+                xscale={this.xscale}/>,
+      OncospliceClusters: <OKMAP_OncospliceClusters
+                target_div_id={"HEATMAP_OncospliceClusters"}
+                refcols={this.props.cols}
                 column_names={this.props.OncospliceClusters}
                 doc={document}
                 trans={global_trans}
-                xscale={xscale}/>
+                xscale={this.xscale}/>
     })
-  }
-
-  componentDidUpdate(prevProps) {
-    //console.log("HHprop", this.props.QueryExport["single"], prevProps.QueryExport["single"])
-    if((this.props.data.length !== prevProps.data.length) || (this.props.cols.length !== prevProps.cols.length) || (this.props.QueryExport["single"] !== prevProps.QueryExport["single"]))
-    {
-      //console.log("HEATMAP RE-RENDERED:", this.props.QueryExport["single"]);
-      var base_re_wid = window.innerWidth;
-      var base_re_high = window.innerHeight;
-      var standard_width = 1438;
-      var standard_height = 707;
-      var adjust_width = (base_re_wid / standard_width) * 1.5;
-      var adjust_height = (base_re_high / standard_height) * 1.5;
-      var xscale = ((500/this.props.cols.length) * adjust_width);
-      this.xscale = xscale;
-      var y_start = 0;
-      var universal_y = 15;
-      document.getElementById("HEATMAP_0").style.transform = "scaleY(1)";
-      global_Y = universal_y;
-      global_adj_height = adjust_height;
-      global_heat_len = this.props.data.length;
-      var y_scaling = universal_y;
-      var escale = (this.props.cols.length * (this.xscale - 0.1));
-
-      document.getElementById("HEATMAP_0").style.width = escale.toString().concat("px");
-
-      this.setState({
-        output: <OKMAP 
-                  dataset={this.props.data} 
-                  column_names={this.props.cols} 
-                  len={this.props.data.length} 
-                  doc={document} 
-                  target_div_id={"HEATMAP_0"} 
-                  xscale={this.xscale} 
-                  yscale={y_scaling} 
-                  norm={1}
-                  signatureName={this.props.QueryExport["single"]}
-                  viewState={this.props.viewState}
-                  setViewState={this.props.setViewState}
-                  gtexState={this.props.gtexState}
-                  setGtexState={this.props.setGtexState}
-                  exonPlotState={this.props.exonPlotState}
-                  setExonPlotState={this.props.setExonPlotState}
-                  selectionState={this.props.selectionState}
-                  setSelectionState={this.props.setSelectionState}
-                  filterState={this.props.filterState}
-                  setFilterState={this.props.setFilterState}
-                  plotUIDstate={this.props.plotUIDstate}
-                  setPlotUIDstate={this.props.setPlotUIDstate}>
-                  </OKMAP>,
-        label: <OKMAP_LABEL 
-                  target_div_id={"HEATMAP_LABEL"} 
-                  column_names={this.props.cols} 
-                  doc={document} 
-                  xscale={this.xscale}
-                  setFilterState={this.props.setFilterState}
-                  />,
-        CC: <OKMAP_COLUMN_CLUSTERS 
-                  target_div_id={"HEATMAP_CC"} 
-                  column_names={this.props.cc} 
-                  doc={document} 
-                  xscale={this.xscale}/>,
-        OncospliceClusters: <OKMAP_OncospliceClusters 
-                  target_div_id={"HEATMAP_OncospliceClusters"} 
-                  refcols={this.props.cols} 
-                  column_names={this.props.OncospliceClusters} 
-                  doc={document}
-                  trans={global_trans}
-                  xscale={this.xscale}/>
-      })
-    }
   }
 
   render()
@@ -527,7 +460,7 @@ function zoomOutHeatmap()
     wacky_winston = (wacky_winston.toString()).concat("px");
 
     document.getElementById("HEATMAP_0").style.transformOrigin = "0 0";
-    document.getElementById("HEATMAP_0").style.overflowY = "visible";   
+    document.getElementById("HEATMAP_0").style.overflowY = "visible";
     document.getElementById("HEATMAP_0").style.transform = "scaleY(".concat(captain_burgerpants.toString()).concat(")");
     document.getElementById("HEATMAP_0").style.height = wacky_winston;
 
@@ -567,7 +500,7 @@ class OKMAP_LABEL extends React.Component {
     updateOkmapLabel = updateOkmapLabel.bind(this)
   }
 
-  baseSVG(w="120%", h="100%") 
+  baseSVG(w="120%", h="100%")
   {
     this.SVG = d3.select("#".concat(this.target_div))
       .append("svg")
@@ -583,7 +516,7 @@ class OKMAP_LABEL extends React.Component {
       .style("stroke", "White")
       .attr("type", "canvas")
       .style("opacity", 0.0)
-      .attr("fill", "White");    
+      .attr("fill", "White");
   }
 
   writeBase(cols, yscale, xscale)
@@ -725,7 +658,7 @@ class OKMAP_LABEL extends React.Component {
           .attr("width", rect_length)
           .attr("height", 20)
           .attr("fill", color);
-      
+
       x_pointer = x_pointer + ((1 * xscale) - 0.1);
     }
 
@@ -736,7 +669,7 @@ class OKMAP_LABEL extends React.Component {
         .attr("text-anchor", "start")
         .style("font-size", "11px")
         .style('fill', 'black')
-        .text("Filter Samples");    
+        .text("Filter Samples");
   }
 
   componentDidUpdate (prevProps){
@@ -750,12 +683,12 @@ class OKMAP_LABEL extends React.Component {
       if(this.state.retcols != "NULL")
       {
         this.writeBlocks(this.state.retcols, this.props.xscale, this.props.column_names);
-        metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState); 
+        metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState);
         //document.getElementById("HeatmapFilterSelect_id").value = Object.entries(global_uifielddict)[0][0];
       }
       return(
         null
-      );    
+      );
     }
   }
 
@@ -763,7 +696,7 @@ class OKMAP_LABEL extends React.Component {
     this.baseSVG("100%", 20);
     this.writeBase(20);
     metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState);
-  }  
+  }
 
   render (){
     var retval = null;
@@ -785,7 +718,7 @@ class OKMAP_LABEL extends React.Component {
 function updateOkmap(y){ this.setState({zoom_level: y}) }
 
 class OKMAP extends React.Component {
-  constructor(props) 
+  constructor(props)
   {
     super(props);
     this.target_div = this.props.target_div_id;
@@ -808,8 +741,8 @@ class OKMAP extends React.Component {
     const setViewState = this.props.setViewState;
     updateOkmap = updateOkmap.bind(this)
   }
-  
-  baseSVG(w="100%", h="100%", s="100%") 
+
+  baseSVG(w="100%", h="100%", s="100%")
   {
     this.SVG = d3.select("#".concat(this.target_div))
       .append("svg")
@@ -826,8 +759,7 @@ class OKMAP extends React.Component {
       .style("stroke", "White")
       .attr("type", "canvas")
       .style("opacity", 0.0)
-      .attr("fill", "White"); 
-
+      .attr("fill", "White");
   }
 
   writeBase(yscale, xscale, cols, height)
@@ -849,7 +781,7 @@ class OKMAP extends React.Component {
       .attr("id", (this.target_row_label_div.concat("_svg")));
 
     this.SVG_rlg = this.ROWLABELSVG.append("g").attr("id", (this.target_row_label_div.concat("_group")));
-    
+
     this.SVG_rlg.append("rect")
       .attr("width", w)
       .attr("height", h)
@@ -889,70 +821,34 @@ class OKMAP extends React.Component {
 
   writeSingle5(y_pointer, data, y_scale, x_scale, col_list, flag=0, hflag=0)
   {
-    var bubble_1 = d3.select("#".concat(this.target_div).concat("_group"));
-    var bubs = data;
+    var bubble_1 = d3.select("#" + this.target_div + "_group");
     var parent = this;
-
     var x_pointer = 0;
-    for(var p = 0; p < col_list.length; p++)
-    {
-      var rect_length = (1 * x_scale);
-      var cur_square_val = parseFloat(data[col_list[p]]);
-      var selected_color;
-      if(cur_square_val < 0.05 && cur_square_val > -0.05)
-      {
-        selected_color = "rgb(0, 0, 0)";
-        x_pointer = x_pointer + ((1 * x_scale) - 0.1);
-        continue;
-      }
-      else if(cur_square_val <= -0.05)
-      {
-            var integerval = 10 + (-210 * (cur_square_val * 3));
-            if(integerval > 255)
-            {
-              integerval = 255;
-            }
-            if(integerval < 0)
-            {
-              integerval = 0;
-            }
-            integerval = Math.floor(integerval);
-            var magic_others = Math.floor(cur_square_val * 100);
-            if(magic_others < 0){magic_others = 0}
-            if(magic_others > 255){magic_others = 255}
-            var magic_blue = (integerval).toString();
-            magic_others = magic_others.toString();
-            selected_color = "rgb(".concat(magic_others).concat(", ").concat(magic_blue).concat(", ").concat(magic_blue).concat(")");
-      }
-      else
-      {
-            var integerval2 = 10 + (210 * (cur_square_val * 3));
-            if(integerval2 > 255)
-            {
-              integerval2 = 255;
-            }
-            if(integerval2 < 0)
-            {
-              integerval2 = 0;
-            }
-            integerval2 = Math.floor(integerval2);
-            var magic_others = Math.floor(cur_square_val * 10);
-            if(magic_others < 0){magic_others = 0}
-            if(magic_others > 255){magic_others = 255}
-            var magic_yellow = (integerval2).toString();
-            var magic_yellow2 = (integerval2).toString();
-            magic_others = magic_others.toString();
-            selected_color = "rgb(".concat(magic_yellow).concat(", ").concat(magic_yellow2).concat(", ").concat(magic_others).concat(")");
-      }
 
-      this.SVG_main_group.append("rect")
-          .style("stroke-width", 0)
-          .attr("x", x_pointer)
-          .attr("y", y_pointer)
-          .attr("width", rect_length)
-          .attr("height", y_scale)
-          .attr("fill", selected_color);
-        
+    for (var p = 0; p < col_list.length; p++) {
+        var cur_square_val = parseFloat(data[col_list[p]]);
+        var selected_color;
+
+        if (cur_square_val < 0.05 && cur_square_val > -0.05) {
+            selected_color = "rgb(0, 0, 0)";
+            x_pointer += 1 * x_scale - 0.1;
+            continue;
+        }
+
+        var integerval = cur_square_val <= -0.05 ? Math.min(Math.max(10 + (-210 * (cur_square_val * 3)), 0), 255) : Math.min(Math.max(10 + (210 * (cur_square_val * 3)), 0), 255);
+        var magic_others = Math.min(Math.max(Math.floor(cur_square_val * (cur_square_val <= -0.05 ? 100 : 10)), 0), 255);
+        var magic_yellow = integerval.toString();
+        var magic_blue = integerval.toString();
+        selected_color = "rgb(" + (cur_square_val <= -0.05 ? magic_others : magic_yellow) + ", " + (cur_square_val <= -0.05 ? magic_blue : magic_yellow) + ", " + (cur_square_val <= -0.05 ? magic_blue : magic_others) + ")";
+
+        this.SVG_main_group.append("rect")
+            .style("stroke-width", 0)
+            .attr("x", x_pointer)
+            .attr("y", y_pointer)
+            .attr("width", (1 * x_scale))
+            .attr("height", y_scale)
+            .attr("fill", selected_color);
+
       x_pointer = x_pointer + ((1 * x_scale) - 0.1);
     }
     this.farthestX = x_pointer;
@@ -1008,7 +904,7 @@ class OKMAP extends React.Component {
       .on("mouseout", function(){
             d3.select(this).style("fill", "black");
       });
-    
+
     if(iterationNumber == 0)
     {
       //console.log("Matched: ", iterationNumber, data["uid"]);
@@ -1018,7 +914,7 @@ class OKMAP extends React.Component {
       var toex = data["examined_junction"].split(":");
       exonRequest(toex[0], data, parent.props.setViewState, parent.props.viewState, parent.props.exonPlotState, parent.props.setExonPlotState);
       parent.props.setPlotUIDstate({fulldat: data});
-      parent.setSelected(converteduid);      
+      parent.setSelected(converteduid);
     }
   }
 
@@ -1048,7 +944,7 @@ class OKMAP extends React.Component {
   {
     var rect_to_remove = document.getElementById("TEMPORARY_HIGHLIGHT");
     d3.select(rect_to_remove).remove();
-  }  
+  }
 
   setSelected(id)
   {
@@ -1075,9 +971,9 @@ class OKMAP extends React.Component {
       })
       .on("mouseout", function(){
             d3.select(this).style("fill", "green");
-      }); 
+      });
 
-    this.CURRENT_SELECTED_UID = id;      
+    this.CURRENT_SELECTED_UID = id;
 
   }
 
@@ -1107,7 +1003,7 @@ class OKMAP extends React.Component {
         this.writeSingle5(y_start, this.props.dataset[i], 15, this.props.xscale, this.props.column_names, 1);
         this.writeRowLabel(y_start, this.props.dataset[i], 15, i);
         y_start = y_start + 15;
-        }, 50);      
+        }, 50);
       }
     }
   }
@@ -1169,7 +1065,7 @@ function supFilterUpdate(data)
   this.setState({
     filters: data["out"],
     filterset: data["set"]
-  })  
+  })
 }
 
 function updateExPlot(exons, transcripts, junctions, in_data){
@@ -1376,13 +1272,9 @@ function ViewPanel(props) {
       >
         <div style={{overflow: "scroll", height: "100%", width: "100%", display: "inline-block"}}>
         <PlotPanel plotLabel={"OncoClusters"} inputType={"oncosplice"}>{plotobj1}</PlotPanel>
-
         <PlotPanel plotLabel={"HierarchyClusters"} inputType={"hierarchical"}>{plotobj2}</PlotPanel>
-
         <PlotPanel plotLabel={"Filters"} inputType={"samplefilter"}>{plotobj3}</PlotPanel>
-
         <PlotPanel plotLabel={"GTEX"} inputType={"gtex"}>{plotobj4}</PlotPanel>
-
         <Stats></Stats>
         <SetExonPlot exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></SetExonPlot>
         </div>
@@ -1398,24 +1290,12 @@ function ViewPanel(props) {
         >
           <div style={{overflow: "scroll", height: "100%", width: "100%"}}>
           <Grid container spacing={1}>
-            <Grid item xs={2}>
-              <SpcInputLabel label={"ExonPlot"} />
-            </Grid>
-            <Grid item>
-              <ScalingCheckbox exonPlotState={exonPlotState} setExonPlotState={setExonPlotState} />
-            </Grid>
-            <Grid item>
-              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("transcript.csv", viewState.toDownloadExon)}>Download Transcript</Button>
-            </Grid>
-            <Grid item>
-              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("genemodel.csv", viewState.toDownloadGeneModel)}>Download Gene Model</Button>
-            </Grid>
-            <Grid item>
-              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button>
-            </Grid>
-            <Grid item>
-              <Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadPdfFunction(selectionState.selection)}>Download PDF</Button>
-            </Grid>
+            <Grid item xs={2}><SpcInputLabel label={"ExonPlot"} /></Grid>
+            <Grid item><ScalingCheckbox exonPlotState={exonPlotState} setExonPlotState={setExonPlotState} /></Grid>
+            <Grid item><Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("transcript.csv", viewState.toDownloadExon)}>Download Transcript</Button></Grid>
+            <Grid item><Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("genemodel.csv", viewState.toDownloadGeneModel)}>Download Gene Model</Button></Grid>
+            <Grid item><Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadExonPlotData("junctions.csv", viewState.toDownloadJunc)}>Download Junctions</Button></Grid>
+            <Grid item><Button variant="contained" style={{ backgroundColor: '#0F6A8B', color: "white" }} onClick={() => downloadPdfFunction(selectionState.selection)}>Download PDF</Button></Grid>
           </Grid>
           <Box borderColor="#dbdbdb" {...spboxProps}>
             <div style={{ marginLeft: 20, marginTop: 10, marginBottom: 10 }} id="supp1"></div>
@@ -1446,18 +1326,10 @@ function ViewPanel_Main(props) {
         <div className="containerSidebar" onMouseEnter={() => setIsShown(true)} onMouseLeave={() => setIsShown(false)}>
           {isShown && (
           <div className="sidebar" style={{marginLeft: 5}}>
-            <div>
-            <Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><ZoomInIcon onClick={zoomInHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
-            </div>
-            <div>
-            <Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><ZoomOutIcon onClick={zoomOutHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
-            </div>
-            <div>
-            <Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
-            </div>
-            <div>
-            <Button variant="contained" style={{marginTop: "5px", marginBottom: "5px", backgroundColor: '#0F6A8B'}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button>
-            </div>
+            <div><Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><ZoomInIcon onClick={zoomInHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button></div>
+            <div><Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><ZoomOutIcon onClick={zoomOutHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button></div>
+            <div><Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button></div>
+            <div><Button variant="contained" style={{marginTop: "5px", marginBottom: "5px", backgroundColor: '#0F6A8B'}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button></div>
             <div><Typography className={classes.smallpadding} /></div>
             <div><FilterHeatmapSelect setFilterState={props.setFilterState} /></div>
           </div>
@@ -1475,10 +1347,10 @@ function ViewPanel_Main(props) {
         <span id="HEATMAP_0" ></span>
         <span id="HEATMAP_ROW_LABEL" style={{width: "280px"}}></span>
         </div>
-      <Heatmap 
-        data={props.Data} 
-        cols={props.Cols} 
-        cc={props.CC} 
+      <Heatmap
+        data={props.Data}
+        cols={props.Cols}
+        cc={props.CC}
         QueryExport={props.QueryExport}
         OncospliceClusters={props.OncospliceClusters}
         viewState={props.viewState}

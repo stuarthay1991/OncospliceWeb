@@ -22,7 +22,7 @@ function App() {
   }
 
   var routeurl = isBuild ? "/ICGS/Oncosplice/build/index.html" : "/app";
-  console.log(process.env.NODE_ENV)
+  //console.log(process.env.NODE_ENV)
   /*
   if(process.env.NODE_ENV == "production")
   {
