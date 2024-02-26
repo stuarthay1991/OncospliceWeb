@@ -469,6 +469,7 @@ class SetDoubleBarChart extends React.Component {
         this.defaultSelection = {"object": currentAddedObject,
         "selectedSignature": currentAddedObjectSelectedSignature,
         "selectedType": currentAddedObjectSelectedType}
+        //console.log("Default selection", this.props.cancerName, this.defaultSelection);
         }
         this.SVG_main_group.append("rect")
             .attr("x", x_offset-(5*S.xScale))
@@ -499,7 +500,21 @@ class SetDoubleBarChart extends React.Component {
     }
 
     componentDidUpdate (prevProps){
-        if(this.props !== prevProps)
+        if(this.props !== prevProps && this.props.cancerName !== prevProps.cancerName)
+        {
+          //console.log();
+          var y_start = 0;
+          var tempnode = document.getElementById(this.target_div);
+          while (tempnode.firstChild) {
+              tempnode.removeChild(tempnode.firstChild);
+          }
+          console.log("double bar chart update type 1");
+          this.setState({
+            data: this.props.doubleBarChartState,
+            selectedGroup: undefined
+          })
+        }
+        else if(this.props !== prevProps)
         {
           var y_start = 0;
           var tempnode = document.getElementById(this.target_div);
@@ -508,13 +523,13 @@ class SetDoubleBarChart extends React.Component {
           }
           //this.baseSVG(1300);
           //this.writeBase(1300);
+          console.log("double bar chart update type 2");
           this.setState({
-            data: this.props.doubleBarChartState
+            data: this.props.doubleBarChartState,
+            selectedGroup: this.state.selectedGroup
           })
-          return(
-            null
-          );
         }
+
     }
 
     render (){
@@ -532,7 +547,6 @@ class SetDoubleBarChart extends React.Component {
 
       if(this.state.data.cluster != null)
       {
-
         var sorted_data_array = [];
 
         for(let i = 0; i < this.state.data.cluster.length; i++)
@@ -571,6 +585,7 @@ class SetDoubleBarChart extends React.Component {
         this.drawAxis(total_x_length, total_y_length);
         this.drawXTicks(total_x_length, total_y_length, maxValue);
 
+        //console.log("Cancer_sorted_data", this.props.cancerName, sorted_data);
         for(let i = 0; i < sorted_data.length; i++)
         {
             this.drawBar(sorted_data, i, y_val, maxValue);
@@ -580,15 +595,47 @@ class SetDoubleBarChart extends React.Component {
         if(this.state.selectedGroup != undefined)
         {
           d3.select(document.getElementById(this.state.selectedGroup)).attr("fill", "red").style("font-size", 13*this.state.fontScale);
+          /*console.log("Selected group is defined", this.state.selectedGroup, this.defaultSelection, sorted_data[0].key)
+          var identifierToUse = sorted_data[0].key.concat("_g_id");
+          if(this.state.selectedGroup != identifierToUse)
+          {
+            console.log("Selected group is defined wrong...", this.state.selectedGroup)
+            var currentAddedObject = d3.select("#".concat(identifierToUse.concat("_splice")));
+            var currentAddedObjectSelectedSignature = currentAddedObject["_groups"][0][0]["attributes"]["signature"]["nodeValue"];
+            var currentAddedObjectSelectedType = currentAddedObject["_groups"][0][0]["attributes"]["type"]["nodeValue"];
+            this.defaultSelection = {
+              "object": currentAddedObject,
+              "selectedSignature": currentAddedObjectSelectedSignature,
+              "selectedType": currentAddedObjectSelectedType
+            }
+            var arg1 = this.defaultSelection.object;
+            var arg2 = this.defaultSelection.selectedSignature;
+            var arg3 = this.defaultSelection.selectedType;
+            this.onBarSelect(arg1, arg2, arg3, this.props.setTableState, this.props.tablePlotRequest, this.props.setConcordanceState, this.props.concordanceRequest)
+          }*/
         }
         if(this.state.selectedGroup == undefined)
         {
+          //console.log("Selected group undefined", this.state.selectedGroup)
+          var identifierToUse = sorted_data[0].key.concat("_g_id");
+          console.log("identifierToUse", identifierToUse)
+          var currentAddedObject = d3.select("#".concat(identifierToUse.concat("_splice")));
+          var currentAddedObjectSelectedSignature = currentAddedObject["_groups"][0][0]["attributes"]["signature"]["nodeValue"];
+          var currentAddedObjectSelectedType = currentAddedObject["_groups"][0][0]["attributes"]["type"]["nodeValue"];
+          this.defaultSelection = {
+            "object": currentAddedObject,
+            "selectedSignature": currentAddedObjectSelectedSignature,
+            "selectedType": currentAddedObjectSelectedType
+          }
           var arg1 = this.defaultSelection.object;
           var arg2 = this.defaultSelection.selectedSignature;
           var arg3 = this.defaultSelection.selectedType;
+          console.log("Selected group after definition", this.state.selectedGroup)
           this.onBarSelect(arg1, arg2, arg3, this.props.setTableState, this.props.tablePlotRequest, this.props.setConcordanceState, this.props.concordanceRequest)
         }
+
         //plot chart
+
       }
       else{
         this.baseSVG(0);
