@@ -374,8 +374,9 @@ class SetDoubleBarChart extends React.Component {
     {
         var textgroup = document.getElementById(obj["_groups"][0][0]["attributes"]["group_identifier"]["nodeValue"]);
         //console.log("Selected:", signature_name, bar_type, textgroup);
-        tablePlotRequest(signature_name, bar_type, setTableState);
-        concordanceRequest(signature_name, "BLCA", setConcordanceState, "doublebar");
+        tablePlotRequest(signature_name, bar_type, setTableState, "none", this.props.cancerName);
+        console.log("cancerName", this.props.cancerName)
+        concordanceRequest(signature_name, this.props.cancerName, setConcordanceState, "doublebar");
         this.props.resetBottomPanels();
         //console.log("who needs", d3.select(textgroup).attr("id"));
         this.setState({

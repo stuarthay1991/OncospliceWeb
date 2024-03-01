@@ -39,7 +39,8 @@ function exonRequest(GENE, in_data, fulldata, exonPlotStateScaled, setExonPlotSt
         gene_specific_data.push(curpointer);
       }
     });
-    //console.log("gene_specific_data", gene_specific_data);
+
+    console.log("gene_specific_data", gene_specific_data);
     var postedData = {"data": {"gene": GENE}}
     axios({
       method: "post",
@@ -114,12 +115,11 @@ function concordanceRequest(signature, cancer, setConcordanceState, type, annot=
   })
 }
 
-function tablePlotRequest(SIGNATURE, type, setTableState, annotation="none") {
+function tablePlotRequest(SIGNATURE, type, setTableState, annotation="none", cancerName) {
   var bodyFormData = new FormData();
   document.getElementById("tableLoadingDiv").style.display = "block";
   document.getElementById("rootTable").style.opacity = 0.2;
-
-  var postedData = {"data": {"signature": SIGNATURE, "type": type}}
+  var postedData = {"data": {"signature": SIGNATURE, "type": type, "cancerName": cancerName}}
   axios({
     method: "post",
     url: routeurl.concat("/api/datasets/updatepantable"),
@@ -130,19 +130,35 @@ function tablePlotRequest(SIGNATURE, type, setTableState, annotation="none") {
       var resp = response["data"];
       document.getElementById("tableLoadingDiv").style.display = "none";
       document.getElementById("rootTable").style.opacity = 1;
-      //console.log("OUTPUTTT", resp);
-      setTableState({
-        type: type,
-        data: resp["outputdata"],
-        sortedColumn: {
-          name: "UID",
-          order: false
-        },
-        firstID: undefined,
-        signature: SIGNATURE,
-        annotation: annotation,
-        page: 0
-      });
+      console.log("OUTPUTTT", type, resp);
+      if(type == "splice"){
+        setTableState({
+          type: type,
+          data: resp["outputdata"],
+          sortedColumn: {
+            name: "UID",
+            order: false
+          },
+          firstID: undefined,
+          signature: SIGNATURE,
+          annotation: annotation,
+          page: 0
+        });
+      }
+      else{
+        setTableState({
+          type: type,
+          data: resp["outputdata"],
+          sortedColumn: {
+            name: "logfold",
+            order: false
+          },
+          firstID: undefined,
+          signature: SIGNATURE,
+          annotation: annotation,
+          page: 0
+        });
+      }
   })
 }
 
@@ -153,13 +169,15 @@ function popUID(uuid, uid, inputcoords, fulldata, exonPlotState, setExonPlotStat
   const important = document.getElementById(uuid);
   if (important) important.className = "HselectedRow";
 
-  const [, ensg_id] = uid.split(":");
-  const [chr1, chr2] = inputcoords.split("|");
-  const [, coord1, coord2] = chr1.split(":");
-  const [, coord3, coord4] = chr2.split(":").map(c => c.split("-"));
-  const coord_block = { coord1, coord2, coord3, coord4 };
-
-  exonRequest(ensg_id, coord_block, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn);
+  if(tableState.type == "splice")
+  {
+    const [, ensg_id] = uid.split(":");
+    const [chr1, chr2] = inputcoords.split("|");
+    const [, coord1, coord2] = chr1.split(":");
+    const [, coord3, coord4] = chr2.split(":").map(c => c.split("-"));
+    const coord_block = {coord1, coord2, coord3, coord4};
+    exonRequest(ensg_id, coord_block, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn);
+  }
 }
 
 function uidConvert(input_uid)
@@ -313,7 +331,9 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
               prepareRow(row);
 
               //console.log("ROW", row);
-              const setClick = row.original.uid;
+              //tableState
+              const setClick = tableState.type == "splice" ? row.original.uid : row.original.symbol;
+              //const setClick = row.original.uid;
               const inputcoords = row.original.coordinates;
               const id = uuidv4();
               if(count == 0){
