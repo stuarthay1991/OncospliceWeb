@@ -23,6 +23,7 @@ import loadingGif from './images/loading.gif';
 var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 const Styles = tableStyledDiv;
+
 function exonRequest(GENE, in_data, fulldata, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn) {
     var bodyFormData = new FormData();
     var gene_specific_data = [];
@@ -39,7 +40,6 @@ function exonRequest(GENE, in_data, fulldata, exonPlotStateScaled, setExonPlotSt
         gene_specific_data.push(curpointer);
       }
     });
-
     console.log("gene_specific_data", gene_specific_data);
     var postedData = {"data": {"gene": GENE}}
     axios({
@@ -60,10 +60,54 @@ function exonRequest(GENE, in_data, fulldata, exonPlotStateScaled, setExonPlotSt
           gene_specific_data: gene_specific_data,
           scaled: exonPlotStateScaled,
           targetdiv: "pancanc_splice",
-          downscale: 1.45
+          downscale: 1.45,
+          type: "coordinate"
         });
         //setTableState({...tableState, sortedColumn: sortedColumn.id})
     })
+}
+
+function noCoordinateExonRequest(GENE, in_data, fulldata, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn){
+  var bodyFormData = new FormData();
+  var gene_specific_data = [];
+  document.getElementById("panSpliceLoadingDiv").style.display = "block";
+  document.getElementById("pancanc_splice").style.opacity = 0.2;
+  //console.log("Data structure: ", fulldata);
+  //gene_specific_data
+  fulldata.forEach(curpointer => {
+    const ensg_id = curpointer.geneid;
+    if (ensg_id === GENE) {
+      curpointer = { ...curpointer, "coord1": undefined, "coord2": undefined, "coord3": undefined, "coord4": undefined};
+      gene_specific_data.push(curpointer);
+    }
+  });
+
+  console.log("gene_specific_data", gene_specific_data);
+  var postedData = {"data": {"gene": GENE}}
+  axios({
+    method: "post",
+    url: routeurl.concat("/api/datasets/exonViewerData"),
+    data: postedData,
+    headers: { "Content-Type": "application/json" },
+  })
+    .then(function (response) {
+      var resp = response["data"];
+      console.log("no coordinate load", resp, in_data, gene_specific_data, exonPlotStateScaled);
+      document.getElementById("panSpliceLoadingDiv").style.display = "none";
+      document.getElementById("pancanc_splice").style.opacity = 1;
+      setExonPlotState({
+        exons: resp["gene"],
+        transcripts: resp["transcript"],
+        junctions: resp["junc"],
+        in_data: in_data,
+        gene_specific_data: gene_specific_data,
+        scaled: exonPlotStateScaled,
+        targetdiv: "pancanc_splice",
+        downscale: 1.45,
+        type: "no coordinate"
+      });
+      //setTableState({...tableState, sortedColumn: sortedColumn.id})
+  })
 }
 
 function stackedBarChartRequest(setStackedBarChartState){
@@ -169,14 +213,22 @@ function popUID(uuid, uid, inputcoords, fulldata, exonPlotState, setExonPlotStat
   const important = document.getElementById(uuid);
   if (important) important.className = "HselectedRow";
 
-  if(tableState.type == "splice")
-  {
+  if(tableState.type == "splice") {
     const [, ensg_id] = uid.split(":");
     const [chr1, chr2] = inputcoords.split("|");
     const [, coord1, coord2] = chr1.split(":");
     const [, coord3, coord4] = chr2.split(":").map(c => c.split("-"));
-    const coord_block = {coord1, coord2, coord3, coord4};
+    var coord_block = {coord1, coord2, coord3, coord4};
+    console.log("coord_block01", coord_block);
+    console.log("ensgid", ensg_id);
     exonRequest(ensg_id, coord_block, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn);
+  }
+  else {
+    console.log("biofgs");
+    const ensg_id = uid;
+    var coord_block = {"coord1": undefined, "coord2": undefined, "coord3": undefined, "coord4": undefined};
+    noCoordinateExonRequest(ensg_id, coord_block, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn);
+    //exonRequest(ensg_id, coord_block, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn);
   }
 }
 
@@ -332,7 +384,7 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
 
               //console.log("ROW", row);
               //tableState
-              const setClick = tableState.type == "splice" ? row.original.uid : row.original.symbol;
+              const setClick = tableState.type == "splice" ? row.original.uid : row.original.geneid;
               //const setClick = row.original.uid;
               const inputcoords = row.original.coordinates;
               const id = uuidv4();
@@ -475,6 +527,7 @@ function RootTable(props) {
         else
         {
           let curdat = {
+            geneid: curpointer["geneid"],
             symbol: curpointer["symbol"],
             logfold: curpointer["logfold"],
             rawp: curpointer["rawp"],
@@ -529,7 +582,8 @@ function PanCancerAnalysis(props){
         in_data: null,
         scaled: false,
         targetdiv: "pancanc_splice",
-        downscale: 1.45
+        downscale: 1.45,
+        type: "coordinate"
     });
 
     const [concordanceState, setConcordanceState] = React.useState({

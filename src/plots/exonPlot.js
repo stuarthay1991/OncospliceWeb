@@ -8,7 +8,7 @@ class SetExonPlot extends React.Component {
       input: null,
     };
   }
-  
+
   componentDidMount() {
     this.updateExonPlot();
   }
@@ -67,6 +67,7 @@ class EXON_PLOT extends React.Component {
       scaled: this.props.exonPlotState.scaled,
       downscale: this.props.exonPlotState.downscale,
       gene_specific_data: this.props.exonPlotState.gene_specific_data,
+      type: this.props.exonPlotState.type
     };
   }
 
@@ -259,13 +260,10 @@ class EXON_PLOT extends React.Component {
         var cur_ens_id = trans_input[key][i];
 
         const current_unit = this.ens_map[cur_ens_id];
-
         const hard_start = "Start: ".concat(current_unit["h_start"].toString()).concat(" bp");
         const hard_stop = "Stop: ".concat(current_unit["h_stop"].toString()).concat(" bp");
-
         const hard_width = Math.abs(current_unit["h_stop"] - current_unit["h_start"]);
         const hard_width_string = "Width: ".concat(hard_width.toString()).concat(" bp");
-
 
         var cur_obj = this.SVG_main_group.append("rect")
           .attr("x", current_unit["x"])
@@ -393,32 +391,21 @@ class EXON_PLOT extends React.Component {
     {
       for(var i = 0; i < GSD.length; i++)
       {
-        var pull_split = GSD[i].uid.split("|");
-        var first_split = pull_split[0].split(":");
-        var second_split = pull_split[1].split(":");
-
-        var area1 = first_split[2];
-        var area2 = second_split[1];
-
-        var value1 = area1.split("-")[0];
-        var value2 = area1.split("-")[1];
-        var value3 = area2.split("-")[0];
-        var value4 = area2.split("-")[1];
-        if(value1.indexOf("I") != -1)
+        if(this.state.type == "coordinate")
         {
-          retarray.push(value1);
-        }
-        if(value2.indexOf("I") != -1)
-        {
-          retarray.push(value2);
-        }
-        if(value3.indexOf("I") != -1)
-        {
-          retarray.push(value3);
-        }
-        if(value4.indexOf("I") != -1)
-        {
-          retarray.push(value4);
+          var pull_split = GSD[i].uid.split("|");
+          var first_split = pull_split[0].split(":");
+          var second_split = pull_split[1].split(":");
+          var area1 = first_split[2];
+          var area2 = second_split[1];
+          var value1 = area1.split("-")[0];
+          var value2 = area1.split("-")[1];
+          var value3 = area2.split("-")[0];
+          var value4 = area2.split("-")[1];
+          if(value1.indexOf("I") != -1){retarray.push(value1);}
+          if(value2.indexOf("I") != -1){retarray.push(value2);}
+          if(value3.indexOf("I") != -1){retarray.push(value3);}
+          if(value4.indexOf("I") != -1){retarray.push(value4);}
         }
       }
     }
@@ -448,94 +435,96 @@ class EXON_PLOT extends React.Component {
       addon_id = "small";
     }
 
-
-
     if(GSD != undefined)
     {
-    for(var i = 0; i < GSD.length; i++)
-    {
-      var pull_split = GSD[i].uid.split("|");
-      var first_split = pull_split[0].split(":");
-      var second_split = pull_split[1].split(":");
-
-      var area1 = first_split[2];
-      var area2 = second_split[1];
-
-      //console.log("table_stuff", area1, area2);
-
-      var bl1 = document.getElementById(area1.concat(addon_id).concat("_global_id"));
-      var bl2 = document.getElementById(area2.concat(addon_id).concat("_global_id"));
-
-      var pl1 = document.getElementById(area1.concat(addon_id).concat("_path_global_id"));
-      var pl2 = document.getElementById(area2.concat(addon_id).concat("_path_global_id"));
-
-      var dpsi = parseFloat(GSD[i].dpsi);
-      var rectColor = "blue";
-      if(dpsi > 0.0)
+      for(var i = 0; i < GSD.length; i++)
       {
-        rectColor = "red";
-      }
-
-      //console.log("id found: ", bl1);
-      //console.log("id found: ", bl2);
-
-      if(bl1 != null)
-      {
-        if(dpsi > 0.0)
+        if(this.state.type == "coordinate")
         {
+          var pull_split = GSD[i].uid.split("|");
+          var first_split = pull_split[0].split(":");
+          var second_split = pull_split[1].split(":");
+
+          var area1 = first_split[2];
+          var area2 = second_split[1];
+        //console.log("table_stuff", area1, area2);
+
+          var bl1 = document.getElementById(area1.concat(addon_id).concat("_global_id"));
+          var bl2 = document.getElementById(area2.concat(addon_id).concat("_global_id"));
+
+          var pl1 = document.getElementById(area1.concat(addon_id).concat("_path_global_id"));
+          var pl2 = document.getElementById(area2.concat(addon_id).concat("_path_global_id"));
+        }
+
+        var dpsi = parseFloat(GSD[i].dpsi);
+        var rectColor = "blue";
+        if(dpsi > 0.0){
           rectColor = "red";
         }
-        else
-        {
-          rectColor = "blue";
-        }
-        var pretg1 = d3.select(bl1);
-        pretg1.style('fill', rectColor);
-      }
 
-      if(bl2 != null)
-      {
-        if(dpsi > 0.0)
-        {
-          rectColor = "blue";
-        }
-        else
-        {
-          rectColor = "red";
-        }
-        var pretg2 = d3.select(bl2);
-        pretg2.style('fill', rectColor);
-      }
+        //console.log("id found: ", bl1);
+        //console.log("id found: ", bl2);
 
-      if(pl1 != null)
-      {
-        if(dpsi > 0.0)
+        if(this.state.type == "coordinate")
         {
-          rectColor = "red";
-        }
-        else
-        {
-          rectColor = "blue";
-        }
-        var gretg1 = d3.select(pl1);
-        gretg1.attr('stroke', rectColor);
-      }
+          if(bl1 != null)
+          {
+            if(dpsi > 0.0)
+            {
+              rectColor = "red";
+            }
+            else
+            {
+              rectColor = "blue";
+            }
+            var pretg1 = d3.select(bl1);
+            pretg1.style('fill', rectColor);
+          }
 
-      if(pl2 != null)
-      {
-        if(dpsi > 0.0)
-        {
-          rectColor = "blue";
-        }
-        else
-        {
-          rectColor = "red";
-        }
-        var gretg2 = d3.select(pl2);
-        gretg2.attr('stroke', rectColor);
-      }
+          if(bl2 != null)
+          {
+            if(dpsi > 0.0)
+            {
+              rectColor = "blue";
+            }
+            else
+            {
+              rectColor = "red";
+            }
+            var pretg2 = d3.select(bl2);
+            pretg2.style('fill', rectColor);
+          }
 
-    }
+          if(pl1 != null)
+          {
+            if(dpsi > 0.0)
+            {
+              rectColor = "red";
+            }
+            else
+            {
+              rectColor = "blue";
+            }
+            var gretg1 = d3.select(pl1);
+            gretg1.attr('stroke', rectColor);
+          }
+
+          if(pl2 != null)
+          {
+            if(dpsi > 0.0)
+            {
+              rectColor = "blue";
+            }
+            else
+            {
+              rectColor = "red";
+            }
+            var gretg2 = d3.select(pl2);
+            gretg2.attr('stroke', rectColor);
+          }
+        }
+
+      }
     }
   }
 
@@ -680,20 +669,16 @@ class EXON_PLOT extends React.Component {
               var pretg = d3.select(this);
               var temp_x = pretg["_groups"][0][0]["attributes"]["cx"]["nodeValue"];
               var temp_y = pretg["_groups"][0][0]["attributes"]["cy"]["nodeValue"];
-
               parent.tempCircleAdd("add", temp_x, temp_y)
               parent.tempBorderHighlight("add", get_1, get_2, gmos_1, gmos_2)
-
               parent.tempOnHover(temp_x, temp_y, [cur_junc, junclength], "add")
             })
         .on("mouseout", function(d) {
               var pretg = d3.select(this);
               var temp_x = pretg["_groups"][0][0]["attributes"]["cx"]["nodeValue"];
               var temp_y = pretg["_groups"][0][0]["attributes"]["cy"]["nodeValue"];
-
               parent.tempCircleAdd("remove", (cur_junc.concat("_global_id")))
               parent.tempBorderHighlight("remove", get_1, get_2, gmos_1, gmos_2)
-
               parent.tempOnHover(temp_x, temp_y, [cur_junc, junclength], "remove")
         });
       }
@@ -920,7 +905,7 @@ class EXON_PLOT extends React.Component {
             const pip = exname.concat("_global_id")
             //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
             parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "add")
-            })
+          })
           .on("mouseout", function(d) {
               //parent.tempTextRemove();
               var pretg = d3.select(this);
@@ -955,7 +940,7 @@ class EXON_PLOT extends React.Component {
               const pip = exname.concat("_global_id")
               //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
               parent.tempOnHover(temp_x, temp_y, [exname, hard_start, hard_stop, hard_width_string], "add")
-              })
+          })
           .on("mouseout", function(d) {
               //parent.tempTextRemove();
               var pretg = d3.select(this);
@@ -997,7 +982,8 @@ class EXON_PLOT extends React.Component {
         junctions: this.props.exonPlotState.junctions,
         in_data: this.props.exonPlotState.in_data,
         scaled: this.props.exonPlotState.scaled,
-        gene_specific_data: this.props.exonPlotState.gene_specific_data
+        gene_specific_data: this.props.exonPlotState.gene_specific_data,
+        type: this.props.exonPlotState.type
       })
       return(
         null
@@ -1032,9 +1018,17 @@ class EXON_PLOT extends React.Component {
       this.writeTranscripts(this.state.transcripts);
       if(this.state.gene_specific_data != undefined)
       {
-        var geneSymbol = this.state.gene_specific_data[0].uid.split(":")[0];
-        this.writeGeneSymbol(geneSymbol);
-        this.writeGSD(this.state.gene_specific_data);
+        if(this.state.type == "coordinate")
+        {
+          var geneSymbol = this.state.gene_specific_data[0].uid.split(":")[0];
+          this.writeGeneSymbol(geneSymbol);
+          this.writeGSD(this.state.gene_specific_data);
+        }
+        else
+        {
+          var geneSymbol = this.state.gene_specific_data[0].geneid;
+          this.writeGeneSymbol(geneSymbol);
+        }
       }
     }
     else
