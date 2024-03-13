@@ -69,34 +69,39 @@ export const rootTableColumnSpliceObj = [
 
 export const rootTableColumnGeneObj = [
     {
+      Header: 'ensembl',
+      accessor: 'ensembl',
+      maxWidth: '21px',
+    },
+    {
       Header: 'symbol',
       accessor: 'symbol',
-      maxWidth: '20px',
+      maxWidth: '21px',
     },
     {
       Header: 'Logfold',
       accessor: 'logfold',
-      maxWidth: '20px',
+      maxWidth: '21px',
     },
     {
       Header: 'rawp',
       accessor: 'rawp',
-      maxWidth: '20px',
+      maxWidth: '21px',
     },
     {
       Header: 'adjp',
       accessor: 'adjp',
-      maxWidth: '20px',
+      maxWidth: '21px',
     },
     {
       Header: 'avg_self',
       accessor: 'avg_self',
-      maxWidth: '20px',
+      maxWidth: '21px',
     },
     {
       Header: 'avg_others',
       accessor: 'avg_others',
-      maxWidth: '20px',
+      maxWidth: '21px',
     }
 ]
 

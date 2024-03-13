@@ -527,7 +527,7 @@ function RootTable(props) {
         else
         {
           let curdat = {
-            geneid: curpointer["geneid"],
+            ensembl: curpointer["geneid"],
             symbol: curpointer["symbol"],
             logfold: curpointer["logfold"],
             rawp: curpointer["rawp"],
@@ -783,7 +783,8 @@ function PanCancerAnalysis(props){
                   stackedBarChartRequest={stackedBarChartRequest}
                   cancerName={props.cancerName}
                   resetDaugtherPanels={resetDaugtherPanels}
-                  resetBottomPanels={resetBottomPanels}></SetDoubleBarChart>
+                  resetBottomPanels={resetBottomPanels}>
+                  </SetDoubleBarChart>
                 <div width="100%" id="doubleBarChartDiv" style={{overflow: "scroll", height: "100%", width: "100%"}}></div>
                 <SetStackedBarChart
                   heightRatio={scaled_height}

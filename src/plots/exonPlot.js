@@ -692,6 +692,7 @@ class EXON_PLOT extends React.Component {
 
   writeExons(exon_input, retained_introns)
   {
+    //console.log("Wet noodle", exon_input);
     var parent = this;
     var starting_point = exon_input[0]["start"];
     var scale_exon_stop = 0;

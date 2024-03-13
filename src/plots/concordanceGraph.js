@@ -31,7 +31,7 @@ class SetConcordanceGraph extends React.Component {
         input: null,
       };
     }
-    componentDidMount() { 
+    componentDidMount() {
       var base_re_wid = window.innerWidth;
       var base_re_high = window.innerHeight;
       var standard_width = 1438;
@@ -47,7 +47,7 @@ class SetConcordanceGraph extends React.Component {
       {
         this.props.heightRatio = 1;
       }
-  
+
       this.setState({
         input: <CONCORDANCE_GRAPH
           doc={document}
@@ -60,7 +60,7 @@ class SetConcordanceGraph extends React.Component {
           </CONCORDANCE_GRAPH>
       })
     }
-  
+
     componentDidUpdate(prevProps) {
       if(this.props !== prevProps)
       {
@@ -81,8 +81,8 @@ class SetConcordanceGraph extends React.Component {
         }
 
         this.setState({
-          input: <CONCORDANCE_GRAPH 
-            doc={document} 
+          input: <CONCORDANCE_GRAPH
+            doc={document}
             concordanceState={this.props.concordanceState}
             vennState={this.props.vennState}
             setVennState={this.props.setVennState}
@@ -93,7 +93,7 @@ class SetConcordanceGraph extends React.Component {
         })
       }
     }
-  
+
     render()
     {
       return(
@@ -129,16 +129,16 @@ class CONCORDANCE_GRAPH extends React.Component {
       };
     }
 
-    baseSVG(w="100%", h=10000) 
+    baseSVG(w="100%", h=10000)
     {
       this.SVG = d3.select("#".concat(this.target_div))
         .append("svg")
         .attr("width", w)
         .attr("height", h)
         .attr("id", (this.target_div.concat("_svg")));
-  
+
       this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-        
+
       this.SVG_main_group.append("rect")
         .attr("width", w)
         .attr("height", h)
@@ -147,7 +147,7 @@ class CONCORDANCE_GRAPH extends React.Component {
         .attr("type", "canvas")
         .attr("fill", "White");
     }
-  
+
     writeBase(w="100%", h=10000)
     {
       this.SVG_main_group.append("rect")
@@ -155,8 +155,8 @@ class CONCORDANCE_GRAPH extends React.Component {
         .attr("height", h)
         .style("opacity", 1.0)
         .attr("fill", "White");
-  
-      this.rect = d3.select("body").append("rect") 
+
+      this.rect = d3.select("body").append("rect")
         .attr("width", 30)
         .attr("height", 30)
         .style("opacity", 1.0)
@@ -222,7 +222,7 @@ class CONCORDANCE_GRAPH extends React.Component {
                 .attr("stroke", "black")
                 .attr("stroke-width", 1)
                 .attr("fill", "white")
-            
+
             if(modString.length > 22)
             {
                 var text_size = 9;
@@ -353,7 +353,7 @@ class CONCORDANCE_GRAPH extends React.Component {
             .attr("stroke", color)
             .attr("stroke-width", 2)
             .attr("fill", "white");
-        
+
         const secondComp = this.SVG_main_group.append("rect")
             .attr("x", x_offset)
             .attr("y", ypos+1*S.yScale)
@@ -417,7 +417,7 @@ class CONCORDANCE_GRAPH extends React.Component {
                 })
                 parent.props.setVennState({data: dataSend});
             });
-        
+
 
         var xstringval = (143*S.xScale).toString();
         var ystringval = ((ypos + 13*S.yScale)).toString();
@@ -500,9 +500,9 @@ class CONCORDANCE_GRAPH extends React.Component {
           //var se = d3.select("#".concat(this.state.selectedGroup)).attr("opacity", 0.7);
           return(
             null
-          );    
+          );
         }
-    }  
+    }
 
     render (){
       var y_start = 0;
@@ -533,7 +533,7 @@ class CONCORDANCE_GRAPH extends React.Component {
         this.writeBase("100%", total_y_length);
         this.writeTitle();
 
-        for (var i = 0; i < sorted_data.length; i++) 
+        for (var i = 0; i < sorted_data.length; i++)
         {
             this.drawBar(sorted_data[i], y_val);
             y_val = y_val + y_interval;
@@ -547,7 +547,7 @@ class CONCORDANCE_GRAPH extends React.Component {
 
         // and give it some content
         const newContent = document.createTextNode("Select a signature from the graph on the left.");
-      
+
         // add the text node to the newly created div
         newDiv.appendChild(newContent);
         document.getElementById("concordanceDiv").appendChild(newDiv);
@@ -558,11 +558,34 @@ class CONCORDANCE_GRAPH extends React.Component {
         // add the text node to the newly created div
         document.getElementById("concordanceDiv").appendChild(imgElem);*/
       }
+      /*if(this.state.selectedGroup != undefined)
+      {
+        d3.select(document.getElementById(this.state.selectedGroup)).attr("fill", "red").style("font-size", 13*this.state.fontScale);
+      }
+      if(this.state.selectedGroup == undefined)
+      {
+        //console.log("Selected group undefined", this.state.selectedGroup)
+        var identifierToUse = sorted_data[0].key.concat("_g_id");
+        console.log("identifierToUse", identifierToUse)
+        var currentAddedObject = d3.select("#".concat(identifierToUse.concat("_splice")));
+        var currentAddedObjectSelectedSignature = currentAddedObject["_groups"][0][0]["attributes"]["signature"]["nodeValue"];
+        var currentAddedObjectSelectedType = currentAddedObject["_groups"][0][0]["attributes"]["type"]["nodeValue"];
+        this.defaultSelection = {
+          "object": currentAddedObject,
+          "selectedSignature": currentAddedObjectSelectedSignature,
+          "selectedType": currentAddedObjectSelectedType
+        }
+        var arg1 = this.defaultSelection.object;
+        var arg2 = this.defaultSelection.selectedSignature;
+        var arg3 = this.defaultSelection.selectedType;
+        console.log("Selected group after definition", this.state.selectedGroup)
+        this.onBarSelect(arg1, arg2, arg3, this.props.setTableState, this.props.tablePlotRequest, this.props.setConcordanceState, this.props.concordanceRequest)
+      }*/
       return(
         null
       );
     }
-  
+
   }
-  
+
   export default SetConcordanceGraph;
