@@ -69,8 +69,8 @@ export const rootTableColumnSpliceObj = [
 
 export const rootTableColumnGeneObj = [
     {
-      Header: 'ensembl',
-      accessor: 'ensembl',
+      Header: 'geneid',
+      accessor: 'geneid',
       maxWidth: '21px',
     },
     {

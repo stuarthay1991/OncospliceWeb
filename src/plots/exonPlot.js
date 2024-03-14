@@ -692,7 +692,7 @@ class EXON_PLOT extends React.Component {
 
   writeExons(exon_input, retained_introns)
   {
-    //console.log("Wet noodle", exon_input);
+    console.log("Wet noodle", exon_input);
     var parent = this;
     var starting_point = exon_input[0]["start"];
     var scale_exon_stop = 0;
@@ -1011,7 +1011,7 @@ class EXON_PLOT extends React.Component {
       this.baseSVG(2000, ysim);
       this.writeBase(ysim);
       var sorted_exons = this.state.exons.sort((a, b)=>{return Number(a["start"])-Number(b["start"])})
-      //console.log("sorted_exons", sorted_exons);
+      console.log("sorted_exons", this.state);
       var retainedIntrons = this.findRetainedIntrons(this.state.gene_specific_data);
       //console.log("retained Introns", retainedIntrons);
       this.writeExons(sorted_exons, retainedIntrons);

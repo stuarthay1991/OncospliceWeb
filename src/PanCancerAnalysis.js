@@ -72,7 +72,7 @@ function noCoordinateExonRequest(GENE, in_data, fulldata, exonPlotStateScaled, s
   var gene_specific_data = [];
   document.getElementById("panSpliceLoadingDiv").style.display = "block";
   document.getElementById("pancanc_splice").style.opacity = 0.2;
-  //console.log("Data structure: ", fulldata);
+  console.log("GENE: ", GENE);
   //gene_specific_data
   fulldata.forEach(curpointer => {
     const ensg_id = curpointer.geneid;
@@ -527,7 +527,7 @@ function RootTable(props) {
         else
         {
           let curdat = {
-            ensembl: curpointer["geneid"],
+            geneid: curpointer["geneid"],
             symbol: curpointer["symbol"],
             logfold: curpointer["logfold"],
             rawp: curpointer["rawp"],
