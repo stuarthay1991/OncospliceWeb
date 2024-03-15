@@ -8,6 +8,7 @@ function getPosition(string, subString, index) {
 function utilityCleanSignatureName(toSendInputKey)
 {
   toSendInputKey = toSendInputKey.replace('HNSCC', '');
+  toSendInputKey = toSendInputKey.replace('PCPG', '');
   toSendInputKey = toSendInputKey.replace('BRCA', '');
   toSendInputKey = toSendInputKey.replace('BLCA', '');
   toSendInputKey = toSendInputKey.replace('LGG', '');
@@ -54,6 +55,7 @@ class SetConcordanceGraph extends React.Component {
           concordanceState={this.props.concordanceState}
           vennState={this.props.vennState}
           setVennState={this.props.setVennState}
+          cancerName={this.props.cancerName}
           target_div_id={"concordanceDiv"}
           xScale={this.props.widthRatio}
           yScale={this.props.heightRatio}>
@@ -86,6 +88,7 @@ class SetConcordanceGraph extends React.Component {
             concordanceState={this.props.concordanceState}
             vennState={this.props.vennState}
             setVennState={this.props.setVennState}
+            cancerName={this.props.cancerName}
             target_div_id={"concordanceDiv"}
             xScale={this.props.widthRatio}
             yScale={this.props.heightRatio}>
@@ -118,6 +121,7 @@ class CONCORDANCE_GRAPH extends React.Component {
       this.homeSignatureTotal = 0;
       this.state = {
         data: this.props.concordanceState.signatures,
+        cancerName: this.props.cancerName,
         homeSignature: this.props.concordanceState.homeSignature,
         originalName: this.props.concordanceState.originalName,
         type: this.props.concordanceState.type,
@@ -408,7 +412,7 @@ class CONCORDANCE_GRAPH extends React.Component {
                 dataSend.commonCount = j_cVal;
                 dataSend.comparedOriginal = signature_name;
                 dataSend.homeOriginal = S.homeSignature;
-                dataSend.cancerName = "BLCA_TCGA";
+                dataSend.cancerName = S.cancerName.concat("_TCGA");
                 dataSend.annot = S.annot;
                 //console.log("concordance clicked...", homeKey, inputKey);
                 //retrieveDataForVenn(parent.props, signature_name, S.homeSignature);
@@ -494,6 +498,7 @@ class CONCORDANCE_GRAPH extends React.Component {
             data: this.props.concordanceState.signatures,
             homeSignature: this.props.concordanceState.homeSignature,
             originalName: this.props.concordanceState.originalName,
+            cancerName: this.props.cancerName,
             type: this.props.concordanceState.type,
             annot: this.props.concordanceState.annot
           })

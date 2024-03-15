@@ -51,7 +51,7 @@ class SetVennDiagram extends React.Component {
       };
     }
 
-    componentDidMount() { 
+    componentDidMount() {
       this.setState({
         input: <CreateVennDiagram sizeObj={this.props.sizeObj} vennState={this.props.vennState} setTableState={this.props.setTableState}></CreateVennDiagram>
       })
@@ -143,7 +143,7 @@ function CreateVennDiagram(props) {
       .append('svg')
       .attr('width', width)
       .attr('height', height);
-    
+
     svg.append("text")
       .attr("x", 133*w_scale)
       .attr("y", 25*h_scale)
@@ -152,7 +152,7 @@ function CreateVennDiagram(props) {
       .style("opacity", 1.0)
       .attr("fill", "black")
       .text("Overlapping Events");
-    
+
     // Create the circle
     const circle1 = svg.append('circle')
         .attr('cx', 85*w_scale)
@@ -196,7 +196,7 @@ function CreateVennDiagram(props) {
       .attr("fill", "blue")
       .attr("font-weight", 700)
       .text(props.vennState.data.homeSignature);
-  
+
     svg.append("text")
       .attr("x", 182*w_scale)
       .attr("y", 63*h_scale)
@@ -283,7 +283,7 @@ function CreateVennDiagram(props) {
         var pretg2 = d3.select(this);
         if(pretg2.attr("selected") == "false")
         {
-          var pretg = d3.select(this).attr("fill", "#b34700");  
+          var pretg = d3.select(this).attr("fill", "#b34700");
           pretg.attr("cursor", "default")
         }
       });
@@ -397,7 +397,7 @@ function CreateVennDiagram(props) {
 
         // and give it some content
         const newContent = document.createTextNode("Select a signature from the list above.");
-      
+
         // add the text node to the newly created div
         newDiv.appendChild(newContent);
         document.getElementById("overlapDiv").appendChild(newDiv);
@@ -406,6 +406,6 @@ function CreateVennDiagram(props) {
       null
     );
 }
-  
+
 // Call the function with the body selector and data
 export default SetVennDiagram;

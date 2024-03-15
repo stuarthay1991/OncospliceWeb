@@ -142,7 +142,7 @@ function concordanceRequest(signature, cancer, setConcordanceState, type, annot=
   imgElem.height="200";
   // add the text node to the newly created div
   document.getElementById("concordanceDiv").appendChild(imgElem);*/
-  var postedData = {"data": {"signature": signature, "cancer": "BLCA", "type": type, "annot": annot}}
+  var postedData = {"data": {"signature": signature, "cancer": cancer, "type": type, "annot": annot}}
   axios({
     method: "post",
     url: routeurl.concat("/api/datasets/concordance"),
@@ -815,6 +815,7 @@ function PanCancerAnalysis(props){
                 heightRatio={scaled_height}
                 widthRatio={scaled_width}
                 concordanceState={concordanceState}
+                cancerName={props.cancerName}
                 vennState={vennState}
                 setVennState={setVennState}>
               </SetConcordanceGraph>
