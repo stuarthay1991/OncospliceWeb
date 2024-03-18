@@ -131,6 +131,7 @@ class CONCORDANCE_GRAPH extends React.Component {
         fontScale: ((this.props.xScale+this.props.yScale)/2),
         selectedGroup: undefined
       };
+      this.defaultSelection = undefined;
     }
 
     baseSVG(w="100%", h=10000)
@@ -281,7 +282,7 @@ class CONCORDANCE_GRAPH extends React.Component {
         }
     }
 
-    drawBar(inputData, ypos)
+    drawBar(inputData, ypos, index)
     {
         const signature_name = inputData["signature"];
         const concordance_value = inputData["concordance"];
@@ -307,23 +308,6 @@ class CONCORDANCE_GRAPH extends React.Component {
                 .style("stroke", "black")
                 .style("opacity", 1)
         }
-        /*
-        var mousemove = function(d) {
-            var xToMove = d3.select(this).attr("x");
-            var yToMove = d3.select(this).attr("y");
-            console.log("MOUSEMOVE", xToMove, yToMove);
-            tooltip
-                .html("The exact value of<br>this cell is: ")
-                .style("left", (xToMove) + "px")
-                .style("top", (yToMove - 70) + "px")
-        }
-        var mouseleave = function(d) {
-            tooltip
-                .style("opacity", 0)
-            d3.select(this)
-                .style("stroke", "none")
-                .style("opacity", 0.8)
-        }*/
 
         var homeKey = S.homeSignature.name;
         homeKey = homeKey.replace('_TCGA', '');
@@ -475,7 +459,7 @@ class CONCORDANCE_GRAPH extends React.Component {
                 dataSend.commonCount = j_cVal;
                 dataSend.comparedOriginal = signature_name;
                 dataSend.homeOriginal = S.homeSignature;
-                dataSend.cancerName = "BLCA_TCGA";
+                dataSend.cancerName = S.cancerName.concat("_TCGA");
                 dataSend.annot = S.annot;
                 //console.log("concordance clicked...", homeKey, inputKey);
                 //retrieveDataForVenn(parent.props, signature_name, S.homeSignature);
@@ -484,10 +468,37 @@ class CONCORDANCE_GRAPH extends React.Component {
                 })
                 parent.props.setVennState({data: dataSend});
             });
+
+        if(index == 0)
+        {
+          if(this.state.selectedGroup == undefined)
+          {
+            var pretg = d3.select(document.getElementById(cur_id));
+            var defaultSend = {};
+            var toSendInputKey = pretg.attr("inputKey");
+            toSendInputKey = utilityCleanSignatureName(toSendInputKey);
+            defaultSend.homeSignature = pretg.attr("homeKey");
+            defaultSend.comparedSignature = toSendInputKey;
+            defaultSend.homeCount = S.homeSignature.count;
+            defaultSend.comparedCount = totalC;
+            defaultSend.commonCount = j_cVal;
+            defaultSend.comparedOriginal = signature_name;
+            defaultSend.homeOriginal = S.homeSignature;
+            defaultSend.cancerName = S.cancerName.concat("_TCGA");
+            defaultSend.annot = S.annot;
+            this.defaultSelection = defaultSend;
+
+            parent.setState({
+              selectedGroup: pretg.attr("id")
+            })
+            parent.props.setVennState({data: defaultSend})
+          }
+          //console.log("Default selection", this.props.cancerName, this.defaultSelection);
+        }
     }
 
     componentDidUpdate (prevProps){
-        if(this.props !== prevProps)
+        if(this.props !== prevProps && this.props.concordanceState.homeSignature !== prevProps.concordanceState.homeSignature)
         {
           var y_start = 0;
           var tempnode = document.getElementById(this.target_div);
@@ -500,12 +511,27 @@ class CONCORDANCE_GRAPH extends React.Component {
             originalName: this.props.concordanceState.originalName,
             cancerName: this.props.cancerName,
             type: this.props.concordanceState.type,
-            annot: this.props.concordanceState.annot
+            annot: this.props.concordanceState.annot,
+            selectedGroup: undefined
           })
           //var se = d3.select("#".concat(this.state.selectedGroup)).attr("opacity", 0.7);
-          return(
-            null
-          );
+        }
+        else if(this.props !== prevProps)
+        {
+          var y_start = 0;
+          var tempnode = document.getElementById(this.target_div);
+          while (tempnode.firstChild) {
+              tempnode.removeChild(tempnode.firstChild);
+          }
+          this.setState({
+            data: this.props.concordanceState.signatures,
+            homeSignature: this.props.concordanceState.homeSignature,
+            originalName: this.props.concordanceState.originalName,
+            cancerName: this.props.cancerName,
+            type: this.props.concordanceState.type,
+            annot: this.props.concordanceState.annot,
+            selectedGroup: this.state.selectedGroup
+          })
         }
     }
 
@@ -540,11 +566,65 @@ class CONCORDANCE_GRAPH extends React.Component {
 
         for (var i = 0; i < sorted_data.length; i++)
         {
-            this.drawBar(sorted_data[i], y_val);
+            this.drawBar(sorted_data[i], y_val, i);
             y_val = y_val + y_interval;
         }
         //var se = d3.select("#".concat(this.state.selectedGroup)).attr("opacity", 0.7);
         //plot chart
+        if(this.state.selectedGroup == undefined)
+        {
+          /*const signature_name = sorted_data[0]["signature"];
+          const concordance_value = sorted_data[0]["concordance"];
+          const color = sorted_data[0]["color"];
+          const jVal = sorted_data[0]["junctionOnly"];
+          const j_cVal = sorted_data[0]["junctionAndDirection"];
+          const totalC = sorted_data[0]["totalAmount"];
+
+          var homeKey = S.homeSignature.name;
+          homeKey = homeKey.replace('_TCGA', '');
+          homeKey = homeKey.replace('psi_', '');
+          homeKey = homeKey.replace('_', ' ');
+          homeKey = homeKey.replace('_vs_others', '');
+          if(homeKey.length > 25)
+          {
+              homeKey = homeKey.substring(0, 25);
+              homeKey = homeKey.concat("...");
+          }
+
+          //make hollow rect
+          var inputKey = signature_name;
+          inputKey = inputKey.replace('_tcga', '');
+          inputKey = inputKey.replace('hnscc', '');
+          inputKey = inputKey.replace('psi_', '');
+          inputKey = inputKey.replace('_', ' ');
+          inputKey = inputKey.replace('_vs_others', '');
+          if(inputKey.length > 30)
+          {
+              inputKey = inputKey.substring(0, 30);
+              inputKey = inputKey.concat("...");
+          }
+
+          var cur_id = homeKey.concat(inputKey).concat(y_start.toString()).concat("_id");
+          var pretg = d3.select(document.getElementById(cur_id));
+          var dataSend = {};
+          var toSendInputKey = pretg.attr("inputKey");
+          toSendInputKey = utilityCleanSignatureName(toSendInputKey);
+          dataSend.homeSignature = pretg.attr("homeKey");
+          dataSend.comparedSignature = toSendInputKey;
+          dataSend.homeCount = S.homeSignature.count;
+          dataSend.comparedCount = totalC;
+          dataSend.commonCount = j_cVal;
+          dataSend.comparedOriginal = signature_name;
+          dataSend.homeOriginal = S.homeSignature;
+          dataSend.cancerName = S.cancerName.concat("_TCGA");
+          dataSend.annot = S.annot;
+          //console.log("concordance clicked...", homeKey, inputKey);
+          //retrieveDataForVenn(parent.props, signature_name, S.homeSignature);
+          parent.setState({
+            selectedGroup: pretg.attr("id")
+          })
+          parent.props.setVennState({data: dataSend});*/
+        }
       }
       else
       {
@@ -563,29 +643,6 @@ class CONCORDANCE_GRAPH extends React.Component {
         // add the text node to the newly created div
         document.getElementById("concordanceDiv").appendChild(imgElem);*/
       }
-      /*if(this.state.selectedGroup != undefined)
-      {
-        d3.select(document.getElementById(this.state.selectedGroup)).attr("fill", "red").style("font-size", 13*this.state.fontScale);
-      }
-      if(this.state.selectedGroup == undefined)
-      {
-        //console.log("Selected group undefined", this.state.selectedGroup)
-        var identifierToUse = sorted_data[0].key.concat("_g_id");
-        console.log("identifierToUse", identifierToUse)
-        var currentAddedObject = d3.select("#".concat(identifierToUse.concat("_splice")));
-        var currentAddedObjectSelectedSignature = currentAddedObject["_groups"][0][0]["attributes"]["signature"]["nodeValue"];
-        var currentAddedObjectSelectedType = currentAddedObject["_groups"][0][0]["attributes"]["type"]["nodeValue"];
-        this.defaultSelection = {
-          "object": currentAddedObject,
-          "selectedSignature": currentAddedObjectSelectedSignature,
-          "selectedType": currentAddedObjectSelectedType
-        }
-        var arg1 = this.defaultSelection.object;
-        var arg2 = this.defaultSelection.selectedSignature;
-        var arg3 = this.defaultSelection.selectedType;
-        console.log("Selected group after definition", this.state.selectedGroup)
-        this.onBarSelect(arg1, arg2, arg3, this.props.setTableState, this.props.tablePlotRequest, this.props.setConcordanceState, this.props.concordanceRequest)
-      }*/
       return(
         null
       );

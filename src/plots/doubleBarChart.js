@@ -472,6 +472,7 @@ class SetDoubleBarChart extends React.Component {
         "selectedType": currentAddedObjectSelectedType}
         //console.log("Default selection", this.props.cancerName, this.defaultSelection);
         }
+        
         this.SVG_main_group.append("rect")
             .attr("x", x_offset-(5*S.xScale))
             .attr("y", (ypos+7*S.yScale))
