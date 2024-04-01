@@ -9,6 +9,7 @@ function utilityCleanSignatureName(toSendInputKey)
 {
   toSendInputKey = toSendInputKey.replace('HNSCC', '');
   toSendInputKey = toSendInputKey.replace('PCPG', '');
+  toSendInputKey = toSendInputKey.replace('PRAD', '');
   toSendInputKey = toSendInputKey.replace('BRCA', '');
   toSendInputKey = toSendInputKey.replace('BLCA', '');
   toSendInputKey = toSendInputKey.replace('LGG', '');
@@ -487,7 +488,6 @@ class CONCORDANCE_GRAPH extends React.Component {
             defaultSend.cancerName = S.cancerName.concat("_TCGA");
             defaultSend.annot = S.annot;
             this.defaultSelection = defaultSend;
-
             parent.setState({
               selectedGroup: pretg.attr("id")
             })
