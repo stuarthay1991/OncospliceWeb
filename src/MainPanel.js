@@ -12,6 +12,7 @@ import Box from '@material-ui/core/Box';
 import targeturl from './targeturl.js';
 import LockIcon from '@material-ui/icons/Lock';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
+import Splash from './Splash.js';
 
 import './App.css';
 import Header from './components/NavBarDropdown.js';
@@ -194,15 +195,18 @@ function MainPanel(props){
         </div>*/
   return (
     <div className={classes.root} style={{ fontFamily: 'Roboto'}}>
-      <div id="navBarHolder" className={classes.demo2}>
+      <div id="navBarHolder" className={classes.demo2} style={{display: "none"}}>
         <div className={classes.tabholder}>
         <div>
           <Header setViewPane={setViewPane} setPanCancerState={setPanCancerState}/>
         </div>
         </div>
       </div>
-      <div id="tabcontent" style={{display: "block"}}>
+      <div id="tabcontent" style={{display: "none"}}>
       {mpstate.value === 1 && <ViewPanelWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
+      </div>
+      <div id="splashpanel" style={{display: "block"}}>
+        <Splash />
       </div>
       <div id="pancancerpanel" style={{display: "none"}}>
         <PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer} geneCount={panCancerState.uniqueGenesPerSignature}/>

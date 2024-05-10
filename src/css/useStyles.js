@@ -44,10 +44,18 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: 'white',
     color: '#0F6A8B',
   },
-  mainpane_margin: {
-    marginLeft: 50,
-    marginRight: 100,
-  },  
+  mainpane_margin_type1: {
+    marginLeft: 30,
+    marginRight: 75,
+    height: "50%",
+  },
+  mainpane_margin_type2: {
+    marginLeft: 20,
+    marginRight: 35,
+    backgroundColor:'#E8E8E8',
+    height: "50%",
+    borderRadius: 20
+  },
   myButton: {
   backgroundColor:'#EFAD18',
   borderRadius:'8px',
@@ -71,7 +79,7 @@ const useStyles = makeStyles((theme) => ({
   },
   flexchild: {
     flex: 1,
-  },  
+  },
   wid200: {
     width: "200px",
   },
