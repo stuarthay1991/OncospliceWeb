@@ -63,11 +63,13 @@ function MainPanel(props){
 
   //These are just basic converters to change the url appendage "page" to an integer value so it can be compatible with the tab system that I'm using.
   const tabNameToIndex = {
+    0: "splash",
     1: "explore",
     2: "history"
   };
 
   const indexToTabName = {
+    splash: 0,
     explore: 1,
     history: 2
   };
@@ -133,7 +135,6 @@ function MainPanel(props){
     setMpstate({
         viewpaneobj: stateobj,
         authentication: mpstate.authentication,
-        value: 1
     });
   }
 
@@ -187,6 +188,9 @@ function MainPanel(props){
     args["doc"] = document;
     makeRequest("defaultQuery", args);
   }
+
+  var displayvalue1 = "block";
+  var displayvalue2 = "none";
   //This is the layout of the main pane in action.
   //It's important to note that the "Tabs" element informs the UI for the Tabs, while further down the "tabcontent" div informs the actual substance of those tab selections.
   //"Authentication" informs the currently broken google authentication feature, which will be crucial to implementing the UUID based routing framework.
@@ -202,10 +206,10 @@ function MainPanel(props){
         </div>
         </div>
       </div>
-      <div id="tabcontent" style={{display: "none"}}>
+      <div id="tabcontent" style={{display: mpstate.value === 1 ? displayvalue1 : displayvalue2}}>
       {mpstate.value === 1 && <ViewPanelWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
       </div>
-      <div id="splashpanel" style={{display: "block"}}>
+      <div id="splashpanel" style={{display: mpstate.value === 0 ? displayvalue1 : displayvalue2}}>
         <Splash />
       </div>
       <div id="pancancerpanel" style={{display: "none"}}>

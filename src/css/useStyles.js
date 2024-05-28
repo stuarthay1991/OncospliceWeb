@@ -185,8 +185,35 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl2: {
     minWidth: "360px",
-    fontSize: "16px"
+    fontSize: "16px",
   },
+  splash_table:{
+    borderCollapse: "collapse",
+    width: "100%",
+  },
+  splash_tr:{
+    border: "2px solid black",
+    textAlign: "left",
+    backgroundColor: "white",
+    padding: "8px",
+  },
+  splash_tr_odd:{
+    border: "2px solid black",
+    textAlign: "left",
+    backgroundColor: "#dddddd",
+    padding: "8px",
+  },
+  splash_td:{
+    border: "2px solid black",
+    textAlign: "center",
+    padding: "8px",
+  },
+  splash_th:{
+    border: "2px solid black",
+    textAlign: "center",
+    fontSize: "14px",
+    padding: "8px",
+  }
 }));
 
 export default useStyles;
