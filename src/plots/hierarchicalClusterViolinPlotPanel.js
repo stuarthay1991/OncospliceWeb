@@ -31,7 +31,7 @@ function hierarchicalClusterViolinPlotPanel(selectedExpressionArray, selectedRow
       cBioportalInputData["cluster3"].push(curcol);
     }
   }
-  console.log("cBioportalInputData_hierarchical", cBioportalInputData);
+  //console.log("cBioportalInputData_hierarchical", cBioportalInputData);
   var expressionArrayClusters = {};
   expressionArrayClusters["arr1"] = expressionArrayCluster1;
   expressionArrayClusters["arr2"] = expressionArrayCluster2;
@@ -43,14 +43,14 @@ function hierarchicalClusterViolinPlotPanel(selectedExpressionArray, selectedRow
     type: 'violin',
     mode: 'lines+markers',
     name: "Cluster 1",
-    marker: {color: 'orange'},  	
+    marker: {color: 'orange'},
   };
   plotInputData[1] = {
     y: expressionArrayClusters["arr2"],
     type: 'violin',
     mode: 'lines+markers',
     name: "Cluster 2",
-    marker: {color: 'blue'},  	
+    marker: {color: 'blue'},
   };
   if(expressionArrayClusters["arr3"].length > 0)
   {
@@ -60,7 +60,7 @@ function hierarchicalClusterViolinPlotPanel(selectedExpressionArray, selectedRow
 	    type: 'violin',
 	    mode: 'lines+markers',
 	    name: "Cluster 3",
-	    marker: {color: 'blue'},  	
+	    marker: {color: 'blue'},
 	};
   }
 
@@ -83,7 +83,7 @@ function hierarchicalClusterViolinPlotPanel(selectedExpressionArray, selectedRow
                             size: 11,
                             color: '#7f7f7f'
                             }
-                        },   
+                        },
                         yaxis:{
                         range: [0, 1],
                         title: {

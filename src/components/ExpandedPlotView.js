@@ -53,7 +53,7 @@ function downloadPlotlyFunction(div_id, intype, indat){
 
     var svg = document.getElementById(div_id); // or whatever you call it
     svg = svg.getElementsByClassName("main-svg");
-    console.log("wogganuts", svg);
+    //console.log("wogganuts", svg);
     svg = svg[0];
     var serializer = new XMLSerializer();
     var burg = serializer.serializeToString(svg);

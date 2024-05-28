@@ -7,7 +7,7 @@ import useStyles from '../../css/useStyles.js';
 import '../../App.css';
 
 function reload() {
-    window.location.href = "http://www.altanalyze.org/ICGS/Oncosplice/testing/index.html/build";
+    window.location.href = "http://www.altanalyze.org/ICGS/Oncosplice/build/index.html/build";
 }
 
 function ResetButton(){

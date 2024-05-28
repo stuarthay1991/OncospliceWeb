@@ -3,7 +3,7 @@ import '@fontsource/roboto';
 import Button from '@material-ui/core/Button';
 import { Resizable, ResizableBox } from "react-resizable";
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import * as React from 'react';
+import React, { useRef } from "react";
 import Box from '@material-ui/core/Box';
 import SetExonPlot from './plots/exonPlot.js';
 import SetDoubleBarChart from './plots/doubleBarChart.js';
@@ -23,39 +23,24 @@ import loadingGif from './images/loading.gif';
 var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
 const Styles = tableStyledDiv;
+
 function exonRequest(GENE, in_data, fulldata, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn) {
     var bodyFormData = new FormData();
     var gene_specific_data = [];
     document.getElementById("panSpliceLoadingDiv").style.display = "block";
     document.getElementById("pancanc_splice").style.opacity = 0.2;
     //console.log("Data structure: ", fulldata);
-    for(let i = 0; i < fulldata.length; i++)
-    {
-      let curpointer = fulldata[i];
-      var pasta = curpointer.uid.split(":");
-      var ensg_id = pasta[1];
-      if(ensg_id == GENE)
-      {
-        var fullinputcoords = curpointer.coordinates;
-        var peach = fullinputcoords.split("|");
-        var chr1 = peach[0];
-        var chr2 = peach[1];
-        var twor1 = chr1.split(":");
-        var twor2 = chr2.split(":");
-        var twor1_split = twor1[1].split("-");
-        var twor2_split = twor2[1].split("-"); 
-        var coord1 = twor1_split[0];
-        var coord2 = twor1_split[1];
-        var coord3 = twor2_split[0];
-        var coord4 = twor2_split[1];
-        curpointer["coord1"] = coord1;
-        curpointer["coord2"] = coord2;
-        curpointer["coord3"] = coord3;
-        curpointer["coord4"] = coord4;
+    fulldata.forEach(curpointer => {
+      const [_, ensg_id] = curpointer.uid.split(":");
+      if (ensg_id === GENE) {
+        const [chr1, chr2] = curpointer.coordinates.split("|");
+        const [_, coord1, coord2] = chr1.split(":");
+        const [__, coord3, coord4] = chr2.split(":").map(c => c.split("-"));
+        curpointer = { ...curpointer, coord1, coord2, coord3, coord4 };
         gene_specific_data.push(curpointer);
       }
-    }
-    //console.log("gene_specific_data", gene_specific_data);
+    });
+    console.log("gene_specific_data", gene_specific_data);
     var postedData = {"data": {"gene": GENE}}
     axios({
       method: "post",
@@ -68,21 +53,65 @@ function exonRequest(GENE, in_data, fulldata, exonPlotStateScaled, setExonPlotSt
         document.getElementById("panSpliceLoadingDiv").style.display = "none";
         document.getElementById("pancanc_splice").style.opacity = 1;
         setExonPlotState({
-          exons: resp["gene"], 
-          transcripts: resp["transcript"], 
+          exons: resp["gene"],
+          transcripts: resp["transcript"],
           junctions: resp["junc"],
           in_data: in_data,
           gene_specific_data: gene_specific_data,
           scaled: exonPlotStateScaled,
           targetdiv: "pancanc_splice",
-          downscale: 1.45
+          downscale: 1.45,
+          type: "coordinate"
         });
         //setTableState({...tableState, sortedColumn: sortedColumn.id})
     })
 }
 
+function noCoordinateExonRequest(GENE, in_data, fulldata, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn){
+  var bodyFormData = new FormData();
+  var gene_specific_data = [];
+  document.getElementById("panSpliceLoadingDiv").style.display = "block";
+  document.getElementById("pancanc_splice").style.opacity = 0.2;
+  console.log("GENE: ", GENE);
+  //gene_specific_data
+  fulldata.forEach(curpointer => {
+    const ensg_id = curpointer.geneid;
+    if (ensg_id === GENE) {
+      curpointer = { ...curpointer, "coord1": undefined, "coord2": undefined, "coord3": undefined, "coord4": undefined};
+      gene_specific_data.push(curpointer);
+    }
+  });
+
+  console.log("gene_specific_data", gene_specific_data);
+  var postedData = {"data": {"gene": GENE}}
+  axios({
+    method: "post",
+    url: routeurl.concat("/api/datasets/exonViewerData"),
+    data: postedData,
+    headers: { "Content-Type": "application/json" },
+  })
+    .then(function (response) {
+      var resp = response["data"];
+      console.log("no coordinate load", resp, in_data, gene_specific_data, exonPlotStateScaled);
+      document.getElementById("panSpliceLoadingDiv").style.display = "none";
+      document.getElementById("pancanc_splice").style.opacity = 1;
+      setExonPlotState({
+        exons: resp["gene"],
+        transcripts: resp["transcript"],
+        junctions: resp["junc"],
+        in_data: in_data,
+        gene_specific_data: gene_specific_data,
+        scaled: exonPlotStateScaled,
+        targetdiv: "pancanc_splice",
+        downscale: 1.45,
+        type: "no coordinate"
+      });
+      //setTableState({...tableState, sortedColumn: sortedColumn.id})
+  })
+}
+
 function stackedBarChartRequest(setStackedBarChartState){
-  var postedData = {"data": {"cancer": "BLCA_TCGA"}}
+  var postedData = {"data": {"cancer": "BLCA"}}
   axios({
     method: "post",
     url: routeurl.concat("/api/datasets/stackedBarChart"),
@@ -93,7 +122,7 @@ function stackedBarChartRequest(setStackedBarChartState){
       var resp = response["data"];
       setStackedBarChartState({
         data: resp,
-        targetdiv: "stackedBarChartDiv" 
+        targetdiv: "stackedBarChartDiv"
       })
   })
 }
@@ -113,7 +142,7 @@ function concordanceRequest(signature, cancer, setConcordanceState, type, annot=
   imgElem.height="200";
   // add the text node to the newly created div
   document.getElementById("concordanceDiv").appendChild(imgElem);*/
-  var postedData = {"data": {"signature": signature, "cancer": "BLCA_TCGA", "type": type, "annot": annot}}
+  var postedData = {"data": {"signature": signature, "cancer": cancer, "type": type, "annot": annot}}
   axios({
     method: "post",
     url: routeurl.concat("/api/datasets/concordance"),
@@ -130,12 +159,11 @@ function concordanceRequest(signature, cancer, setConcordanceState, type, annot=
   })
 }
 
-function tablePlotRequest(SIGNATURE, type, setTableState, annotation="none") {
+function tablePlotRequest(SIGNATURE, type, setTableState, annotation="none", cancerName) {
   var bodyFormData = new FormData();
   document.getElementById("tableLoadingDiv").style.display = "block";
   document.getElementById("rootTable").style.opacity = 0.2;
-  
-  var postedData = {"data": {"signature": SIGNATURE, "type": type}}
+  var postedData = {"data": {"signature": SIGNATURE, "type": type, "cancerName": cancerName}}
   axios({
     method: "post",
     url: routeurl.concat("/api/datasets/updatepantable"),
@@ -146,49 +174,62 @@ function tablePlotRequest(SIGNATURE, type, setTableState, annotation="none") {
       var resp = response["data"];
       document.getElementById("tableLoadingDiv").style.display = "none";
       document.getElementById("rootTable").style.opacity = 1;
-      //console.log("OUTPUTTT", resp);
-      setTableState({
-        type: type,
-        data: resp["outputdata"],
-        sortedColumn: {
-          name: "UID",
-          order: false
-        },
-        signature: SIGNATURE,
-        annotation: annotation,
-        page: 0
-      });
+      console.log("OUTPUTTT", type, resp);
+      if(type == "splice"){
+        setTableState({
+          type: type,
+          data: resp["outputdata"],
+          sortedColumn: {
+            name: "UID",
+            order: false
+          },
+          firstID: undefined,
+          signature: SIGNATURE,
+          annotation: annotation,
+          page: 0
+        });
+      }
+      else{
+        setTableState({
+          type: type,
+          data: resp["outputdata"],
+          sortedColumn: {
+            name: "logfold",
+            order: false
+          },
+          firstID: undefined,
+          signature: SIGNATURE,
+          annotation: annotation,
+          page: 0
+        });
+      }
   })
 }
 
-function popUID(uuid, uid, inputcoords, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn){
-    var allSelected = document.getElementsByClassName("HselectedRow");
-    if(allSelected.length > 0)
-    {
-      for(var i = 0; i < allSelected.length; i++)
-      {
-        allSelected[i].className = "default";
-      }
-    }
-    var important = document.getElementById(uuid);
-    //console.log("POP_UID", important);
-    important.className = "HselectedRow";
-    var pasta = uid.split(":");
-    var ensg_id = pasta[1];
-    var fullinputcoords = inputcoords;
-    var peach = fullinputcoords.split("|");
-    var chr1 = peach[0];
-    var chr2 = peach[1];
-    var twor1 = chr1.split(":");
-    var twor2 = chr2.split(":");
-    var twor1_split = twor1[1].split("-");
-    var twor2_split = twor2[1].split("-"); 
-    var coord1 = twor1_split[0];
-    var coord2 = twor1_split[1];
-    var coord3 = twor2_split[0];
-    var coord4 = twor2_split[1];
-    var coord_block = {"coord1": coord1, "coord2": coord2, "coord3": coord3, "coord4": coord4};
+function popUID(uuid, uid, inputcoords, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn) {
+  const allSelected = document.querySelectorAll(".HselectedRow");
+  allSelected.forEach(element => element.className = "default");
+
+  const important = document.getElementById(uuid);
+  if (important) important.className = "HselectedRow";
+
+  if(tableState.type == "splice") {
+    const [, ensg_id] = uid.split(":");
+    const [chr1, chr2] = inputcoords.split("|");
+    const [, coord1, coord2] = chr1.split(":");
+    const [, coord3, coord4] = chr2.split(":").map(c => c.split("-"));
+    var coord_block = {coord1, coord2, coord3, coord4};
+    console.log("coord_block01", coord_block);
+    console.log("ensgid", ensg_id);
     exonRequest(ensg_id, coord_block, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn);
+  }
+  else {
+    console.log("biofgs");
+    const ensg_id = uid;
+    var coord_block = {"coord1": undefined, "coord2": undefined, "coord3": undefined, "coord4": undefined};
+    noCoordinateExonRequest(ensg_id, coord_block, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn);
+    //exonRequest(ensg_id, coord_block, fulldata, exonPlotState, setExonPlotState, tableState, setTableState, sortedColumn);
+  }
 }
 
 function uidConvert(input_uid)
@@ -235,7 +276,8 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
     useSortBy,
     usePagination
   )
-
+  var firstID = undefined;
+  var count = 0;
   /*React.useEffect(() => {
     var allSelected = document.getElementsByClassName("HselectedRow");
     if(allSelected.length > 0)
@@ -263,7 +305,7 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
     if(inputValue == "next")
     {
       //nextPage();
-      console.log("tableState.page", tableState.page);
+      //console.log("tableState.page", tableState.page);
       gotoPage(tableState.page+1);
       setTableState({...tableState, page: tableState.page+1});
     }
@@ -293,8 +335,22 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
         name: sortedColumn.id,
         order: sortedColumn.isSortedDesc
       }})
+      /*if(firstID != undefined)
+      {
+      popUID(firstID.id, firstID.setClick, firstID.inputcoords, firstID.data, firstID.exonPlotStateScaled, firstID.setExonPlotState, firstID.tableState, firstID.setTableState, firstID.sortedColumn)
+      }*/
     }
   })
+
+  React.useEffect(() => {
+    //console.log("Lug into effect.")
+    if(firstID != undefined)
+    {
+      //firstID = {id, setClick, inputcoords, data, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn}
+      popUID(firstID.id, firstID.setClick, firstID.inputcoords, firstID.data, firstID.exonPlotStateScaled, firstID.setExonPlotState, firstID.tableState, firstID.setTableState, firstID.sortedColumn)
+    }
+  }, [tableState])
+
   //console.log("sorted_column", sortedColumn);
 
   return (
@@ -325,10 +381,17 @@ function Table({ columns, data, exonPlotStateScaled, setExonPlotState, tableStat
           {page.map(
             (row, i) => {
               prepareRow(row);
+
               //console.log("ROW", row);
-              const setClick = row.original.uid;
+              //tableState
+              const setClick = tableState.type == "splice" ? row.original.uid : row.original.geneid;
+              //const setClick = row.original.uid;
               const inputcoords = row.original.coordinates;
               const id = uuidv4();
+              if(count == 0){
+                firstID = {id, setClick, inputcoords, data, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn}
+              }
+              count = count + 1;
               //console.log("input_coords", inputcoords);
               return (
                 <tr {...row.getRowProps()} id={id} onClick={() => popUID(id, setClick, inputcoords, data, exonPlotStateScaled, setExonPlotState, tableState, setTableState, sortedColumn)}>
@@ -434,7 +497,7 @@ function RootTable(props) {
       },
     ],
     [props]
-  )  
+  )
 
   if(props.input == undefined)
   {
@@ -464,6 +527,7 @@ function RootTable(props) {
         else
         {
           let curdat = {
+            geneid: curpointer["geneid"],
             symbol: curpointer["symbol"],
             logfold: curpointer["logfold"],
             rawp: curpointer["rawp"],
@@ -471,9 +535,9 @@ function RootTable(props) {
             avg_self: curpointer["avg_self"],
             avg_others: curpointer["avg_others"]
           }
-          data.push(curdat);  
+          data.push(curdat);
         }
-        
+
     }
   }
   var available_height = window.innerHeight;
@@ -481,23 +545,17 @@ function RootTable(props) {
 
   var columns = columns_splc;
 
-  if(props.type == "splice")
-  {
-    columns = columns_splc;
-  }
-  else{
-    columns = columns_gene;
-  }
+  columns = props.type == "splice" ? columns_splc : columns_gene;
 
   return (
     <div id="rootTable" style={{overflowX: "scroll", overflowY: "scroll", maxHeight: s_height, marginBottom: "6px"}}>
-    <Styles>      
+    <Styles>
       <Table columns={columns} data={data} exonPlotStateScaled={props.exonPlotStateScaled} setExonPlotState={props.setExonPlotState} tableState={props.tableState} setTableState={props.setTableState}/>
     </Styles>
     </div>
   )
 }
-  
+
 function ItemWrapper(props){
     return(
         <div style={{overflow: "scroll", height: "100%", width: "100%", backgroundColor: "white"}}>
@@ -512,15 +570,9 @@ function PanCancerAnalysis(props){
     //var state = React.useState(0);
     var available_width = window.innerWidth;
     var available_height = window.innerHeight;
-    //console.log("standard_width: ", window.innerWidth);
-    //console.log("standard_height: ", window.innerHeight);
-    //var scaled_width = window.innerWidth / 1920;
-    //var scaled_height = window.innerHeight / 985;
-    //var standard_width = 1438;
-    //var standard_height = 707;
-    var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/testing/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
+    var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/build/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
 
-    console.log("cWindow", window.innerHeight);
+    //console.log("cWindow", window.innerHeight);
     var scaled_width = window.innerWidth / 1438;
     var scaled_height = window.innerHeight / 707;
     const [exonPlotState, setExonPlotState] = React.useState({
@@ -530,7 +582,8 @@ function PanCancerAnalysis(props){
         in_data: null,
         scaled: false,
         targetdiv: "pancanc_splice",
-        downscale: 1.45
+        downscale: 1.45,
+        type: "coordinate"
     });
 
     const [concordanceState, setConcordanceState] = React.useState({
@@ -556,17 +609,12 @@ function PanCancerAnalysis(props){
           name: "UID",
           order: false
         },
+        firstID: undefined,
         signature: undefined,
         annotation: "none",
         page: 1,
         pageSize: 10
     });
-
-    var doubleBarChartData = {cluster: null, gene: null, targetdiv: "doubleBarChartDiv"};
-    const [stackedBarChartData, setStackedBarChartData] = React.useState({
-      data: null,
-      targetdiv: "stackedBarChartDiv" 
-    })
 
     const resetDaugtherPanels = () => {
       setVennState({
@@ -590,19 +638,20 @@ function PanCancerAnalysis(props){
           name: "UID",
           order: false
         },
+        firstID: undefined,
         signature: undefined,
         annotation: "none",
         page: 1,
         pageSize: 10
       })
       setExonPlotState({
-      exons: null,
-      transcripts: null,
-      junctions: null,
-      in_data: null,
-      scaled: false,
-      targetdiv: "pancanc_splice",
-      downscale: 1.45
+        exons: null,
+        transcripts: null,
+        junctions: null,
+        in_data: null,
+        scaled: false,
+        targetdiv: "pancanc_splice",
+        downscale: 1.45
       })
     }
 
@@ -622,28 +671,49 @@ function PanCancerAnalysis(props){
         scaled: false,
         targetdiv: "pancanc_splice",
         downscale: 1.45
-      })   
+      })
     }
 
-    if(props.cancerName == "BLCA")
+    const [stackedBarChartData, setStackedBarChartData] = React.useState({
+      data: null,
+      targetdiv: "stackedBarChartDiv"
+    })
+
+    const [doubleBarChartData, setDoubleBarChartData] = React.useState({
+      cluster: null,
+      gene: null,
+      targetdiv: "doubleBarChartDiv"
+    })
+
+    var prevCancerTypeState = useRef();
+    React.useEffect(() => {
+
+    prevCancerTypeState.current = props.cancerName;
+
+    if(props.cancerName == "BLCA" || props.cancerName == "PCPG")
     {
-        var datarray_x1 = [];
-        var datarray_y1 = [];
+      var datarray_x1 = [];
+      var datarray_y1 = [];
 
-        var datarray_x2 = [];
-        var datarray_y2 = [];
-        const plotobjs = [];
-        var counter = 0;
+      var datarray_x2 = [];
+      var datarray_y2 = [];
+      const plotobjs = [];
+      var counter = 0;
 
-        doubleBarChartData = {cluster: [], gene: [], key: [], targetdiv: "doubleBarChartDiv"};
+      let tmp_1 = [];
+      let tmp_2 = [];
+      let tmp_3 = [];
 
-        for (const [key, value] of Object.entries(props.clusterLength)) {
+      console.log(props);
+      for (const [key, value] of Object.entries(props.clusterLength)) {
+        tmp_1.push(value.length);
+        tmp_2.push(props.geneCount[key]);
+        tmp_3.push(key);
+      }
 
-            doubleBarChartData.cluster.push(value.length);
-            doubleBarChartData.gene.push(BLCA_vals[key]);
-            doubleBarChartData.key.push(key);
-        }
+      setDoubleBarChartData({cluster: tmp_1, gene: tmp_2, key: tmp_3, targetdiv: "doubleBarChartDiv"})
     }
+    }, [props.cancerName])
 
     var panel_CancerSummary = {
         width: 0.235 * available_width,
@@ -699,27 +769,29 @@ function PanCancerAnalysis(props){
                 minConstraints={[panel_CancerSummary.minWidth, panel_CancerSummary.minHeight]}
                 maxConstraints={[panel_CancerSummary.maxWidth, panel_CancerSummary.maxHeight]}
             >
-                <SetDoubleBarChart 
-                  heightRatio={scaled_height} 
-                  widthRatio={scaled_width} 
-                  doubleBarChartState={doubleBarChartData} 
-                  tablePlotRequest={tablePlotRequest} 
-                  tableState={tableState} 
+                <SetDoubleBarChart
+                  heightRatio={scaled_height}
+                  widthRatio={scaled_width}
+                  doubleBarChartState={doubleBarChartData}
+                  tablePlotRequest={tablePlotRequest}
+                  tableState={tableState}
                   setTableState={setTableState}
                   concordanceRequest={concordanceRequest}
                   concordanceState={concordanceState}
                   setConcordanceState={setConcordanceState}
                   setStackedBarChartData={setStackedBarChartData}
                   stackedBarChartRequest={stackedBarChartRequest}
+                  cancerName={props.cancerName}
                   resetDaugtherPanels={resetDaugtherPanels}
-                  resetBottomPanels={resetBottomPanels}></SetDoubleBarChart>
+                  resetBottomPanels={resetBottomPanels}>
+                  </SetDoubleBarChart>
                 <div width="100%" id="doubleBarChartDiv" style={{overflow: "scroll", height: "100%", width: "100%"}}></div>
-                <SetStackedBarChart 
+                <SetStackedBarChart
                   heightRatio={scaled_height}
                   widthRatio={scaled_width}
                   stackedBarChartState={stackedBarChartData}
-                  tablePlotRequest={tablePlotRequest} 
-                  tableState={tableState} 
+                  tablePlotRequest={tablePlotRequest}
+                  tableState={tableState}
                   setTableState={setTableState}
                   concordanceRequest={concordanceRequest}
                   concordanceState={concordanceState}
@@ -739,10 +811,11 @@ function PanCancerAnalysis(props){
                 minConstraints={[panel_PanCancerConcordance.minWidth, panel_PanCancerConcordance.minHeight]}
                 maxConstraints={[panel_PanCancerConcordance.maxWidth, panel_PanCancerConcordance.maxHeight]}
             >
-              <SetConcordanceGraph 
-                heightRatio={scaled_height} 
-                widthRatio={scaled_width} 
+              <SetConcordanceGraph
+                heightRatio={scaled_height}
+                widthRatio={scaled_width}
                 concordanceState={concordanceState}
+                cancerName={props.cancerName}
                 vennState={vennState}
                 setVennState={setVennState}>
               </SetConcordanceGraph>
@@ -753,19 +826,21 @@ function PanCancerAnalysis(props){
               <h3>Select a signature from the graph on the left.</h3>
               </div>
             </ResizableBox>
-                    
+
             <ResizableBox
                 className="box"
                 width={panel_SignatureEvents.width}
                 height={panel_SignatureEvents.height}
                 minConstraints={[panel_SignatureEvents.minWidth, panel_SignatureEvents.minHeight]}
-                maxConstraints={[panel_SignatureEvents.maxWidth, panel_SignatureEvents.maxHeight]}>    
+                maxConstraints={[panel_SignatureEvents.maxWidth, panel_SignatureEvents.maxHeight]}>
               <div id="tableLoadingDiv" style={{position: "absolute", marginLeft: 15, display: "none", textAlign: "center", marginTop: 30}}>
               {loading_Gif}
               </div>
-                <RootTable input={tableState.data} type={tableState.type} exonPlotStateScaled={exonPlotState.scaled} setExonPlotState={setExonPlotState} tableState={tableState} setTableState={setTableState}></RootTable>
+                <RootTable input={tableState.data} type={tableState.type}
+                exonPlotStateScaled={exonPlotState.scaled} setExonPlotState={setExonPlotState}
+                tableState={tableState} setTableState={setTableState}></RootTable>
             </ResizableBox>
-                    
+
             <ResizableBox
                 className="box"
                 width={panel_OverlappingEvents.width}
@@ -778,7 +853,7 @@ function PanCancerAnalysis(props){
               </div>
               <SetVennDiagram sizeObj={panel_OverlappingEvents} vennState={vennState} setTableState={setTableState}></SetVennDiagram>
             </ResizableBox>
-                    
+
             <ResizableBox
                 className="box"
                 width={panel_SplicingGraph.width}

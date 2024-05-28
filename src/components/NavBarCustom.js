@@ -131,7 +131,7 @@ function Header({setViewPane}){
 
     const dropdownBtn = document.getElementById("btn");
     const toggleArrow = document.getElementById("arrow");
-    
+
     /*const toggleDropdown = () => {
       document.getElementById("dropdown").classList.toggle("show");
       if(document.getElementById("exmoreicon").style.display == "block")
@@ -142,16 +142,16 @@ function Header({setViewPane}){
       else
       {
         document.getElementById("exlessicon").style.display = "none";
-        document.getElementById("exmoreicon").style.display = "block";        
+        document.getElementById("exmoreicon").style.display = "block";
       }
       //toggleArrow.classList.toggle("arrow");
     };*/
-    
+
     /*const dropdownBtnClick = (e) => {
       //e.stopPropagation();
       toggleDropdown();
     }*/
-    
+
     /*document.documentElement.addEventListener("click", function () {
       if (dropdownMenu.classList.contains("show")) {
         toggleDropdown();
@@ -174,15 +174,15 @@ function Header({setViewPane}){
     }
 
     const signatureSelectHandle = (e) => {
-        console.log("signature selected: ", e);
-        console.log("deeper selected: ", e.target.attributes.value);
+        //console.log("signature selected: ", e);
+        //console.log("deeper selected: ", e.target.attributes.value);
         document.getElementById("div_Cancer Signature Filter_id").classList.toggle("show");
         document.getElementById("exmoreicon_Cancer Signature Filter_id").style.display = "block";
         document.getElementById("exlessicon_Cancer Signature Filter_id").style.display = "none";
         var newEvent = e.target.attributes.value.nodeValue.split(",");
         var simpleName = newEvent[1];
         var literatureName = newEvent[0];
-        console.log("both: ", simpleName, literatureName);
+        //console.log("both: ", simpleName, literatureName);
         var selectedOncocluster = simpleName;
         if(selectedOncocluster != undefined)
         {
@@ -210,7 +210,7 @@ function Header({setViewPane}){
         document.getElementById("div_".concat(keyName).concat("_id")).classList.toggle("show");
         document.getElementById("exmoreicon_".concat(keyName).concat("_id")).style.display = "block";
         document.getElementById("exlessicon_".concat(keyName).concat("_id")).style.display = "none";
-        console.log("both: ", keyName, valName);
+        //console.log("both: ", keyName, valName);
         setSampleState({"key": keyName, "value": valName});
     }
 
@@ -237,11 +237,11 @@ function Header({setViewPane}){
             delimiter = "\n";
           }
         }
-      
+
         all_coords = all_coords.split(delimiter);
-      
+
         var pile_of_coords = [];
-      
+
         for(var i=0; i<all_coords.length; i++)
         {
           if(all_coords[i] != "")
@@ -249,7 +249,7 @@ function Header({setViewPane}){
             pile_of_coords.push(all_coords[i]);
           }
         }
-      
+
         var args = {};
         setEventTypeState({"eventType": "Coords", "initialized": true});
         setCoordState(pile_of_coords);
@@ -261,7 +261,7 @@ function Header({setViewPane}){
         args["export"] = exp;
         args["setState"] = callback;
         makeRequest("coord", args);*/
-        
+
     }
 
     const onChangeGene = (e) => {
@@ -287,11 +287,11 @@ function Header({setViewPane}){
             delimiter = "\n";
           }
         }
-      
+
         all_uids = all_uids.split(delimiter);
-      
+
         var pile_of_uids = [];
-      
+
         for(var i=0; i<all_uids.length; i++)
         {
           if(all_uids[i] != "")
@@ -324,7 +324,7 @@ function Header({setViewPane}){
       document.getElementById("exmoreicon_Event Type_id").style.display = "block";
       document.getElementById("exlessicon_Event Type_id").style.display = "none";
       setEventTypeState({"eventType": e.target.attributes.value.nodeValue, "initialized": true});
-      console.log(e);
+      //console.log(e);
     }
 
     //for selecting first signature: Object.keys(signatureListState)[0]
@@ -332,8 +332,8 @@ function Header({setViewPane}){
     React.useEffect(() => {
         if(cancerTypeState.initialized == true || signatureState.initialized == true || coordState != undefined || geneState != undefined  || sampleState != undefined)
         {
-            console.log("coordState", coordState);
-            console.log("sampleListState", sampleListState);
+            //console.log("coordState", coordState);
+            //console.log("sampleListState", sampleListState);
             let heatmapArgs = {};
             heatmapArgs["exportView"] = {};
             heatmapArgs["document"] = document;
@@ -381,7 +381,7 @@ function Header({setViewPane}){
         else
         {
           document.getElementById("tabcontent").style.display = "none";
-          document.getElementById("pancancerpanel").style.display = "block";        
+          document.getElementById("pancancerpanel").style.display = "block";
         }
       }
     }, [pageTypeState.value])
@@ -446,7 +446,7 @@ function Header({setViewPane}){
               <DropdownList title={"Sample Filter"} type={"multi"}>
               {(() => {
                     //console.log("good", Object.entries(sampleListState));
-                    const dropdownItems = [];         
+                    const dropdownItems = [];
                     for (const [key, value] of Object.entries(sampleListState))
                     {
                         let newDropdownItems = [];
@@ -496,7 +496,7 @@ function Header({setViewPane}){
                 <div class={"dropdown_vertical"} id={"div_Cancer Signature Filter_id"} style={{height: "300px", overflowY: "scroll"}}>
                   {(() => {
                       //console.log("good", Object.entries(signatureListState));
-                      const dropdownItems = [];         
+                      const dropdownItems = [];
                       for (const [key, value] of Object.entries(signatureListState))
                       {
                           dropdownItems.push(<DropdownItem value={[key, value]} displayText={value} handleClick={signatureSelectHandle}/>)
@@ -548,7 +548,7 @@ function Header({setViewPane}){
         </Grid>
       </div>
     </Fragment>);
-    
+
 }
 
 export default Header;

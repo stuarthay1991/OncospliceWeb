@@ -21,7 +21,7 @@ function loadHome()
   document.getElementById("aboutpanel").style.display = "none";
   document.getElementById("contactpanel").style.display = "none";
   document.getElementById("tabcontent").style.display = "block";
-  document.getElementById("pancancer").style.display = "none";  
+  document.getElementById("pancancer").style.display = "none";
   document.getElementById("dropdownOptionsDiv").style.display = "block";
 }
 
@@ -35,7 +35,7 @@ function loadContact()
 function TopNav() {
   const classes = useStyles();
   const [pageTypeState, setPageTypeState] = React.useState({"value": "Individual Signatures", "initialized": false})
-  var oncoimg = isBuild ? <img src="/ICGS/Oncosplice/testing/OncoLOGO2.png" alt="Logo" width="180" height="63"></img> : <img src={oncologo} alt="Logo" width="180" height="63"></img>;
+  var oncoimg = isBuild ? <img src="/ICGS/Oncosplice/build/OncoLOGO2.png" alt="Logo" width="180" height="63"></img> : <img src={oncologo} alt="Logo" width="180" height="63"></img>;
 
   const [maskPage, setMaskPage] = React.useState({"name": "data"});
 
@@ -51,7 +51,7 @@ function TopNav() {
   }
 
   const onSelectAbout = (e) => {
-    console.log("wat a dolla");
+    //console.log("wat a dolla");
     setMaskPage({"name": "about"});
   }
 
@@ -82,7 +82,7 @@ function TopNav() {
           document.getElementById("gridItem4").style.display = "block";
           document.getElementById("gridItem5").style.display = "block";
           document.getElementById("gridItem6").style.display = "none";
-          document.getElementById("gridItem7").style.display = "none";      
+          document.getElementById("gridItem7").style.display = "none";
         }
       }
     }
@@ -92,10 +92,10 @@ function TopNav() {
   React.useEffect(() => {
     if(prevMaskPage.current != undefined)
     {
-      console.log("PM 1");
+      //console.log("PM 1");
       if(prevMaskPage.current != maskPage)
       {
-        console.log("PM 2", maskPage.name);
+        //console.log("PM 2", maskPage.name);
         if(maskPage.name == "data")
         {
           document.getElementById("rocket_magnum").style.display = "block";
@@ -114,14 +114,14 @@ function TopNav() {
           else
           {
             document.getElementById("tabcontent").style.display = "none";
-            document.getElementById("pancancerpanel").style.display = "block"; 
+            document.getElementById("pancancerpanel").style.display = "block";
             document.getElementById("gridItem1").style.display = "block";
             document.getElementById("gridItem2").style.display = "none";
             document.getElementById("gridItem3").style.display = "none";
             document.getElementById("gridItem4").style.display = "block";
             document.getElementById("gridItem5").style.display = "block";
             document.getElementById("gridItem6").style.display = "none";
-            document.getElementById("gridItem7").style.display = "none";       
+            document.getElementById("gridItem7").style.display = "none";
           }
           document.getElementById("aboutpanel").style.display = "none";
           document.getElementById("contactpanel").style.display = "none";
@@ -145,42 +145,46 @@ function TopNav() {
 
   return (
     <div className={classes.mainpane} style={{ fontFamily: 'Roboto'}}>
-      <div className={classes.mainpane_margin}>
       <Grid container spacing={1}>
-        <Grid container item xs={9}>
-        <Grid item xs={3}>
-          <div className={classes.cntr_special}>{oncoimg}</div>
+      <Grid item xs={2}>
+        <div className={classes.cntr_special}>{oncoimg}</div>
+      </Grid>
+      <Grid item xs={10}>
+      <div className={classes.mainpane_margin_type1}>
+        <span id="rocket_magnum" style={{display: "none", float: "right"}}>
+        <Form.Control as="select"
+                value={pageTypeState.value}
+                onChange={onSelectHandle}
+                name="value"
+                style={{
+                  backgroundColor: '#0F6A8B',
+                  color: "white",
+                  fontSize: "0.9em",
+                  height: "66%",
+                  margin: 2,
+                  padding: 2,
+                  bordeRadius: 3,
+                  cursor: "pointer"
+                }}>
+                <option value="Individual Signatures">Individual Signatures</option>
+                <option value="Pancancer Analysis">Pancancer Analysis</option>
+        </Form.Control>
+        </span>
+      </div>
+      <div className={classes.mainpane_margin_type2} style={{	background:"linear-gradient(to bottom, #4a8fa8 5%, #476e9e 100%)", backgroundColor: '#0F6A8B'}}>
+      <Grid container spacing={1}>
+        <Grid item xs={6}>
+          <div style={{fontSize: 18, color: "white", textAlign: 'left', marginLeft:20}}><a onClick={onSelectHome} style={{color: 'white', cursor: "pointer"}}>Home</a> | <a onClick={onSelectAbout} style={{color: 'white', cursor: "pointer"}}>What is OncoSplice?</a> | <a href="mailto: altanalyze@gmail.com" style={{cursor: "pointer", color: "white", textDecoration: "none"}}>Contact</a></div>
         </Grid>
         <Grid item xs={3}>
           <div id="LoadingStatusDisplay" style={{display: "none"}}>Loading...</div>
         </Grid>
-        <Grid item xs={6}>
-          <div className={classes.cntr_generic}><a onClick={onSelectHome} style={{cursor: "pointer"}}>Home</a> | <a onClick={onSelectAbout} style={{cursor: "pointer"}}>What is OncoSplice?</a> | <a href="mailto: altanalyze@gmail.com" style={{cursor: "pointer", color: "#0F6A8B", textDecoration: "none"}}>Contact</a></div>
-        </Grid>
-        </Grid>
         <Grid container item xs={3} justifyContent="flex-end">
-          <span id="rocket_magnum">
-          <Form.Control as="select"
-                  value={pageTypeState.value}
-                  onChange={onSelectHandle}
-                  name="value"
-                  style={{
-                    backgroundColor: '#0F6A8B',
-                    color: "white",
-                    fontSize: "0.9em",
-                    height: "66%",
-                    margin: 2,
-                    padding: 2,
-                    bordeRadius: 3,
-                    cursor: "pointer"
-                  }}>
-                  <option value="Individual Signatures">Individual Signatures</option>
-                  <option value="Pancancer Analysis">Pancancer Analysis</option>
-          </Form.Control>
-          </span>
         </Grid>
       </Grid>
       </div>
+      </Grid>
+      </Grid>
     </div>
   );
 }

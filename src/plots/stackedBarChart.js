@@ -26,7 +26,18 @@ class SetStackedBarChart extends React.Component {
         input: null,
       };
     }
-    componentDidMount() { 
+    componentDidMount() {
+      this.updateStackedBarChart();
+    }
+
+    componentDidUpdate(prevProps) {
+      if(this.props !== prevProps){
+        this.updateStackedBarChart();
+      }
+    }
+
+    updateStackedBarChart()
+    {
       var base_re_wid = window.innerWidth;
       var base_re_high = window.innerHeight;
       var standard_width = 1438;
@@ -42,9 +53,9 @@ class SetStackedBarChart extends React.Component {
       {
         this.props.heightRatio = 1;
       }
-      
+      if(this.props.stackedBarChartState)
       this.setState({
-        input: <STACKED_BAR_CHART 
+        input: <STACKED_BAR_CHART
           stackedBarChartState={this.props.stackedBarChartState}
           concordanceRequest={this.props.concordanceRequest}
           setConcordanceState={this.props.setConcordanceState}
@@ -59,44 +70,7 @@ class SetStackedBarChart extends React.Component {
           </STACKED_BAR_CHART>
       })
     }
-  
-    componentDidUpdate(prevProps) {
-      if(this.props !== prevProps)
-      {
-        var base_re_wid = window.innerWidth;
-        var base_re_high = window.innerHeight;
-        var standard_width = 1438;
-        var standard_height = 707;
-        var adjust_width = (base_re_wid / standard_width) * 0.40;
-        var adjust_height = (base_re_high / standard_height) * 0.40;
-        var y_start = 0;
-        if(this.props.widthRatio == undefined)
-        {
-          this.props.widthRatio = 1;
-        }
-        if(this.props.heightRatio == undefined)
-        {
-          this.props.heightRatio = 1;
-        }
-        if(this.props.stackedBarChartState)
-        this.setState({
-          input: <STACKED_BAR_CHART 
-            stackedBarChartState={this.props.stackedBarChartState}
-            concordanceRequest={this.props.concordanceRequest}
-            setConcordanceState={this.props.setConcordanceState}
-            setTableState={this.props.setTableState}
-            tablePlotRequest={this.props.tablePlotRequest}
-            resetDaugtherPanels={this.props.resetDaugtherPanels}
-            resetBottomPanels={this.props.resetBottomPanels}
-            doc={document} 
-            target_div_id={this.props.stackedBarChartState.targetdiv}
-            xScale={this.props.widthRatio}
-            yScale={this.props.heightRatio}>
-            </STACKED_BAR_CHART>
-        })
-      }
-    }
-  
+
     render()
     {
       return(
@@ -126,9 +100,10 @@ class SetStackedBarChart extends React.Component {
         fontScale: ((this.props.xScale+this.props.yScale)/2),
         selectedGroup: undefined
       };
+      this.defaultSelection = undefined;
     }
-  
-    baseSVG(h_in) 
+
+    baseSVG(h_in)
     {
       var w = "100%";
       var h = h_in;
@@ -137,18 +112,18 @@ class SetStackedBarChart extends React.Component {
         .attr("width", w)
         .attr("height", h)
         .attr("id", (this.target_div.concat("_svg")));
-  
+
       this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
-        
+
       this.SVG_main_group.append("rect")
         .attr("width", w)
         .attr("height", h)
         .style("stroke", "White")
         .attr("stroke-width", 0)
         .attr("type", "canvas")
-        .attr("fill", "White");    
+        .attr("fill", "White");
     }
-  
+
     writeBase(h_in)
     {
       this.SVG_main_group.append("rect")
@@ -156,14 +131,14 @@ class SetStackedBarChart extends React.Component {
         .attr("height", h_in)
         .style("opacity", 1.0)
         .attr("fill", "White");
-  
-      this.rect = d3.select("body").append("rect") 
+
+      this.rect = d3.select("body").append("rect")
         .attr("width", 30)
         .attr("height", 30)
         .style("opacity", 1.0)
         .attr("type", "canvas")
         .attr("fill", "White");
-  
+
     }
 
     writeTitle()
@@ -179,7 +154,7 @@ class SetStackedBarChart extends React.Component {
         .text("Pancancer Summary");
 
         var parent = this;
-      
+
         this.SVG_main_group.append('circle')
             .attr('cx', 32*S.xScale)
             .attr('cy', 46*S.yScale)
@@ -196,7 +171,7 @@ class SetStackedBarChart extends React.Component {
                 .attr("fill", "#0F6A8B")
                 .attr("opacity", 0.4);
               })
-            .on("mouseout", function(d) {   
+            .on("mouseout", function(d) {
               //parent.tempTextRemove();
               var pretg = d3.select(this).attr("stroke-width", 1)
               .attr("stroke", "black")
@@ -256,7 +231,7 @@ class SetStackedBarChart extends React.Component {
 
         for(var i = 0; i < this.annotation_names.length; i++)
         {
-          
+
           this.SVG_main_group.append("rect")
             .attr("x", xRect*S.xScale)
             .attr("y", yRectStart*S.yScale)
@@ -337,7 +312,7 @@ class SetStackedBarChart extends React.Component {
         {
             var xToMove = selectedObject.attr("x");
             var yToMove = selectedObject.attr("y");
-            
+
             selectedObject.attr("opacity", 1);
             selectedObject.attr("stroke-width", 2);
             var text_size = 9;
@@ -445,14 +420,14 @@ class SetStackedBarChart extends React.Component {
             .attr("opacity", 0.8)
             .attr("height", (yLength) - (2*S.yScale))
             .attr("fill", "rgb(131, 131, 131)");
-        
+
         this.SVG_main_group.append("rect")
             .attr("x", (this.x_offset*S.xScale)-(2*S.xScale))
             .attr("y", (yLength)+(92*S.yScale))
             .attr("width", xLength*S.xScale)
             .attr("opacity", 0.8)
             .attr("height", 2*S.yScale)
-            .attr("fill", "rgb(131, 131, 131)");        
+            .attr("fill", "rgb(131, 131, 131)");
     }
 
     drawXTicks(xLength, yLength, maxValue)
@@ -463,7 +438,7 @@ class SetStackedBarChart extends React.Component {
 
         for(var i = 0; i < 12; i++)
         {
-            
+
             var xVal = (88*S.xScale) + (xTickInterval * i);
             //console.log("xVal", xVal);
             this.SVG_main_group.append("rect")
@@ -526,7 +501,7 @@ class SetStackedBarChart extends React.Component {
             .style("opacity", 1.0)
             .attr("fill", "black")
             .text("# Inclusion ASE");
-      
+
     }
 
     onSelect(obj, signature_name, annot, setTableState, tablePlotRequest, setConcordanceState, concordanceRequest)
@@ -559,7 +534,7 @@ class SetStackedBarChart extends React.Component {
             //const group_identifier = index.concat(annotVal["objects"][current_annotation])
             this.SVG_main_group.append("rect")
                 .attr("x", x_now)
-                .attr("y", ypos)            
+                .attr("y", ypos)
                 .attr("width", widthScale)
                 .attr("height", 16*S.yScale)
                 .attr("colorset", colors[i])
@@ -579,7 +554,7 @@ class SetStackedBarChart extends React.Component {
                     parent.tempStratifiedHover(pretg, inputData[index], "add");
                   }
                 })
-                .on("mouseout", function() {    
+                .on("mouseout", function() {
                   var pretg = d3.select(this);
                   if(pretg.attr("id") != parent.state.selectedGroup)
                   {
@@ -593,35 +568,23 @@ class SetStackedBarChart extends React.Component {
                   pretg.style("cursor", "default");
                   pretg.attr("stroke", "purple");
                   //.attr("cursor", "pointer")
-                  
+
                   parent.onSelect(pretg, pretg.attr("signature"), pretg.attr("annotation"), parent.props.setTableState, parent.props.tablePlotRequest, parent.props.setConcordanceState, parent.props.concordanceRequest);
                 })
             x_now = x_now + widthScale;
         }
 
-        /*
-        this.SVG_main_group.append("rect")
-          .attr("x", x_offset)
-          .attr("y", ypos)            
-          .attr("width", x_now-x_offset)
-          .attr("height", 16*S.yScale)
-          .attr("opacity", 0)
-          .attr("object", annotVal)
-          .attr("fill", "white")
-          .on("mouseover", function() {
-            var pretg = d3.select(this).attr("cursor", "pointer")
-            .attr("stroke-width", 2)
-            .attr("stroke", "purple");
-            parent.tempOnHover(pretg, inputData[index], "add")
-          })
-          .on("mouseout", function() {   
-              var pretg = d3.select(this).attr("cursor", "default")
-              .attr("stroke-width", 0)
-              .attr("stroke", "purple");
-              parent.tempOnHover(pretg, inputData[index], "remove")
-          })
-        */
-        
+        if(index == 0)
+        {
+        var id_to_use = inputData[0].signature_name.concat(this.annotation_names[4]).concat("4");
+        var currentAddedObject = d3.select("#".concat(id_to_use));
+        var currentAddedObjectSelectedSignature = currentAddedObject["_groups"][0][0]["attributes"]["signature"]["nodeValue"];
+        var currentAddedObjectSelectedAnnotation = currentAddedObject["_groups"][0][0]["attributes"]["annotation"]["nodeValue"];
+        this.defaultSelection = {"object": currentAddedObject,
+        "selectedSignature": currentAddedObjectSelectedSignature,
+        "selectedAnnotation": currentAddedObjectSelectedAnnotation}
+        }
+
         var inputKey = inputData[index].signature_name;
         inputKey = inputKey.replace('psi_', '');
         inputKey = inputKey.replace('_', ' ');
@@ -655,9 +618,9 @@ class SetStackedBarChart extends React.Component {
           })
           return(
             null
-          );    
+          );
         }
-    }  
+    }
 
     render (){
       var y_start = 0;
@@ -694,7 +657,7 @@ class SetStackedBarChart extends React.Component {
             sorted_data_array[index_value].objects = value;
             index_value = index_value + 1;
         }
-        
+
 
         var sorted_data = sorted_data_array.sort((a, b)=>{return Number(b.sum)-Number(a.sum)});
         //console.log("STACKED_SORTED:", sorted_data);
@@ -718,6 +681,13 @@ class SetStackedBarChart extends React.Component {
         {
           d3.select(document.getElementById(this.state.selectedGroup)).attr("stroke-width", 3).style("stroke", "red");
         }
+        if(this.state.selectedGroup == undefined)
+        {
+          var arg1 = this.defaultSelection.object;
+          var arg2 = this.defaultSelection.selectedSignature;
+          var arg3 = this.defaultSelection.selectedAnnotation;
+          this.onSelect(arg1, arg2, arg3, this.props.setTableState, this.props.tablePlotRequest, this.props.setConcordanceState, this.props.concordanceRequest);
+        }
         //plot chart
       }
       else
@@ -729,7 +699,7 @@ class SetStackedBarChart extends React.Component {
         null
       );
     }
-  
+
   }
-  
+
 export default SetStackedBarChart;

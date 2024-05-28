@@ -54,7 +54,7 @@ function updateHeatmapData(arg, targeturl)
           var sampleNames = response["data"]["col_beds"];
           var hierarchicalClusterColumns = response["data"]["cci"];
           var oncospliceSignatureClusterColumns = response["data"]["oncospliceClusterIndices"];
-          var oncospliceSignatureClusterName = response["data"]["oncospliceClusterName"];    
+          var oncospliceSignatureClusterName = response["data"]["oncospliceClusterName"];
           sampleUiRefresh(postData["data"]["cancerName"], heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, callback, postData, pancancercallback);
         }
         else
@@ -94,9 +94,9 @@ function sampleUiRefresh(cancerType, heatmapMatrix, sampleNames, hierarchicalClu
       document.getElementById("heatmapLoadingDiv").style.display = "none";
       //console.log("updating view panel with: ", cancerType, heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, prevPostData)
       callback(heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView);
-      pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": cancerType});
+      pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": cancerType, "uniqueGenesPerSignature": response["data"]["pancancerGeneCount"]});
     })
-    
+
 }
 
 export default updateHeatmapData;

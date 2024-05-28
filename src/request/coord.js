@@ -18,6 +18,7 @@ function coord(arg, targeturl)
     exportView["single"].push(("Coord: ".concat(clientCoord[i])));
   }
   bodyFormData.append("CANCER",curCancer);
+  console.log("COORD_request", bodyFormData)
   axios({
     method: "post",
     url: (targeturl.concat("/backend/getcoord.php")),
@@ -29,7 +30,7 @@ function coord(arg, targeturl)
       //console.log("1", totalmatch);
       //console.log("2", response["data"]);
       callback(clientCoord, exportView);
-  }) 
+  })
 }
 
 export default coord;

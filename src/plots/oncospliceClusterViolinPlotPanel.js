@@ -7,7 +7,7 @@ import {ExpandedPlotViewButton} from '../components/ExpandedPlotView';
 
 export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer, flag="NO")
 {
-  console.log("ONCO_PANTS", oncospliceSampleLabels, selectedOncospliceSignature);
+  //console.log("ONCO_PANTS", oncospliceSampleLabels, selectedOncospliceSignature);
   var expressionArrayClusters = {"cluster0": [], "cluster1": []};
   for(var i = 0; i < heatmapColumnArray.length; i++)
   {
@@ -112,7 +112,7 @@ function cbioSetup(selectedRow, selectedExpressionArray, heatmapColumnArray, onc
       cBioportalInputData["cluster1"].push(curcol);
     }
   }
-  console.log("cBioportalInputData_Onco", cBioportalInputData);
+  //console.log("cBioportalInputData_Onco", cBioportalInputData);
   var toCBioLabels = ["others", selectedOncospliceSignature];
   var returnobj = <><CbioportalLinkout cancer={cancer} label={toCBioLabels} data={cBioportalInputData}/></>
   return returnobj;

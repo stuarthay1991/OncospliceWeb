@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const isBuild = process.env.NODE_ENV === "build";
-export const global_colors = ["#0096FF", "#fffb00", "#FF7F7F", "#44D62C", "#9300c4", "#f78000", "#828282", "#32a852", "#8e7be3", "#e6b035", 
+export const global_colors = ["#0096FF", "#fffb00", "#FF7F7F", "#44D62C", "#9300c4", "#f78000", "#828282", "#32a852", "#8e7be3", "#e6b035",
 "#b5109f", "#8bab59", "#782b51", "#366fd9", "#f0b3ff", "#5d1ca3", "#d94907", "#32a8a6", "#ada50c", "#bf1b28", "#0000b3", "#ffc61a", "#336600"];
 
 export const rootTableColumnSpliceObj = [
@@ -69,71 +69,66 @@ export const rootTableColumnSpliceObj = [
 
 export const rootTableColumnGeneObj = [
     {
+      Header: 'geneid',
+      accessor: 'geneid',
+      maxWidth: '21px',
+    },
+    {
       Header: 'symbol',
       accessor: 'symbol',
-      maxWidth: '20px',
+      maxWidth: '21px',
     },
     {
       Header: 'Logfold',
       accessor: 'logfold',
-      maxWidth: '20px',
+      maxWidth: '21px',
     },
     {
       Header: 'rawp',
       accessor: 'rawp',
-      maxWidth: '20px',
+      maxWidth: '21px',
     },
     {
       Header: 'adjp',
       accessor: 'adjp',
-      maxWidth: '20px',
+      maxWidth: '21px',
     },
     {
       Header: 'avg_self',
       accessor: 'avg_self',
-      maxWidth: '20px',
+      maxWidth: '21px',
     },
     {
       Header: 'avg_others',
       accessor: 'avg_others',
-      maxWidth: '20px',
+      maxWidth: '21px',
     }
 ]
 
-export const BLCA_vals = {"psi_pde4d_del_vs_others": 875,
-"psi_r2_v11_vs_others": 316,
-"psi_r2_v27_vs_others": 348,
-"psi_r2_v1_vs_others": 3792,
-"psi_r2_v18_vs_others": 184,
-"psi_r2_v4_vs_others": 156,
-"psi_r2_v6_vs_others": 28,
-"psi_rbm10_mut+sox4_amp_vs_others": 22,
-"psi_sox4_amp+tp53_mut_vs_others": 384,
-"psi_fgfr3_mut_vs_others": 703,
-"psi_r2_v17_vs_others": 267,
-"psi_kras_mut_vs_others": 11,
-"psi_r3_v5_vs_others": 107,
-"psi_r3_v21_vs_others": 3436,
-"psi_r3_v9_vs_others": 965,
-"psi_r3_v26_vs_others": 1421,
-"psi_noninvasive_blca_history_vs_others": 124,
-"psi_tp53_mut_vs_others": 483,
-"psi_r2_v15_vs_others": 631,
-"psi_asian_vs_others": 1695,
-"psi_r3_v7_vs_others": 30,
-"psi_r2_v16_vs_others": 606,
-"psi_r2_v13_vs_others": 452,
-"psi_r2_v25_vs_others": 33,
-"psi_r2_v2_vs_others": 1400,
-"psi_cdkn2a_del+fgfr3_mut_vs_others": 547,
-"psi_r2_v3_vs_others": 950,
-"psi_r3_v6_vs_others": 60,
-"psi_r2_v22_vs_others": 541,
-"psi_r2_v20_vs_others": 214,
-"psi_rbm10_mut_vs_others": 280,
-"psi_r3_v19_vs_others": 56,
-"psi_r2_v21_vs_others": 744,
-"psi_r2_v9_vs_others": 487}
+
+
+export const BLCA_vals = {
+    "psi_r3_v10_vs_others": 40,
+    "psi_r2_v25_vs_others": 80,
+    "psi_r1_v6_vs_others": 335,
+    "psi_r1_v4_vs_others": 483,
+    "psi_r1_v5_vs_others": 4913,
+    "psi_r2_v2_vs_others": 392,
+    "psi_r2_v11_vs_others": 548,
+    "psi_r1_v2_vs_others": 3051,
+    "psi_r2_v3_vs_others": 380,
+    "psi_r2_v26_vs_others": 272,
+    "psi_r2_v16_vs_others": 141,
+    "psi_r3_v7_vs_others": 141,
+    "psi_r2_v24_vs_others": 104,
+    "psi_r2_v22_vs_others": 51,
+    "psi_r1_v3_vs_others": 1010,
+    "psi_r3_v25_vs_others": 411,
+    "psi_r2_v18_vs_others": 94,
+    "psi_r3_v0_vs_others": 57,
+    "psi_r1_v7_vs_others": 1594,
+    "psi_r1_v1_vs_others": 736
+}
 
 export const tableStyledDiv = styled.div`
 padding: 1rem;
@@ -148,7 +143,7 @@ table {
     max-height: 10px;
     overflow: hidden;
     overflow-Y: hidden;
-    overflow-X: hidden; 
+    overflow-X: hidden;
     :last-child {
       td {
         border-bottom: 0;
@@ -175,12 +170,12 @@ table {
     }
     tr.HselectedRow {
       background-color: #FFDFBA;
-      color: black;    
+      color: black;
     }
 
     tr.HselectedRow > td {
-      color: black;    
-    }      
+      color: black;
+    }
 
   }
 
@@ -214,7 +209,7 @@ table {
 
     :last-child {
       border-right: 0;
-    }      
+    }
   }
 }
 `

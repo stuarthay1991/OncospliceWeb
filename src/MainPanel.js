@@ -12,6 +12,7 @@ import Box from '@material-ui/core/Box';
 import targeturl from './targeturl.js';
 import LockIcon from '@material-ui/icons/Lock';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
+import Splash from './Splash.js';
 
 import './App.css';
 import Header from './components/NavBarDropdown.js';
@@ -59,14 +60,16 @@ function MainPanel(props){
 
   //Each time the user selects an option, it is recorded in the "pagelist" cache variable which is not used now, but could be useful later.
   props.addPage(page);
-  
+
   //These are just basic converters to change the url appendage "page" to an integer value so it can be compatible with the tab system that I'm using.
   const tabNameToIndex = {
+    0: "splash",
     1: "explore",
     2: "history"
   };
 
   const indexToTabName = {
+    splash: 0,
     explore: 1,
     history: 2
   };
@@ -90,7 +93,7 @@ function MainPanel(props){
 
   if(process.env.NODE_ENV == "build")
   {
-    var routeurl = "/ICGS/Oncosplice/testing/index.html/";
+    var routeurl = "/ICGS/Oncosplice/build/index.html/";
   }
   else
   {
@@ -132,11 +135,10 @@ function MainPanel(props){
     setMpstate({
         viewpaneobj: stateobj,
         authentication: mpstate.authentication,
-        value: 1
     });
   }
 
-  const [panCancerState, setPanCancerState] = React.useState({"DEtableData": undefined, "tableData": undefined, "clusterLength": undefined, "cancer": undefined});
+  const [panCancerState, setPanCancerState] = React.useState({"DEtableData": undefined, "tableData": undefined, "clusterLength": undefined, "cancer": undefined, "uniqueGenesPerSignature": undefined});
 
   //update query history function
   const updateQH = (new_user, data) => {
@@ -146,13 +148,13 @@ function MainPanel(props){
             user: new_user,
             data: data
           }
-        });    
+        });
   }
 
 
   //This is a hack I useed. For whatever reason, I would sometimes have issues getting the correct tab to show up. This function fixed it, ahd while
   //I'm not 100% sure why, it works, and so therefore it stays.
-  
+
   var mpv = mpstate.viewpaneobj;
   //console.log("mpv", mpv);
   React.useEffect(() => {
@@ -182,10 +184,13 @@ function MainPanel(props){
     args["setState"] = setViewPane;
     args["pancancerupdate"] = setPanCancerState;
     args["export"] = {};
-    args["cancer"] = "BRCA";
+    args["cancer"] = "BLCA";
     args["doc"] = document;
     makeRequest("defaultQuery", args);
   }
+
+  var displayvalue1 = "block";
+  var displayvalue2 = "none";
   //This is the layout of the main pane in action.
   //It's important to note that the "Tabs" element informs the UI for the Tabs, while further down the "tabcontent" div informs the actual substance of those tab selections.
   //"Authentication" informs the currently broken google authentication feature, which will be crucial to implementing the UUID based routing framework.
@@ -194,18 +199,21 @@ function MainPanel(props){
         </div>*/
   return (
     <div className={classes.root} style={{ fontFamily: 'Roboto'}}>
-      <div id="navBarHolder" className={classes.demo2}>
+      <div id="navBarHolder" className={classes.demo2} style={{display: "none"}}>
         <div className={classes.tabholder}>
         <div>
           <Header setViewPane={setViewPane} setPanCancerState={setPanCancerState}/>
         </div>
         </div>
       </div>
-      <div id="tabcontent" style={{display: "block"}}>
+      <div id="tabcontent" style={{display: mpstate.value === 1 ? displayvalue1 : displayvalue2}}>
       {mpstate.value === 1 && <ViewPanelWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
       </div>
+      <div id="splashpanel" style={{display: mpstate.value === 0 ? displayvalue1 : displayvalue2}}>
+        <Splash />
+      </div>
       <div id="pancancerpanel" style={{display: "none"}}>
-        <PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer}/>
+        <PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer} geneCount={panCancerState.uniqueGenesPerSignature}/>
       </div>
       <div id="aboutpanel" style={{display: "none", backgroundColor: "#0f6a8b"}}>
         <AboutUs />
