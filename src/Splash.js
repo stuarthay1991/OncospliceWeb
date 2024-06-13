@@ -9,6 +9,7 @@ import splashHeatmap from './images/splashHeatmap.png';
 import splashPancancer from './images/splashPancancer.png';
 import axios from 'axios';
 import { Nav, Dropdown, Button, ButtonToolbar, IconButton} from "rsuite";
+import { DropdownCancers } from './utilities/constants.js';
 import "rsuite/dist/rsuite.min.css";
 
 const boxProps = {
@@ -17,7 +18,19 @@ const boxProps = {
 
 var available_width = window.innerWidth;
 
-
+function splashDataRequest() {
+  var bodyFormData = new FormData();
+  var postedData = {}
+  axios({
+    method: "post",
+    url: routeurl.concat("/api/datasets/splashDataRequest"),
+    data: postedData,
+    headers: { "Content-Type": "application/json" },
+  })
+    .then(function (response) {
+      var resp = response["data"];
+  })
+}
 
 function SplashRow(props) {
   const classes = useStyles();
@@ -90,15 +103,7 @@ function DropdownSet(props) {
     placement="bottomStart"
     size="xs"
     trigger = "hover">
-            <Dropdown.Item eventKey={"BLCA"} style={{fontSize: 12, margin: 1, padding: 1}}>
-            {"Bladder Cancer (TCGA)"}
-            </Dropdown.Item>
-            <Dropdown.Item eventKey={"PCPG"} style={{fontSize: 12, margin: 1, padding: 1}}>
-            {"Pheochromocytoma and paraganglioma (TCGA)"}
-            </Dropdown.Item>
-            <Dropdown.Item eventKey={"PRAD"} style={{fontSize: 12, margin: 1, padding: 1}}>
-            {"Primary Prostate Cancer (TCGA)"}
-            </Dropdown.Item>
+      {props.children}
     </Dropdown>
   </div>);
 }
@@ -160,10 +165,10 @@ function Splash() {
                   <table class="splash_table" style={{width: "100%", height: "90%", textAlign: "center", backgroundColor: "#ebf2f5"}}>
                     <SplashHeader column1="Metric" column2="Value"></SplashHeader>
                     <SplashRow rowType="odd" column1="Cancers" column2="24"></SplashRow>
-                    <SplashRow rowType="even" column1="Events" column2="1000000"></SplashRow>
-                    <SplashRow rowType="odd" column1="Patients" column2="20000"></SplashRow>
-                    <SplashRow rowType="even" column1="Metadata Fields" column2="2031"></SplashRow>
-                    <SplashRow rowType="odd" column1="Splicing Signatures" column2="3120"></SplashRow>
+                    <SplashRow rowType="even" column1="Events" column2="515469"></SplashRow>
+                    <SplashRow rowType="odd" column1="Patients" column2="9281"></SplashRow>
+                    <SplashRow rowType="even" column1="Metadata Fields" column2="666"></SplashRow>
+                    <SplashRow rowType="odd" column1="Splicing Signatures" column2="504"></SplashRow>
                   </table>
                 </div>
             </SplashDiv>
@@ -180,7 +185,10 @@ function Splash() {
                           <span style={{display: "inline-block", textAlign: "center", width: "80%"}}>
                           <h5 style={{float: "left"}}>Heatmap View</h5>
                           </span>
-                          <DropdownSet title={"Cancer Type"}></DropdownSet>
+                          <DropdownSet title={"Cancer Type"}>
+                            <DropdownCancers>
+                            </DropdownCancers>
+                          </DropdownSet>
                           <DropdownSet title={"Samples"}></DropdownSet>
                           <DropdownSet title={"Signature"}></DropdownSet>
                         </div>
@@ -192,7 +200,7 @@ function Splash() {
                           <span style={{display: "inline-block", textAlign: "center", width: "80%"}}>
                           <h5 style={{float: "left"}}>Pancancer View</h5>
                           </span>
-                          <DropdownSet title={"Cancer Type"}></DropdownSet>
+                          <DropdownSet title={"Cancer Type"}><DropdownCancers></DropdownCancers></DropdownSet>
                           <DropdownSet title={"Signature"}></DropdownSet>
                         </div>
                       </div>

@@ -440,6 +440,7 @@ function Header({setViewPane, setPanCancerState}){
                 size="xs"
                 trigger = "hover">
                 <HayDropdown eventKey="BLCA" displayName="Bladder Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="CESC" displayName="NON (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="PCPG" displayName="Pheochromocytoma and paraganglioma (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="PRAD" displayName="Primary Prostate Cancer (TCGA)"></HayDropdown>
         </Dropdown>

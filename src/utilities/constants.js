@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-
+import { Nav, Dropdown, Button, ButtonToolbar, IconButton} from "rsuite";
 export const isBuild = process.env.NODE_ENV === "build";
 export const global_colors = ["#0096FF", "#fffb00", "#FF7F7F", "#44D62C", "#9300c4", "#f78000", "#828282", "#32a852", "#8e7be3", "#e6b035",
 "#b5109f", "#8bab59", "#782b51", "#366fd9", "#f0b3ff", "#5d1ca3", "#d94907", "#32a8a6", "#ada50c", "#bf1b28", "#0000b3", "#ffc61a", "#336600"];
@@ -105,7 +105,81 @@ export const rootTableColumnGeneObj = [
     }
 ]
 
-
+export function DropdownCancers(props){
+  return(
+    <>
+      <Dropdown.Item eventKey={"BLCA"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Bladder Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"BRCA"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Breast Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"CESC"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Cervical Squamous Cell Carcinoma (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"COAD"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Colon Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"ESCA"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Esophageal Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"GBM"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Glioblastoma (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"HNSC"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Head and Neck Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"KICH"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Kidney Chromophobe (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"KIRC"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Kidney Renal Clear Cell Carcinoma (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"LGG"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Low-Grade Gliomas (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"LIHC"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Liver Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"LUAD"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Lung Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"OV"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Ovarian Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"PAAD"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Pancreatic Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"PCPG"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Pheochromocytoma and paraganglioma (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"PRAD"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Primary Prostate Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"READ"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Rectal Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"SARC"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Bone and Connective Tissue Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"SKCM"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Skin Cancer (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"STAD"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Stomach Adenocarcinoma (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"TGCT"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Tenosynovial Giant Cell Tumors (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"THCA"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Thyroid Carcinoma (TCGA)"}
+      </Dropdown.Item>
+      <Dropdown.Item eventKey={"UCEC"} style={{fontSize: 12, margin: 1, padding: 1}}>
+      {"Uterine Serous Cancer (TCGA)"}
+      </Dropdown.Item>
+    </>
+  );
+}
 
 export const BLCA_vals = {
     "psi_r3_v10_vs_others": 40,
@@ -129,6 +203,8 @@ export const BLCA_vals = {
     "psi_r1_v7_vs_others": 1594,
     "psi_r1_v1_vs_others": 736
 }
+
+
 
 export const tableStyledDiv = styled.div`
 padding: 1rem;
