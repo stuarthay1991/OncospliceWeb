@@ -213,7 +213,8 @@ function makeLinkOuts(chrm, c1, c2, c3, c4){
 
 }
 
-function updateOkmapTable(data){
+function updateOkmapTable(data, okmapTable, setOkmapTable){
+  //console.log(data);
   var chrm = data["chromosome"];
   var newcoord = chrm == undefined ? oldLinkOuts(data["coordinates"]) : makeLinkOuts(chrm, data["coord1"], data["coord2"], data["coord3"], data["coord4"]);
   var new_row = [
@@ -223,9 +224,8 @@ function updateOkmapTable(data){
   createData("Coordinates", newcoord),
   createData("Event Annotation", data["eventannotation"]),
   ];
-  this.setState({
-    curAnnots: new_row
-  });
+  //console.log("new_row", new_row);
+  setOkmapTable({curAnnots: new_row});
 }
 
 function updateOkmapLabel(data){
@@ -293,26 +293,24 @@ function FilterHeatmapSelect(props) {
 class Stats extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      curAnnots: rows
-    };
-    updateOkmapTable = updateOkmapTable.bind(this)
+    //updateOkmapTable = updateOkmapTable.bind(this)
   }
 
   render()
   {
-
+    //console.log("this.state", this.props.okmapTable.curAnnots);
+    //if(this.props)
     return(
-    <div>
-    <SpcInputLabel label={"Event Annotations"}/>
-    <div>
-    <Box borderColor="#dbdbdb" {...boxProps}>
-      <div id="STATS_0">
-        <CustomizedTables contents={this.state.curAnnots}/>
+      <div>
+      <SpcInputLabel label={"Event Annotations"}/>
+      <div>
+      <Box borderColor="#dbdbdb" {...boxProps}>
+        <div id="STATS_0">
+          <CustomizedTables contents={this.props.okmapTable.curAnnots}/>
+        </div>
+      </Box>
       </div>
-    </Box>
-    </div>
-    </div>
+      </div>
     );
   }
 
@@ -383,7 +381,9 @@ class Heatmap extends React.Component {
                 filterState={this.props.filterState}
                 setFilterState={this.props.setFilterState}
                 plotUIDstate={this.props.plotUIDstate}
-                setPlotUIDstate={this.props.setPlotUIDstate}>
+                setPlotUIDstate={this.props.setPlotUIDstate}
+                okmapTable={this.props.okmapTable}
+                setOkmapTable={this.props.setOkmapTable}>
                 </OKMAP>,
       label: <OKMAP_LABEL
                 target_div_id={"HEATMAP_LABEL"}
@@ -568,6 +568,7 @@ class OKMAP_LABEL extends React.Component {
     var legend_x = 0;
     var maxcharlen = 0;
     const maxchardef = 13;
+    console.log("retcols", retcols);
     for(var p = 0; p < retcols["set"].length; p++)
     {
       if(p != 0 && p % 4 == 0)
@@ -680,6 +681,7 @@ class OKMAP_LABEL extends React.Component {
       tempnode.innerHTML = "";
       this.baseSVG("100%", 100);
       this.writeBase(this.props.column_names, 100, this.props.xscale);
+      console.log("CDU this.state.retcols", this.state.retcols);
       if(this.state.retcols != "NULL")
       {
         this.writeBlocks(this.state.retcols, this.props.xscale, this.props.column_names);
@@ -704,6 +706,7 @@ class OKMAP_LABEL extends React.Component {
     tempnode.innerHTML = "";
     this.baseSVG("100%", 100);
     this.writeBase(this.props.column_names, 100, this.props.xscale);
+    console.log("this.state.retcols", this.state.retcols);
     if(this.state.retcols != "NULL")
     {
       this.writeBlocks(this.state.retcols, this.props.xscale, this.props.column_names);
@@ -890,7 +893,7 @@ class OKMAP extends React.Component {
       .style('fill', 'black')
       .text(converteduid)
       .on("click", function(){
-          updateOkmapTable(data);
+          updateOkmapTable(data, parent.props.okmapTable, parent.props.setOkmapTable);
           parent.props.setSelectionState({selection: data["uid"]});
           gtexSend(data["examined_junction"], parent.props.setGtexState, parent.props.gtexState);
           var toex = data["examined_junction"].split(":");
@@ -908,7 +911,7 @@ class OKMAP extends React.Component {
     if(iterationNumber == 0)
     {
       //console.log("Matched: ", iterationNumber, data["uid"]);
-      updateOkmapTable(data);
+      updateOkmapTable(data, parent.props.okmapTable, parent.props.setOkmapTable);
       parent.props.setSelectionState({selection: data["uid"]});
       gtexSend(data["examined_junction"], parent.props.setGtexState, parent.props.gtexState);
       var toex = data["examined_junction"].split(":");
@@ -1167,10 +1170,14 @@ function ViewPanel(props) {
       downscale: 1
   });
 
+  var okmapTableStartingData = [createData('-none selected-', '-none selected-')];
+  
+
   const [selectionState, setSelectionState] = React.useState({selection: null});
   const [filterState, setFilterState] = React.useState({filters: null, filterset: null});
   const [plotUIDstate, setPlotUIDstate] = React.useState({fulldat: null});
-
+  const [okmapTable, setOkmapTable] = React.useState({curAnnots: okmapTableStartingData});
+  //console.log("okmaptable", okmapTable);
   const [gtexState, setGtexState] = React.useState({gtexPlot: null});
   const [okmapLabelState, setOkmapLabelState] = React.useState({okmapLabel: null});
 
@@ -1208,15 +1215,15 @@ function ViewPanel(props) {
   }
 
   var panel_A = {
-    width: 0.690 * available_width,
+    width: 0.680 * available_width,
     height: 0.6 * available_height,
-    minWidth: 0.699 * available_width,
+    minWidth: 0.680 * available_width,
     minHeight: 0.3 * available_height,
     maxWidth:  0.809 * available_width,
     maxHeight: 0.8 * available_height
   }
   var panel_B = {
-    width: 0.296 * available_width,
+    width: 0.286 * available_width,
     height: 0.6 * available_height,
     minWidth: 0.148 * available_width,
     minHeight: 0.3 * available_height,
@@ -1259,7 +1266,10 @@ function ViewPanel(props) {
           filterState={filterState}
           setFilterState={setFilterState}
           plotUIDstate={plotUIDstate}
-          setPlotUIDstate={setPlotUIDstate} />
+          setPlotUIDstate={setPlotUIDstate}
+          okmapTable={okmapTable}
+          setOkmapTable={setOkmapTable}
+          />
       </ResizableBox>
 
       <ResizableBox
@@ -1275,7 +1285,7 @@ function ViewPanel(props) {
         <PlotPanel plotLabel={"HierarchyClusters"} inputType={"hierarchical"}>{plotobj2}</PlotPanel>
         <PlotPanel plotLabel={"Filters"} inputType={"samplefilter"}>{plotobj3}</PlotPanel>
         <PlotPanel plotLabel={"GTEX"} inputType={"gtex"}>{plotobj4}</PlotPanel>
-        <Stats></Stats>
+        <Stats okmapTable={okmapTable}></Stats>
         <SetExonPlot exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></SetExonPlot>
         </div>
       </ResizableBox>
@@ -1364,7 +1374,9 @@ function ViewPanel_Main(props) {
         filterState={props.filterState}
         setFilterState={props.setFilterState}
         plotUIDstate={props.plotUIDstate}
-        setPlotUIDstate={props.setPlotUIDstate}>
+        setPlotUIDstate={props.setPlotUIDstate}
+        okmapTable={props.okmapTable}
+        setOkmapTable={props.setOkmapTable}>
       </Heatmap>
       </div>
     </div>

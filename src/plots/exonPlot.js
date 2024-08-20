@@ -284,7 +284,7 @@ class EXON_PLOT extends React.Component {
               var temp_y = pretg["_groups"][0][0]["attributes"]["y"]["nodeValue"];
               //parent.tempTextAdd(gmos, temp_x, temp_y, pip);
               parent.tempOnHover(temp_x, temp_y, [current_unit["name"], hard_start, hard_stop, hard_width_string], "add")
-              })
+          })
           .on("mouseout", function(d) {
               //parent.tempTextRemove();
               var pretg = d3.select(this);
@@ -535,7 +535,7 @@ class EXON_PLOT extends React.Component {
     var juncpointset = [];
     var juncpointset8 = [];
     var juncpointset12 = [];
-    //console.log("coordinates_", in_data);
+    //console.log("coordinates_", junc_input);
     for(var i = 0; i < junc_input.length; i++)
     {
       try {
@@ -650,37 +650,45 @@ class EXON_PLOT extends React.Component {
         juncpointset12.push(t_x_s);
       }
       var finy = (65 - y_adj);
-      this.SVG_main_group.append('path')
-        .attr('d', curve(points))
-        .attr('stroke', junction_color)
-        .attr('id', cur_junc.concat(addon_id).concat("_path_global_id"))
-        // with multiple points defined, if you leave out fill:none,
-        // the overlapping space defined by the points is filled with
-        // the default value of 'black'
-        .attr('fill', 'none');
+      var cpj_id = cur_junc.concat(addon_id).concat("_global_id")
+      if(document.getElementById(cpj_id) == null)
+      {
+        this.SVG_main_group.append('path')
+          .attr('d', curve(points))
+          .attr('stroke', junction_color)
+          .attr('id', cur_junc.concat(addon_id).concat("_path_global_id"))
+          // with multiple points defined, if you leave out fill:none,
+          // the overlapping space defined by the points is filled with
+          // the default value of 'black'
+          .attr('fill', 'none');
+      }
 
-      var burger = this.SVG_main_group.append('circle')
-        .attr('cx', t_x_s)
-        .attr('cy', finy)
-        .attr('r', 5)
-        .attr('id', cur_junc.concat(addon_id).concat("_global_id"))
-        .style('fill', circle_color)
-        .on("mouseover", function() {
-              var pretg = d3.select(this);
-              var temp_x = pretg["_groups"][0][0]["attributes"]["cx"]["nodeValue"];
-              var temp_y = pretg["_groups"][0][0]["attributes"]["cy"]["nodeValue"];
-              parent.tempCircleAdd("add", temp_x, temp_y)
-              parent.tempBorderHighlight("add", get_1, get_2, gmos_1, gmos_2)
-              parent.tempOnHover(temp_x, temp_y, [cur_junc, junclength], "add")
-            })
-        .on("mouseout", function(d) {
-              var pretg = d3.select(this);
-              var temp_x = pretg["_groups"][0][0]["attributes"]["cx"]["nodeValue"];
-              var temp_y = pretg["_groups"][0][0]["attributes"]["cy"]["nodeValue"];
-              parent.tempCircleAdd("remove", (cur_junc.concat("_global_id")))
-              parent.tempBorderHighlight("remove", get_1, get_2, gmos_1, gmos_2)
-              parent.tempOnHover(temp_x, temp_y, [cur_junc, junclength], "remove")
-        });
+      var cj_id = cur_junc.concat(addon_id).concat("_global_id")
+      if(document.getElementById(cj_id) == null)
+      {
+        var burger = this.SVG_main_group.append('circle')
+          .attr('cx', t_x_s)
+          .attr('cy', finy)
+          .attr('r', 5)
+          .attr('id', cur_junc.concat(addon_id).concat("_global_id"))
+          .style('fill', circle_color)
+          .on("mouseover", function() {
+                var pretg = d3.select(this);
+                var temp_x = pretg["_groups"][0][0]["attributes"]["cx"]["nodeValue"];
+                var temp_y = pretg["_groups"][0][0]["attributes"]["cy"]["nodeValue"];
+                parent.tempCircleAdd("add", temp_x, temp_y)
+                parent.tempBorderHighlight("add", get_1, get_2, gmos_1, gmos_2)
+                parent.tempOnHover(temp_x, temp_y, [cur_junc, junclength], "add")
+          })
+          .on("mouseout", function(d) {
+                var pretg = d3.select(this);
+                var temp_x = pretg["_groups"][0][0]["attributes"]["cx"]["nodeValue"];
+                var temp_y = pretg["_groups"][0][0]["attributes"]["cy"]["nodeValue"];
+                parent.tempCircleAdd("remove", (cur_junc.concat("_global_id")))
+                parent.tempBorderHighlight("remove", get_1, get_2, gmos_1, gmos_2)
+                parent.tempOnHover(temp_x, temp_y, [cur_junc, junclength], "remove")
+          });
+        }
       }
       catch (error) {
         //console.log("ERROR:", error);
@@ -692,7 +700,7 @@ class EXON_PLOT extends React.Component {
 
   writeExons(exon_input, retained_introns)
   {
-    console.log("Wet noodle", exon_input);
+    //console.log("Wet noodle", exon_input);
     var parent = this;
     var starting_point = exon_input[0]["start"];
     var scale_exon_stop = 0;
@@ -998,10 +1006,10 @@ class EXON_PLOT extends React.Component {
     while (tempnode.firstChild) {
         tempnode.removeChild(tempnode.firstChild);
     }
-    //console.log("in exon plot", this.state.gene_specific_data);
     //console.log("TRANSCRIPT LIST: ", this.state.transcripts);
     if(this.state.exons != null && this.state.transcripts != null && this.state.junctions != null)
     {
+      console.log("in exon plot", this.state.gene_specific_data);
       var ysim = 110;
       for (const [key, value] of Object.entries(this.state.transcripts))
       {
@@ -1011,7 +1019,7 @@ class EXON_PLOT extends React.Component {
       this.baseSVG(2000, ysim);
       this.writeBase(ysim);
       var sorted_exons = this.state.exons.sort((a, b)=>{return Number(a["start"])-Number(b["start"])})
-      console.log("sorted_exons", this.state);
+      //console.log("sorted_exons", this.state);
       var retainedIntrons = this.findRetainedIntrons(this.state.gene_specific_data);
       //console.log("retained Introns", retainedIntrons);
       this.writeExons(sorted_exons, retainedIntrons);

@@ -36,7 +36,7 @@ const tableStyles = makeStyles({
 
 function CustomizedTables(props) {
   const classes = tableStyles();
-
+  console.log("CustomizedTables", props);
   return (
     <div>
     <TableContainer component={Paper}>

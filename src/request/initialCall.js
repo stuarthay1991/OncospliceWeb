@@ -3,7 +3,7 @@ import { isBuild } from '../utilities/constants.js';
 
 var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
 
-function updateHeatmapData(arg, targeturl)
+function initalCall(arg, targeturl)
 {
     console.log("arg", arg);
     const postData = {};
@@ -68,7 +68,6 @@ function updateHeatmapData(arg, targeturl)
           alert("no entries found!");
         }
     })
-
 }
 
 function sampleUiRefresh(cancerType, heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, callback, prevPostData, pancancercallback)
@@ -93,10 +92,37 @@ function sampleUiRefresh(cancerType, heatmapMatrix, sampleNames, hierarchicalClu
       //document.getElementById("HEATMAP_ROW_LABEL").style.opacity = 1;
       //document.getElementById("heatmapLoadingDiv").style.display = "none";
       //console.log("updating view panel with: ", cancerType, heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, prevPostData)
-      callback(heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView);
-      pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": cancerType, "uniqueGenesPerSignature": response["data"]["pancancerGeneCount"]});
+      updateSignature(heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, callback);
+      //pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": cancerType, "uniqueGenesPerSignature": response["data"]["pancancerGeneCount"]});
     })
-
 }
 
-export default updateHeatmapData;
+function updateSignature(heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, callback)
+{
+  const export_dict = {};
+  const cancername = arg["cancerType"];
+  const callbackForSignatureList = arg["callbackOne"];
+  const callbackForSelectedSignature = arg["callbackTwo"];
+  //console.log("updateSignature_1", callbackOne);
+  var postdata = {"data": cancername};
+  axios({
+        method: "post",
+        url: routeurl.concat("/api/datasets/signatures"),
+        data: postdata,
+        headers: { "Content-Type": "application/json" },
+    })
+  .then(function (response) 
+  {
+      console.log("CALLBACK RESPONSE", response);
+      //console.log("cancername", cancername);
+      //console.log("updateHeatmapArgs", args["updateHeatmapArgs"]);
+      let sigTranslateVar = response["data"]["signatureTranslate"];
+      let firstEntry = Object.keys(response["data"]["signatureTranslate"])[0];
+      let simpleNameVar = sigTranslateVar[firstEntry];
+      //callbackForSignatureList(response["data"]["signatureTranslate"]);
+      var responseSignatureList = response["data"]["signatureTranslate"];
+      callback(heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, responseSignatureList)
+  });
+}
+
+export default initalCall;

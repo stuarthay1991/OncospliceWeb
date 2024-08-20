@@ -45,15 +45,15 @@ function App() {
     //MainPane is the component which controls everything below the header; 99% of this web application's content falls under it.
     //For further information, please see "MainPane" component.
     <Router>
-    <div style={{ marginLeft: 25, marginRight: 25, fontFamily: 'Roboto' }}>
+    <div style={{ marginLeft: 10, marginRight: 10, fontFamily: 'Roboto' }}>
     <Helmet>
       <script src="https://d3js.org/d3.v5.js" type="text/javascript" />
     </Helmet>
     <TopNav />
     <Switch>
-      <Redirect exact from={routeurl} to={routeurl.concat("/splash")} />
+      <Redirect exact from={routeurl} to={routeurl.concat("/explore")} />
       <Route exact path={routeurl.concat("/:page?")} render={props => <MainPanel {...props} addPage={onAddPage} pagelist={pages}/>} />
-      <Route exact path={routeurl.concat("/:page?/:options?")} render={props => <MainPanel {...props} addPage={onAddPage} pagelist={pages}/>} />
+      <Route exact path={routeurl.concat("/:page?/:options?/:signature?/:simple?")} render={props => <MainPanel {...props} addPage={onAddPage} pagelist={pages}/>} />
     </Switch>
     </div>
     </Router>

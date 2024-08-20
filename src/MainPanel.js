@@ -56,8 +56,10 @@ function MainPanel(props){
   //What is crucial here is the item "page." This contains the appendage to the base url that dictates what part of the website to view.
   const { match, history } = props;
   const { params } = match;
-  const { page } = params;
+  const { page, options, signature, simple } = params;
 
+  console.log("cancer_address", options);
+  console.log("signature_address", signature);
   //Each time the user selects an option, it is recorded in the "pagelist" cache variable which is not used now, but could be useful later.
   props.addPage(page);
 
@@ -177,16 +179,23 @@ function MainPanel(props){
     }
   }, [mpstate.viewpaneobj])*/
 
+  //
+
   if(props.pagelist.length <= 1 && page == "explore")
   {
     var args = {};
     var functionpointer = makeRequest;
     args["setState"] = setViewPane;
     args["pancancerupdate"] = setPanCancerState;
-    args["export"] = {};
-    args["cancer"] = "BLCA";
+    args["exportView"] = {};
+    args["cancerType"] = options;
+    args["comparedCancer"] = options;
+    args["oncocluster"] = [simple];
+    args["eventType"] = "Signature";
+    args["signature"] = [signature];
+    args["callback"] = setViewPane;
     args["doc"] = document;
-    makeRequest("defaultQuery", args);
+    makeRequest("updateHeatmapData", args);
   }
 
   var displayvalue1 = "block";
@@ -197,12 +206,15 @@ function MainPanel(props){
   /*      <div style={{float: "right"}}>
           <Authentication updateQH={updateQH}/>
         </div>*/
+  //The below line goes under "pancancerpanel"
+  //<PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer} geneCount={panCancerState.uniqueGenesPerSignature}/>
+  //
   return (
     <div className={classes.root} style={{ fontFamily: 'Roboto'}}>
-      <div id="navBarHolder" className={classes.demo2} style={{display: "none"}}>
+      <div id="navBarHolder" className={classes.demo2}>
         <div className={classes.tabholder}>
         <div>
-          <Header setViewPane={setViewPane} setPanCancerState={setPanCancerState}/>
+          <Header setViewPane={setViewPane} setPanCancerState={setPanCancerState} startingCancer={options} startingSignature={signature} startingSimple={simple}/>
         </div>
         </div>
       </div>
@@ -213,7 +225,7 @@ function MainPanel(props){
         <Splash />
       </div>
       <div id="pancancerpanel" style={{display: "none"}}>
-        <PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer} geneCount={panCancerState.uniqueGenesPerSignature}/>
+      
       </div>
       <div id="aboutpanel" style={{display: "none", backgroundColor: "#0f6a8b"}}>
         <AboutUs />

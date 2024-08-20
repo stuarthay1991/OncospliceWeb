@@ -67,22 +67,22 @@ function HayDropdown(props){
   );
 }
 
-function Header({setViewPane, setPanCancerState}){
+function Header({setViewPane, setPanCancerState, startingCancer, startingSignature, startingSimple}){
     //Heatmap Data State
     //Make request on change
-    const [cancerTypeState, setCancerTypeState] = React.useState({"cancerType": "BLCA", "initialized": false});
+    const [cancerTypeState, setCancerTypeState] = React.useState({"cancerType": startingCancer, "initialized": false});
     const [sampleState, setSampleState] = React.useState();
     const [sampleListState, setSampleListState] = React.useState(jsonBLCA);
     const [sampleOptions, setSampleOptions] = React.useState({"key": undefined, "options": []});
 
-    const [signatureState, setSignatureState] = React.useState({"signature": "psi_r1_v7_vs_others", "simpleName": "R1-V7", "oncocluster": "R1-V7", "initialized": false});
+    const [signatureState, setSignatureState] = React.useState({"signature": startingSignature, "simpleName": startingSimple, "oncocluster": startingSimple, "initialized": false});
     const [coordState, setCoordState] = React.useState();
     const [geneState, setGeneState] = React.useState();
     const [pageTypeState, setPageTypeState] = React.useState({"value": "Individual Signatures", "initialized": false})
 
     //signatureState, setSignatureState
 
-    const [cancerSignatureGroupState, setCancerSignatureGroupState] = React.useState({"cancerType": "BLCA", "initialized": false});
+    const [cancerSignatureGroupState, setCancerSignatureGroupState] = React.useState({"cancerType": startingCancer, "initialized": false});
     const [signatureListState, setSignatureListState] = React.useState(jsonBLCAsignature);
     const [eventFontState, setEventFontState] = React.useState({"sigFontColor": "blue","coordFontColor": "grey","geneFontColor": "grey"})
 
@@ -385,8 +385,29 @@ function Header({setViewPane, setPanCancerState}){
         size="xs"
         trigger = "hover">
                 <HayDropdown eventKey="BLCA" displayName="Bladder Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="BRCA" displayName="Breast Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="CESC" displayName="Cervical Squamous Cell Carcinoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="COAD" displayName="Colon Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="ESCA" displayName="Esophageal Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="GBM" displayName="Glioblastoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="HNSC" displayName="Head and Neck Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="KICH" displayName="Kidney Chromophobe (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="KIRC" displayName="Kidney Renal Clear Cell Carcinoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="LGG" displayName="Low-Grade Gliomas (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="LIHC" displayName="Liver Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="LUAD" displayName="Lung Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="OV" displayName="Ovarian Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="PAAD" displayName="Pancreatic Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="PCPG" displayName="Pheochromocytoma and paraganglioma (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="PRAD" displayName="Primary Prostate Cancer (TCGA)"></HayDropdown></Dropdown>
+                <HayDropdown eventKey="PRAD" displayName="Primary Prostate Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="READ" displayName="Rectal Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="SARC" displayName="Bone and Connective Tissue Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="SKCM" displayName="Skin Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="STAD" displayName="Stomach Adenocarcinoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="TGCT" displayName="Tenosynovial Giant Cell Tumors (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="THCA" displayName="Thyroid Carcinoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="UCEC" displayName="Uterine Serous Cancer (TCGA)"></HayDropdown>
+                </Dropdown>
         <br/>
         <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerTypeState.cancerType}</strong></div>
         </Grid>
@@ -440,9 +461,28 @@ function Header({setViewPane, setPanCancerState}){
                 size="xs"
                 trigger = "hover">
                 <HayDropdown eventKey="BLCA" displayName="Bladder Cancer (TCGA)"></HayDropdown>
-                <HayDropdown eventKey="CESC" displayName="NON (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="BRCA" displayName="Breast Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="CESC" displayName="Cervical Squamous Cell Carcinoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="COAD" displayName="Colon Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="ESCA" displayName="Esophageal Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="GBM" displayName="Glioblastoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="HNSC" displayName="Head and Neck Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="KICH" displayName="Kidney Chromophobe (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="KIRC" displayName="Kidney Renal Clear Cell Carcinoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="LGG" displayName="Low-Grade Gliomas (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="LIHC" displayName="Liver Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="LUAD" displayName="Lung Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="OV" displayName="Ovarian Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="PAAD" displayName="Pancreatic Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="PCPG" displayName="Pheochromocytoma and paraganglioma (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="PRAD" displayName="Primary Prostate Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="READ" displayName="Rectal Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="SARC" displayName="Bone and Connective Tissue Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="SKCM" displayName="Skin Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="STAD" displayName="Stomach Adenocarcinoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="TGCT" displayName="Tenosynovial Giant Cell Tumors (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="THCA" displayName="Thyroid Carcinoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="UCEC" displayName="Uterine Serous Cancer (TCGA)"></HayDropdown>
         </Dropdown>
         <br/>
         <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerSignatureGroupState.cancerType}</strong></div>
