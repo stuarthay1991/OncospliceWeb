@@ -70,6 +70,7 @@ var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=de
 var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
 
 function metarepost(name, setFilterState) {
+  console.log("metarepost set", name, setFilterState);
   var bodyFormData = new FormData();
   if(name != "age range")
   {
@@ -90,6 +91,7 @@ function metarepost(name, setFilterState) {
   })
     .then(function (response) {
       var ret = response["data"];
+      console.log("metarepost response data", ret);
       updateOkmapLabel(ret);
       setFilterState({filters: ret["out"], filterset: ret["set"]});
     })
@@ -497,7 +499,7 @@ class OKMAP_LABEL extends React.Component {
     this.state = {
       retcols: "NULL"
     };
-    updateOkmapLabel = updateOkmapLabel.bind(this)
+    updateOkmapLabel = updateOkmapLabel.bind(this);
   }
 
   baseSVG(w="120%", h="100%")
@@ -568,7 +570,7 @@ class OKMAP_LABEL extends React.Component {
     var legend_x = 0;
     var maxcharlen = 0;
     const maxchardef = 13;
-    console.log("retcols", retcols);
+    console.log("Legend Column names", retcols);
     for(var p = 0; p < retcols["set"].length; p++)
     {
       if(p != 0 && p % 4 == 0)
@@ -674,6 +676,7 @@ class OKMAP_LABEL extends React.Component {
   }
 
   componentDidUpdate (prevProps){
+    //console.log("1 this.props.column_names", this.props.column_names, prevProps.column_names)
     if(this.props.column_names !== prevProps.column_names)
     {
       var retval = null;
@@ -681,7 +684,7 @@ class OKMAP_LABEL extends React.Component {
       tempnode.innerHTML = "";
       this.baseSVG("100%", 100);
       this.writeBase(this.props.column_names, 100, this.props.xscale);
-      console.log("CDU this.state.retcols", this.state.retcols);
+      //console.log("CDU this.state.retcols", this.state.retcols);
       if(this.state.retcols != "NULL")
       {
         this.writeBlocks(this.state.retcols, this.props.xscale, this.props.column_names);
@@ -697,6 +700,7 @@ class OKMAP_LABEL extends React.Component {
   componentDidMount() {
     this.baseSVG("100%", 20);
     this.writeBase(20);
+    console.log("gufd", Object.entries(global_uifielddict)[0][0]);
     metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState);
   }
 
@@ -706,7 +710,13 @@ class OKMAP_LABEL extends React.Component {
     tempnode.innerHTML = "";
     this.baseSVG("100%", 100);
     this.writeBase(this.props.column_names, 100, this.props.xscale);
+    //console.log("3 this.props.column_names", this.props.column_names);
     console.log("this.state.retcols", this.state.retcols);
+    if(this.state.retcols == "NULL")
+    {
+      console.log("global_uifielddict", Object.entries(global_uifielddict)[0][0]);
+      metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState);
+    }
     if(this.state.retcols != "NULL")
     {
       this.writeBlocks(this.state.retcols, this.props.xscale, this.props.column_names);

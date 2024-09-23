@@ -48,6 +48,9 @@ class OKMAP_OncospliceClusters extends React.Component {
   {
     var x_pointer = 0;
     var ikg = [];
+    //console.log("refcols", refcols);
+    var refcols = refcols.map(item => item.slice(0, -4));
+    //console.log("writecols", writecols);
     for(var p = 0; p < refcols.length; p++)
     {
       var rect_length = (1 * xscale);
