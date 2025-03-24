@@ -13,6 +13,7 @@ import targeturl from './targeturl.js';
 import LockIcon from '@material-ui/icons/Lock';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Splash from './Splash.js';
+import TablePanel from './TablePanel.js';
 
 import './App.css';
 import Header from './components/NavBarDropdown.js';
@@ -56,7 +57,7 @@ function MainPanel(props){
   //What is crucial here is the item "page." This contains the appendage to the base url that dictates what part of the website to view.
   const { match, history } = props;
   const { params } = match;
-  const { page, options, signature, simple } = params;
+  const { page, options, signature, simple, gene, coord } = params;
 
   console.log("cancer_address", options);
   console.log("signature_address", signature);
@@ -67,13 +68,13 @@ function MainPanel(props){
   const tabNameToIndex = {
     0: "splash",
     1: "explore",
-    2: "history"
+    2: "table"
   };
 
   const indexToTabName = {
     splash: 0,
     explore: 1,
-    history: 2
+    table: 2
   };
 
   //This is crucial. The purpose of this state object is to pass the correct information to rebuild the page exactly as it was in the cache. It is currently
@@ -92,6 +93,9 @@ function MainPanel(props){
       data: []
     }
   });
+
+  const [signatureListState, setSignatureListState] = React.useState({"None": "None"});
+  const [sampleListState, setSampleListState] = React.useState({"None": ["None"]});
 
   if(process.env.NODE_ENV == "build")
   {
@@ -181,6 +185,13 @@ function MainPanel(props){
 
   //
 
+  /*const setG = () => {
+
+  }*/
+
+  console.log(params, props.pagelist, "params");
+  var setCoord = undefined;
+  var setGene = undefined;
   if(props.pagelist.length <= 1 && page == "explore")
   {
     var args = {};
@@ -191,13 +202,36 @@ function MainPanel(props){
     args["cancerType"] = options;
     args["comparedCancer"] = options;
     args["oncocluster"] = [simple];
-    args["eventType"] = "Signature";
-    args["signature"] = [signature];
+    if(gene != "None"){
+      args["eventType"] = "Genes";
+      setGene = gene;
+      args["genes"] = [setGene];
+    }
+    else if(coord != "None"){
+      args["eventType"] = "Coordinates";
+      setCoord = coord.replace("-", ":");
+      args["coords"] = [setCoord];
+      //console.log("coordmexican", coord)
+    }
+    else{
+      args["eventType"] = "Signature";
+      //var signatureSend = signature.replace("_", " ");
+      args["signature"] = [signature];
+    }
     args["callback"] = setViewPane;
+    args["setSampleListState"] = setSampleListState;
     args["doc"] = document;
     makeRequest("updateHeatmapData", args);
-  }
 
+    var args2 = {};
+    args2["callback"] = setSignatureListState;
+    args2["cancerType"] = options;
+    makeRequest("updateSignatureGeneric", args2);
+  }
+  if(props.pagelist.length <= 1 && page == "table")
+  {
+    setCoord = coord.replace("-", ":");
+  }
   var displayvalue1 = "block";
   var displayvalue2 = "none";
   //This is the layout of the main pane in action.
@@ -214,7 +248,13 @@ function MainPanel(props){
       <div id="navBarHolder" className={classes.demo2}>
         <div className={classes.tabholder}>
         <div>
-          <Header setViewPane={setViewPane} setPanCancerState={setPanCancerState} startingCancer={options} startingSignature={signature} startingSimple={simple}/>
+          <Header setViewPane={setViewPane} 
+          setPanCancerState={setPanCancerState} 
+          startingCancer={options} 
+          startingSignaureList={signatureListState} 
+          startingSampleList={sampleListState}
+          startingSignature={signature} 
+          startingSimple={simple}/>
         </div>
         </div>
       </div>
@@ -223,6 +263,13 @@ function MainPanel(props){
       </div>
       <div id="splashpanel" style={{display: mpstate.value === 0 ? displayvalue1 : displayvalue2}}>
         <Splash />
+      </div>
+      <div id="gtextablepanel" style={{display: mpstate.value === 2 ? displayvalue1 : displayvalue2}}>
+        {
+        page === 'table' && (
+        <TablePanel postedCancer={options} postedGene={gene} postedAnnotation={signature} postedCoord={setCoord}/>
+        )
+        }
       </div>
       <div id="pancancerpanel" style={{display: "none"}}>
       

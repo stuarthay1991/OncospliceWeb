@@ -67,12 +67,12 @@ function HayDropdown(props){
   );
 }
 
-function Header({setViewPane, setPanCancerState, startingCancer, startingSignature, startingSimple}){
+function Header({setViewPane, setPanCancerState, startingCancer, startingSignaureList, startingSampleList, startingSignature, startingSimple}){
     //Heatmap Data State
     //Make request on change
     const [cancerTypeState, setCancerTypeState] = React.useState({"cancerType": startingCancer, "initialized": false});
     const [sampleState, setSampleState] = React.useState();
-    const [sampleListState, setSampleListState] = React.useState(jsonBLCA);
+    const [sampleListState, setSampleListState] = React.useState(startingSampleList);
     const [sampleOptions, setSampleOptions] = React.useState({"key": undefined, "options": []});
 
     const [signatureState, setSignatureState] = React.useState({"signature": startingSignature, "simpleName": startingSimple, "oncocluster": startingSimple, "initialized": false});
@@ -83,7 +83,7 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignatu
     //signatureState, setSignatureState
 
     const [cancerSignatureGroupState, setCancerSignatureGroupState] = React.useState({"cancerType": startingCancer, "initialized": false});
-    const [signatureListState, setSignatureListState] = React.useState(jsonBLCAsignature);
+    const [signatureListState, setSignatureListState] = React.useState(startingSignaureList);
     const [eventFontState, setEventFontState] = React.useState({"sigFontColor": "blue","coordFontColor": "grey","geneFontColor": "grey"})
 
     const cancerSelectHandle = (e) => {
@@ -215,6 +215,22 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignatu
     const prevGeneState = useRef();
     const prevCancerTypeState = useRef();
     const prevSampleState = useRef();
+
+    React.useEffect(() => {
+        if(Object.keys(signatureListState)[0] == "None")
+        {
+          var args2 = {};
+          args2["callback"] = setSignatureListState;
+          args2["cancerType"] = cancerTypeState.cancerType;
+          makeRequest("updateSignatureGeneric", args2);
+        }
+    }, [])
+
+    //console.log("starting sample list", startingSampleList);
+    //console.log("starting sample list 2", Object.keys(sampleListState)[0], Object.keys(startingSampleList)[0]);
+    React.useEffect(() => {
+          setSampleListState(startingSampleList);
+    }, [startingSampleList])
 
     React.useEffect(() => {
         if(cancerTypeState.initialized == true || signatureState.initialized == true || coordState != undefined || geneState != undefined)
@@ -407,7 +423,7 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignatu
                 <HayDropdown eventKey="TGCT" displayName="Tenosynovial Giant Cell Tumors (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="THCA" displayName="Thyroid Carcinoma (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="UCEC" displayName="Uterine Serous Cancer (TCGA)"></HayDropdown>
-                </Dropdown>
+        </Dropdown>
         <br/>
         <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerTypeState.cancerType}</strong></div>
         </Grid>

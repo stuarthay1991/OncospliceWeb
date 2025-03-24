@@ -4,6 +4,75 @@ export const isBuild = process.env.NODE_ENV === "build";
 export const global_colors = ["#0096FF", "#fffb00", "#FF7F7F", "#44D62C", "#9300c4", "#f78000", "#828282", "#32a852", "#8e7be3", "#e6b035",
 "#b5109f", "#8bab59", "#782b51", "#366fd9", "#f0b3ff", "#5d1ca3", "#d94907", "#32a8a6", "#ada50c", "#bf1b28", "#0000b3", "#ffc61a", "#336600"];
 
+export const rootTableTableObj = [
+  {
+    Header: 'UID',
+    accessor: 'uid',
+    id: 'UID',
+  },
+  {
+    Header: 'Cancer',
+    accessor: 'cancer',
+    id: 'cancer',
+  },
+  {
+    Header: 'Event Annotation',
+    accessor: 'eventannotation',
+    id: 'eventannotation',
+  },
+  {
+    Header: 'OncoSplice Subtype',
+    accessor: 'datagroup',
+    id: 'datagroup',
+  },
+  {
+    Header: 'Annotation',
+    accessor: 'signature_name',
+    id: 'signature_name',
+  },
+  {
+    Header: 'dPSI',
+    accessor: 'dpsi',
+    id: 'dpsi',
+  },
+  {
+    Header: 'rawp',
+    accessor: 'rawp',
+    id: 'rawp',
+  },
+  {
+    Header: 'adjp',
+    accessor: 'adjp',
+    id: 'adjp',
+  },
+  {
+    Header: 'lrtp-Survival',
+    accessor: 'lrtp',
+    id: 'lrtp',
+  },
+  {
+    Header: 'zscore-Survival',
+    accessor: 'zscore',
+    id: 'zscore',
+  },
+  {
+    Header: 'browser',
+    accessor: 'browser',
+    id: 'browser',
+  },
+  {
+    Header: 'allevents',
+    accessor: 'allEvents',
+    id: 'allevents',
+  },
+  {
+    Header: 'ucsc',
+    accessor: 'ucsc',
+    id: 'ucsc',
+  }
+]
+
+
 export const rootTableColumnSpliceObj = [
     {
       Header: 'UID',
@@ -180,6 +249,33 @@ export function DropdownCancers(props){
     </>
   );
 }
+
+export const cancerValueToName = {
+  "blca": "Bladder Cancer (TCGA)",
+  "brca": "Breast Cancer (TCGA)",
+  "cesc": "Cervical Squamous Cell Carcinoma (TCGA)",
+  "coad": "Colon Cancer (TCGA)",
+  "esca": "Esophageal Cancer (TCGA)",
+  "gbm": "Glioblastoma (TCGA)",
+  "hnsc": "Head and Neck Cancer (TCGA)",
+  "kich": "Kidney Chromophobe (TCGA)",
+  "kirc": "Kidney Renal Clear Cell Carcinoma (TCGA)",
+  "lgg": "Low-Grade Gliomas (TCGA)",
+  "lihc": "Liver Cancer (TCGA)",
+  "luad": "Lung Cancer (TCGA)",
+  "ov": "Ovarian Cancer (TCGA)",
+  "paad": "Pancreatic Cancer (TCGA)",
+  "pcpg": "Pheochromocytoma and Paraganglioma (TCGA)",
+  "prad": "Primary Prostate Cancer (TCGA)",
+  "read": "Rectal Cancer (TCGA)",
+  "sarc": "Bone and Connective Tissue Cancer (TCGA)",
+  "skcm": "Skin Cancer (TCGA)",
+  "stad": "Stomach Adenocarcinoma (TCGA)",
+  "tgct": "Tenosynovial Giant Cell Tumors (TCGA)",
+  "thca": "Thyroid Carcinoma (TCGA)",
+  "ucec": "Uterine Serous Cancer (TCGA)",
+  "gtexpsi": "GTEX (Healthy Tissue)"
+};
 
 export const BLCA_vals = {
     "psi_r3_v10_vs_others": 40,

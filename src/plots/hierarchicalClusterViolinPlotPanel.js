@@ -60,7 +60,7 @@ function hierarchicalClusterViolinPlotPanel(selectedExpressionArray, selectedRow
 	    type: 'violin',
 	    mode: 'lines+markers',
 	    name: "Cluster 3",
-	    marker: {color: 'blue'},
+	    marker: {color: 'green'},
 	};
   }
 

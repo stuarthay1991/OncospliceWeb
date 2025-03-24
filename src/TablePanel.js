@@ -1,0 +1,182 @@
+
+import '@fontsource/roboto';
+import React from 'react';
+import MajorTable from './components/MajorTable.js';
+import MinorTable from './components/MinorTable.js';
+import {isBuild, rootTableColumnSpliceObj, rootTableColumnGeneObj, BLCA_vals, tableStyledDiv, rootTableTableObj, cancerValueToName} from './utilities/constants.js';
+import axios from 'axios';
+//import { isBuild } from './utilities/constants.js';
+
+var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+
+function stringSplit(uid)
+{
+    uid = uid.split(":");
+    var uid_secondcomp = uid[2];
+    uid_secondcomp = uid_secondcomp.split("|");
+    //var uid_final = uid[0].concat(":").concat(uid_secondcomp[0]).concat("|").concat(uid[3]);
+    var uid_final = uid[0].concat(":").concat(uid_secondcomp[0]);
+    return uid_final;
+}
+
+function setUpLinkForGenes(cancer, gene){
+    var url = "http://localhost:8080/app/explore/".concat(cancer).concat("/None/None").concat("/").concat(gene).concat("/").concat("None");
+    const hyperlinkObject = <a href={url} target="_blank">Go</a>;
+    return hyperlinkObject;
+}
+
+function setUpLinkForCoordinates(cancer, coord){
+    var [coord1, coord2] = coord.split("|");
+    var coord1 = coord1.replace(":", "-");
+    var url = "http://localhost:8080/app/explore/".concat(cancer).concat("/None/None/None/").concat(coord1);
+    const hyperlinkObject = <a href={url} target="_blank">Go</a>;
+    //console.log("coord1", coord1);
+    return hyperlinkObject;
+}
+
+function setUpLinkForUID(input){
+    //chr19:48249751-48241063|chr19:48249523-48241063
+    var [chr1, chr2] = input.split("|");
+    var [flatchr1, twor1_split] = chr1.split(":");
+    var [c1, c2] = twor1_split.split("-");
+    var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
+    const hyperlinkUidObject = <a href={link1.concat(flatchr1).concat("%3A").concat(c1).concat("%2D").concat(c2).concat("&hgsid=765996783_dwaxAIrKY42kyCWOzQ3yL51ATzgG")} target="_blank">Go</a>;
+    return hyperlinkUidObject;
+}
+
+function setUpSignature(input, cancer){
+    var splitString = input.split("_");
+    if(cancer != "gtexpsi")
+    {
+        var signatureName = splitString[1].concat("-").concat(splitString[2]);
+    }
+    else
+    {
+        var signatureName = splitString[1];
+    }
+    return signatureName;
+}
+
+function tablePlotRequest(cancerName, currentGene, currentCoord, currentAnnotation, type, pseudoPage, setTableState, newPageSize){
+    var type="initial";
+    var cancerName = cancerName;
+    var postedData = {"data": {"cancerName": cancerName, "currentGene": currentGene, "currentCoord": currentCoord, "currentAnnotation": currentAnnotation, "type": type, "pseudoPage": pseudoPage, "newPageSize": newPageSize}}
+    axios({
+      method: "post",
+      url: routeurl.concat("/api/datasets/updateminortable"),
+      data: postedData,
+      headers: { "Content-Type": "application/json" },
+        })
+        .then(function (response) {
+        var resp = response["data"];
+        //document.getElementById("tableLoadingDiv").style.display = "none";
+        //document.getElementById("rootTable").style.opacity = 1;
+        console.log("OUTPUTTT", type, resp);
+        var dataTemp = [];
+        for(let i = 0; i < resp.outputdata.length; i++)
+        {
+            let curpointer = resp.outputdata[i];
+            //console.log(curpointer)
+            var urlForGene = setUpLinkForGenes(curpointer["cancer"], curpointer["gene"]);
+            var urlForUID = setUpLinkForUID(curpointer["coordinates"]);
+            var urlForCoordinates = setUpLinkForCoordinates(curpointer["cancer"], curpointer["coordinates"]);
+            var signatureFixed = setUpSignature(curpointer["signature_name"], curpointer["cancer"]);
+            var coordinateFixed = curpointer["coordinates"].split("|");
+            if(curpointer["cancer"] != "gtexpsi")
+            {
+                var signatureSetUp = "None";
+                var datagroup = "";
+                if(resp.clusterAnnotationDictionary[curpointer["cancer"]][curpointer["signature_name"]] == undefined)
+                {
+                    signatureSetUp = "";
+                    datagroup = "";
+                }
+                else
+                {
+                    signatureSetUp = resp.clusterAnnotationDictionary[curpointer["cancer"]][curpointer["signature_name"]]["annotation"];
+                    datagroup = resp.clusterAnnotationDictionary[curpointer["cancer"]][curpointer["signature_name"]]["datagroup"];
+                    if(resp.clusterAnnotationDictionary[curpointer["cancer"]][curpointer["signature_name"]]["annotation"] == "NA")
+                    {
+                            signatureSetUp = "";
+                    }
+                }
+            }
+            else
+            {
+                var signatureSetUp = signatureFixed;
+                var datagroup = "GTEX";
+            }
+            //var urlForCoordinates = setUpLinkForCoordinates();
+            var newUid = stringSplit(curpointer["uid"]);
+            let curdat = {
+                uid: newUid,
+                //gene: curpointer["gene"],
+                cancer: cancerValueToName[curpointer["cancer"]],
+                //signature: signatureFixed,
+                eventannotation: curpointer["eventannotation"],
+                datagroup: datagroup,
+                signature_name: signatureSetUp,
+                dpsi: curpointer["dpsi"].slice(0, 6),
+                rawp: curpointer["rawp"].slice(0, 6),
+                adjp: curpointer["adjp"].slice(0, 7),
+                lrtp: curpointer["lrtp"].slice(0, 7),
+                zscore: curpointer["zscore"].slice(0, 7),
+                browser: urlForCoordinates,
+                allEvents: urlForGene,
+                ucsc: urlForUID
+            }
+            dataTemp.push(curdat);
+        }
+        console.log("dataTemp", dataTemp);
+        setTableState({
+            type: type,
+            data: dataTemp,
+            page: 0,
+            currentGene: currentGene,
+            pseudoPage: pseudoPage,
+            pageSize: newPageSize,
+            totalEntries: resp.totalentries
+        });
+    })
+}
+
+function TablePanel(props) {
+    var column_splice_obj = rootTableTableObj;
+    console.log("TABLEMAN PROPS", props);
+    const [tableState, setTableState] = React.useState({
+        type: "initial",
+        data: undefined,
+        page: 0,
+        currentGane: props.postedGene,
+        pseudoPage: 0,
+        pageSize: 30,
+        totalEntries: 0
+    });
+    const [loading, setLoading] = React.useState(true); // Track loading state
+    //const [data, setData] = React.useState([]); // To store processed data from props or elsewhere
+    //gtexpsi_fullsig
+    //document.getElementById("tableLoadingDiv").style.display = "block";
+    //document.getElementById("rootTable").style.opacity = 0.2;
+    React.useEffect(() => {
+        if(tableState.data == undefined)
+        {
+            tablePlotRequest(props.postedCancer, props.postedGene, props.postedCoord, props.postedAnnotation, "initial", 0, setTableState, 30);
+        }
+    }, [])
+    var columns = rootTableTableObj;
+    var columns_splc = React.useMemo(
+        () => [
+          {
+            Header: props.postedCancer,
+            columns: columns
+          },
+        ],
+        [props]
+      )
+
+    return(
+        <MinorTable tableState={tableState} setTableState={setTableState} columns={columns_splc} tablePlotRequest={tablePlotRequest}/>
+    );
+}
+
+export default TablePanel;

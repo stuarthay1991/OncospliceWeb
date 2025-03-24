@@ -69,8 +69,8 @@ var global_heat_len = "";
 var link1 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
 var link2 = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=";
 
-function metarepost(name, setFilterState) {
-  console.log("metarepost set", name, setFilterState);
+function metarepost(name, setFilterState, setOkmapLabelState) {
+  //console.log("metarepost set", name, setFilterState);
   var bodyFormData = new FormData();
   if(name != "age range")
   {
@@ -91,8 +91,8 @@ function metarepost(name, setFilterState) {
   })
     .then(function (response) {
       var ret = response["data"];
-      console.log("metarepost response data", ret);
-      updateOkmapLabel(ret);
+      //console.log("metarepost response data", ret);
+      setOkmapLabelState(ret);
       setFilterState({filters: ret["out"], filterset: ret["set"]});
     })
 }
@@ -247,7 +247,7 @@ var rows = [
 function FilterHeatmapSelect(props) {
   const classes = useStyles();
   const [state, setState] = React.useState({
-    "value": Object.entries(global_uifielddict)[0][0],
+    "value": Object.entries(props.uifielddict.dict)[0][0],
     name: 'hai',
   });
 
@@ -258,7 +258,7 @@ function FilterHeatmapSelect(props) {
       [name]: event.target.value,
       "value": event.target.value
     });
-    metarepost(event.target.value, props.setFilterState);
+    metarepost(event.target.value, props.setFilterState, props.setOkmapLabelState);
   }
 
   return (
@@ -278,7 +278,7 @@ function FilterHeatmapSelect(props) {
           <option value={state.value}>{state.value}</option>
           {(() => {
             const options = [];
-            for (const [key, value] of Object.entries(global_uifielddict)) {
+            for (const [key, value] of Object.entries(props.uifielddict.dict)) {
               var name_selected = key.replaceAll("_", " ");
               name_selected = name_selected.charAt(0).toUpperCase() + name_selected.slice(1);
               options.push(<option value={key}>{name_selected}</option>);
@@ -336,8 +336,9 @@ class Heatmap extends React.Component {
 
   componentDidUpdate(prevProps) {
     //console.log("HHprop", this.props.QueryExport["single"], prevProps.QueryExport["single"])
-    if((this.props.data.length !== prevProps.data.length) || (this.props.cols.length !== prevProps.cols.length) || (this.props.QueryExport["single"] !== prevProps.QueryExport["single"]))
+    if((this.props.okmapLabelState !== prevProps.okmapLabelState || this.props.data.length !== prevProps.data.length) || (this.props.cols.length !== prevProps.cols.length) || (this.props.QueryExport["single"] !== prevProps.QueryExport["single"]))
     {
+      //console.log("HHprop2", this.props.QueryExport["single"], prevProps.QueryExport["single"])
       //console.log("HEATMAP RE-RENDERED:", this.props.QueryExport["single"]);
       this.updateHeatmap();
     }
@@ -393,6 +394,10 @@ class Heatmap extends React.Component {
                 doc={document}
                 xscale={this.xscale}
                 setFilterState={this.props.setFilterState}
+                uifielddict={this.props.uifielddict}
+                setUifielddict={this.props.setUifielddict}
+                okmapLabelState={this.props.okmapLabelState}
+                setOkmapLabelState={this.props.setOkmapLabelState}
                 />,
       CC: <OKMAP_COLUMN_CLUSTERS
                 target_div_id={"HEATMAP_CC"}
@@ -497,9 +502,14 @@ class OKMAP_LABEL extends React.Component {
     this.doc = this.props.doc;
     this.xscale = this.props.xscale;
     this.state = {
-      retcols: "NULL"
+      retcols: this.props.okmapLabelState
     };
     updateOkmapLabel = updateOkmapLabel.bind(this);
+  }
+
+  requestUpdate()
+  {
+
   }
 
   baseSVG(w="120%", h="100%")
@@ -508,7 +518,8 @@ class OKMAP_LABEL extends React.Component {
       .append("svg")
       .attr("width", w)
       .attr("height", h)
-      .attr("id", (this.target_div.concat("_svg")));
+      .attr("id", (this.target_div.concat("_svg")))
+      .attr("class", (this.target_div.concat("_svg_class")));
 
     this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
 
@@ -636,7 +647,7 @@ class OKMAP_LABEL extends React.Component {
           .style('fill', 'black')
           .text("No annotation");
     }
-
+    console.log("Write Column names", writecols);
     var x_pointer = 0;
     var ikg = [];
     for(var p = 0; p < writecols.length; p++)
@@ -644,12 +655,15 @@ class OKMAP_LABEL extends React.Component {
       var rect_length = (1 * xscale);
       var coledit = writecols[p];
 
-      if(global_cancer == "LAML")
+      /*if(global_cancer == "LAML")
       {
         coledit = coledit.replace("_bed", "");
       }
       coledit = coledit.replace(".", "_");
-      coledit = coledit.replace("-", "_");
+      coledit = coledit.replace("-", "_");*/
+      let parts = coledit.split("_");
+      var newcoledit = parts.slice(0, 4).join("_");
+      coledit = newcoledit.concat("_bed");
       var type = retcols["out"][coledit];
       var colortake = retcols["color"][type];
       colortake = parseInt(colortake);
@@ -676,19 +690,22 @@ class OKMAP_LABEL extends React.Component {
   }
 
   componentDidUpdate (prevProps){
-    //console.log("1 this.props.column_names", this.props.column_names, prevProps.column_names)
+    //console.log("2 this.state.retcols", this.state.retcols);
+    //console.log("2 this.props.okmapLabelState", this.props.okmapLabelState);
     if(this.props.column_names !== prevProps.column_names)
     {
+      //console.log("3 this.state.retcols", this.state.retcols);
+      //console.log("3 this.props.okmapLabelState", this.props.okmapLabelState);
       var retval = null;
       var tempnode = document.getElementById(this.target_div);
       tempnode.innerHTML = "";
       this.baseSVG("100%", 100);
       this.writeBase(this.props.column_names, 100, this.props.xscale);
       //console.log("CDU this.state.retcols", this.state.retcols);
-      if(this.state.retcols != "NULL")
+      if(this.props.okmapLabelState != "NULL")
       {
-        this.writeBlocks(this.state.retcols, this.props.xscale, this.props.column_names);
-        metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState);
+        this.writeBlocks(this.props.okmapLabelState, this.props.xscale, this.props.column_names);
+        metarepost(Object.entries(this.props.uifielddict.dict)[0][0], this.props.setFilterState, this.props.setOkmapLabelState);
         //document.getElementById("HeatmapFilterSelect_id").value = Object.entries(global_uifielddict)[0][0];
       }
       return(
@@ -700,8 +717,8 @@ class OKMAP_LABEL extends React.Component {
   componentDidMount() {
     this.baseSVG("100%", 20);
     this.writeBase(20);
-    console.log("gufd", Object.entries(global_uifielddict)[0][0]);
-    metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState);
+    //console.log("gufd", Object.entries(global_uifielddict)[0][0]);
+    metarepost(Object.entries(this.props.uifielddict.dict)[0][0], this.props.setFilterState, this.props.setOkmapLabelState);
   }
 
   render (){
@@ -711,15 +728,11 @@ class OKMAP_LABEL extends React.Component {
     this.baseSVG("100%", 100);
     this.writeBase(this.props.column_names, 100, this.props.xscale);
     //console.log("3 this.props.column_names", this.props.column_names);
-    console.log("this.state.retcols", this.state.retcols);
-    if(this.state.retcols == "NULL")
+    //console.log("this.state.retcols", this.state.retcols);
+    //console.log("this.props.okmapLabelState", this.props.okmapLabelState);
+    if(this.props.okmapLabelState != "NULL")
     {
-      console.log("global_uifielddict", Object.entries(global_uifielddict)[0][0]);
-      metarepost(Object.entries(global_uifielddict)[0][0], this.props.setFilterState);
-    }
-    if(this.state.retcols != "NULL")
-    {
-      this.writeBlocks(this.state.retcols, this.props.xscale, this.props.column_names);
+      this.writeBlocks(this.props.okmapLabelState, this.props.xscale, this.props.column_names);
     }
     return(
       null
@@ -761,7 +774,8 @@ class OKMAP extends React.Component {
       .append("svg")
       .attr("width", w)
       .attr("height", h)
-      .attr("id", (this.target_div.concat("_svg")));
+      .attr("id", (this.target_div.concat("_svg")))
+      .attr("class", (this.target_div.concat("_svg_class")));
 
     this.SVG_main_group = this.SVG;
     //this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
@@ -791,7 +805,8 @@ class OKMAP extends React.Component {
       .append("svg")
       .attr("width", w)
       .attr("height", h)
-      .attr("id", (this.target_row_label_div.concat("_svg")));
+      .attr("id", (this.target_row_label_div.concat("_svg")))
+      .attr("class", (this.target_row_label_div.concat("_svg_class")));
 
     this.SVG_rlg = this.ROWLABELSVG.append("g").attr("id", (this.target_row_label_div.concat("_group")));
 
@@ -1018,6 +1033,14 @@ class OKMAP extends React.Component {
         y_start = y_start + 15;
         }, 50);
       }
+      /*var elements = document.querySelectorAll('[id='.concat('"HEATMAP_0_svg"').concat(']'));
+      console.log("elements", elements);
+
+      // Iterate through each matching element
+      var i = 0;
+      elements.forEach(function(element) {
+          element.remove();// Perform operations on each element
+      });*/
     }
   }
 
@@ -1042,6 +1065,13 @@ class OKMAP extends React.Component {
         y_start = y_start + this.state.zoom_level;
         }, 50);
       }
+      /*ar elements = document.querySelectorAll('[id='.concat('"HEATMAP_0_svg"').concat(']'));
+      console.log("elements", elements);
+
+      var i = 0;
+      elements.forEach(function(element) {
+          element.remove();// Perform operations on each element
+      });*/
     }
     else
     {
@@ -1057,6 +1087,13 @@ class OKMAP extends React.Component {
         yRL_start = yRL_start + this.state.zoom_level;
         }, 50);
       }
+      /*var elements = document.querySelectorAll('[id='.concat('"HEATMAP_0_svg"').concat(']'));
+      console.log("elements", elements);
+
+      var i = 0;
+      elements.forEach(function(element) {
+          element.remove();// Perform operations on each element
+      });*/
     }
     return(
       null
@@ -1189,11 +1226,14 @@ function ViewPanel(props) {
   const [okmapTable, setOkmapTable] = React.useState({curAnnots: okmapTableStartingData});
   //console.log("okmaptable", okmapTable);
   const [gtexState, setGtexState] = React.useState({gtexPlot: null});
-  const [okmapLabelState, setOkmapLabelState] = React.useState({okmapLabel: null});
-
+  
   const [resizeState, setResizeState] = React.useState({heatmapBox: null, sidePanel: null});
+  const [uifielddict, setUifielddict] = React.useState({dict: props.QueryExport["ui_field_dict"]});
+  const [okmapLabelState, setOkmapLabelState] = React.useState("NULL");
 
-  global_uifielddict = props.QueryExport["ui_field_dict"];
+  //console.log("okmapLabelState", okmapLabelState);
+
+  //global_uifielddict = props.QueryExport["ui_field_dict"];
 
   const resizeHandles = ['s','w','e','n','sw','nw','se','ne'];
 
@@ -1279,6 +1319,10 @@ function ViewPanel(props) {
           setPlotUIDstate={setPlotUIDstate}
           okmapTable={okmapTable}
           setOkmapTable={setOkmapTable}
+          uifielddict={uifielddict}
+          setUifielddict={setUifielddict}
+          okmapLabelState={okmapLabelState}
+          setOkmapLabelState={setOkmapLabelState}
           />
       </ResizableBox>
 
@@ -1338,6 +1382,28 @@ function ViewPanel_Side(props) {
 
 //Test comment
 function ViewPanel_Main(props) {
+    
+    var elements = document.querySelectorAll(".HEATMAP_0_svg_class");
+    //console.log("elements", elements.length);
+
+    var i = 0;
+    if(elements.length == 2)
+    {
+      elements[1].remove();
+    }
+
+    var row_label_elements = document.querySelectorAll(".HEATMAP_ROW_LABEL_svg_class");
+    //console.log("row_label_elements", row_label_elements.length);
+
+    var i = 0;
+    if(row_label_elements.length == 2)
+    {
+      row_label_elements[1].remove();
+    }    
+    /*elements.forEach(function(element) {
+        console.log("element pants", element);
+        element.remove();// Perform operations on each element
+    });*/
     const classes = useStyles();
     var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/build/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
     const [isShown, setIsShown] = React.useState(false);
@@ -1351,7 +1417,7 @@ function ViewPanel_Main(props) {
             <div><Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button></div>
             <div><Button variant="contained" style={{marginTop: "5px", marginBottom: "5px", backgroundColor: '#0F6A8B'}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button></div>
             <div><Typography className={classes.smallpadding} /></div>
-            <div><FilterHeatmapSelect setFilterState={props.setFilterState} /></div>
+            <div><FilterHeatmapSelect uifielddict={props.uifielddict} setFilterState={props.setFilterState} setOkmapLabelState={props.setOkmapLabelState}/></div>
           </div>
           )}
         </div>
@@ -1386,7 +1452,11 @@ function ViewPanel_Main(props) {
         plotUIDstate={props.plotUIDstate}
         setPlotUIDstate={props.setPlotUIDstate}
         okmapTable={props.okmapTable}
-        setOkmapTable={props.setOkmapTable}>
+        setOkmapTable={props.setOkmapTable}
+        uifielddict={props.uifielddict}
+        setUifielddict={props.setUifielddict}
+        okmapLabelState={props.okmapLabelState}
+        setOkmapLabelState={props.setOkmapLabelState}>
       </Heatmap>
       </div>
     </div>

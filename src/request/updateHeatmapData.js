@@ -9,6 +9,7 @@ function updateHeatmapData(arg, targeturl)
     const postData = {};
     postData["data"] = {};
     const callback = arg["callback"];
+    const setSampleListState = arg["setSampleListState"];
     const pancancercallback = arg["pancancerupdate"];
     var exportView = arg["exportView"];
     postData["data"]["cancerName"] = arg["cancerType"];
@@ -46,7 +47,7 @@ function updateHeatmapData(arg, targeturl)
     .then(function (response) {
         //console.log("full return from heatmap: ", response)
         //document.getElementById("LoadingStatusDisplay").style.display = "none";
-        //console.log("resLog", response["data"]);
+        console.log("resLog", response["data"]);
         if(response["data"] != "Error")
         {
           var dateval = response["data"]["date"];
@@ -55,7 +56,9 @@ function updateHeatmapData(arg, targeturl)
           var hierarchicalClusterColumns = response["data"]["cci"];
           var oncospliceSignatureClusterColumns = response["data"]["oncospliceClusterIndices"];
           var oncospliceSignatureClusterName = response["data"]["oncospliceClusterName"];
-          sampleUiRefresh(postData["data"]["cancerName"], heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, callback, postData, pancancercallback);
+          console.log("oncospliceSignatureClusterName", oncospliceSignatureClusterName);
+          console.log("oncospliceSignatureClusterColumns", oncospliceSignatureClusterColumns);
+          sampleUiRefresh(postData["data"]["cancerName"], heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, callback, postData, pancancercallback, setSampleListState);
         }
         else
         {
@@ -71,7 +74,7 @@ function updateHeatmapData(arg, targeturl)
 
 }
 
-function sampleUiRefresh(cancerType, heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, callback, prevPostData, pancancercallback)
+function sampleUiRefresh(cancerType, heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, callback, prevPostData, pancancercallback, setSampleListState)
 {
     var postdata = {"data": {"cancerName": cancerType, "signature": prevPostData["data"]["signatures"]}};
     axios({
@@ -85,7 +88,7 @@ function sampleUiRefresh(cancerType, heatmapMatrix, sampleNames, hierarchicalClu
       exportView["cancer"] = cancerType;
       exportView["ui_field_dict"] = response["data"]["samples"];
       exportView["ui_field_range"] = response["data"]["range"];
-      //console.log(sampleNames, "sampleNames")
+      console.log("sampleNames", response["data"]["samples"])
       //document.getElementById("HEATMAP_LABEL").style.opacity = 1;
       //document.getElementById("HEATMAP_CC").style.opacity = 1;
       //document.getElementById("HEATMAP_OncospliceClusters").style.opacity = 1;
@@ -95,6 +98,7 @@ function sampleUiRefresh(cancerType, heatmapMatrix, sampleNames, hierarchicalClu
       //console.log("updating view panel with: ", cancerType, heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView, prevPostData)
       callback(heatmapMatrix, sampleNames, hierarchicalClusterColumns, oncospliceSignatureClusterColumns, oncospliceSignatureClusterName, exportView);
       pancancercallback({"DEtableData": response["data"]["pancancerDE"], "tableData": response["data"]["pancancersignature"], "clusterLength": response["data"]["uniqueclusters"], "cancer": cancerType, "uniqueGenesPerSignature": response["data"]["pancancerGeneCount"]});
+      setSampleListState(response["data"]["samples"]);
     })
 
 }

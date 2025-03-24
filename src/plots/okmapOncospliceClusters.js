@@ -48,8 +48,8 @@ class OKMAP_OncospliceClusters extends React.Component {
   {
     var x_pointer = 0;
     var ikg = [];
-    //console.log("refcols", refcols);
-    var refcols = refcols.map(item => item.slice(0, -4));
+    console.log("refcols", refcols);
+    //var refcols = refcols.map(item => item.slice(0, -4));
     //console.log("writecols", writecols);
     for(var p = 0; p < refcols.length; p++)
     {
@@ -57,11 +57,11 @@ class OKMAP_OncospliceClusters extends React.Component {
       var coledit = writecols[refcols[p]];
       var colortake = parseInt(coledit);
       var color;
-      if(colortake == "0")
+      if(colortake == "0.0")
       {
         color = "white";
       }
-      else if(colortake == "1")
+      else if(colortake == "1.0")
       {
         color = "black";
       }
