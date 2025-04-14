@@ -209,22 +209,6 @@ function MinorTable(props) {
     {
         var new_data = [];
         let curdat = {
-            uid: "none",
-            cancer: "none",
-            event_direction: "none",
-            signature_name: "none",
-            clusterid: "none",
-            eventannotation: "none",
-            proteinpredictions: "none",
-            dpsi: "none",
-            rawp: "none",
-            adjp: "none",
-            avg_others: "none",
-            lrtp: "none",
-            zscore: "none",
-            browser: "go",
-            allEvents: "go",
-            ucsc: "go"
         }
         new_data.push(curdat);
         data = new_data;

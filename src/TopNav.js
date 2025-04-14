@@ -151,7 +151,7 @@ function TopNav() {
       </Grid>
       <Grid item xs={10}>
       <div className={classes.mainpane_margin_type1}>
-        <span id="rocket_magnum" style={{display: "none", float: "right"}}>
+        <span id="rocket_magnum" style={{display: "block", float: "right"}}>
         <Form.Control as="select"
                 value={pageTypeState.value}
                 onChange={onSelectHandle}

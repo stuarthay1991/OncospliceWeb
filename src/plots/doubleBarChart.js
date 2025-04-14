@@ -177,7 +177,7 @@ class SetDoubleBarChart extends React.Component {
             .on("click", function(d) {
               document.getElementById(parent.target_div).style.display = "none";
               document.getElementById("stackedBarChartDiv").style.display = "block";
-              parent.props.stackedBarRequest(parent.props.setStackedBarState);
+              parent.props.stackedBarRequest(parent.props.setStackedBarState, parent.props.cancerName);
               parent.props.resetDaugtherPanels();
             });
 

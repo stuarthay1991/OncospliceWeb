@@ -142,7 +142,7 @@ function tablePlotRequest(cancerName, currentGene, currentCoord, currentAnnotati
 
 function TablePanel(props) {
     var column_splice_obj = rootTableTableObj;
-    console.log("TABLEMAN PROPS", props);
+    //console.log("TABLEMAN PROPS", props);
     const [tableState, setTableState] = React.useState({
         type: "initial",
         data: undefined,
@@ -155,8 +155,6 @@ function TablePanel(props) {
     const [loading, setLoading] = React.useState(true); // Track loading state
     //const [data, setData] = React.useState([]); // To store processed data from props or elsewhere
     //gtexpsi_fullsig
-    //document.getElementById("tableLoadingDiv").style.display = "block";
-    //document.getElementById("rootTable").style.opacity = 0.2;
     React.useEffect(() => {
         if(tableState.data == undefined)
         {

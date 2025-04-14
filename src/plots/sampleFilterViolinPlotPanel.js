@@ -12,7 +12,7 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
   var toCBioLabels = [];
   //console.log("lTF", out);
   //console.log("set", set);
-  console.log("sampleFilter values", selectedExpressionArray, heatmapColumnArray, columnToFilterArray);
+  //console.log("sampleFilter values", selectedExpressionArray, heatmapColumnArray, columnToFilterArray);
   for(var i = 0; i < filterSet.length; i++)
   {
       var curstack = [];

@@ -110,8 +110,8 @@ function noCoordinateExonRequest(GENE, in_data, fulldata, exonPlotStateScaled, s
   })
 }
 
-function stackedBarChartRequest(setStackedBarChartState){
-  var postedData = {"data": {"cancer": "BLCA"}}
+function stackedBarChartRequest(setStackedBarChartState, cancer){
+  var postedData = {"data": {"cancer": cancer}}
   axios({
     method: "post",
     url: routeurl.concat("/api/datasets/stackedBarChart"),
@@ -690,28 +690,28 @@ function PanCancerAnalysis(props){
 
     prevCancerTypeState.current = props.cancerName;
 
-    if(props.cancerName == "BLCA" || props.cancerName == "PCPG")
+    if(props.cancerName != undefined)
     {
-      var datarray_x1 = [];
-      var datarray_y1 = [];
+    var datarray_x1 = [];
+    var datarray_y1 = [];
 
-      var datarray_x2 = [];
-      var datarray_y2 = [];
-      const plotobjs = [];
-      var counter = 0;
+    var datarray_x2 = [];
+    var datarray_y2 = [];
+    const plotobjs = [];
+    var counter = 0;
 
-      let tmp_1 = [];
-      let tmp_2 = [];
-      let tmp_3 = [];
+    let tmp_1 = [];
+    let tmp_2 = [];
+    let tmp_3 = [];
 
-      console.log(props);
-      for (const [key, value] of Object.entries(props.clusterLength)) {
+    console.log(props);
+    for (const [key, value] of Object.entries(props.clusterLength)) {
         tmp_1.push(value.length);
         tmp_2.push(props.geneCount[key]);
         tmp_3.push(key);
-      }
+    }
 
-      setDoubleBarChartData({cluster: tmp_1, gene: tmp_2, key: tmp_3, targetdiv: "doubleBarChartDiv"})
+    setDoubleBarChartData({cluster: tmp_1, gene: tmp_2, key: tmp_3, targetdiv: "doubleBarChartDiv"})
     }
     }, [props.cancerName])
 
@@ -789,6 +789,7 @@ function PanCancerAnalysis(props){
                 <SetStackedBarChart
                   heightRatio={scaled_height}
                   widthRatio={scaled_width}
+                  cancerName={props.cancerName}
                   stackedBarChartState={stackedBarChartData}
                   tablePlotRequest={tablePlotRequest}
                   tableState={tableState}

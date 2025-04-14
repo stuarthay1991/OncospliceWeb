@@ -104,7 +104,7 @@ export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray
 function cbioSetup(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer)
 {
   var cBioportalInputData = {"cluster0": [], "cluster1": []};
-  console.log("heatmapColumnArray", heatmapColumnArray);
+  //console.log("heatmapColumnArray", heatmapColumnArray);
   for(var i = 0; i < heatmapColumnArray.length; i++)
   {
     var curcol = heatmapColumnArray[i];
