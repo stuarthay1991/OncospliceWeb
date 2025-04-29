@@ -4,7 +4,7 @@ import axios from 'axios';
 import { makeRequest } from './CancerDataManagement.js';
 import { isBuild } from '../utilities/constants.js';
 
-var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
 
 function updateSignatureGeneric(arg, targeturl)
 {

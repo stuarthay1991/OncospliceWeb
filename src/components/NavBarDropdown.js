@@ -162,7 +162,10 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
           }
         }
         var args = {};
-        setCoordState(pile_of_coords);
+        if(e.key == "Enter")
+        {
+          setCoordState(pile_of_coords);
+        }
     }
 
     const onChangeGene = (e) => {
@@ -200,7 +203,10 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
             pile_of_uids.push(all_uids[i]);
           }
         }
-        setGeneState(pile_of_uids);
+        if(e.key == "Enter")
+        {
+          setGeneState(pile_of_uids);
+        }
     }
 
     const onSelectHandle = (e) => {
@@ -533,7 +539,7 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
                 placement="bottomStart"
                 size="xs"
                 trigger = "hover">
-                <textarea id="clientinputcoord" onChange={onChangeCoord} placeholder="Enter coordinates here" style={{minWidth: 100, fontSize: 12, minHeight: 60}}/>
+                <textarea id="clientinputcoord" onKeyPress={onChangeCoord} placeholder="Enter coordinates here" style={{minWidth: 100, fontSize: 12, minHeight: 60}}/>
         </Dropdown>
         <br/>
         <div id="geneTextInfo" style={{textAlign: "center", color: eventFontState.coordFontColor, fontSize: 12}}><strong>{coordState != undefined && (coordState[0])}</strong></div>
@@ -545,7 +551,7 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
                 placement="bottomStart"
                 size="xs"
                 trigger = "hover">
-                <textarea id="clientinputgene" onChange={onChangeGene} placeholder="Enter gene symbols" style={{minWidth: 50, fontSize: 12, minHeight: 60}}/>
+                <textarea id="clientinputgene" onKeyPress={onChangeGene} placeholder="Enter gene symbols" style={{minWidth: 50, fontSize: 12, minHeight: 60}}/>
         </Dropdown>
         <br/>
         <div id="coordTextInfo" style={{textAlign: "center", color: eventFontState.geneFontColor, fontSize: 12}}><strong>{geneState != undefined && (geneState[0])}</strong></div>

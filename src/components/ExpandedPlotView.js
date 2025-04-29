@@ -11,7 +11,7 @@ import GetAppIcon from '@material-ui/icons/GetApp.js';
 
 const spboxProps = {border: 3, margin: 3};
 
-var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
 
 export function ExpandedPlotViewButton(props)
 {

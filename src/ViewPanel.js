@@ -51,7 +51,7 @@ import OKMAP_OncospliceClusters from './plots/okmapOncospliceClusters.js';
 import PlotPanel from './plots/plotPanel.js';
 import { isBuild } from './utilities/constants.js';
 
-var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
 
 var global_meta = [];
 var global_sig = [];
@@ -1405,7 +1405,7 @@ function ViewPanel_Main(props) {
         element.remove();// Perform operations on each element
     });*/
     const classes = useStyles();
-    var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/build/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
+    var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/neo/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
     const [isShown, setIsShown] = React.useState(false);
     return(
     <div id="ViewPane_MainPane" style={{overflow: "scroll", height: "100%", width: "100%", display: "flex"}}>

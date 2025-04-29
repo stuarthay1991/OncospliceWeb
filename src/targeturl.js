@@ -15,7 +15,7 @@ var hoturl = "/ICGS/Oncosplice/hotload";
 const targeturl = serverurl;*/
 if(process.env.NODE_ENV == "build")
 {
-	var targeturl = "/ICGS/Oncosplice/testing"
+	var targeturl = "/ICGS/Oncosplice/neo"
 }
 else
 {

@@ -4,26 +4,27 @@ import MinorTable from './components/MinorTable.js';
 import {isBuild, rootHeatmapTableObj, cancerValueToName} from './utilities/constants.js';
 import axios from 'axios';
 
-var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
+var localAddress = isBuild ? "https://www.altanalyze.org/ICGS/Oncosplice/neo/index.html" : "http://localhost:8080/app";
 
 function setupLinkForHeatmap(cancer, signature){    
     var simplename = signature.substring(4).replace(/_/g, "-");
-    var url = "http://localhost:8080/app/explore/".concat(cancer.toUpperCase()).concat("/").concat(signature).concat("/").concat(simplename).concat("/None/None");
+    var url = localAddress.concat("/explore/").concat(cancer.toUpperCase()).concat("/").concat(signature).concat("/").concat(simplename).concat("/None/None");
     const hyperlinkObject = <a href={url} target="_blank">Go</a>;
     return hyperlinkObject;    
 }
 
 function setUpLinkForPancancer(cancer, signature){
     var simplename = signature.substring(4).replace(/_/g, "-");
-    var url = "http://localhost:8080/app/pancancer/".concat(cancer.toUpperCase()).concat("/").concat(signature).concat("/").concat(simplename).concat("/None/None");
+    var url = localAddress.concat("/pancancer/").concat(cancer.toUpperCase()).concat("/").concat(signature).concat("/").concat(simplename).concat("/None/None");
     const hyperlinkObject = <a href={url} target="_blank">Go</a>;
     return hyperlinkObject;    
 }
 
-function tablePlotRequest(cancerName, type, pseudoPage, setTableState, newPageSize){
+function tablePlotRequest(cancerName, signature, type, pseudoPage, setTableState, newPageSize){
     var type="initial";
     var cancerName = cancerName;
-    var postedData = {"data": {"cancerName": cancerName, "type": type, "pseudoPage": pseudoPage, "newPageSize": newPageSize}}
+    var postedData = {"data": {"cancerName": cancerName, "signature": signature, "type": type, "pseudoPage": pseudoPage, "newPageSize": newPageSize}}
     axios({
       method: "post",
       url: routeurl.concat("/api/datasets/gettableforheatmapselect"),
@@ -77,7 +78,7 @@ function TableForHeatmapSelect(props) {
     React.useEffect(() => {
         if(tableState.data == undefined)
         {
-            tablePlotRequest(props.postedCancer, "initial", 0, setTableState, 30);
+            tablePlotRequest(props.postedCancer, props.postedAnnotation, "initial", 0, setTableState, 30);
         }
     }, [])
     var columns = rootHeatmapTableObj;

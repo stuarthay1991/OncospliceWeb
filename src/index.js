@@ -21,7 +21,7 @@ function App() {
     module.hot.accept()
   }
 
-  var routeurl = isBuild ? "/ICGS/Oncosplice/build/index.html" : "/app";
+  var routeurl = isBuild ? "/ICGS/Oncosplice/neo/index.html" : "/app";
   //console.log(process.env.NODE_ENV)
   /*
   if(process.env.NODE_ENV == "production")

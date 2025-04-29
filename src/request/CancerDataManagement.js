@@ -9,7 +9,6 @@ import fetchHeatmapData from './fetchHeatmapData.js';
 import updateHeatmapData from './updateHeatmapData.js';
 import gene from './gene.js';
 import coord from './coord.js';
-import recursiveMetaDataField from './recursiveMetaDataField.js';
 import metaDataField from './metaDataField.js';
 import signature from './signature.js';
 import updateSignature from './updateSignature.js';
@@ -24,7 +23,6 @@ export function makeRequest(to, arg)
 	if(to == "uiFields"){ uiFields(arg, targeturl);}
 	if(to == "pancancer"){ pancancer(arg, targeturl);}
 	if(to == "metaDataField"){ metaDataField(arg, targeturl);}
-	if(to == "recursiveMetaDataField"){ recursiveMetaDataField(arg, targeturl);}
 	if(to == "signature"){ signature(arg, targeturl);}
 	if(to == "fetchHeatmapData"){ fetchHeatmapData(arg, targeturl);}
   	if(to == "updateHeatmapData"){ updateHeatmapData(arg, targeturl);}

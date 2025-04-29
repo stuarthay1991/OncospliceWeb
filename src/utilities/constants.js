@@ -59,42 +59,42 @@ export const rootTableTableObj = [
     id: 'signature_name',
   },
   {
-    Header: 'dPSI',
+    Header: 'delta PSI',
     accessor: 'dpsi',
     id: 'dpsi',
   },
   {
-    Header: 'rawp',
+    Header: 'PSI p-value',
     accessor: 'rawp',
     id: 'rawp',
   },
   {
-    Header: 'adjp',
+    Header: 'PSI p(FDR)',
     accessor: 'adjp',
     id: 'adjp',
   },
   {
-    Header: 'lrtp-Survival',
+    Header: 'Survival p (LRT)',
     accessor: 'lrtp',
     id: 'lrtp',
   },
   {
-    Header: 'zscore-Survival',
+    Header: 'Survival z-score',
     accessor: 'zscore',
     id: 'zscore',
   },
   {
-    Header: 'browser',
+    Header: 'View Junction',
     accessor: 'browser',
     id: 'browser',
   },
   {
-    Header: 'allevents',
+    Header: 'View Gene',
     accessor: 'allEvents',
     id: 'allevents',
   },
   {
-    Header: 'ucsc',
+    Header: 'UCSC Browser',
     accessor: 'ucsc',
     id: 'ucsc',
   }

@@ -5,7 +5,7 @@ import axios from 'axios';
 import { isBuild } from '../utilities/constants.js';
 import targeturl from '../targeturl.js';
 
-var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
 
 function goToCBio(uuid)
 {

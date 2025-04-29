@@ -1,4 +1,3 @@
-
 import '@fontsource/roboto';
 import React from 'react';
 import MajorTable from './components/MajorTable.js';
@@ -7,7 +6,8 @@ import {isBuild, rootTableColumnSpliceObj, rootTableColumnGeneObj, BLCA_vals, ta
 import axios from 'axios';
 //import { isBuild } from './utilities/constants.js';
 
-var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
+var localAddress = isBuild ? "https://www.altanalyze.org/ICGS/Oncosplice/neo/index.html" : "http://localhost:8080/app";
 
 function stringSplit(uid)
 {
@@ -20,7 +20,7 @@ function stringSplit(uid)
 }
 
 function setUpLinkForGenes(cancer, gene){
-    var url = "http://localhost:8080/app/explore/".concat(cancer).concat("/None/None").concat("/").concat(gene).concat("/").concat("None");
+    var url = localAddress.concat("/explore/").concat(cancer).concat("/None/None").concat("/").concat(gene).concat("/").concat("None");
     const hyperlinkObject = <a href={url} target="_blank">Go</a>;
     return hyperlinkObject;
 }
@@ -28,7 +28,7 @@ function setUpLinkForGenes(cancer, gene){
 function setUpLinkForCoordinates(cancer, coord){
     var [coord1, coord2] = coord.split("|");
     var coord1 = coord1.replace(":", "-");
-    var url = "http://localhost:8080/app/explore/".concat(cancer).concat("/None/None/None/").concat(coord1);
+    var url = localAddress.concat("/explore/").concat(cancer).concat("/None/None/None/").concat(coord1);
     const hyperlinkObject = <a href={url} target="_blank">Go</a>;
     //console.log("coord1", coord1);
     return hyperlinkObject;
@@ -55,6 +55,18 @@ function setUpSignature(input, cancer){
         var signatureName = splitString[1];
     }
     return signatureName;
+}
+
+function formatScientificNotation(value) {
+    if (typeof value === 'string' && value.includes('e')) {
+        const [base, exponent] = value.split('e');
+        const formattedBase = parseFloat(base).toFixed(2);
+        return `${formattedBase}e${exponent}`;
+    }
+    else{
+        const formattedBase = parseFloat(value).toFixed(4);
+        return formattedBase;
+    }
 }
 
 function tablePlotRequest(cancerName, currentGene, currentCoord, currentAnnotation, type, pseudoPage, setTableState, newPageSize){
@@ -108,6 +120,8 @@ function tablePlotRequest(cancerName, currentGene, currentCoord, currentAnnotati
             }
             //var urlForCoordinates = setUpLinkForCoordinates();
             var newUid = stringSplit(curpointer["uid"]);
+            var rawp = curpointer["rawp"];
+            rawp
             let curdat = {
                 uid: newUid,
                 //gene: curpointer["gene"],
@@ -117,9 +131,9 @@ function tablePlotRequest(cancerName, currentGene, currentCoord, currentAnnotati
                 datagroup: datagroup,
                 signature_name: signatureSetUp,
                 dpsi: curpointer["dpsi"].slice(0, 6),
-                rawp: curpointer["rawp"].slice(0, 6),
-                adjp: curpointer["adjp"].slice(0, 7),
-                lrtp: curpointer["lrtp"].slice(0, 7),
+                rawp: formatScientificNotation(curpointer["rawp"]),
+                adjp: formatScientificNotation(curpointer["adjp"]),
+                lrtp: formatScientificNotation(curpointer["lrtp"]),
                 zscore: curpointer["zscore"].slice(0, 7),
                 browser: urlForCoordinates,
                 allEvents: urlForGene,
@@ -128,6 +142,7 @@ function tablePlotRequest(cancerName, currentGene, currentCoord, currentAnnotati
             dataTemp.push(curdat);
         }
         console.log("dataTemp", dataTemp);
+        document.getElementById("minorTableLoadingDiv").style.display = "none";
         setTableState({
             type: type,
             data: dataTemp,
@@ -155,6 +170,14 @@ function TablePanel(props) {
     const [loading, setLoading] = React.useState(true); // Track loading state
     //const [data, setData] = React.useState([]); // To store processed data from props or elsewhere
     //gtexpsi_fullsig
+    var tableHeaderName = "";
+    if(props.postedCancer == "None"){
+        tableHeaderName = tableHeaderName.concat("All Cancers");
+    }
+    else {
+        tableHeaderName = tableHeaderName.concat(cancerValueToName[props.postedCancer.toLowerCase()]);
+    }
+    
     React.useEffect(() => {
         if(tableState.data == undefined)
         {
@@ -165,7 +188,7 @@ function TablePanel(props) {
     var columns_splc = React.useMemo(
         () => [
           {
-            Header: props.postedCancer,
+            Header: tableHeaderName,
             columns: columns
           },
         ],

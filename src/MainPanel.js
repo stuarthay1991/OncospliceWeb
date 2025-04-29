@@ -63,7 +63,7 @@ function MainPanel(props){
   const { params } = match;
   const { page, options, signature, simple, gene, coord } = params;
 
-  var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/build/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
+  var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/neo/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
 
   console.log("cancer_address", options);
   console.log("signature_address", signature);
@@ -109,7 +109,7 @@ function MainPanel(props){
 
   if(process.env.NODE_ENV == "build")
   {
-    var routeurl = "/ICGS/Oncosplice/build/index.html/";
+    var routeurl = "/ICGS/Oncosplice/neo/index.html/";
   }
   else
   {
@@ -289,14 +289,19 @@ function MainPanel(props){
       <div id="gtextablepanel" style={{display: mpstate.value === 2 ? displayvalue1 : displayvalue2}}>
         {
         page === 'table' && (
+        <>
         <TablePanel postedCancer={options} postedGene={gene} postedAnnotation={signature} postedCoord={setCoord}/>
+        <div id="minorTableLoadingDiv" style={{display: "block", margin: 20}}>
+        {loading_Gif}
+        </div>
+        </>
         )
         }
       </div>
       <div id='tableforheatmapselectpanel' style={{display: mpstate.value === 4 ? displayvalue1 : displayvalue2}}>
       {
         page === 'tableforheatmapselect' && (
-        <TableForHeatmapSelect postedCancer={options}/>
+        <TableForHeatmapSelect postedCancer={options} postedAnnotation={signature}/>
         )
         }
       </div>
