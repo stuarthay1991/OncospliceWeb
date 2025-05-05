@@ -20,15 +20,17 @@ function stringSplit(uid)
 }
 
 function setUpLinkForGenes(cancer, gene){
-    var url = localAddress.concat("/explore/").concat(cancer).concat("/None/None").concat("/").concat(gene).concat("/").concat("None");
+    cancer = cancer.toUpperCase();
+    var url = localAddress.concat("/explore/").concat(cancer.toUpperCase()).concat("/None/None").concat("/").concat(gene).concat("/").concat("None");
     const hyperlinkObject = <a href={url} target="_blank">Go</a>;
     return hyperlinkObject;
 }
 
 function setUpLinkForCoordinates(cancer, coord){
+    cancer = cancer.toUpperCase();
     var [coord1, coord2] = coord.split("|");
     var coord1 = coord1.replace(":", "-");
-    var url = localAddress.concat("/explore/").concat(cancer).concat("/None/None/None/").concat(coord1);
+    var url = localAddress.concat("/explore/").concat(cancer.toUpperCase()).concat("/None/None/None/").concat(coord1);
     const hyperlinkObject = <a href={url} target="_blank">Go</a>;
     //console.log("coord1", coord1);
     return hyperlinkObject;

@@ -75,6 +75,12 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
     const [sampleListState, setSampleListState] = React.useState(startingSampleList);
     const [sampleOptions, setSampleOptions] = React.useState({"key": undefined, "options": []});
 
+    if(startingSignature == "None")
+    {
+      console.log("startingSignaureList", startingSignaureList);
+      startingSignature = startingSignaureList[0];
+    }
+
     const [signatureState, setSignatureState] = React.useState({"signature": startingSignature, "simpleName": startingSimple, "oncocluster": startingSimple, "initialized": false});
     const [coordState, setCoordState] = React.useState();
     const [geneState, setGeneState] = React.useState();
@@ -306,17 +312,30 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
               document.getElementById("coordTextInfo").style.color = "grey";
               document.getElementById("geneTextInfo").style.color = "grey";
               document.getElementById("sigTextInfo").style.color = "blue";
-              heatmapArgs["signature"] = [signatureState.signature];
-              heatmapArgs["oncocluster"] = [signatureState.oncocluster];
-              heatmapArgs["eventType"] = "Signature";
-              heatmapArgs["sample"] = undefined;
-              heatmapArgs["coords"] = coordState;
-              heatmapArgs["genes"] = geneState;
-              heatmapArgs["comparedCancer"] = cancerSignatureGroupState.cancerType;
-              heatmapArgs["cancerType"] = cancerTypeState.cancerType;
-              makeRequest("updateHeatmapData", heatmapArgs);
-              setSampleOptions({"key": undefined, "options": []});
-              setSampleState();
+              let sigTemp = signatureState.signature;
+              if(sigTemp == undefined || sigTemp == "None")
+              {
+                sigTemp = Object.entries(signatureListState)[0];
+                console.log("sigTemp", sigTemp);
+                console.log("signatureListState", signatureListState)
+                signatureSelectHandle(sigTemp)
+                setSampleOptions({"key": undefined, "options": []});
+                setSampleState();
+              }
+              else
+              {
+                heatmapArgs["signature"] = [signatureState.signature];
+                heatmapArgs["oncocluster"] = [signatureState.oncocluster];
+                heatmapArgs["eventType"] = "Signature";
+                heatmapArgs["sample"] = undefined;
+                heatmapArgs["coords"] = coordState;
+                heatmapArgs["genes"] = geneState;
+                heatmapArgs["comparedCancer"] = cancerSignatureGroupState.cancerType;
+                heatmapArgs["cancerType"] = cancerTypeState.cancerType;
+                makeRequest("updateHeatmapData", heatmapArgs);
+                setSampleOptions({"key": undefined, "options": []});
+                setSampleState();
+              }
             }
             else
             {
