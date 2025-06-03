@@ -113,7 +113,7 @@ function MainPanel(props){
   }
   else
   {
-    var routeurl = "/app/"
+    var routeurl = "/app/";
   }
   //Whenever a Tab is selected, this function is triggered.
   /*const handleChange = (event, newValue) => {

@@ -243,7 +243,7 @@ class EXON_PLOT extends React.Component {
         }
         catch(error)
         {
-          console.log("FAIL", trans_input[key][i]);
+          continue;
         }
       }
 
@@ -1009,7 +1009,7 @@ class EXON_PLOT extends React.Component {
     //console.log("TRANSCRIPT LIST: ", this.state.transcripts);
     if(this.state.exons != null && this.state.transcripts != null && this.state.junctions != null)
     {
-      console.log("in exon plot", this.state.gene_specific_data);
+      //console.log("in exon plot", this.state.gene_specific_data);
       var ysim = 110;
       for (const [key, value] of Object.entries(this.state.transcripts))
       {

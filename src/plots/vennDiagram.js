@@ -7,7 +7,13 @@ var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://local
 
 function retrieveDataForVenn(comparedSignature, homeSignature, typeFor, setTableState, annot){
   //homeSignature = homeSignature.name;
-  var postedData = {"data": {"comparedSignature": comparedSignature, "cancer": "BLCA_TCGA", "homeSignature": homeSignature.name, "type": typeFor, "annot": annot}}
+  //console.log("VENN CLICK", comparedSignature, homeSignature);
+  var homeName = homeSignature.name;
+  var homeCancer = (homeName.substring(4)).split("_")[0];
+  homeCancer = (homeCancer.toUpperCase());
+  console.log("home cancer", homeCancer);
+  
+  var postedData = {"data": {"comparedSignature": comparedSignature, "cancer": homeCancer, "homeSignature": homeSignature.name, "type": typeFor, "annot": annot}}
   //console.log(parentProps, comparedSignature, homeSignature);
   document.getElementById("tableLoadingDiv").style.display = "block";
   document.getElementById("rootTable").style.opacity = 0.2;

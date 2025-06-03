@@ -251,6 +251,8 @@ function FilterHeatmapSelect(props) {
     name: 'hai',
   });
 
+  console.log("props.uifielddict.dict", props.uifielddict.dict);
+
   const handleChange = (event) => {
     const name = event.target.name;
     setState({
@@ -692,7 +694,7 @@ class OKMAP_LABEL extends React.Component {
   componentDidUpdate (prevProps){
     //console.log("2 this.state.retcols", this.state.retcols);
     //console.log("2 this.props.okmapLabelState", this.props.okmapLabelState);
-    if(this.props.column_names !== prevProps.column_names)
+    if(this.props.column_names !== prevProps.column_names || this.props.uifielddict.dict !== prevProps.uifielddict.dict)
     {
       //console.log("3 this.state.retcols", this.state.retcols);
       //console.log("3 this.props.okmapLabelState", this.props.okmapLabelState);
@@ -1228,7 +1230,21 @@ function ViewPanel(props) {
   const [gtexState, setGtexState] = React.useState({gtexPlot: null});
   
   const [resizeState, setResizeState] = React.useState({heatmapBox: null, sidePanel: null});
-  const [uifielddict, setUifielddict] = React.useState({dict: props.QueryExport["ui_field_dict"]});
+  //const [uifielddict, setUifielddict] = React.useState({dict: props.QueryExport["ui_field_dict"]});
+  
+  function setUifielddict(){
+    console.log("AC1423");
+  }
+
+  var uifielddict = {
+    dict: props.QueryExport["ui_field_dict"]
+  }
+  /*React.useEffect(() => {
+    if (props.QueryExport["ui_field_dict"] !== uifielddict.dict) {
+      setUifielddict({dict: props.QueryExport["ui_field_dict"]});
+    }
+  }, [props.QueryExport["ui_field_dict"]]);*/
+
   const [okmapLabelState, setOkmapLabelState] = React.useState("NULL");
 
   //console.log("okmapLabelState", okmapLabelState);
