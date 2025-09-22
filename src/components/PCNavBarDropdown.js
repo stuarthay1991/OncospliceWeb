@@ -57,6 +57,33 @@ function Header({setPanCancerState, startingCancer, startingSignaureList, starti
         setCancerSignatureGroupState({"cancerType": e, "initialized": true});
     }
 
+    const cancerDisplayNames = {
+      "BLCA": "Bladder Cancer (TCGA)",
+      "BRCA": "Breast Cancer (TCGA)",
+      "CESC": "Cervical Squamous Cell Carcinoma (TCGA)",
+      "COAD": "Colon Cancer (TCGA)",
+      "ESCA": "Esophageal Cancer (TCGA)",
+      "GBM": "Glioblastoma (TCGA)",
+      "GTEX": "GTEX",
+      "HNSC": "Head and Neck Cancer (TCGA)",
+      "KICH": "Kidney Chromophobe (TCGA)",
+      "KIRC": "Kidney Renal Clear Cell Carcinoma (TCGA)",
+      "LGG": "Low-Grade Gliomas (TCGA)",
+      "LIHC": "Liver Cancer (TCGA)",
+      "LUAD": "Lung Cancer (TCGA)",
+      "OV": "Ovarian Cancer (TCGA)",
+      "PAAD": "Pancreatic Cancer (TCGA)",
+      "PCPG": "Pheochromocytoma and paraganglioma (TCGA)",
+      "PRAD": "Primary Prostate Cancer (TCGA)",
+      "READ": "Rectal Cancer (TCGA)",
+      "SARC": "Bone and Connective Tissue Cancer (TCGA)",
+      "SKCM": "Skin Cancer (TCGA)",
+      "STAD": "Stomach Adenocarcinoma (TCGA)",
+      "TGCT": "Tenosynovial Giant Cell Tumors (TCGA)",
+      "THCA": "Thyroid Carcinoma (TCGA)",
+      "UCEC": "Uterine Serous Cancer (TCGA)"
+    };
+
     const signatureSelectHandle = (e) => {
         //console.log("signature selected: ", e);
         var selectedOncocluster = e[1];
@@ -231,7 +258,7 @@ function Header({setPanCancerState, startingCancer, startingSignaureList, starti
                 <HayDropdown eventKey="UCEC" displayName="Uterine Serous Cancer (TCGA)"></HayDropdown>
         </Dropdown>
         <br/>
-        <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerTypeState.cancerType}</strong></div>
+        <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerDisplayNames[cancerTypeState.cancerType]}</strong></div>
         </Grid>
         <Grid id="gridItem2" item>
         <Dropdown title="Sample Filter"
@@ -307,7 +334,7 @@ function Header({setPanCancerState, startingCancer, startingSignaureList, starti
                 <HayDropdown eventKey="UCEC" displayName="Uterine Serous Cancer (TCGA)"></HayDropdown>
         </Dropdown>
         <br/>
-        <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerSignatureGroupState.cancerType}</strong></div>
+        <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerDisplayNames[cancerSignatureGroupState.cancerType]}</strong></div>
         </Grid>
         <Grid id="gridItem5" item>
         <Dropdown

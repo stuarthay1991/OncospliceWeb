@@ -17,7 +17,15 @@ export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray
   for(var i = 0; i < heatmapColumnArray.length; i++)
   {
     var curcol = heatmapColumnArray[i];
-    let modcurcol = curcol.replace("_bed", "");
+    var modcurcol = curcol;
+    if(curcol.slice(0, 3) == "srr")
+    {
+      modcurcol = curcol.replace(".", "_");
+    }
+    else
+    {
+      modcurcol = curcol.replace("_bed", "");
+    }
     if(parseInt(oncospliceSampleLabels[modcurcol], 10) == 0)
     {
       expressionArrayClusters["cluster0"].push(selectedExpressionArray[curcol]);
@@ -26,7 +34,15 @@ export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray
   for(var i = 0; i < heatmapColumnArray.length; i++)
   {
     var curcol = heatmapColumnArray[i];
-    let modcurcol = curcol.replace("_bed", "");
+    var modcurcol = curcol;
+    if(curcol.slice(0, 3) == "srr")
+    {
+      modcurcol = curcol.replace(".", "_");
+    }
+    else
+    {
+      modcurcol = curcol.replace("_bed", "");
+    }
     if(parseInt(oncospliceSampleLabels[modcurcol], 10) == 1)
     {
       expressionArrayClusters["cluster1"].push(selectedExpressionArray[curcol]);

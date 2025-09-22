@@ -3,7 +3,7 @@ import { isBuild } from '../utilities/constants.js';
 
 var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
 
-function uiFields(arg, targeturl)
+function pancancerUiFields(arg, targeturl)
 {
 	//console.log("start request");
 	const export_dict = {};
@@ -30,4 +30,4 @@ function uiFields(arg, targeturl)
 	});
 }
 
-export default uiFields;
+export default pancancerUiFields;

@@ -12,13 +12,20 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
   var toCBioLabels = [];
   //console.log("lTF", out);
   //console.log("set", set);
-  //console.log("sampleFilter values", selectedExpressionArray, heatmapColumnArray, columnToFilterArray);
+  console.log("sampleFilter values", selectedExpressionArray, heatmapColumnArray, columnToFilterArray, filterSet);
   for(var i = 0; i < filterSet.length; i++)
   {
       var curstack = [];
       var curcol = [];
       for(var k = 0; k < heatmapColumnArray.length; k++)
       {
+        if(heatmapColumnArray[k].slice(0, 3) == "srr"){
+          if(columnToFilterArray[heatmapColumnArray[k]] == filterSet[i])
+            {
+              curstack.push(selectedExpressionArray[heatmapColumnArray[k]]);
+              curcol.push(heatmapColumnArray[k]);
+            }          
+        }
         if(columnToFilterArray[heatmapColumnArray[k].concat("_bed")] == filterSet[i])
         {
           curstack.push(selectedExpressionArray[heatmapColumnArray[k]]);

@@ -46,7 +46,10 @@ function tablePlotRequest(cancerName, signature, type, pseudoPage, setTableState
                 signature_name: curpointer["datagroup"],
                 annotation: curpointer["annotation"],
                 heatmap: setupLinkForHeatmap(curpointer["cancer_name"], signatureSetUp),
-                pancancer: setUpLinkForPancancer(curpointer["cancer_name"], signatureSetUp)
+                pancancer: setUpLinkForPancancer(curpointer["cancer_name"], signatureSetUp),
+                ases: curpointer["ases"],
+                degs: curpointer["degs"],
+                samples: curpointer["samples"]
             }
             dataTemp.push(curdat);
         }
@@ -73,7 +76,10 @@ function TableForHeatmapSelect(props) {
         totalEntries: 0
     });
     const [loading, setLoading] = React.useState(true); // Track loading state
-    //const [data, setData] = React.useState([]); // To store processed data from props or elsewhere
+    const [searchTerm, setSearchTerm] = React.useState(""); // Add search state
+    const [filteredData, setFilteredData] = React.useState(undefined); // Add filtered data state
+
+    //const [data, setTableState] = React.useState([]); // To store processed data from props or elsewhere
     //gtexpsi_fullsig
     React.useEffect(() => {
         if(tableState.data == undefined)
@@ -81,6 +87,26 @@ function TableForHeatmapSelect(props) {
             tablePlotRequest(props.postedCancer, props.postedAnnotation, "initial", 0, setTableState, 30);
         }
     }, [])
+
+    // Add search filter function
+    const filterData = (data, searchTerm) => {
+        if (!searchTerm.trim()) return data;
+        
+        return data.filter(item => 
+            item.cancer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.signature_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.annotation.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    };
+
+    // Filter data when search term or table data changes
+    React.useEffect(() => {
+        if (tableState.data) {
+            const filtered = filterData(tableState.data, searchTerm);
+            setFilteredData(filtered);
+        }
+    }, [searchTerm, tableState.data]);
+
     var columns = rootHeatmapTableObj;
     var tableHeaderName = "Signature selection for ";
     if(props.postedCancer == "None"){
@@ -100,7 +126,56 @@ function TableForHeatmapSelect(props) {
       )
 
     return(
-        <MinorTable tableState={tableState} setTableState={setTableState} columns={columns_splc} tablePlotRequest={tablePlotRequest}/>
+        <div>
+            {/* Search Bar */}
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                <label style={{ marginLeft: '2px', fontWeight: 'bold', fontSize: '14px' }}>
+                    Search:
+                </label>
+                <input
+                    type="text"
+                    placeholder="Search signatures, cancers, or annotations..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{
+                        marginLeft: '10px',
+                        padding: '8px 12px',
+                        fontSize: '14px',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        width: '300px',
+                        marginRight: '8px'
+                    }}
+                />
+                {searchTerm && (
+                    <button
+                        onClick={() => setSearchTerm("")}
+                        style={{
+                            marginLeft: '10px',
+                            padding: '8px 12px',
+                            fontSize: '14px',
+                            border: '1px solid #ccc',
+                            borderRadius: '4px',
+                            backgroundColor: '#f5f5f5',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Clear
+                    </button>
+                )}
+            </div>
+            
+            {/* Table with filtered data */}
+            <MinorTable 
+                tableState={{
+                    ...tableState,
+                    data: filteredData || tableState.data
+                }} 
+                setTableState={setTableState} 
+                columns={columns_splc} 
+                tablePlotRequest={tablePlotRequest}
+            />
+        </div>
     );
 }
 

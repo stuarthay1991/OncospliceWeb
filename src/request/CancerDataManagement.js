@@ -13,7 +13,7 @@ import metaDataField from './metaDataField.js';
 import signature from './signature.js';
 import updateSignature from './updateSignature.js';
 import updateSignatureGeneric from './updateSignatureGeneric.js';
-import pancancer from './pancancer.js';
+import pancancerUiFields from './pancancer.js';
 
 //GLOBALS
 const exportToViewPane = {};
@@ -21,7 +21,7 @@ const exportToViewPane = {};
 export function makeRequest(to, arg)
 {
 	if(to == "uiFields"){ uiFields(arg, targeturl);}
-	if(to == "pancancer"){ pancancer(arg, targeturl);}
+	if(to == "pancancerUiFields"){ pancancerUiFields(arg, targeturl);}
 	if(to == "metaDataField"){ metaDataField(arg, targeturl);}
 	if(to == "signature"){ signature(arg, targeturl);}
 	if(to == "fetchHeatmapData"){ fetchHeatmapData(arg, targeturl);}

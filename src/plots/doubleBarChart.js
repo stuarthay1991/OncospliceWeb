@@ -483,13 +483,33 @@ class SetDoubleBarChart extends React.Component {
             .attr("fill", "rgb(131, 131, 131)");
 
         var inputKey = inputData[index].key;
+
+        console.log("this.props.cancerName", this.props.cancerName);
+        var fontsizetouse = 12;
+        if(this.props.cancerName == "GTEX")
+        {
         inputKey = inputKey.replace('psi_', '');
-        inputKey = inputKey.replace('_', ' ');
+        /*inputKey = inputKey.replace('_', ' ');*/
+        inputKey = inputKey.replace(" _ ", "_");
         inputKey = inputKey.replace('_vs_others', '');
-        inputKey = inputKey.split(" ");
+        inputKey = inputKey.replace(/_/g, " ");
+        if (inputKey.length > 18) {inputKey = inputKey.slice(0, 18).concat("...");}
+        fontsizetouse = 11;
+        /*inputKey = inputKey.split(" ");
         inputKey = inputKey[1];
         inputKey = inputKey.toUpperCase();
-        inputKey = inputKey.replace(/_/g, "-");
+        inputKey = inputKey.replace(/_/g, "-");*/
+        }
+        else
+        {
+          inputKey = inputKey.replace('psi_', '');
+          inputKey = inputKey.replace('_', ' ');
+          inputKey = inputKey.replace('_vs_others', '');
+          inputKey = inputKey.split(" ");
+          inputKey = inputKey[1];
+          inputKey = inputKey.toUpperCase();
+          inputKey = inputKey.replace(/_/g, "-");          
+        }
         var xstringval = (81*S.xScale).toString();
         var ystringval = ((ypos + 12*S.yScale)).toString();
         const rotval = "rotate(35, ".concat(xstringval).concat(", ").concat(ystringval).concat(")");
@@ -500,7 +520,7 @@ class SetDoubleBarChart extends React.Component {
             .attr("id", group_identifier)
             .attr("group_identifier", group_identifier)
             .attr("selected", "false")
-            .style("font-size", 12*S.fontScale)
+            .style("font-size", fontsizetouse*S.fontScale)
             .style("opacity", 1.0)
             .attr("fill", "black")
             .attr("transform", rotval)

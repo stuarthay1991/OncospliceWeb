@@ -13,6 +13,33 @@ function HayDropdown(props){
   );
 }
 
+const cancerDisplayNames = {
+  "BLCA": "Bladder Cancer (TCGA)",
+  "BRCA": "Breast Cancer (TCGA)",
+  "CESC": "Cervical Squamous Cell Carcinoma (TCGA)",
+  "COAD": "Colon Cancer (TCGA)",
+  "ESCA": "Esophageal Cancer (TCGA)",
+  "GBM": "Glioblastoma (TCGA)",
+  "GTEX": "GTEX",
+  "HNSC": "Head and Neck Cancer (TCGA)",
+  "KICH": "Kidney Chromophobe (TCGA)",
+  "KIRC": "Kidney Renal Clear Cell Carcinoma (TCGA)",
+  "LGG": "Low-Grade Gliomas (TCGA)",
+  "LIHC": "Liver Cancer (TCGA)",
+  "LUAD": "Lung Cancer (TCGA)",
+  "OV": "Ovarian Cancer (TCGA)",
+  "PAAD": "Pancreatic Cancer (TCGA)",
+  "PCPG": "Pheochromocytoma and paraganglioma (TCGA)",
+  "PRAD": "Primary Prostate Cancer (TCGA)",
+  "READ": "Rectal Cancer (TCGA)",
+  "SARC": "Bone and Connective Tissue Cancer (TCGA)",
+  "SKCM": "Skin Cancer (TCGA)",
+  "STAD": "Stomach Adenocarcinoma (TCGA)",
+  "TGCT": "Tenosynovial Giant Cell Tumors (TCGA)",
+  "THCA": "Thyroid Carcinoma (TCGA)",
+  "UCEC": "Uterine Serous Cancer (TCGA)"
+};
+
 function PCHeader({setPanCancerState, startingCancer, startingSignature, startingSimple, startingSignatureList}){
     const [cancerTypeState, setCancerTypeState] = React.useState({"cancerType": startingCancer, "initialized": false});
     const [signatureState, setSignatureState] = React.useState({"signature": startingSignature, "simpleName": startingSimple, "oncocluster": startingSimple, "initialized": false});
@@ -101,23 +128,7 @@ function PCHeader({setPanCancerState, startingCancer, startingSignature, startin
             </Dropdown>
             <br/>
             <div style={{textAlign: "center", color: "blue", fontSize: 12}}>
-              <strong>{cancerTypeState.cancerType}</strong>
-            </div>
-          </Grid>
-          <Grid id="pc_gridItem2" item>
-            <Dropdown title="Signature Group"
-              onSelect={cancerSignatureGroupSelectHandle} 
-              activeKey={cancerSignatureGroupState.cancerType}
-              placement="bottomStart"
-              size="xs"
-              trigger="hover">
-              {signatureListState && signatureListState.map((sig) => (
-                <HayDropdown key={sig[0]} eventKey={sig[0]} displayName={sig[1]} />
-              ))}
-            </Dropdown>
-            <br/>
-            <div style={{textAlign: "center", color: "blue", fontSize: 12}}>
-              <strong>{signatureState.simpleName || signatureState.signature}</strong>
+              <strong>{cancerDisplayNames[cancerTypeState.cancerType]}</strong>
             </div>
           </Grid>
         </Grid>

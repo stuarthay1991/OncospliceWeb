@@ -125,11 +125,12 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
     const sampleMenuPopulate = (e) => {
       var listOfValues = sampleListState[e];
       setSampleOptions({"key": e, "options": listOfValues});
-      setSampleState({"key": undefined, "value": undefined})
+      console.log("samplemenupopulate", e, listOfValues);
+      setSampleState({"key": e, "value": listOfValues[0]})
     }
 
     const selectSampleHandle = (e) => {
-        //console.log("sample selected", e);
+        console.log("sample selected", e);
         setSampleState({"key": e[0], "value": e[1]});
     }
 
@@ -400,6 +401,33 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
         prevSampleState.current = sampleState;
       }, [sampleState])
 
+    const cancerDisplayNames = {
+        "BLCA": "Bladder Cancer (TCGA)",
+        "BRCA": "Breast Cancer (TCGA)",
+        "CESC": "Cervical Squamous Cell Carcinoma (TCGA)",
+        "COAD": "Colon Cancer (TCGA)",
+        "ESCA": "Esophageal Cancer (TCGA)",
+        "GBM": "Glioblastoma (TCGA)",
+        "GTEX": "GTEX",
+        "HNSC": "Head and Neck Cancer (TCGA)",
+        "KICH": "Kidney Chromophobe (TCGA)",
+        "KIRC": "Kidney Renal Clear Cell Carcinoma (TCGA)",
+        "LGG": "Low-Grade Gliomas (TCGA)",
+        "LIHC": "Liver Cancer (TCGA)",
+        "LUAD": "Lung Cancer (TCGA)",
+        "OV": "Ovarian Cancer (TCGA)",
+        "PAAD": "Pancreatic Cancer (TCGA)",
+        "PCPG": "Pheochromocytoma and paraganglioma (TCGA)",
+        "PRAD": "Primary Prostate Cancer (TCGA)",
+        "READ": "Rectal Cancer (TCGA)",
+        "SARC": "Bone and Connective Tissue Cancer (TCGA)",
+        "SKCM": "Skin Cancer (TCGA)",
+        "STAD": "Stomach Adenocarcinoma (TCGA)",
+        "TGCT": "Tenosynovial Giant Cell Tumors (TCGA)",
+        "THCA": "Thyroid Carcinoma (TCGA)",
+        "UCEC": "Uterine Serous Cancer (TCGA)"
+    };
+
     React.useEffect(() => {
         if(cancerSignatureGroupState.initialized == true)
         {
@@ -431,6 +459,7 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
                 <HayDropdown eventKey="COAD" displayName="Colon Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="ESCA" displayName="Esophageal Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="GBM" displayName="Glioblastoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="GTEX" displayName="GTEX"></HayDropdown>
                 <HayDropdown eventKey="HNSC" displayName="Head and Neck Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="KICH" displayName="Kidney Chromophobe (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="KIRC" displayName="Kidney Renal Clear Cell Carcinoma (TCGA)"></HayDropdown>
@@ -450,7 +479,7 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
                 <HayDropdown eventKey="UCEC" displayName="Uterine Serous Cancer (TCGA)"></HayDropdown>
         </Dropdown>
         <br/>
-        <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerTypeState.cancerType}</strong></div>
+        <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerDisplayNames[cancerTypeState.cancerType]}</strong></div>
         </Grid>
         <Grid id="gridItem2" item>
         <Dropdown title="Sample Filter"
@@ -507,6 +536,7 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
                 <HayDropdown eventKey="COAD" displayName="Colon Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="ESCA" displayName="Esophageal Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="GBM" displayName="Glioblastoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="GTEX" displayName="GTEX"></HayDropdown>
                 <HayDropdown eventKey="HNSC" displayName="Head and Neck Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="KICH" displayName="Kidney Chromophobe (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="KIRC" displayName="Kidney Renal Clear Cell Carcinoma (TCGA)"></HayDropdown>
@@ -526,7 +556,7 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
                 <HayDropdown eventKey="UCEC" displayName="Uterine Serous Cancer (TCGA)"></HayDropdown>
         </Dropdown>
         <br/>
-        <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerSignatureGroupState.cancerType}</strong></div>
+        <div style={{textAlign: "center", color: "blue", fontSize: 12}}><strong>{cancerDisplayNames[cancerSignatureGroupState.cancerType]}</strong></div>
         </Grid>
         <Grid id="gridItem5" item>
         <Dropdown
@@ -538,9 +568,12 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
                 trigger = "hover">
                 <div style={{maxHeight: "300px", overflowY: "scroll"}}>
                 {(() => {
-                    //console.log("good", Object.entries(signatureListState));
+                    console.log("good", Object.entries(signatureListState));
                     const dropdownItems = [];
-                    for (const [key, value] of Object.entries(signatureListState))
+                    const sortedEntries = Object.entries(signatureListState).sort((a, b) => 
+                      a[1].localeCompare(b[1]) // compare values (a[1] and b[1]) in descending order
+                    );
+                    for (const [key, value] of sortedEntries)
                     {
                         dropdownItems.push(<HayDropdown eventKey={[key, value]} displayName={value}></HayDropdown>)
                     }

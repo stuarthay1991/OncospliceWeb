@@ -48,7 +48,7 @@ function setUpLinkForUID(input){
 
 function setUpSignature(input, cancer){
     var splitString = input.split("_");
-    if(cancer != "gtexpsi")
+    if(cancer != "gtex")
     {
         var signatureName = splitString[1].concat("-").concat(splitString[2]);
     }
@@ -96,7 +96,7 @@ function tablePlotRequest(cancerName, currentGene, currentCoord, currentAnnotati
             var urlForCoordinates = setUpLinkForCoordinates(curpointer["cancer"], curpointer["coordinates"]);
             var signatureFixed = setUpSignature(curpointer["signature_name"], curpointer["cancer"]);
             var coordinateFixed = curpointer["coordinates"].split("|");
-            if(curpointer["cancer"] != "gtexpsi")
+            if(curpointer["cancer"] != "gtex")
             {
                 var signatureSetUp = "None";
                 var datagroup = "";

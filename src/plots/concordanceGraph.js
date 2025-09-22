@@ -7,7 +7,7 @@ function getPosition(string, subString, index) {
 
 function utilityCleanSignatureName(toSendInputKey)
 {
-  toSendInputKey = toSendInputKey.replace('HNSCC', '');
+  /*toSendInputKey = toSendInputKey.replace('HNSCC', '');
   toSendInputKey = toSendInputKey.replace('PCPG', '');
   toSendInputKey = toSendInputKey.replace('PRAD', '');
   toSendInputKey = toSendInputKey.replace('BRCA', '');
@@ -22,7 +22,7 @@ function utilityCleanSignatureName(toSendInputKey)
   toSendInputKey = toSendInputKey.replaceAll('_', ' ');
   toSendInputKey = toSendInputKey.replace('GBM', '');
   toSendInputKey = toSendInputKey.replace('gbm', '');
-  toSendInputKey = toSendInputKey.replace('LUAD', '');
+  toSendInputKey = toSendInputKey.replace('LUAD', '');*/
   return toSendInputKey;
 }
 
@@ -185,8 +185,10 @@ class CONCORDANCE_GRAPH extends React.Component {
         var t1 = S.homeSignature.name;
         t1 = t1.replace('_TCGA', '');
         t1 = t1.replace('psi_', '');
-        t1 = t1.replace('_', ' ');
+        //t1 = t1.replace('_', ' ');
         t1 = t1.replace('_vs_others', '');
+        t1 = t1.toUpperCase();
+        t1 = t1.replace(/_/g, "-");
         if(S.type == "stackedbar")
         {
           t1 = t1.concat(": ").concat(S.annot);
@@ -313,8 +315,10 @@ class CONCORDANCE_GRAPH extends React.Component {
         var homeKey = S.homeSignature.name;
         homeKey = homeKey.replace('_TCGA', '');
         homeKey = homeKey.replace('psi_', '');
-        homeKey = homeKey.replace('_', ' ');
-        homeKey = homeKey.replace('_vs_others', '');
+        /*homeKey = homeKey.replace('_', ' ');
+        homeKey = homeKey.replace('_vs_others', '');*/
+        homeKey = homeKey.toUpperCase();
+        homeKey = homeKey.replace(/_/g, "-");
         if(homeKey.length > 25)
         {
             homeKey = homeKey.substring(0, 25);
@@ -324,10 +328,14 @@ class CONCORDANCE_GRAPH extends React.Component {
         //make hollow rect
         var inputKey = signature_name;
         inputKey = inputKey.replace('_tcga', '');
-        inputKey = inputKey.replace('hnscc', '');
+        //inputKey = inputKey.replace('hnscc', '');
         inputKey = inputKey.replace('psi_', '');
-        inputKey = inputKey.replace('_', ' ');
+        //inputKey = inputKey.replace('_', ' ');
         inputKey = inputKey.replace('_vs_others', '');
+        inputKey = inputKey.toUpperCase();
+        inputKey = inputKey.replace(/^.*?_/, "");
+        inputKey = inputKey.replace(/_/g, "-");
+
         if(inputKey.length > 30)
         {
             inputKey = inputKey.substring(0, 30);

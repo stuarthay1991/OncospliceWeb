@@ -210,7 +210,7 @@ function MainPanel(props){
   console.log(params, props.pagelist, "params");
   var setCoord = undefined;
   var setGene = undefined;
-  if(props.pagelist.length <= 1 && (page == "explore" || page == "pancancer"))
+  if(props.pagelist.length <= 1 && (page == "explore"))
   {
       var args = {};
       var functionpointer = makeRequest;
@@ -245,6 +245,14 @@ function MainPanel(props){
       args2["callback"] = setSignatureListState;
       args2["cancerType"] = options;
       makeRequest("updateSignatureGeneric", args2);
+  }
+  if(props.pagelist.length <= 1 && page == "pancancer")
+  {
+    var args = {};
+    args["pancancerupdate"] = setPanCancerState;
+    args["cancerType"] = options;
+    args["signature"] = [signature];
+    makeRequest("pancancerUiFields", args);
   }
   if(props.pagelist.length <= 1 && page == "table")
   {

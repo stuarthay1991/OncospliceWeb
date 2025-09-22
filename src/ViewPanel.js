@@ -123,7 +123,7 @@ function exonRequest(GENE, in_data, setViewState, viewState, exonPlotState, setE
     data: postedData,
     headers: { "Content-Type": "application/json" },
   })
-    .then(function (response) {
+  .then(function (response) {
       var resp = response["data"];
       //console.log("blobbings", resp["blob"]);
       setViewState({
@@ -283,7 +283,10 @@ function FilterHeatmapSelect(props) {
             for (const [key, value] of Object.entries(props.uifielddict.dict)) {
               var name_selected = key.replaceAll("_", " ");
               name_selected = name_selected.charAt(0).toUpperCase() + name_selected.slice(1);
-              options.push(<option value={key}>{name_selected}</option>);
+              if(name_selected != "Fusion" && name_selected != "fusion")
+              {
+                options.push(<option value={key}>{name_selected}</option>);
+              }
             }
             return options;
           })()}
@@ -665,7 +668,11 @@ class OKMAP_LABEL extends React.Component {
       coledit = coledit.replace("-", "_");*/
       let parts = coledit.split("_");
       var newcoledit = parts.slice(0, 4).join("_");
-      coledit = newcoledit.concat("_bed");
+      if(newcoledit.slice(-4) != "_bed")
+      {
+        coledit = newcoledit.concat("_bed");
+      }
+      //console.log("TAKE A LOOK,", retcols["out"], coledit);
       var type = retcols["out"][coledit];
       var colortake = retcols["color"][type];
       colortake = parseInt(colortake);
@@ -707,7 +714,15 @@ class OKMAP_LABEL extends React.Component {
       if(this.props.okmapLabelState != "NULL")
       {
         this.writeBlocks(this.props.okmapLabelState, this.props.xscale, this.props.column_names);
-        metarepost(Object.entries(this.props.uifielddict.dict)[0][0], this.props.setFilterState, this.props.setOkmapLabelState);
+        //console.log("META SEND", Object.entries(this.props.uifielddict.dict)[0]);
+        if(Object.entries(this.props.uifielddict.dict)[0][0] == "fusion")
+        {
+          metarepost(Object.entries(this.props.uifielddict.dict)[1][0], this.props.setFilterState, this.props.setOkmapLabelState);
+        }
+        else
+        {
+          metarepost(Object.entries(this.props.uifielddict.dict)[0][0], this.props.setFilterState, this.props.setOkmapLabelState);
+        }
         //document.getElementById("HeatmapFilterSelect_id").value = Object.entries(global_uifielddict)[0][0];
       }
       return(
@@ -720,7 +735,15 @@ class OKMAP_LABEL extends React.Component {
     this.baseSVG("100%", 20);
     this.writeBase(20);
     //console.log("gufd", Object.entries(global_uifielddict)[0][0]);
-    metarepost(Object.entries(this.props.uifielddict.dict)[0][0], this.props.setFilterState, this.props.setOkmapLabelState);
+    //console.log("META SEND", Object.entries(this.props.uifielddict.dict)[0]);
+    if(Object.entries(this.props.uifielddict.dict)[0][0] == "fusion")
+    {
+        metarepost(Object.entries(this.props.uifielddict.dict)[1][0], this.props.setFilterState, this.props.setOkmapLabelState);
+    }
+    else
+    {
+        metarepost(Object.entries(this.props.uifielddict.dict)[0][0], this.props.setFilterState, this.props.setOkmapLabelState);
+    }
   }
 
   render (){

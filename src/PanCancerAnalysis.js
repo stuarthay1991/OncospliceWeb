@@ -163,7 +163,7 @@ function tablePlotRequest(SIGNATURE, type, setTableState, annotation="none", can
   var bodyFormData = new FormData();
   document.getElementById("tableLoadingDiv").style.display = "block";
   document.getElementById("rootTable").style.opacity = 0.2;
-  var postedData = {"data": {"signature": SIGNATURE, "type": type, "cancerName": cancerName}}
+  var postedData = {"data": {"signature": SIGNATURE, "type": type, "cancerName": cancerName, "annotation": annotation}}
   axios({
     method: "post",
     url: routeurl.concat("/api/datasets/updatepantable"),
@@ -479,10 +479,29 @@ function RootTable(props) {
   var column_splice_obj = rootTableColumnSpliceObj;
   var column_gene_obj = rootTableColumnGeneObj;
 
+  var title_obj = props.tableState.signature;
+  if(title_obj == undefined)
+  {
+    title_obj = "psi_no_signature";
+    title_obj = title_obj.replace("psi_", "");
+    title_obj = title_obj.toUpperCase();
+    title_obj = title_obj.replace(/_/g, "-");
+  }
+  
+  /*try{
+  title_obj = title_obj.replace("psi_", "");
+  title_obj = title_obj.upperCase();
+  title_obj = title_obj.replace(/_/g, "-");
+  }
+  catch(err)
+  {
+    console.log(err);
+  }*/
+
   var columns_splc = React.useMemo(
     () => [
       {
-        Header: 'Events for signature: '.concat(props.tableState.signature).concat(' | Annotations: ').concat(props.tableState.annotation),
+        Header: 'Events for signature: '.concat(title_obj.replace("psi_", "").toUpperCase().replace(/_/g, "-")).concat(' | Annotations: ').concat(props.tableState.annotation),
         columns: column_splice_obj,
       },
     ],
@@ -492,7 +511,7 @@ function RootTable(props) {
   var columns_gene = React.useMemo(
     () => [
       {
-        Header: 'Events for signature: '.concat(props.tableState.signature).concat(' | Annotations: ').concat(props.tableState.annotation),
+        Header: 'Events for signature: '.concat(title_obj.replace("psi_", "").toUpperCase().replace(/_/g, "-")).concat(' | Annotations: ').concat(props.tableState.annotation),
         columns: column_gene_obj,
       },
     ],

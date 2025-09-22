@@ -78,22 +78,22 @@ function Table({ columns, data, tableState, newPageTotal, tablePlotRequest, setT
         if(inputValue == "next")
         {
             var newPseudoPage = pseudoPage+1;
-            tablePlotRequest("gtexpsi", "initial", newPseudoPage, setTableState, tableState.pageSize);
+            tablePlotRequest("gtex", "initial", newPseudoPage, setTableState, tableState.pageSize);
         }
         else if(inputValue == "previous")
         {
             var newPseudoPage = pseudoPage-1;
-            tablePlotRequest("gtexpsi", "initial", newPseudoPage, setTableState, tableState.pageSize);
+            tablePlotRequest("gtex", "initial", newPseudoPage, setTableState, tableState.pageSize);
         }
         else if(inputValue == "first")
         {
             var newPseudoPage = 0;
-            tablePlotRequest("gtexpsi", "initial", newPseudoPage, setTableState, tableState.pageSize);
+            tablePlotRequest("gtex", "initial", newPseudoPage, setTableState, tableState.pageSize);
         }
         else
         {
             var newPseudoPage = newPageTotal-1;
-            tablePlotRequest("gtexpsi", "initial", newPseudoPage, setTableState, tableState.pageSize);
+            tablePlotRequest("gtex", "initial", newPseudoPage, setTableState, tableState.pageSize);
         }
     }
 
@@ -154,7 +154,7 @@ function Table({ columns, data, tableState, newPageTotal, tablePlotRequest, setT
                     onChange={(e) => {
                     var newPseudoPage = e.target.value-1;
                     console.log("fsfsfooo", Number(e.target.value));
-                    tablePlotRequest("gtexpsi", "initial", newPseudoPage, setTableState, tableState.pageSize);
+                    tablePlotRequest("gtex", "initial", newPseudoPage, setTableState, tableState.pageSize);
                     }}
                     style={{ width: "100px" }}
                 />
@@ -163,7 +163,7 @@ function Table({ columns, data, tableState, newPageTotal, tablePlotRequest, setT
                 value={tableState.pageSize}
                 onChange={(e) => {
                     setPageSize(e.target.value);
-                    tablePlotRequest("gtexpsi", "initial", pseudoPage, setTableState, e.target.value);
+                    tablePlotRequest("gtex", "initial", pseudoPage, setTableState, e.target.value);
                 }}
                 >
                 {[10, 20, 30, 40, 50, 100, 1000].map((pageSize) => (
