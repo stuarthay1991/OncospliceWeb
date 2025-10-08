@@ -27,6 +27,7 @@ const cancerDisplayNames = {
   "LGG": "Low-Grade Gliomas (TCGA)",
   "LIHC": "Liver Cancer (TCGA)",
   "LUAD": "Lung Cancer (TCGA)",
+  "LUSC": "Lung Squamous Cell Carcinoma (TCGA)",
   "OV": "Ovarian Cancer (TCGA)",
   "PAAD": "Pancreatic Cancer (TCGA)",
   "PCPG": "Pheochromocytoma and paraganglioma (TCGA)",
@@ -108,12 +109,14 @@ function PCHeader({setPanCancerState, startingCancer, startingSignature, startin
                 <HayDropdown eventKey="COAD" displayName="Colon Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="ESCA" displayName="Esophageal Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="GBM" displayName="Glioblastoma (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="GTEX" displayName="GTEX"></HayDropdown>
                 <HayDropdown eventKey="HNSC" displayName="Head and Neck Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="KICH" displayName="Kidney Chromophobe (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="KIRC" displayName="Kidney Renal Clear Cell Carcinoma (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="LGG" displayName="Low-Grade Gliomas (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="LIHC" displayName="Liver Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="LUAD" displayName="Lung Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="LUSC" displayName="Lung Squamous Cell Carcinoma (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="OV" displayName="Ovarian Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="PAAD" displayName="Pancreatic Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="PCPG" displayName="Pheochromocytoma and paraganglioma (TCGA)"></HayDropdown>

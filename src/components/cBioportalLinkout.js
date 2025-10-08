@@ -37,7 +37,7 @@ function sendSamplesRetrieveURL(props)
 	var tir = {"BRCA": "brca_tcga_pan_can_atlas_2018",
 		"BLCA": "blca_tcga",
 		"CESC": "cesc_tcga",
-		"COAD": "coad_tcga",
+		"COAD": "coad_tcga_gdc",
 		"ESCA": "esca_tcga",
 		"GBM": "gbm_tcga",
 		"HNSC": "hnsc_tcga",
@@ -46,6 +46,7 @@ function sendSamplesRetrieveURL(props)
 		"LGG": "lgg_tcga",
 		"LIHC": "lihc_tcga",
 		"LUAD": "luad_tcga",
+		"LUSC": "lusc_tcga",
 		"OV": "ov_tcga",
 		"PAAD": "paad_tcga",
 		"PRAD": "prad_tcga",
@@ -59,6 +60,7 @@ function sendSamplesRetrieveURL(props)
 		"UCEC": "ucec_tcga"	
 	}
 	studyID = tir[props.cancer];
+	console.log("cbiosendoff_studyid: ", studyID, props.cancer);
 	let curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
 
 	for(let i in cBioportalJsonData)

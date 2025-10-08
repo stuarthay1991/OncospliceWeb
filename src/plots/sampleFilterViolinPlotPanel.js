@@ -12,24 +12,35 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
   var toCBioLabels = [];
   //console.log("lTF", out);
   //console.log("set", set);
-  console.log("sampleFilter values", selectedExpressionArray, heatmapColumnArray, columnToFilterArray, filterSet);
+  //console.log("sampleFilter values", selectedExpressionArray, heatmapColumnArray, columnToFilterArray, filterSet);
   for(var i = 0; i < filterSet.length; i++)
   {
       var curstack = [];
       var curcol = [];
       for(var k = 0; k < heatmapColumnArray.length; k++)
       {
-        if(heatmapColumnArray[k].slice(0, 3) == "srr"){
-          if(columnToFilterArray[heatmapColumnArray[k]] == filterSet[i])
-            {
-              curstack.push(selectedExpressionArray[heatmapColumnArray[k]]);
-              curcol.push(heatmapColumnArray[k]);
-            }          
+        const findMatchingKey = (obj, probeKey) => {
+          if (obj[probeKey] !== undefined) return probeKey;
+          const keys = Object.keys(obj);
+          const exact = keys.find(k => k === probeKey);
+          if (exact !== undefined) return exact;
+          const inclusive = keys.find(k => k.includes(probeKey) || probeKey.includes(k));
+          return inclusive;
+        };
+        const baseKey = heatmapColumnArray[k];
+        const candidates = [baseKey, baseKey.concat("_bed")];
+        if (baseKey.slice(0, 3) == "srr") {
+          candidates.push(baseKey.replace(".", "_"));
+          candidates.push(baseKey.replace(".", "_").concat("_bed"));
         }
-        if(columnToFilterArray[heatmapColumnArray[k].concat("_bed")] == filterSet[i])
-        {
-          curstack.push(selectedExpressionArray[heatmapColumnArray[k]]);
-          curcol.push(heatmapColumnArray[k]);
+        for (let ci = 0; ci < candidates.length; ci++) {
+          const probe = candidates[ci];
+          const matchKey = findMatchingKey(columnToFilterArray, probe);
+          if (matchKey !== undefined && columnToFilterArray[matchKey] == filterSet[i]) {
+            curstack.push(selectedExpressionArray[baseKey]);
+            curcol.push(baseKey);
+            break;
+          }
         }
       }
       toCBioLabels.push(filterSet[i]);

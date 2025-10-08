@@ -51,17 +51,26 @@ class OKMAP_OncospliceClusters extends React.Component {
     //console.log("refcols", refcols);
     //var refcols = refcols.map(item => item.slice(0, -4));
     //console.log("writecols", writecols);
+    const findMatchingKey = (obj, probeKey) => {
+      if (obj[probeKey] !== undefined) return probeKey;
+      const keys = Object.keys(obj);
+      const exact = keys.find(k => k === probeKey);
+      if (exact !== undefined) return exact;
+      const inclusive = keys.find(k => k.includes(probeKey) || probeKey.includes(k));
+      return inclusive;
+    };
     for(var p = 0; p < refcols.length; p++)
     {
       var rect_length = (1 * xscale);
-      var coledit = writecols[refcols[p]];
+      var matchKey = findMatchingKey(writecols, refcols[p]);
+      var coledit = matchKey !== undefined ? writecols[matchKey] : undefined;
       var colortake = parseInt(coledit);
       var color;
-      if(colortake == "0.0")
+      if(colortake == "0.0" || colortake == "0")
       {
         color = "white";
       }
-      else if(colortake == "1.0")
+      else if(colortake == "1.0" || colortake == "1")
       {
         color = "black";
       }

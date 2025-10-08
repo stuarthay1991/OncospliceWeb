@@ -415,6 +415,7 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
         "LGG": "Low-Grade Gliomas (TCGA)",
         "LIHC": "Liver Cancer (TCGA)",
         "LUAD": "Lung Cancer (TCGA)",
+        "LUSC": "Lung Squamous Cell Carcinoma (TCGA)",
         "OV": "Ovarian Cancer (TCGA)",
         "PAAD": "Pancreatic Cancer (TCGA)",
         "PCPG": "Pheochromocytoma and paraganglioma (TCGA)",
@@ -466,6 +467,7 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
                 <HayDropdown eventKey="LGG" displayName="Low-Grade Gliomas (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="LIHC" displayName="Liver Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="LUAD" displayName="Lung Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="LUSC" displayName="Lung Squamous Cell Carcinoma (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="OV" displayName="Ovarian Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="PAAD" displayName="Pancreatic Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="PCPG" displayName="Pheochromocytoma and paraganglioma (TCGA)"></HayDropdown>
@@ -543,6 +545,7 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
                 <HayDropdown eventKey="LGG" displayName="Low-Grade Gliomas (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="LIHC" displayName="Liver Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="LUAD" displayName="Lung Cancer (TCGA)"></HayDropdown>
+                <HayDropdown eventKey="LUSC" displayName="Lung Squamous Cell Carcinoma (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="OV" displayName="Ovarian Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="PAAD" displayName="Pancreatic Cancer (TCGA)"></HayDropdown>
                 <HayDropdown eventKey="PCPG" displayName="Pheochromocytoma and paraganglioma (TCGA)"></HayDropdown>

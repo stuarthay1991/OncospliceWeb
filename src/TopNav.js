@@ -11,32 +11,6 @@ import downloadicon from './images/download.png';
 import contacticon from './images/contact.png';
 import pubicon from './images/pub.png';
 
-function loadAbout()
-{
-  document.getElementById("aboutpanel").style.display = "block";
-  document.getElementById("contactpanel").style.display = "none";
-  document.getElementById("tabcontent").style.display = "none";
-  document.getElementById("pancancer").style.display = "none";
-  document.getElementById("dropdownOptionsDiv").style.display = "none";
-  document.getElementById("navBarHolder").style.display = "none";
-}
-
-function loadHome()
-{
-  document.getElementById("aboutpanel").style.display = "none";
-  document.getElementById("contactpanel").style.display = "none";
-  document.getElementById("tabcontent").style.display = "block";
-  document.getElementById("pancancer").style.display = "none";
-  document.getElementById("dropdownOptionsDiv").style.display = "block";
-}
-
-function loadContact()
-{
-  document.getElementById("contactpanel").style.display = "block";
-  document.getElementById("aboutpanel").style.display = "none";
-  document.getElementById("tabcontent").style.display = "none";
-}
-
 function TopNav() {
   const classes = useStyles();
   var oncoimg = isBuild ? <img src="/ICGS/Oncosplice/neo/OncoLOGO2.png" alt="Logo" width="202" height="50"></img> : <img src={oncologo} alt="Logo" width="202" height="50"></img>;
@@ -45,6 +19,9 @@ function TopNav() {
 
   const prevMaskPage = useRef();
 
+  const onSelectSplash = (e) => {
+    window.location.href = "https://www.altanalyze.org/ICGS/Oncosplice/splash/";
+  }
 
   const onSelectHome = (e) => {
     setMaskPage({"name": "data"});
@@ -137,10 +114,10 @@ function TopNav() {
         }
       `}</style>
       <div className={classes.mainpane} style={{ fontFamily: 'Roboto', background: "#0073aa", color: "#0073aa", display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-        <div className={classes.cntr_special}>{oncoimg}</div>
+        <div className={classes.cntr_special} onClick={onSelectSplash} style={{cursor: "pointer"}} title="Go to Splash Page">{oncoimg}</div>
         <div className={classes.mainpane_margin_type1}>
         </div>
-        <div> 
+        <div>
         <ul class="topnav">
                       <li class="topnav"><a href="#" onClick={onSelectHome} class="topnav"><img src={homeicon} height="30" width="30" alt="Home" class="icon"></img>Home</a></li>
                       <li class="topnav"><a href="#" onClick={onSelectAbout} class="topnav"><img src={infoicon} height="30" width="30" alt="About" class="icon"></img>About</a></li>

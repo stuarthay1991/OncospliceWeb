@@ -7,8 +7,16 @@ import {ExpandedPlotViewButton} from '../components/ExpandedPlotView';
 
 export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer, flag="NO")
 {
-  //console.log("ONCO_PANTS", oncospliceSampleLabels, selectedOncospliceSignature);
-  //console.log("oncospliceClusterViolinPlot data", heatmapColumnArray, oncospliceSampleLabels);
+  console.log("ONCO_section", oncospliceSampleLabels, selectedOncospliceSignature);
+  console.log("oncospliceClusterViolinPlot data", heatmapColumnArray, oncospliceSampleLabels);
+  const findMatchingLabelKey = (labels, probeKey) => {
+    if (labels[probeKey] !== undefined) return probeKey;
+    const keys = Object.keys(labels);
+    const exact = keys.find(k => k === probeKey);
+    if (exact !== undefined) return exact;
+    const inclusive = keys.find(k => k.includes(probeKey) || probeKey.includes(k));
+    return inclusive;
+  };
   var expressionArrayClusters = {"cluster0": [], "cluster1": []};
   //console.log("curcol", heatmapColumnArray[0]);
   let vo = heatmapColumnArray[0].replace("_bed", "");
@@ -26,7 +34,8 @@ export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray
     {
       modcurcol = curcol.replace("_bed", "");
     }
-    if(parseInt(oncospliceSampleLabels[modcurcol], 10) == 0)
+    const matchKey0 = findMatchingLabelKey(oncospliceSampleLabels, modcurcol);
+    if(matchKey0 !== undefined && parseInt(oncospliceSampleLabels[matchKey0], 10) == 0)
     {
       expressionArrayClusters["cluster0"].push(selectedExpressionArray[curcol]);
     }
@@ -43,7 +52,8 @@ export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray
     {
       modcurcol = curcol.replace("_bed", "");
     }
-    if(parseInt(oncospliceSampleLabels[modcurcol], 10) == 1)
+    const matchKey1 = findMatchingLabelKey(oncospliceSampleLabels, modcurcol);
+    if(matchKey1 !== undefined && parseInt(oncospliceSampleLabels[matchKey1], 10) == 1)
     {
       expressionArrayClusters["cluster1"].push(selectedExpressionArray[curcol]);
     }
