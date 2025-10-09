@@ -7,8 +7,8 @@ import {ExpandedPlotViewButton} from '../components/ExpandedPlotView';
 
 export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer, flag="NO")
 {
-  console.log("ONCO_section", oncospliceSampleLabels, selectedOncospliceSignature);
-  console.log("oncospliceClusterViolinPlot data", heatmapColumnArray, oncospliceSampleLabels);
+  //console.log("ONCO_section", oncospliceSampleLabels, selectedOncospliceSignature);
+  //console.log("oncospliceClusterViolinPlot data", heatmapColumnArray, oncospliceSampleLabels);
   const findMatchingLabelKey = (labels, probeKey) => {
     if (labels[probeKey] !== undefined) return probeKey;
     const keys = Object.keys(labels);
