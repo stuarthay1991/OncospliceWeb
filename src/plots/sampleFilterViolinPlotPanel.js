@@ -30,7 +30,7 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
         };
         
         const baseKey = heatmapColumnArray[k];
-        const candidates = [baseKey, baseKey.concat("_bed")];
+        const candidates = [baseKey, baseKey.concat("_bed"), baseKey.slice(0, 15), baseKey.slice(0, 15).concat("_bed")];
         
         // Handle SRR format
         if (baseKey.slice(0, 3) == "srr") {
@@ -42,6 +42,10 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
         if (baseKey.startsWith("tcga_") && baseKey.endsWith("_bed")) {
           const truncatedId = baseKey.replace("_bed", "");
           candidates.push(truncatedId);
+          const truncatedId2 = truncatedId.slice(0, 15)
+          candidates.push(truncatedId2);
+          const truncatedId3 = truncatedId.slice(0, 15)
+          candidates.push(truncatedId3.concat("_bed"));
           
           // Try to find matching full TCGA ID in selectedExpressionArray
           const fullTcgKeys = Object.keys(selectedExpressionArray);
@@ -52,6 +56,8 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
             candidates.push(matchingFullKey);
           }
         }
+
+        console.log("CANDIDATES: ", candidates);
         
         for (let ci = 0; ci < candidates.length; ci++) {
           const probe = candidates[ci];
