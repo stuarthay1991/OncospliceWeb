@@ -277,7 +277,6 @@ function FilterHeatmapSelect(props) {
             id: "HeatmapFilterSelect_id",
           }}
         >
-          <option value={state.value}>{state.value}</option>
           {(() => {
             const options = [];
             for (const [key, value] of Object.entries(props.uifielddict.dict)) {
@@ -581,7 +580,7 @@ class OKMAP_LABEL extends React.Component {
 
   writeBlocks(retcols, xscale, writecols)
   {
-    var legend_y = 0;
+    var legend_y = 24;
     var legend_y_increment = 18;
     var legend_x = 0;
     var maxcharlen = 0;
@@ -597,7 +596,7 @@ class OKMAP_LABEL extends React.Component {
           makedisfunc = 50;
         }
         legend_x = legend_x + makedisfunc + 20;
-        legend_y = 0;
+        legend_y = 24;
         maxcharlen = 0;
       }
       var colortake = retcols["color"][retcols["set"][p]];
@@ -614,7 +613,7 @@ class OKMAP_LABEL extends React.Component {
 
       this.SVG_main_group.append("text")
           .attr("x", (legend_x+20))
-          .attr("y", (legend_y+9))
+          .attr("y", (legend_y+10))
           .attr("text-anchor", "start")
           .style("font-size", "11px")
           .style('fill', 'black')
@@ -632,7 +631,7 @@ class OKMAP_LABEL extends React.Component {
     if(retcols["set"].length != 0 && retcols["set"].length % 4 == 0)
     {
         legend_x = legend_x + 50;
-        legend_y = 0;
+        legend_y = 24;
     }
     else
     {
@@ -646,7 +645,7 @@ class OKMAP_LABEL extends React.Component {
 
       this.SVG_main_group.append("text")
           .attr("x", (legend_x+20))
-          .attr("y", (legend_y+9))
+          .attr("y", (legend_y+10))
           .attr("text-anchor", "start")
           .style("font-size", "11px")
           .style('fill', 'black')
@@ -680,7 +679,7 @@ class OKMAP_LABEL extends React.Component {
       this.SVG_main_group.append("rect")
           .style("stroke-width", 0)
           .attr("x", x_pointer)
-          .attr("y", 85)
+          .attr("y", 100)
           .attr("width", rect_length)
           .attr("height", 20)
           .attr("fill", color);
@@ -691,7 +690,7 @@ class OKMAP_LABEL extends React.Component {
     x_pointer = x_pointer + 6;
     this.SVG_main_group.append("text")
         .attr("x", x_pointer)
-        .attr("y", 98)
+        .attr("y", 112)
         .attr("text-anchor", "start")
         .style("font-size", "11px")
         .style('fill', 'black')
@@ -708,8 +707,8 @@ class OKMAP_LABEL extends React.Component {
       var retval = null;
       var tempnode = document.getElementById(this.target_div);
       tempnode.innerHTML = "";
-      this.baseSVG("100%", 100);
-      this.writeBase(this.props.column_names, 100, this.props.xscale);
+      this.baseSVG("100%", 115);
+      this.writeBase(this.props.column_names, 115, this.props.xscale);
       //console.log("CDU this.state.retcols", this.state.retcols);
       if(this.props.okmapLabelState != "NULL")
       {
@@ -750,8 +749,8 @@ class OKMAP_LABEL extends React.Component {
     var retval = null;
     var tempnode = document.getElementById(this.target_div);
     tempnode.innerHTML = "";
-    this.baseSVG("100%", 100);
-    this.writeBase(this.props.column_names, 100, this.props.xscale);
+    this.baseSVG("100%", 115);
+    this.writeBase(this.props.column_names, 115, this.props.xscale);
     //console.log("3 this.props.column_names", this.props.column_names);
     //console.log("this.state.retcols", this.state.retcols);
     //console.log("this.props.okmapLabelState", this.props.okmapLabelState);
@@ -1251,7 +1250,7 @@ function ViewPanel(props) {
   const [okmapTable, setOkmapTable] = React.useState({curAnnots: okmapTableStartingData});
   //console.log("okmaptable", okmapTable);
   const [gtexState, setGtexState] = React.useState({gtexPlot: null});
-  
+  console.log("Tell me the filters", filterState);
   const [resizeState, setResizeState] = React.useState({heatmapBox: null, sidePanel: null});
   //const [uifielddict, setUifielddict] = React.useState({dict: props.QueryExport["ui_field_dict"]});
   
