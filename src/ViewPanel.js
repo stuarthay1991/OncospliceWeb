@@ -882,39 +882,61 @@ class OKMAP extends React.Component {
 
   writeSingle5(y_pointer, data, y_scale, x_scale, col_list, flag=0, hflag=0)
   {
-    var bubble_1 = d3.select("#" + this.target_div + "_group");
     var parent = this;
     var x_pointer = 0;
-
+    
+    // Pre-calculate frequently used values
+    var rect_width = 1 * x_scale;
+    var step_size = rect_width - 0.1;
+    
+    // Batch DOM operations by pre-calculating all rect properties
+    var rects = [];
+    
     for (var p = 0; p < col_list.length; p++) {
         var cur_square_val = parseFloat(data[col_list[p]]);
         var selected_color;
 
         if (cur_square_val < 0.05 && cur_square_val > -0.05) {
             selected_color = "rgb(0, 0, 0)";
-            x_pointer += 1 * x_scale - 0.1;
-            continue;
+        } else {
+            // Optimized color calculation
+            var isNegative = cur_square_val <= -0.05;
+            var multiplier = isNegative ? -210 * 3 : 210 * 3;
+            var integerval = Math.min(Math.max(10 + (multiplier * cur_square_val), 0), 255);
+            var magic_others = Math.min(Math.max(Math.floor(cur_square_val * (isNegative ? 100 : 10)), 0), 255);
+            
+            var r = isNegative ? magic_others : integerval;
+            var g = isNegative ? integerval : integerval;
+            var b = isNegative ? integerval : magic_others;
+            selected_color = `rgb(${r}, ${g}, ${b})`;
         }
 
-        var integerval = cur_square_val <= -0.05 ? Math.min(Math.max(10 + (-210 * (cur_square_val * 3)), 0), 255) : Math.min(Math.max(10 + (210 * (cur_square_val * 3)), 0), 255);
-        var magic_others = Math.min(Math.max(Math.floor(cur_square_val * (cur_square_val <= -0.05 ? 100 : 10)), 0), 255);
-        var magic_yellow = integerval.toString();
-        var magic_blue = integerval.toString();
-        selected_color = "rgb(" + (cur_square_val <= -0.05 ? magic_others : magic_yellow) + ", " + (cur_square_val <= -0.05 ? magic_blue : magic_yellow) + ", " + (cur_square_val <= -0.05 ? magic_blue : magic_others) + ")";
+        rects.push({
+          x: x_pointer,
+          y: y_pointer,
+          width: rect_width,
+          height: y_scale,
+          fill: selected_color
+        });
 
-        this.SVG_main_group.append("rect")
-            .style("stroke-width", 0)
-            .attr("x", x_pointer)
-            .attr("y", y_pointer)
-            .attr("width", (1 * x_scale))
-            .attr("height", y_scale)
-            .attr("fill", selected_color);
-
-      x_pointer = x_pointer + ((1 * x_scale) - 0.1);
+        x_pointer += step_size;
     }
+    
+    // Batch append all rectangles at once
+    var selection = this.SVG_main_group.selectAll(null)
+      .data(rects)
+      .enter()
+      .append("rect")
+      .style("stroke-width", 0)
+      .attr("x", d => d.x)
+      .attr("y", d => d.y)
+      .attr("width", d => d.width)
+      .attr("height", d => d.height)
+      .attr("fill", d => d.fill);
+
     this.farthestX = x_pointer;
     var colorei = this.farthestX;
-    //console.log("this.farthestX", this.farthestX);
+    
     this.SVG_main_group.append("rect")
       .style("stroke-width", 0)
       .attr("x", 0)
@@ -981,11 +1003,9 @@ class OKMAP extends React.Component {
 
   uidConvert(uid)
   {
-    uid = uid.split(":");
-    var uid_secondcomp = uid[2];
-    uid_secondcomp = uid_secondcomp.split("|");
-    var uid_final = uid[0].concat(":").concat(uid_secondcomp[0]).concat("|").concat(uid[3]);
-    return uid_final
+    var parts = uid.split(":");
+    var secondComp = parts[2].split("|")[0];
+    return parts[0] + ":" + secondComp + "|" + parts[3];
   }
 
   tempRectAdd(y_origin, col_list, xscale)
@@ -1042,29 +1062,47 @@ class OKMAP extends React.Component {
     if((this.props.dataset.length !== prevProps.dataset.length) || (this.props.column_names.length !== prevProps.column_names.length || this.props.signatureName != prevProps.signatureName))
     {
       var tempnode = document.getElementById(this.target_div);
-      var y_start = 0;
-      while (tempnode.firstChild) {
-        tempnode.removeChild(tempnode.firstChild);
-      }
       var tempnodeRL = document.getElementById(this.target_row_label_div);
-      while (tempnodeRL.firstChild) {
-        tempnodeRL.removeChild(tempnodeRL.firstChild);
-      }
+      var y_start = 0;
+      
+      // More efficient DOM cleanup
       tempnode.innerHTML = "";
       tempnodeRL.innerHTML = "";
-      setTimeout(() => {
       this.baseSVG("100%", ((15 * this.props.dataset.length) + 50), this.props.len);
       this.baseRLSVG("100%", ((15 * this.props.dataset.length) + 50));
       this.writeBase(15, this.props.xscale, this.props.column_names, this.props.len);
       this.writeBaseRLSVG(15, this.props.len);
-      }, 50);
-      for(let i = 0; i < this.props.dataset.length; i++)
-      {
-        setTimeout(() => {
-        this.writeSingle5(y_start, this.props.dataset[i], 15, this.props.xscale, this.props.column_names, 1);
-        this.writeRowLabel(y_start, this.props.dataset[i], 15, i);
-        y_start = y_start + 15;
-        }, 50);
+      
+      // Use requestAnimationFrame for better performance instead of setTimeout
+      const renderRows = () => {
+        for(let i = 0; i < this.props.dataset.length; i++)
+        {
+          this.writeSingle5(y_start, this.props.dataset[i], 15, this.props.xscale, this.props.column_names, 1);
+          this.writeRowLabel(y_start, this.props.dataset[i], 15, i);
+          y_start = y_start + 15;
+        }
+      };
+      
+      // Batch render with requestAnimationFrame for smoother rendering
+      if (this.props.dataset.length > 100) {
+        // For large datasets, render in chunks
+        let index = 0;
+        const chunkSize = 50;
+        const renderChunk = () => {
+          const endIndex = Math.min(index + chunkSize, this.props.dataset.length);
+          for (let i = index; i < endIndex; i++) {
+            this.writeSingle5(y_start, this.props.dataset[i], 15, this.props.xscale, this.props.column_names, 1);
+            this.writeRowLabel(y_start, this.props.dataset[i], 15, i);
+            y_start = y_start + 15;
+          }
+          index = endIndex;
+          if (index < this.props.dataset.length) {
+            requestAnimationFrame(renderChunk);
+          }
+        };
+        renderChunk();
+      } else {
+        renderRows();
       }
       /*var elements = document.querySelectorAll('[id='.concat('"HEATMAP_0_svg"').concat(']'));
       console.log("elements", elements);
@@ -1082,21 +1120,38 @@ class OKMAP extends React.Component {
     var y_start = 0;
     if(tempnode.hasChildNodes() == "")
     {
-      setTimeout(() => {
       this.baseSVG("100%", ((this.state.zoom_level * this.props.dataset.length) + 50), this.props.len);
       this.baseRLSVG("100%", ((this.state.zoom_level * this.props.dataset.length) + 50));
       this.writeBase(this.state.zoom_level, this.props.xscale, this.props.column_names, this.props.len);
       this.writeBaseRLSVG(this.state.zoom_level);
-      }, 50);
 
       //console.log("rendering heatmap...", this.props.dataset);
-      for(let i = 0; i < this.props.dataset.length; i++)
-      {
-        setTimeout(() => {
-        this.writeSingle5(y_start, this.props.dataset[i], this.state.zoom_level, this.props.xscale, this.props.column_names, 1);
-        this.writeRowLabel(y_start, this.props.dataset[i], this.state.zoom_level, i);
-        y_start = y_start + this.state.zoom_level;
-        }, 50);
+      // Batch render rows for better performance
+      if (this.props.dataset.length > 100) {
+        // For large datasets, render in chunks
+        let index = 0;
+        const chunkSize = 50;
+        const renderChunk = () => {
+          const endIndex = Math.min(index + chunkSize, this.props.dataset.length);
+          for (let i = index; i < endIndex; i++) {
+            this.writeSingle5(y_start, this.props.dataset[i], this.state.zoom_level, this.props.xscale, this.props.column_names, 1);
+            this.writeRowLabel(y_start, this.props.dataset[i], this.state.zoom_level, i);
+            y_start = y_start + this.state.zoom_level;
+          }
+          index = endIndex;
+          if (index < this.props.dataset.length) {
+            requestAnimationFrame(renderChunk);
+          }
+        };
+        renderChunk();
+      } else {
+        // For smaller datasets, render all at once
+        for(let i = 0; i < this.props.dataset.length; i++)
+        {
+          this.writeSingle5(y_start, this.props.dataset[i], this.state.zoom_level, this.props.xscale, this.props.column_names, 1);
+          this.writeRowLabel(y_start, this.props.dataset[i], this.state.zoom_level, i);
+          y_start = y_start + this.state.zoom_level;
+        }
       }
       /*ar elements = document.querySelectorAll('[id='.concat('"HEATMAP_0_svg"').concat(']'));
       console.log("elements", elements);
@@ -1113,12 +1168,12 @@ class OKMAP extends React.Component {
       this.baseRLSVG("100%", ((this.state.zoom_level * this.props.dataset.length) + 50));
       this.writeBaseRLSVG(this.state.zoom_level);
       var yRL_start = 0;
+      
+      // Batch render row labels for better performance
       for(let k = 0; k < this.props.dataset.length; k++)
       {
-        setTimeout(() => {
         this.writeRowLabel(yRL_start, this.props.dataset[k], this.state.zoom_level, k);
         yRL_start = yRL_start + this.state.zoom_level;
-        }, 50);
       }
       /*var elements = document.querySelectorAll('[id='.concat('"HEATMAP_0_svg"').concat(']'));
       console.log("elements", elements);
