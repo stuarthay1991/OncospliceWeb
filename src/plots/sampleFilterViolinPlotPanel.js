@@ -57,7 +57,7 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
           }
         }
 
-        console.log("CANDIDATES: ", candidates);
+        //console.log("CANDIDATES: ", candidates);
         
         for (let ci = 0; ci < candidates.length; ci++) {
           const probe = candidates[ci];
@@ -88,7 +88,7 @@ function sampleFilterViolinPlotPanel(selectedRow, selectedExpressionArray, heatm
         marker: {color: curcolor},
       });
   }
-  console.log("datarray", datarray, "2");
+  //console.log("datarray", datarray, "2");
   var available_width = window.innerWidth;
   var available_height = window.innerHeight;
   var plotobj = <div id="lub2"><Plot

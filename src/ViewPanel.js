@@ -91,9 +91,9 @@ function metarepost(name, setFilterState, setOkmapLabelState) {
   })
     .then(function (response) {
       var ret = response["data"];
-      //console.log("metarepost response data", ret);
+      console.log("metarepost response data", ret);
       setOkmapLabelState(ret);
-      setFilterState({filters: ret["out"], filterset: ret["set"]});
+      setFilterState({filters: ret["out"], filterName: ret["sampleFilterName"], filterset: ret["set"]});
     })
 }
 
@@ -247,7 +247,7 @@ var rows = [
 function FilterHeatmapSelect(props) {
   const classes = useStyles();
   const [state, setState] = React.useState({
-    "value": Object.entries(props.uifielddict.dict)[0][0],
+    "value": props.filterState.filterName,
     name: 'hai',
   });
 
@@ -586,6 +586,15 @@ class OKMAP_LABEL extends React.Component {
     var maxcharlen = 0;
     const maxchardef = 13;
     console.log("Legend Column names", retcols);
+    var textToUse = retcols["sampleFilterName"];
+    this.SVG_main_group.append("text")
+      .attr("x", 0)
+      .attr("y", 14)
+      .attr("text-anchor", "start")
+      .style("font-size", "14px")
+      .style('fill', 'black')
+      .text(textToUse);
+    
     for(var p = 0; p < retcols["set"].length; p++)
     {
       if(p != 0 && p % 4 == 0)
@@ -716,7 +725,7 @@ class OKMAP_LABEL extends React.Component {
         //console.log("META SEND", Object.entries(this.props.uifielddict.dict)[0]);
         if(Object.entries(this.props.uifielddict.dict)[0][0] == "fusion")
         {
-          metarepost(Object.entries(this.props.uifielddict.dict)[1][0], this.props.setFilterState, this.props.setOkmapLabelState);
+          metarepost(this.props.okmapLabelState["sampleFilterName"], this.props.setFilterState, this.props.setOkmapLabelState);
         }
         else
         {
@@ -737,7 +746,7 @@ class OKMAP_LABEL extends React.Component {
     //console.log("META SEND", Object.entries(this.props.uifielddict.dict)[0]);
     if(Object.entries(this.props.uifielddict.dict)[0][0] == "fusion")
     {
-        metarepost(Object.entries(this.props.uifielddict.dict)[1][0], this.props.setFilterState, this.props.setOkmapLabelState);
+        metarepost(this.props.okmapLabelState["sampleFilterName"], this.props.setFilterState, this.props.setOkmapLabelState);
     }
     else
     {
@@ -1242,10 +1251,13 @@ function ViewPanel(props) {
   });
 
   var okmapTableStartingData = [createData('-none selected-', '-none selected-')];
-  
+
+  var uifielddict = {
+    dict: props.QueryExport["ui_field_dict"]
+  }
 
   const [selectionState, setSelectionState] = React.useState({selection: null});
-  const [filterState, setFilterState] = React.useState({filters: null, filterset: null});
+  const [filterState, setFilterState] = React.useState({filters: null, filterName: Object.entries(uifielddict.dict)[0][0], filterset: null});
   const [plotUIDstate, setPlotUIDstate] = React.useState({fulldat: null});
   const [okmapTable, setOkmapTable] = React.useState({curAnnots: okmapTableStartingData});
   //console.log("okmaptable", okmapTable);
@@ -1258,9 +1270,7 @@ function ViewPanel(props) {
     console.log("AC1423");
   }
 
-  var uifielddict = {
-    dict: props.QueryExport["ui_field_dict"]
-  }
+
   /*React.useEffect(() => {
     if (props.QueryExport["ui_field_dict"] !== uifielddict.dict) {
       setUifielddict({dict: props.QueryExport["ui_field_dict"]});
@@ -1455,7 +1465,7 @@ function ViewPanel_Main(props) {
             <div><Button variant="contained" style={{marginTop: "5px", backgroundColor: '#0F6A8B'}}><FullscreenIcon onClick={fullViewHeatmap} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button></div>
             <div><Button variant="contained" style={{marginTop: "5px", marginBottom: "5px", backgroundColor: '#0F6A8B'}}><GetAppIcon onClick={() => downloadHeatmapText(props.Data,props.Cols,props.QueryExport,props.CC,props.OncospliceClusters)} style={{backgroundColor: '#0F6A8B', color: 'white', fontSize: 26}}/></Button></div>
             <div><Typography className={classes.smallpadding} /></div>
-            <div><FilterHeatmapSelect uifielddict={props.uifielddict} setFilterState={props.setFilterState} setOkmapLabelState={props.setOkmapLabelState}/></div>
+            <div><FilterHeatmapSelect uifielddict={props.uifielddict} filterState={props.filterState} setFilterState={props.setFilterState} setOkmapLabelState={props.setOkmapLabelState}/></div>
           </div>
           )}
         </div>
