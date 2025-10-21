@@ -518,14 +518,14 @@ class OKMAP_LABEL extends React.Component {
 
   baseSVG(w="120%", h="100%")
   {
-    this.SVG = d3.select("#".concat(this.target_div))
+    this.SVG = d3.select("#" + this.target_div)
       .append("svg")
       .attr("width", w)
       .attr("height", h)
-      .attr("id", (this.target_div.concat("_svg")))
-      .attr("class", (this.target_div.concat("_svg_class")));
+      .attr("id", this.target_div + "_svg")
+      .attr("class", this.target_div + "_svg_class");
 
-    this.SVG_main_group = this.SVG.append("g").attr("id", (this.target_div.concat("_group")));
+    this.SVG_main_group = this.SVG.append("g").attr("id", this.target_div + "_group");
 
     this.SVG_main_group.append("rect")
       .attr("width", w)
@@ -538,44 +538,69 @@ class OKMAP_LABEL extends React.Component {
 
   writeBase(cols, yscale, xscale)
   {
-    this.SVG_main_group.append("rect")
-      .style("stroke-width", 0)
-      .attr("width", ((cols.length * (xscale - 0.1)) + 75))
-      .attr("height", yscale)
-      .style("opacity", 0.0)
-      .attr("fill", "White");
+    // Pre-calculate values to avoid repeated calculations
+    var baseWidth = cols.length * (xscale - 0.1) + 75;
+    var downloadX = baseWidth;
+    var textX = downloadX + 20;
+    
+    // Batch create base elements
+    var baseElements = [
+      {
+        type: "rect",
+        attrs: {
+          width: baseWidth,
+          height: yscale,
+          fill: "White",
+          "stroke-width": 0,
+          opacity: 0.0
+        }
+      },
+      {
+        type: "rect", 
+        attrs: {
+          x: downloadX,
+          y: 0,
+          width: 108,
+          height: 28,
+          fill: "#0F6A8B",
+          stroke: "#0F6A8B",
+          "stroke-width": 2,
+          "float": "right"
+        }
+      }
+    ];
 
-    var numbo = document.getElementById(this.target_div.concat("_svg")).offsetWidth;
+    // Create base rectangles
+    baseElements.forEach(element => {
+      this.SVG_main_group.append(element.type)
+        .each(function() {
+          Object.entries(element.attrs).forEach(([key, value]) => {
+            if (key.includes("-")) {
+              d3.select(this).style(key, value);
+            } else {
+              d3.select(this).attr(key, value);
+            }
+          });
+        });
+    });
 
-    this.SVG_main_group.append("rect")
-      .attr("x", (cols.length * (xscale - 0.1) + 75))
-      .attr("y", 0)
-      .attr("width", 108)
-      .attr("height", 28)
-      .style("float", "right")
-      .style("fill", "#0F6A8B")
-      .style("stroke", "#0F6A8B")
-      .style("stroke-width", 2);
-
+    // Create download text with optimized event handlers
     this.SVG_main_group.append("text")
-      .attr("x", (cols.length * (xscale - 0.1) + 95))
+      .attr("x", textX)
       .attr("y", 20)
       .attr("text-anchor", "start")
       .style("font-size", "15px")
       .style('fill', 'white')
       .text("Download")
       .on("mouseover", function(){
-            d3.select(this).style("fill", "#EFAD18")
-            .style("cursor", "pointer");
+            d3.select(this).style("fill", "#EFAD18").style("cursor", "pointer");
       })
       .on("mouseout", function(){
-            d3.select(this).style("fill", "white")
-            .style("cursor", "default");
+            d3.select(this).style("fill", "white").style("cursor", "default");
       })
       .on("click", function(){
-            downloadHeatmapFunction("heatmap")
-      })
-
+            downloadHeatmapFunction("heatmap");
+      });
   }
 
   writeBlocks(retcols, xscale, writecols)
@@ -587,6 +612,8 @@ class OKMAP_LABEL extends React.Component {
     const maxchardef = 13;
     console.log("Legend Column names", retcols);
     var textToUse = retcols["sampleFilterName"];
+    
+    // Add sample filter name text
     this.SVG_main_group.append("text")
       .attr("x", 0)
       .attr("y", 14)
@@ -594,6 +621,10 @@ class OKMAP_LABEL extends React.Component {
       .style("font-size", "14px")
       .style('fill', 'black')
       .text(textToUse);
+    
+    // Pre-calculate legend items for batch rendering
+    var legendItems = [];
+    var filterRects = [];
     
     for(var p = 0; p < retcols["set"].length; p++)
     {
@@ -608,35 +639,53 @@ class OKMAP_LABEL extends React.Component {
         legend_y = 24;
         maxcharlen = 0;
       }
+      
       var colortake = retcols["color"][retcols["set"][p]];
       colortake = parseInt(colortake);
       var color = global_colors[colortake];
       var curchars = retcols["set"][p];
-      this.SVG_main_group.append("rect")
-          .style("stroke-width", 0)
-          .attr("x", legend_x)
-          .attr("y", legend_y)
-          .attr("width", 15)
-          .attr("height", 15)
-          .attr("fill", color);
+      
+      legendItems.push({
+        x: legend_x,
+        y: legend_y,
+        color: color,
+        text: curchars,
+        textX: legend_x + 20,
+        textY: legend_y + 10
+      });
 
-      this.SVG_main_group.append("text")
-          .attr("x", (legend_x+20))
-          .attr("y", (legend_y+10))
-          .attr("text-anchor", "start")
-          .style("font-size", "11px")
-          .style('fill', 'black')
-          .text(curchars);
-
-    if(curchars != null)
-    {
-    if(curchars.length > maxcharlen)
-    {
+      if(curchars != null && curchars.length > maxcharlen)
+      {
         maxcharlen = curchars.length;
-    }}
-    legend_y = legend_y + legend_y_increment;
+      }
+      legend_y = legend_y + legend_y_increment;
     }
 
+    // Batch render legend rectangles
+    this.SVG_main_group.selectAll(null)
+      .data(legendItems)
+      .enter()
+      .append("rect")
+      .style("stroke-width", 0)
+      .attr("x", d => d.x)
+      .attr("y", d => d.y)
+      .attr("width", 15)
+      .attr("height", 15)
+      .attr("fill", d => d.color);
+
+    // Batch render legend text
+    this.SVG_main_group.selectAll(null)
+      .data(legendItems)
+      .enter()
+      .append("text")
+      .attr("x", d => d.textX)
+      .attr("y", d => d.textY)
+      .attr("text-anchor", "start")
+      .style("font-size", "11px")
+      .style('fill', 'black')
+      .text(d => d.text);
+
+    // Add "No annotation" if needed
     if(retcols["set"].length != 0 && retcols["set"].length % 4 == 0)
     {
         legend_x = legend_x + 50;
@@ -660,41 +709,53 @@ class OKMAP_LABEL extends React.Component {
           .style('fill', 'black')
           .text("No annotation");
     }
+    
     console.log("Write Column names", writecols);
+    
+    // Pre-calculate filter rectangles for batch rendering
     var x_pointer = 0;
-    var ikg = [];
+    var rect_length = 1 * xscale;
+    var step_size = rect_length - 0.1;
+    
     for(var p = 0; p < writecols.length; p++)
     {
-      var rect_length = (1 * xscale);
       var coledit = writecols[p];
-
-      /*if(global_cancer == "LAML")
-      {
-        coledit = coledit.replace("_bed", "");
-      }
-      coledit = coledit.replace(".", "_");
-      coledit = coledit.replace("-", "_");*/
+      
+      // Optimized column name processing
       let parts = coledit.split("_");
       var newcoledit = parts.slice(0, 4).join("_");
       if(newcoledit.slice(-4) != "_bed")
       {
-        coledit = newcoledit.concat("_bed");
+        coledit = newcoledit + "_bed";
       }
-      //console.log("TAKE A LOOK,", retcols["out"], coledit);
+      
       var type = retcols["out"][coledit];
       var colortake = retcols["color"][type];
       colortake = parseInt(colortake);
       var color = global_colors[colortake];
-      this.SVG_main_group.append("rect")
-          .style("stroke-width", 0)
-          .attr("x", x_pointer)
-          .attr("y", 100)
-          .attr("width", rect_length)
-          .attr("height", 20)
-          .attr("fill", color);
+      
+      filterRects.push({
+        x: x_pointer,
+        y: 100,
+        width: rect_length,
+        height: 20,
+        fill: color
+      });
 
-      x_pointer = x_pointer + ((1 * xscale) - 0.1);
+      x_pointer += step_size;
     }
+
+    // Batch render filter rectangles
+    this.SVG_main_group.selectAll(null)
+      .data(filterRects)
+      .enter()
+      .append("rect")
+      .style("stroke-width", 0)
+      .attr("x", d => d.x)
+      .attr("y", d => d.y)
+      .attr("width", d => d.width)
+      .attr("height", d => d.height)
+      .attr("fill", d => d.fill);
 
     x_pointer = x_pointer + 6;
     this.SVG_main_group.append("text")
@@ -707,51 +768,46 @@ class OKMAP_LABEL extends React.Component {
   }
 
   componentDidUpdate (prevProps){
-    //console.log("2 this.state.retcols", this.state.retcols);
-    //console.log("2 this.props.okmapLabelState", this.props.okmapLabelState);
     if(this.props.column_names !== prevProps.column_names || this.props.uifielddict.dict !== prevProps.uifielddict.dict)
     {
-      //console.log("3 this.state.retcols", this.state.retcols);
-      //console.log("3 this.props.okmapLabelState", this.props.okmapLabelState);
-      var retval = null;
       var tempnode = document.getElementById(this.target_div);
       tempnode.innerHTML = "";
       this.baseSVG("100%", 115);
       this.writeBase(this.props.column_names, 115, this.props.xscale);
-      //console.log("CDU this.state.retcols", this.state.retcols);
+      
       if(this.props.okmapLabelState != "NULL")
       {
         this.writeBlocks(this.props.okmapLabelState, this.props.xscale, this.props.column_names);
-        //console.log("META SEND", Object.entries(this.props.uifielddict.dict)[0]);
-        if(Object.entries(this.props.uifielddict.dict)[0][0] == "fusion")
-        {
-          metarepost(this.props.okmapLabelState["sampleFilterName"], this.props.setFilterState, this.props.setOkmapLabelState);
-        }
-        else
-        {
-          metarepost(Object.entries(this.props.uifielddict.dict)[0][0], this.props.setFilterState, this.props.setOkmapLabelState);
-        }
-        //document.getElementById("HeatmapFilterSelect_id").value = Object.entries(global_uifielddict)[0][0];
+        
+        // Optimized metarepost call
+        var filterName = this.props.okmapLabelState["sampleFilterName"];
+        var firstDictKey = Object.entries(this.props.uifielddict.dict)[0][0];
+        var shouldUseFilterName = firstDictKey === "fusion";
+        
+        metarepost(
+          shouldUseFilterName ? filterName : firstDictKey, 
+          this.props.setFilterState, 
+          this.props.setOkmapLabelState
+        );
       }
-      return(
-        null
-      );
+      return null;
     }
   }
 
   componentDidMount() {
     this.baseSVG("100%", 20);
     this.writeBase(20);
-    //console.log("gufd", Object.entries(global_uifielddict)[0][0]);
-    //console.log("META SEND", Object.entries(this.props.uifielddict.dict)[0]);
-    if(Object.entries(this.props.uifielddict.dict)[0][0] == "fusion")
-    {
-        metarepost(this.props.okmapLabelState["sampleFilterName"], this.props.setFilterState, this.props.setOkmapLabelState);
-    }
-    else
-    {
-        metarepost(Object.entries(this.props.uifielddict.dict)[0][0], this.props.setFilterState, this.props.setOkmapLabelState);
-    }
+    
+    // Optimized metarepost call
+    var firstDictKey = Object.entries(this.props.uifielddict.dict)[0][0];
+    var filterName = this.props.okmapLabelState["sampleFilterName"];
+    var shouldUseFilterName = firstDictKey === "fusion";
+    
+    metarepost(
+      shouldUseFilterName ? filterName : firstDictKey, 
+      this.props.setFilterState, 
+      this.props.setOkmapLabelState
+    );
   }
 
   render (){
@@ -1073,37 +1129,41 @@ class OKMAP extends React.Component {
       this.writeBase(15, this.props.xscale, this.props.column_names, this.props.len);
       this.writeBaseRLSVG(15, this.props.len);
       
-      // Use requestAnimationFrame for better performance instead of setTimeout
-      const renderRows = () => {
-        for(let i = 0; i < this.props.dataset.length; i++)
-        {
-          this.writeSingle5(y_start, this.props.dataset[i], 15, this.props.xscale, this.props.column_names, 1);
-          this.writeRowLabel(y_start, this.props.dataset[i], 15, i);
-          y_start = y_start + 15;
-        }
-      };
-      
-      // Batch render with requestAnimationFrame for smoother rendering
-      if (this.props.dataset.length > 100) {
-        // For large datasets, render in chunks
+      // Use async rendering to prevent blocking the main thread
+      const renderRowsAsync = () => {
         let index = 0;
-        const chunkSize = 50;
+        const chunkSize = this.props.dataset.length > 100 ? 25 : 50; // Smaller chunks for better responsiveness
+        
         const renderChunk = () => {
+          const startTime = performance.now();
           const endIndex = Math.min(index + chunkSize, this.props.dataset.length);
+          
+          // Render chunk
           for (let i = index; i < endIndex; i++) {
             this.writeSingle5(y_start, this.props.dataset[i], 15, this.props.xscale, this.props.column_names, 1);
             this.writeRowLabel(y_start, this.props.dataset[i], 15, i);
             y_start = y_start + 15;
           }
+          
           index = endIndex;
+          
+          // Check if we should continue or yield to the browser
+          const elapsedTime = performance.now() - startTime;
           if (index < this.props.dataset.length) {
-            requestAnimationFrame(renderChunk);
+            // If we've been working for more than 16ms (one frame), yield to browser
+            if (elapsedTime > 16) {
+              requestAnimationFrame(renderChunk);
+            } else {
+              // If we still have time in this frame, continue immediately
+              renderChunk();
+            }
           }
         };
+        
         renderChunk();
-      } else {
-        renderRows();
-      }
+      };
+      
+      renderRowsAsync();
       /*var elements = document.querySelectorAll('[id='.concat('"HEATMAP_0_svg"').concat(']'));
       console.log("elements", elements);
 
@@ -1125,34 +1185,41 @@ class OKMAP extends React.Component {
       this.writeBase(this.state.zoom_level, this.props.xscale, this.props.column_names, this.props.len);
       this.writeBaseRLSVG(this.state.zoom_level);
 
-      //console.log("rendering heatmap...", this.props.dataset);
-      // Batch render rows for better performance
-      if (this.props.dataset.length > 100) {
-        // For large datasets, render in chunks
+      // Use async rendering to prevent blocking the main thread
+      const renderRowsAsync = () => {
         let index = 0;
-        const chunkSize = 50;
+        const chunkSize = this.props.dataset.length > 100 ? 25 : 50; // Smaller chunks for better responsiveness
+        
         const renderChunk = () => {
+          const startTime = performance.now();
           const endIndex = Math.min(index + chunkSize, this.props.dataset.length);
+          
+          // Render chunk
           for (let i = index; i < endIndex; i++) {
             this.writeSingle5(y_start, this.props.dataset[i], this.state.zoom_level, this.props.xscale, this.props.column_names, 1);
             this.writeRowLabel(y_start, this.props.dataset[i], this.state.zoom_level, i);
             y_start = y_start + this.state.zoom_level;
           }
+          
           index = endIndex;
+          
+          // Check if we should continue or yield to the browser
+          const elapsedTime = performance.now() - startTime;
           if (index < this.props.dataset.length) {
-            requestAnimationFrame(renderChunk);
+            // If we've been working for more than 16ms (one frame), yield to browser
+            if (elapsedTime > 16) {
+              requestAnimationFrame(renderChunk);
+            } else {
+              // If we still have time in this frame, continue immediately
+              renderChunk();
+            }
           }
         };
+        
         renderChunk();
-      } else {
-        // For smaller datasets, render all at once
-        for(let i = 0; i < this.props.dataset.length; i++)
-        {
-          this.writeSingle5(y_start, this.props.dataset[i], this.state.zoom_level, this.props.xscale, this.props.column_names, 1);
-          this.writeRowLabel(y_start, this.props.dataset[i], this.state.zoom_level, i);
-          y_start = y_start + this.state.zoom_level;
-        }
-      }
+      };
+      
+      renderRowsAsync();
       /*ar elements = document.querySelectorAll('[id='.concat('"HEATMAP_0_svg"').concat(']'));
       console.log("elements", elements);
 
@@ -1169,12 +1236,40 @@ class OKMAP extends React.Component {
       this.writeBaseRLSVG(this.state.zoom_level);
       var yRL_start = 0;
       
-      // Batch render row labels for better performance
-      for(let k = 0; k < this.props.dataset.length; k++)
-      {
-        this.writeRowLabel(yRL_start, this.props.dataset[k], this.state.zoom_level, k);
-        yRL_start = yRL_start + this.state.zoom_level;
-      }
+      // Use async rendering for row labels to prevent blocking
+      const renderRowLabelsAsync = () => {
+        let index = 0;
+        const chunkSize = 50; // Row labels are lighter, can handle larger chunks
+        
+        const renderChunk = () => {
+          const startTime = performance.now();
+          const endIndex = Math.min(index + chunkSize, this.props.dataset.length);
+          
+          // Render chunk
+          for (let k = index; k < endIndex; k++) {
+            this.writeRowLabel(yRL_start, this.props.dataset[k], this.state.zoom_level, k);
+            yRL_start = yRL_start + this.state.zoom_level;
+          }
+          
+          index = endIndex;
+          
+          // Check if we should continue or yield to the browser
+          const elapsedTime = performance.now() - startTime;
+          if (index < this.props.dataset.length) {
+            // If we've been working for more than 16ms (one frame), yield to browser
+            if (elapsedTime > 16) {
+              requestAnimationFrame(renderChunk);
+            } else {
+              // If we still have time in this frame, continue immediately
+              renderChunk();
+            }
+          }
+        };
+        
+        renderChunk();
+      };
+      
+      renderRowLabelsAsync();
       /*var elements = document.querySelectorAll('[id='.concat('"HEATMAP_0_svg"').concat(']'));
       console.log("elements", elements);
 
