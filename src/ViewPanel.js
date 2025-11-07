@@ -50,6 +50,7 @@ import OKMAP_COLUMN_CLUSTERS from './plots/okmapColumnClusters.js';
 import OKMAP_OncospliceClusters from './plots/okmapOncospliceClusters.js';
 import PlotPanel from './plots/plotPanel.js';
 import { isBuild } from './utilities/constants.js';
+import { showNavLoading } from './components/NavBarDropdown';
 
 var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
 
@@ -1117,6 +1118,9 @@ class OKMAP extends React.Component {
   componentDidUpdate (prevProps){
     if((this.props.dataset.length !== prevProps.dataset.length) || (this.props.column_names.length !== prevProps.column_names.length || this.props.signatureName != prevProps.signatureName))
     {
+      // Show loading indicator when rendering starts
+      showNavLoading(true);
+      
       var tempnode = document.getElementById(this.target_div);
       var tempnodeRL = document.getElementById(this.target_row_label_div);
       var y_start = 0;
@@ -1157,6 +1161,9 @@ class OKMAP extends React.Component {
               // If we still have time in this frame, continue immediately
               renderChunk();
             }
+          } else {
+            // Rendering complete - hide loading indicator
+            showNavLoading(false);
           }
         };
         
@@ -1234,9 +1241,9 @@ class OKMAP extends React.Component {
       tempnodeRL.innerHTML = "";
       this.baseRLSVG("100%", ((this.state.zoom_level * this.props.dataset.length) + 50));
       this.writeBaseRLSVG(this.state.zoom_level);
-      var yRL_start = 0;
       
       // Use async rendering for row labels to prevent blocking
+      let yRL_start = 0;
       const renderRowLabelsAsync = () => {
         let index = 0;
         const chunkSize = 50; // Row labels are lighter, can handle larger chunks

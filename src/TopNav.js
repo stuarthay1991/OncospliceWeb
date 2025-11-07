@@ -32,6 +32,10 @@ function TopNav() {
     setMaskPage({"name": "about"});
   }
 
+  const onSelectPublications = (e) => {
+    console.log("Publications selected")
+  }
+
   React.useEffect(() => {
     if(prevMaskPage.current != undefined)
     {
@@ -121,7 +125,7 @@ function TopNav() {
         <ul class="topnav">
                       <li class="topnav"><a href="#" onClick={onSelectHome} class="topnav"><img src={homeicon} height="30" width="30" alt="Home" class="icon"></img>Home</a></li>
                       <li class="topnav"><a href="#" onClick={onSelectAbout} class="topnav"><img src={infoicon} height="30" width="30" alt="About" class="icon"></img>About</a></li>
-                      <li class="topnav"><a href="#" class="topnav"><img src={pubicon} height="30" width="30" alt="Publications" class="icon"></img>Publications</a></li>
+                      <li class="topnav"><a href="https://pubmed.ncbi.nlm.nih.gov/40333990/" onClick={onSelectPublications} class="topnav" target="_blank"><img src={pubicon} height="30" width="30" alt="Publications" class="icon"></img>Publications</a></li>
                       <li class="topnav"><a class="topnav" href="https://www.synapse.org/Synapse:syn12103642/files/" target="_blank"><img src={downloadicon} height="30" width="30" alt="Downloads" class="icon"></img>Downloads</a></li>
                       <li class="topnav"><a class="topnav" href="mailto: altanalyze@gmail.com"><img src={contacticon} height="30" width="30" alt="Contact" class="icon"></img>Contact</a></li>
         </ul>

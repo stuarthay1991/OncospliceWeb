@@ -23,6 +23,19 @@ const StyledDropdownItem = withStyles({
   }
 })(Dropdown.Item);
 
+// Global loading overlay state management
+window.showNavLoadingOverlay = function(show = true) {
+  const overlay = document.getElementById('navLoadingOverlay');
+  if (overlay) {
+    overlay.style.display = show ? 'flex' : 'none';
+  }
+};
+
+// Export for use throughout application
+export function showNavLoading(show = true) {
+  window.showNavLoadingOverlay(show);
+}
+
 const instance = (
   <ButtonToolbar>
 
@@ -445,7 +458,46 @@ function Header({setViewPane, setPanCancerState, startingCancer, startingSignaur
       }, [cancerSignatureGroupState])
 
     return(
-      <div id="dropdownOptionsDiv" style={{width: "120%"}}>
+      <div id="dropdownOptionsDiv" style={{width: "120%", position: "relative"}}>
+        {/* Loading Overlay */}
+        <div 
+          id="navLoadingOverlay" 
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(255, 255, 255, 0.85)",
+            zIndex: 9999,
+            display: "none",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            backdropFilter: "blur(2px)"
+          }}
+        >
+          <div style={{
+            fontSize: "16px",
+            fontWeight: "bold",
+            color: "#0F6A8B",
+            marginBottom: "10px",
+            textAlign: "left",
+            alignSelf: "flex-start",
+            marginLeft: "20px"
+          }}>
+            Loading...
+          </div>
+          <div style={{
+            width: "40px",
+            height: "40px",
+            border: "4px solid #f3f3f3",
+            borderTop: "4px solid #0F6A8B",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite"
+          }} />
+        </div>
+        
         <Grid container spacing={1}>
         <Grid id="gridItem1" item>
         <Dropdown title="Cancer Type"
