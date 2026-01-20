@@ -180,7 +180,7 @@ function tablePlotRequest(SIGNATURE, type, setTableState, annotation="none", can
           type: type,
           data: resp["outputdata"],
           sortedColumn: {
-            name: "UID",
+            name: "rawp",
             order: false
           },
           firstID: undefined,
@@ -625,7 +625,7 @@ function PanCancerAnalysis(props){
         type: "splice",
         data: undefined,
         sortedColumn: {
-          name: "UID",
+          name: "rawp",
           order: false
         },
         firstID: undefined,
@@ -634,6 +634,104 @@ function PanCancerAnalysis(props){
         page: 1,
         pageSize: 10
     });
+
+    const downloadPanSplicePDF = () => {
+      const container = document.getElementById("pancanc_splice");
+      if (!container) {
+        alert("Unable to locate the splicing SVG container.");
+        return;
+      }
+      const svgElement = container.querySelector("svg");
+      if (!svgElement) {
+        alert("No SVG content is available to download.");
+        return;
+      }
+
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svgElement);
+      const boundingRect = svgElement.getBoundingClientRect();
+      const widthAttr = parseInt(svgElement.getAttribute("width"), 10);
+      const heightAttr = parseInt(svgElement.getAttribute("height"), 10);
+      const width = Math.ceil(boundingRect.width || widthAttr || 800);
+      const height = Math.ceil(boundingRect.height || heightAttr || 600);
+
+      axios({
+        method: "post",
+        url: routeurl.concat("/api/datasets/createPlotlyPdf"),
+        data: {
+          data: {
+            svg: svgString,
+            width: width.toString(),
+            height: height.toString(),
+            filename: "pan_splice.pdf"
+          }
+        },
+        responseType: "blob",
+        headers: { "Content-Type": "application/json" }
+      })
+        .then((response) => {
+          const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+          const pdfUrl = window.URL.createObjectURL(pdfBlob);
+          const link = document.createElement("a");
+          link.href = pdfUrl;
+          link.download = "pan_splice.pdf";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(pdfUrl);
+        })
+        .catch((error) => {
+          console.error("Error downloading PDF:", error);
+          alert("Unable to download PDF. Please try again.");
+        });
+    };
+
+    const downloadTableCSV = () => {
+      if (!tableState.data || tableState.data.length === 0) {
+        alert("No table data available to download.");
+        return;
+      }
+
+      // Get column headers based on table type
+      const columns = tableState.type === "splice" ? rootTableColumnSpliceObj : rootTableColumnGeneObj;
+      
+      // Build CSV header row
+      const headers = columns.map(col => col.Header || col.accessor).join(",");
+      
+      // Build CSV data rows
+      const rows = tableState.data.map(row => {
+        return columns.map(col => {
+          const value = row[col.accessor];
+          // Handle values that might contain commas or quotes
+          if (value == null) return "";
+          const stringValue = String(value);
+          // Escape quotes and wrap in quotes if contains comma, quote, or newline
+          if (stringValue.includes(",") || stringValue.includes('"') || stringValue.includes("\n")) {
+            return '"' + stringValue.replace(/"/g, '""') + '"';
+          }
+          return stringValue;
+        }).join(",");
+      });
+      
+      // Combine header and rows
+      const csvContent = [headers, ...rows].join("\n");
+      
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      
+      // Generate filename based on signature and type
+      const signature = tableState.signature || "table";
+      const filename = `${signature}_${tableState.type}_${tableState.annotation || "all"}.csv`.replace(/[^a-zA-Z0-9._-]/g, "_");
+      link.download = filename;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    };
 
     const resetDaugtherPanels = () => {
       setVennState({
@@ -654,7 +752,7 @@ function PanCancerAnalysis(props){
         type: "splice",
         data: undefined,
         sortedColumn: {
-          name: "UID",
+          name: "rawp",
           order: false
         },
         firstID: undefined,
@@ -853,6 +951,13 @@ function PanCancerAnalysis(props){
                 height={panel_SignatureEvents.height}
                 minConstraints={[panel_SignatureEvents.minWidth, panel_SignatureEvents.minHeight]}
                 maxConstraints={[panel_SignatureEvents.maxWidth, panel_SignatureEvents.maxHeight]}>
+              <Button
+                variant="contained"
+                style={{ backgroundColor: '#0F6A8B', color: "white", position: "absolute", left: 10, top: 10, zIndex: 100 }}
+                onClick={downloadTableCSV}
+              >
+                Download CSV
+              </Button>
               <div id="tableLoadingDiv" style={{position: "absolute", marginLeft: 15, display: "none", textAlign: "center", marginTop: 30}}>
               {loading_Gif}
               </div>
@@ -881,10 +986,16 @@ function PanCancerAnalysis(props){
                 minConstraints={[panel_SplicingGraph.minWidth, panel_SplicingGraph.minHeight]}
                 maxConstraints={[panel_SplicingGraph.maxWidth, panel_SplicingGraph.maxHeight]}
             >
+              <button
+                style={{ position: "absolute", right: 20, top: 15, zIndex: 5 }}
+                onClick={downloadPanSplicePDF}
+              >
+                Download PDF
+              </button>
                 <div id="panSpliceLoadingDiv" style={{position: "absolute", marginLeft: 15, display: "none", textAlign: "center", marginTop: 30}}>
                 {loading_Gif}
                 </div>
-                <div style={{overflow: "scroll", height: "100%", width: "100%", backgroundColor: "white", margin: 10}}>
+                <div id="panSpliceViewGraph" style={{overflow: "scroll", height: "100%", width: "100%", backgroundColor: "white", margin: 10}}>
                 <SetExonPlot exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></SetExonPlot>
                 <div id="pancanc_splice"></div>
                 <h3>Selection required from table above.</h3>

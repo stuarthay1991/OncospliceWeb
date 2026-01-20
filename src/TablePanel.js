@@ -123,7 +123,10 @@ function tablePlotRequest(cancerName, currentGene, currentCoord, currentAnnotati
             //var urlForCoordinates = setUpLinkForCoordinates();
             var newUid = stringSplit(curpointer["uid"]);
             var rawp = curpointer["rawp"];
-            rawp
+            var goob = curpointer["dpsi"].toString();
+            console.log(typeof goob);
+            console.log(curpointer["dpsi"]);
+            console.log("curpointer-dpsi", curpointer["dpsi"], goob.slice(0, 6));
             let curdat = {
                 uid: newUid,
                 //gene: curpointer["gene"],
@@ -132,7 +135,7 @@ function tablePlotRequest(cancerName, currentGene, currentCoord, currentAnnotati
                 eventannotation: curpointer["eventannotation"],
                 datagroup: datagroup,
                 signature_name: signatureSetUp,
-                dpsi: curpointer["dpsi"].slice(0, 6),
+                dpsi: goob.slice(0, 6),
                 rawp: formatScientificNotation(curpointer["rawp"]),
                 adjp: formatScientificNotation(curpointer["adjp"]),
                 lrtp: formatScientificNotation(curpointer["lrtp"]),
