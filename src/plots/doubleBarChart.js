@@ -30,7 +30,7 @@ class SetDoubleBarChart extends React.Component {
       var y_start = 0;
       if(this.props.widthRatio == undefined)
       {
-        this.props.widthRatio = 1;
+        this.props.widthRatio = 0.5;
       }
       if(this.props.heightRatio == undefined)
       {
@@ -177,7 +177,7 @@ class SetDoubleBarChart extends React.Component {
             .on("click", function(d) {
               document.getElementById(parent.target_div).style.display = "none";
               document.getElementById("stackedBarChartDiv").style.display = "block";
-              parent.props.stackedBarRequest(parent.props.setStackedBarState);
+              parent.props.stackedBarRequest(parent.props.setStackedBarState, parent.props.cancerName);
               parent.props.resetDaugtherPanels();
             });
 
@@ -394,6 +394,8 @@ class SetDoubleBarChart extends React.Component {
 
         //console.log("cg_", geneVal, clusterVal);
 
+        let temporary_print_out = (clusterVal / maxval);
+        //console.log("max value printout", temporary_print_out, clusterVal, maxval);
         var clusterScale = (clusterVal / maxval) * 200 * S.xScale;
         var geneScale = (geneVal / maxval) * 200 * S.xScale;
         var parent = this;
@@ -481,9 +483,33 @@ class SetDoubleBarChart extends React.Component {
             .attr("fill", "rgb(131, 131, 131)");
 
         var inputKey = inputData[index].key;
+
+        console.log("this.props.cancerName", this.props.cancerName);
+        var fontsizetouse = 12;
+        if(this.props.cancerName == "GTEX")
+        {
         inputKey = inputKey.replace('psi_', '');
-        inputKey = inputKey.replace('_', ' ');
+        /*inputKey = inputKey.replace('_', ' ');*/
+        inputKey = inputKey.replace(" _ ", "_");
         inputKey = inputKey.replace('_vs_others', '');
+        inputKey = inputKey.replace(/_/g, " ");
+        if (inputKey.length > 18) {inputKey = inputKey.slice(0, 18).concat("...");}
+        fontsizetouse = 11;
+        /*inputKey = inputKey.split(" ");
+        inputKey = inputKey[1];
+        inputKey = inputKey.toUpperCase();
+        inputKey = inputKey.replace(/_/g, "-");*/
+        }
+        else
+        {
+          inputKey = inputKey.replace('psi_', '');
+          inputKey = inputKey.replace('_', ' ');
+          inputKey = inputKey.replace('_vs_others', '');
+          inputKey = inputKey.split(" ");
+          inputKey = inputKey[1];
+          inputKey = inputKey.toUpperCase();
+          inputKey = inputKey.replace(/_/g, "-");          
+        }
         var xstringval = (81*S.xScale).toString();
         var ystringval = ((ypos + 12*S.yScale)).toString();
         const rotval = "rotate(35, ".concat(xstringval).concat(", ").concat(ystringval).concat(")");
@@ -494,7 +520,7 @@ class SetDoubleBarChart extends React.Component {
             .attr("id", group_identifier)
             .attr("group_identifier", group_identifier)
             .attr("selected", "false")
-            .style("font-size", 12*S.fontScale)
+            .style("font-size", fontsizetouse*S.fontScale)
             .style("opacity", 1.0)
             .attr("fill", "black")
             .attr("transform", rotval)
@@ -545,6 +571,7 @@ class SetDoubleBarChart extends React.Component {
       var y_start = 95 *S.yScale;
       var y_val = y_start;
       var maxValue = 0;
+      var maxName = "";
       //console.log("double bar chart state: ", this.state.data);
 
       if(this.state.data.cluster != null)
@@ -553,20 +580,24 @@ class SetDoubleBarChart extends React.Component {
 
         for(let i = 0; i < this.state.data.cluster.length; i++)
         {
-            if(maxValue < this.state.data.cluster[i])
+            if(maxValue < parseInt(this.state.data.cluster[i]))
             {
-                maxValue = this.state.data.cluster[i];
+                maxValue = parseInt(this.state.data.cluster[i]);
+                //console.log("cluster", this.state.data.cluster[i]);
+                maxName = this.state.data.key[i];
             }
-            if(maxValue < this.state.data.gene[i])
+            if(maxValue < parseInt(this.state.data.gene[i]))
             {
-                maxValue = this.state.data.gene[i];
+                maxValue = parseInt(this.state.data.gene[i]);
+                //console.log("gene", this.state.data.gene[i]);
+                maxName = this.state.data.key[i];
             }
             sorted_data_array[i] = {};
             sorted_data_array[i].cluster = this.state.data.cluster[i];
             sorted_data_array[i].gene = this.state.data.gene[i];
             sorted_data_array[i].key = this.state.data.key[i];
         }
-
+        console.log("maxSet", maxName, maxValue);
         //console.log("this.state.data LOOK", sorted_data_array);
         var dummy_y = 95*S.yScale;
         var y_interval = 20.5*S.yScale;

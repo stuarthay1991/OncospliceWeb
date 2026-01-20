@@ -64,6 +64,7 @@ class SetStackedBarChart extends React.Component {
           resetDaugtherPanels={this.props.resetDaugtherPanels}
           resetBottomPanels={this.props.resetBottomPanels}
           doc={document}
+          cancerName={this.props.cancerName}
           target_div_id={this.props.stackedBarChartState.targetdiv}
           xScale={this.props.widthRatio}
           yScale={this.props.heightRatio}>
@@ -504,12 +505,12 @@ class SetStackedBarChart extends React.Component {
 
     }
 
-    onSelect(obj, signature_name, annot, setTableState, tablePlotRequest, setConcordanceState, concordanceRequest)
+    onSelect(obj, signature_name, annot, setTableState, tablePlotRequest, setConcordanceState, concordanceRequest, cancer)
     {
         //var textgroup = document.getElementById(obj["_groups"][0][0]["attributes"]["group_identifier"]["nodeValue"]);
         //console.log("Selected:", signature_name, bar_type, textgroup);
-        tablePlotRequest(signature_name, "splice", setTableState, annot);
-        concordanceRequest(signature_name, "BLCA", setConcordanceState, "stackedbar", annot);
+        tablePlotRequest(signature_name, "splice", setTableState, annot, cancer);
+        concordanceRequest(signature_name, cancer, setConcordanceState, "stackedbar", annot);
         this.props.resetBottomPanels();
         //console.log("who needs", d3.select(textgroup).attr("id"));
         this.setState({
@@ -569,7 +570,7 @@ class SetStackedBarChart extends React.Component {
                   pretg.attr("stroke", "purple");
                   //.attr("cursor", "pointer")
 
-                  parent.onSelect(pretg, pretg.attr("signature"), pretg.attr("annotation"), parent.props.setTableState, parent.props.tablePlotRequest, parent.props.setConcordanceState, parent.props.concordanceRequest);
+                  parent.onSelect(pretg, pretg.attr("signature"), pretg.attr("annotation"), parent.props.setTableState, parent.props.tablePlotRequest, parent.props.setConcordanceState, parent.props.concordanceRequest, parent.props.cancerName);
                 })
             x_now = x_now + widthScale;
         }
@@ -686,7 +687,7 @@ class SetStackedBarChart extends React.Component {
           var arg1 = this.defaultSelection.object;
           var arg2 = this.defaultSelection.selectedSignature;
           var arg3 = this.defaultSelection.selectedAnnotation;
-          this.onSelect(arg1, arg2, arg3, this.props.setTableState, this.props.tablePlotRequest, this.props.setConcordanceState, this.props.concordanceRequest);
+          this.onSelect(arg1, arg2, arg3, this.props.setTableState, this.props.tablePlotRequest, this.props.setConcordanceState, this.props.concordanceRequest, this.props.cancerName);
         }
         //plot chart
       }

@@ -47,6 +47,7 @@ class OKMAP_COLUMN_CLUSTERS extends React.Component {
   {
     var x_pointer = 0;
     var ikg = [];
+    console.log("writecols");
     for(var p = 0; p < writecols.length; p++)
     {
       var rect_length = (1 * xscale);

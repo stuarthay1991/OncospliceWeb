@@ -7,12 +7,35 @@ import {ExpandedPlotViewButton} from '../components/ExpandedPlotView';
 
 export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer, flag="NO")
 {
-  //console.log("ONCO_PANTS", oncospliceSampleLabels, selectedOncospliceSignature);
+  //console.log("ONCO_section", oncospliceSampleLabels, selectedOncospliceSignature);
+  //console.log("oncospliceClusterViolinPlot data", heatmapColumnArray, oncospliceSampleLabels);
+  const findMatchingLabelKey = (labels, probeKey) => {
+    if (labels[probeKey] !== undefined) return probeKey;
+    const keys = Object.keys(labels);
+    const exact = keys.find(k => k === probeKey);
+    if (exact !== undefined) return exact;
+    const inclusive = keys.find(k => k.includes(probeKey) || probeKey.includes(k));
+    return inclusive;
+  };
   var expressionArrayClusters = {"cluster0": [], "cluster1": []};
+  //console.log("curcol", heatmapColumnArray[0]);
+  let vo = heatmapColumnArray[0].replace("_bed", "");
+  //console.log("curcol", vo);
+  //console.log("cancol", oncospliceSampleLabels[vo])
   for(var i = 0; i < heatmapColumnArray.length; i++)
   {
     var curcol = heatmapColumnArray[i];
-    if(oncospliceSampleLabels[curcol] == "0")
+    var modcurcol = curcol;
+    if(curcol.slice(0, 3) == "srr")
+    {
+      modcurcol = curcol.replace(".", "_");
+    }
+    else
+    {
+      modcurcol = curcol.replace("_bed", "");
+    }
+    const matchKey0 = findMatchingLabelKey(oncospliceSampleLabels, modcurcol);
+    if(matchKey0 !== undefined && parseInt(oncospliceSampleLabels[matchKey0], 10) == 0)
     {
       expressionArrayClusters["cluster0"].push(selectedExpressionArray[curcol]);
     }
@@ -20,7 +43,17 @@ export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray
   for(var i = 0; i < heatmapColumnArray.length; i++)
   {
     var curcol = heatmapColumnArray[i];
-    if(oncospliceSampleLabels[curcol] == "1")
+    var modcurcol = curcol;
+    if(curcol.slice(0, 3) == "srr")
+    {
+      modcurcol = curcol.replace(".", "_");
+    }
+    else
+    {
+      modcurcol = curcol.replace("_bed", "");
+    }
+    const matchKey1 = findMatchingLabelKey(oncospliceSampleLabels, modcurcol);
+    if(matchKey1 !== undefined && parseInt(oncospliceSampleLabels[matchKey1], 10) == 1)
     {
       expressionArrayClusters["cluster1"].push(selectedExpressionArray[curcol]);
     }
@@ -30,6 +63,7 @@ export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray
   var width_to_use = flag == "NO" ? 0.25 * available_width : 0.520 * available_width;
   var height_to_use = flag == "NO" ? 200 : 400;
   var id_to_use = flag == "NO" ? "munch" : "bunch";
+  //console.log("expressionArrayClusters", expressionArrayClusters)
   var plotobj = <div id={id_to_use}><Plot
             data={[
               {
@@ -96,10 +130,12 @@ export function oncospliceClusterViolinPlot(selectedRow, selectedExpressionArray
 function cbioSetup(selectedRow, selectedExpressionArray, heatmapColumnArray, oncospliceSampleLabels, selectedOncospliceSignature, cancer)
 {
   var cBioportalInputData = {"cluster0": [], "cluster1": []};
+  //console.log("heatmapColumnArray", heatmapColumnArray);
   for(var i = 0; i < heatmapColumnArray.length; i++)
   {
     var curcol = heatmapColumnArray[i];
-    if(oncospliceSampleLabels[curcol] == "0")
+    let modcurcol = curcol.replace("_bed", "");
+    if(parseInt(oncospliceSampleLabels[modcurcol], 10) == 0)
     {
       cBioportalInputData["cluster0"].push(curcol);
     }
@@ -107,7 +143,8 @@ function cbioSetup(selectedRow, selectedExpressionArray, heatmapColumnArray, onc
   for(var i = 0; i < heatmapColumnArray.length; i++)
   {
     var curcol = heatmapColumnArray[i];
-    if(oncospliceSampleLabels[curcol] == "1")
+    let modcurcol = curcol.replace("_bed", "");
+    if(parseInt(oncospliceSampleLabels[modcurcol], 10) == 1)
     {
       cBioportalInputData["cluster1"].push(curcol);
     }

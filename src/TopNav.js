@@ -4,46 +4,23 @@ import useStyles from './css/useStyles.js';
 import Grid from '@material-ui/core/Grid';
 import { isBuild } from './utilities/constants.js';
 import React, { useRef } from "react";
-import oncologo from './images/OncoLOGO2.png';
-
-function loadAbout()
-{
-  document.getElementById("aboutpanel").style.display = "block";
-  document.getElementById("contactpanel").style.display = "none";
-  document.getElementById("tabcontent").style.display = "none";
-  document.getElementById("pancancer").style.display = "none";
-  document.getElementById("dropdownOptionsDiv").style.display = "none";
-  document.getElementById("navBarHolder").style.display = "none";
-}
-
-function loadHome()
-{
-  document.getElementById("aboutpanel").style.display = "none";
-  document.getElementById("contactpanel").style.display = "none";
-  document.getElementById("tabcontent").style.display = "block";
-  document.getElementById("pancancer").style.display = "none";
-  document.getElementById("dropdownOptionsDiv").style.display = "block";
-}
-
-function loadContact()
-{
-  document.getElementById("contactpanel").style.display = "block";
-  document.getElementById("aboutpanel").style.display = "none";
-  document.getElementById("tabcontent").style.display = "none";
-}
+import oncologo from './images/NeoXplorer.png';
+import homeicon from './images/home.png';
+import infoicon from './images/info.png';
+import downloadicon from './images/download.png';
+import contacticon from './images/contact.png';
+import pubicon from './images/pub.png';
 
 function TopNav() {
   const classes = useStyles();
-  const [pageTypeState, setPageTypeState] = React.useState({"value": "Individual Signatures", "initialized": false})
-  var oncoimg = isBuild ? <img src="/ICGS/Oncosplice/build/OncoLOGO2.png" alt="Logo" width="180" height="63"></img> : <img src={oncologo} alt="Logo" width="180" height="63"></img>;
+  var oncoimg = isBuild ? <img src="/ICGS/Oncosplice/neo/OncoLOGO2.png" alt="Logo" width="202" height="50"></img> : <img src={oncologo} alt="Logo" width="202" height="50"></img>;
 
   const [maskPage, setMaskPage] = React.useState({"name": "data"});
 
-  const prevPageTypeState = useRef();
   const prevMaskPage = useRef();
 
-  const onSelectHandle = (e) => {
-    setPageTypeState({"value": e.target.value, "initialized": true});
+  const onSelectSplash = (e) => {
+    window.location.href = "https://www.altanalyze.org/ICGS/Oncosplice/splash/";
   }
 
   const onSelectHome = (e) => {
@@ -55,39 +32,9 @@ function TopNav() {
     setMaskPage({"name": "about"});
   }
 
-  React.useEffect(() => {
-    if(prevPageTypeState.current != undefined)
-    {
-      if(prevPageTypeState.current != pageTypeState)
-      {
-        if(pageTypeState.value == "Individual Signatures")
-        {
-          document.getElementById("tabcontent").style.display = "block";
-          document.getElementById("pancancerpanel").style.display = "none";
-          document.getElementById("gridItem1").style.display = "block";
-          document.getElementById("gridItem2").style.display = "block";
-          document.getElementById("gridItem3").style.display = "block";
-          document.getElementById("gridItem4").style.display = "block";
-          document.getElementById("gridItem5").style.display = "block";
-          document.getElementById("gridItem6").style.display = "block";
-          document.getElementById("gridItem7").style.display = "block";
-        }
-        else
-        {
-          document.getElementById("tabcontent").style.display = "none";
-          document.getElementById("pancancerpanel").style.display = "block";
-          document.getElementById("gridItem1").style.display = "block";
-          document.getElementById("gridItem2").style.display = "none";
-          document.getElementById("gridItem3").style.display = "none";
-          document.getElementById("gridItem4").style.display = "block";
-          document.getElementById("gridItem5").style.display = "block";
-          document.getElementById("gridItem6").style.display = "none";
-          document.getElementById("gridItem7").style.display = "none";
-        }
-      }
-    }
-    prevPageTypeState.current = pageTypeState;
-  }, [pageTypeState.value])
+  const onSelectPublications = (e) => {
+    console.log("Publications selected")
+  }
 
   React.useEffect(() => {
     if(prevMaskPage.current != undefined)
@@ -98,44 +45,46 @@ function TopNav() {
         //console.log("PM 2", maskPage.name);
         if(maskPage.name == "data")
         {
-          document.getElementById("rocket_magnum").style.display = "block";
-          if(pageTypeState.value == "Individual Signatures")
-          {
-            document.getElementById("tabcontent").style.display = "block";
-            document.getElementById("pancancerpanel").style.display = "none";
-            document.getElementById("gridItem1").style.display = "block";
-            document.getElementById("gridItem2").style.display = "block";
-            document.getElementById("gridItem3").style.display = "block";
-            document.getElementById("gridItem4").style.display = "block";
-            document.getElementById("gridItem5").style.display = "block";
-            document.getElementById("gridItem6").style.display = "block";
-            document.getElementById("gridItem7").style.display = "block";
-          }
-          else
-          {
-            document.getElementById("tabcontent").style.display = "none";
-            document.getElementById("pancancerpanel").style.display = "block";
-            document.getElementById("gridItem1").style.display = "block";
-            document.getElementById("gridItem2").style.display = "none";
-            document.getElementById("gridItem3").style.display = "none";
-            document.getElementById("gridItem4").style.display = "block";
-            document.getElementById("gridItem5").style.display = "block";
-            document.getElementById("gridItem6").style.display = "none";
-            document.getElementById("gridItem7").style.display = "none";
-          }
           document.getElementById("aboutpanel").style.display = "none";
           document.getElementById("contactpanel").style.display = "none";
-          document.getElementById("dropdownOptionsDiv").style.display = "block";
+          try{
+            document.getElementById("dropdownOptionsDiv").style.display = "block";
+          }
+          catch(err)
+          {
+            console.log(err);
+          }
+          try{
+            document.getElementById("pc_dropdownOptionsDiv").style.display = "block";
+            document.getElementById("pancancerpanel").style.display = "block";
+          }
+          catch(err)
+          {
+            console.log(err);
+          }
           document.getElementById("navBarHolder").style.display = "block";
+          document.getElementById("tabcontent").style.display = "block";
         }
         else
         {
-          document.getElementById("rocket_magnum").style.display = "none";
           document.getElementById("aboutpanel").style.display = "block";
           document.getElementById("contactpanel").style.display = "none";
           document.getElementById("tabcontent").style.display = "none";
-          document.getElementById("pancancerpanel").style.display = "none";
-          document.getElementById("dropdownOptionsDiv").style.display = "none";
+          try{
+            document.getElementById("dropdownOptionsDiv").style.display = "none";
+          }
+          catch(err)
+          {
+            console.log(err);
+          }
+          try{
+            document.getElementById("pc_dropdownOptionsDiv").style.display = "none";
+            document.getElementById("pancancerpanel").style.display = "none";
+          }
+          catch(err)
+          {
+            console.log(err);
+          } 
           document.getElementById("navBarHolder").style.display = "none";
         }
       }
@@ -144,48 +93,46 @@ function TopNav() {
   },  [maskPage.name])
 
   return (
-    <div className={classes.mainpane} style={{ fontFamily: 'Roboto'}}>
-      <Grid container spacing={1}>
-      <Grid item xs={2}>
-        <div className={classes.cntr_special}>{oncoimg}</div>
-      </Grid>
-      <Grid item xs={10}>
-      <div className={classes.mainpane_margin_type1}>
-        <span id="rocket_magnum" style={{display: "none", float: "right"}}>
-        <Form.Control as="select"
-                value={pageTypeState.value}
-                onChange={onSelectHandle}
-                name="value"
-                style={{
-                  backgroundColor: '#0F6A8B',
-                  color: "white",
-                  fontSize: "0.9em",
-                  height: "66%",
-                  margin: 2,
-                  padding: 2,
-                  bordeRadius: 3,
-                  cursor: "pointer"
-                }}>
-                <option value="Individual Signatures">Individual Signatures</option>
-                <option value="Pancancer Analysis">Pancancer Analysis</option>
-        </Form.Control>
-        </span>
+    <>
+      <style>{`
+        ul.topnav {
+          list-style: none;
+          display: flex;
+          gap: 10px;
+        }
+        ul.topnav li.topnav {
+          display: inline;
+          margin: 7px;
+          padding: 1px;
+        }
+        ul.topnav li.topnav a.topnav {
+          color: white;
+          text-decoration: none;
+          display: flex;
+          font-size: 21px;
+          align-items: center;
+        }
+        ul li a img {
+          align-items: center;
+          margin-right: 10px;
+        }
+      `}</style>
+      <div className={classes.mainpane} style={{ fontFamily: 'Roboto', background: "#0073aa", color: "#0073aa", display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+        <div className={classes.cntr_special} onClick={onSelectSplash} style={{cursor: "pointer"}} title="Go to Splash Page">{oncoimg}</div>
+        <div className={classes.mainpane_margin_type1}>
+        </div>
+        <div>
+        <ul class="topnav">
+                      <li class="topnav"><a href="#" onClick={onSelectHome} class="topnav"><img src={homeicon} height="30" width="30" alt="Home" class="icon"></img>Home</a></li>
+                      <li class="topnav"><a href="#" onClick={onSelectAbout} class="topnav"><img src={infoicon} height="30" width="30" alt="About" class="icon"></img>About</a></li>
+                      <li class="topnav"><a href="https://pubmed.ncbi.nlm.nih.gov/40333990/" onClick={onSelectPublications} class="topnav" target="_blank"><img src={pubicon} height="30" width="30" alt="Publications" class="icon"></img>Publications</a></li>
+                      <li class="topnav"><a class="topnav" href="https://www.synapse.org/Synapse:syn12103642/files/" target="_blank"><img src={downloadicon} height="30" width="30" alt="Downloads" class="icon"></img>Downloads</a></li>
+                      <li class="topnav"><a class="topnav" href="mailto: altanalyze@gmail.com"><img src={contacticon} height="30" width="30" alt="Contact" class="icon"></img>Contact</a></li>
+        </ul>
+        <div id="LoadingStatusDisplay" style={{display: "none"}}>Loading...</div>
+        </div>
       </div>
-      <div className={classes.mainpane_margin_type2} style={{	background:"linear-gradient(to bottom, #4a8fa8 5%, #476e9e 100%)", backgroundColor: '#0F6A8B'}}>
-      <Grid container spacing={1}>
-        <Grid item xs={6}>
-          <div style={{fontSize: 18, color: "white", textAlign: 'left', marginLeft:20}}><a onClick={onSelectHome} style={{color: 'white', cursor: "pointer"}}>Home</a> | <a onClick={onSelectAbout} style={{color: 'white', cursor: "pointer"}}>What is OncoSplice?</a> | <a href="mailto: altanalyze@gmail.com" style={{cursor: "pointer", color: "white", textDecoration: "none"}}>Contact</a></div>
-        </Grid>
-        <Grid item xs={3}>
-          <div id="LoadingStatusDisplay" style={{display: "none"}}>Loading...</div>
-        </Grid>
-        <Grid container item xs={3} justifyContent="flex-end">
-        </Grid>
-      </Grid>
-      </div>
-      </Grid>
-      </Grid>
-    </div>
+    </>
   );
 }
 

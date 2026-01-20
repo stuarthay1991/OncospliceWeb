@@ -13,13 +13,18 @@ import targeturl from './targeturl.js';
 import LockIcon from '@material-ui/icons/Lock';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Splash from './Splash.js';
+import TablePanel from './TablePanel.js';
 
 import './App.css';
 import Header from './components/NavBarDropdown.js';
+import PCHeader from './components/PancancerNavigation.js';
 import ViewPanelWrapper from './ViewPanelWrapper.js';
 import { makeRequest } from './request/CancerDataManagement.js';
 //import Authentication from './Authentication.js';
 import PanCancerAnalysis from './PanCancerAnalysis.js';
+import TableForHeatmapSelect from './TableForHeatmapSelect.js';
+import { isBuild } from './utilities/constants.js';
+import loadingGif from './images/loading.gif';
 
 const spcTabStyles = makeStyles({
   root: {
@@ -56,8 +61,12 @@ function MainPanel(props){
   //What is crucial here is the item "page." This contains the appendage to the base url that dictates what part of the website to view.
   const { match, history } = props;
   const { params } = match;
-  const { page } = params;
+  const { page, options, signature, simple, gene, coord } = params;
 
+  var loading_Gif = isBuild ? <img src="/ICGS/Oncosplice/neo/loading.gif" width="200" height="60"></img> : <img src={loadingGif} width="200" height="60"></img>;
+
+  console.log("cancer_address", options);
+  console.log("signature_address", signature);
   //Each time the user selects an option, it is recorded in the "pagelist" cache variable which is not used now, but could be useful later.
   props.addPage(page);
 
@@ -65,13 +74,17 @@ function MainPanel(props){
   const tabNameToIndex = {
     0: "splash",
     1: "explore",
-    2: "history"
+    2: "table",
+    3: "pancancer",
+    4: "tableforheatmapselect"
   };
 
   const indexToTabName = {
     splash: 0,
     explore: 1,
-    history: 2
+    table: 2,
+    pancancer: 3,
+    tableforheatmapselect: 4
   };
 
   //This is crucial. The purpose of this state object is to pass the correct information to rebuild the page exactly as it was in the cache. It is currently
@@ -91,21 +104,33 @@ function MainPanel(props){
     }
   });
 
+  const [signatureListState, setSignatureListState] = React.useState({"None": "None"});
+  const [sampleListState, setSampleListState] = React.useState({"None": ["None"]});
+
   if(process.env.NODE_ENV == "build")
   {
-    var routeurl = "/ICGS/Oncosplice/build/index.html/";
+    var routeurl = "/ICGS/Oncosplice/neo/index.html/";
   }
   else
   {
-    var routeurl = "/app/"
+    var routeurl = "/app/";
   }
   //Whenever a Tab is selected, this function is triggered.
-  const handleChange = (event, newValue) => {
+  /*const handleChange = (event, newValue) => {
       //Since the contact & about panel are not strictly part of the tabs, they should always be hidden.
       document.getElementById("contactpanel").style.display = "none";
       document.getElementById("aboutpanel").style.display = "none";
       //The tabcontent div should always be displayed when a tab is selected.
-      document.getElementById("tabcontent").style.display = "block";
+      if(mpstate.value === 1)
+      {
+        console.log("pancancerpanel is none");
+        document.getElementById("tabcontent").style.display = "block";
+      }
+      if(mpstate.value === 3)
+      {
+          console.log("pancancerpanel is none");
+          document.getElementById("pancancerpanel").style.display = "block";
+      }
       //This is currently not useful; for previous purposes of cache history, the page selected is pushed into the history array.
       history.push(routeurl.concat(`${tabNameToIndex[newValue]}`));
       //This is a hack. If the "build query" tab is re-selected, the page reloads in order to prevent bugs.
@@ -119,7 +144,7 @@ function MainPanel(props){
         value: newValue,
         viewpaneobj: temp_view_obj,
       });
-  };
+  };*/
 
   //The purpose of this function is to allow the "build query" pane to transition to the "data exploration" pane when a query has been sent through.
   const setViewPane = (list1, list2, list3, list4, list5, exp) => {
@@ -131,7 +156,7 @@ function MainPanel(props){
     stateobj["inOncospliceClusters"] = list4;
     stateobj["inTRANS"] = list5;
     stateobj["export"] = exp;
-    history.push(routeurl.concat(`${tabNameToIndex[1]}`));
+    //history.push(routeurl.concat(`${tabNameToIndex[1]}`));
     setMpstate({
         viewpaneobj: stateobj,
         authentication: mpstate.authentication,
@@ -150,7 +175,6 @@ function MainPanel(props){
           }
         });
   }
-
 
   //This is a hack I useed. For whatever reason, I would sometimes have issues getting the correct tab to show up. This function fixed it, ahd while
   //I'm not 100% sure why, it works, and so therefore it stays.
@@ -177,18 +201,63 @@ function MainPanel(props){
     }
   }, [mpstate.viewpaneobj])*/
 
-  if(props.pagelist.length <= 1 && page == "explore")
+  //
+
+  /*const setG = () => {
+
+  }*/
+
+  console.log(params, props.pagelist, "params");
+  var setCoord = undefined;
+  var setGene = undefined;
+  if(props.pagelist.length <= 1 && (page == "explore"))
+  {
+      var args = {};
+      var functionpointer = makeRequest;
+      args["setState"] = setViewPane;
+      args["pancancerupdate"] = setPanCancerState;
+      args["exportView"] = {};
+      args["cancerType"] = options;
+      args["comparedCancer"] = options;
+      args["oncocluster"] = [simple];
+      if(gene != "None"){
+        args["eventType"] = "Genes";
+        setGene = gene;
+        args["genes"] = [setGene];
+      }
+      else if(coord != "None"){
+        args["eventType"] = "Coordinates";
+        setCoord = coord.replace("-", ":");
+        args["coords"] = [setCoord];
+        //console.log("coordmexican", coord)
+      }
+      else{
+        args["eventType"] = "Signature";
+        //var signatureSend = signature.replace("_", " ");
+        args["signature"] = [signature];
+      }
+      args["callback"] = setViewPane;
+      args["setSampleListState"] = setSampleListState;
+      args["doc"] = document;
+      makeRequest("updateHeatmapData", args);
+
+      var args2 = {};
+      args2["callback"] = setSignatureListState;
+      args2["cancerType"] = options;
+      makeRequest("updateSignatureGeneric", args2);
+  }
+  if(props.pagelist.length <= 1 && page == "pancancer")
   {
     var args = {};
-    var functionpointer = makeRequest;
-    args["setState"] = setViewPane;
     args["pancancerupdate"] = setPanCancerState;
-    args["export"] = {};
-    args["cancer"] = "BLCA";
-    args["doc"] = document;
-    makeRequest("defaultQuery", args);
+    args["cancerType"] = options;
+    args["signature"] = [signature];
+    makeRequest("pancancerUiFields", args);
   }
-
+  if(props.pagelist.length <= 1 && page == "table")
+  {
+    setCoord = coord.replace("-", ":");
+  }
   var displayvalue1 = "block";
   var displayvalue2 = "none";
   //This is the layout of the main pane in action.
@@ -197,23 +266,55 @@ function MainPanel(props){
   /*      <div style={{float: "right"}}>
           <Authentication updateQH={updateQH}/>
         </div>*/
+  //The below line goes under "pancancerpanel"
+  //<PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer} geneCount={panCancerState.uniqueGenesPerSignature}/>
+  //
   return (
     <div className={classes.root} style={{ fontFamily: 'Roboto'}}>
-      <div id="navBarHolder" className={classes.demo2} style={{display: "none"}}>
+      <div id="navBarHolder" className={classes.demo2}>
         <div className={classes.tabholder}>
         <div>
-          <Header setViewPane={setViewPane} setPanCancerState={setPanCancerState}/>
+          {page === 'explore' && <Header setViewPane={setViewPane} 
+          setPanCancerState={setPanCancerState} 
+          startingCancer={options} 
+          startingSignaureList={signatureListState} 
+          startingSampleList={sampleListState}
+          startingSignature={signature} 
+          startingSimple={simple}/>}
+          {page === 'pancancer' && <PCHeader setPanCancerState={setPanCancerState} startingCancer={options}/>}
         </div>
         </div>
       </div>
       <div id="tabcontent" style={{display: mpstate.value === 1 ? displayvalue1 : displayvalue2}}>
-      {mpstate.value === 1 && <ViewPanelWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
+      <div id="initialHeatmapLoadingDiv" style={{display: "block", margin: 20}}>
+        {loading_Gif}
+      </div>
+      {page === 'explore' && <ViewPanelWrapper entrydata={mpstate.viewpaneobj} validate={indexToTabName[page]}/>}
       </div>
       <div id="splashpanel" style={{display: mpstate.value === 0 ? displayvalue1 : displayvalue2}}>
         <Splash />
       </div>
-      <div id="pancancerpanel" style={{display: "none"}}>
-        <PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer} geneCount={panCancerState.uniqueGenesPerSignature}/>
+      <div id="gtextablepanel" style={{display: mpstate.value === 2 ? displayvalue1 : displayvalue2}}>
+        {
+        page === 'table' && (
+        <>
+        <TablePanel postedCancer={options} postedGene={gene} postedAnnotation={signature} postedCoord={setCoord}/>
+        <div id="minorTableLoadingDiv" style={{display: "block", margin: 20}}>
+        {loading_Gif}
+        </div>
+        </>
+        )
+        }
+      </div>
+      <div id='tableforheatmapselectpanel' style={{display: mpstate.value === 4 ? displayvalue1 : displayvalue2}}>
+      {
+        page === 'tableforheatmapselect' && (
+        <TableForHeatmapSelect postedCancer={options} postedAnnotation={signature}/>
+        )
+        }
+      </div>
+      <div id="pancancerpanel" style={{display: mpstate.value === 3 ? displayvalue1 : displayvalue2}}>
+      {page === 'pancancer' && <PanCancerAnalysis clusterLength={panCancerState.clusterLength} tableData={panCancerState.tableData} cancerName={panCancerState.cancer} geneCount={panCancerState.uniqueGenesPerSignature}/>}
       </div>
       <div id="aboutpanel" style={{display: "none", backgroundColor: "#0f6a8b"}}>
         <AboutUs />

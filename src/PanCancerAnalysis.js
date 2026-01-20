@@ -20,7 +20,7 @@ import SetVennDiagram from './plots/vennDiagram.js';
 import loadingGif from './images/loading.gif';
 //import SetConcordanceGraph from './plots/concordanceGraph.js';
 
-var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
 
 const Styles = tableStyledDiv;
 
@@ -110,8 +110,8 @@ function noCoordinateExonRequest(GENE, in_data, fulldata, exonPlotStateScaled, s
   })
 }
 
-function stackedBarChartRequest(setStackedBarChartState){
-  var postedData = {"data": {"cancer": "BLCA"}}
+function stackedBarChartRequest(setStackedBarChartState, cancer){
+  var postedData = {"data": {"cancer": cancer}}
   axios({
     method: "post",
     url: routeurl.concat("/api/datasets/stackedBarChart"),
@@ -163,7 +163,7 @@ function tablePlotRequest(SIGNATURE, type, setTableState, annotation="none", can
   var bodyFormData = new FormData();
   document.getElementById("tableLoadingDiv").style.display = "block";
   document.getElementById("rootTable").style.opacity = 0.2;
-  var postedData = {"data": {"signature": SIGNATURE, "type": type, "cancerName": cancerName}}
+  var postedData = {"data": {"signature": SIGNATURE, "type": type, "cancerName": cancerName, "annotation": annotation}}
   axios({
     method: "post",
     url: routeurl.concat("/api/datasets/updatepantable"),
@@ -180,7 +180,7 @@ function tablePlotRequest(SIGNATURE, type, setTableState, annotation="none", can
           type: type,
           data: resp["outputdata"],
           sortedColumn: {
-            name: "UID",
+            name: "rawp",
             order: false
           },
           firstID: undefined,
@@ -479,10 +479,29 @@ function RootTable(props) {
   var column_splice_obj = rootTableColumnSpliceObj;
   var column_gene_obj = rootTableColumnGeneObj;
 
+  var title_obj = props.tableState.signature;
+  if(title_obj == undefined)
+  {
+    title_obj = "psi_no_signature";
+    title_obj = title_obj.replace("psi_", "");
+    title_obj = title_obj.toUpperCase();
+    title_obj = title_obj.replace(/_/g, "-");
+  }
+  
+  /*try{
+  title_obj = title_obj.replace("psi_", "");
+  title_obj = title_obj.upperCase();
+  title_obj = title_obj.replace(/_/g, "-");
+  }
+  catch(err)
+  {
+    console.log(err);
+  }*/
+
   var columns_splc = React.useMemo(
     () => [
       {
-        Header: 'Events for signature: '.concat(props.tableState.signature).concat(' | Annotations: ').concat(props.tableState.annotation),
+        Header: 'Events for signature: '.concat(title_obj.replace("psi_", "").toUpperCase().replace(/_/g, "-")).concat(' | Annotations: ').concat(props.tableState.annotation),
         columns: column_splice_obj,
       },
     ],
@@ -492,7 +511,7 @@ function RootTable(props) {
   var columns_gene = React.useMemo(
     () => [
       {
-        Header: 'Events for signature: '.concat(props.tableState.signature).concat(' | Annotations: ').concat(props.tableState.annotation),
+        Header: 'Events for signature: '.concat(title_obj.replace("psi_", "").toUpperCase().replace(/_/g, "-")).concat(' | Annotations: ').concat(props.tableState.annotation),
         columns: column_gene_obj,
       },
     ],
@@ -606,7 +625,7 @@ function PanCancerAnalysis(props){
         type: "splice",
         data: undefined,
         sortedColumn: {
-          name: "UID",
+          name: "rawp",
           order: false
         },
         firstID: undefined,
@@ -615,6 +634,104 @@ function PanCancerAnalysis(props){
         page: 1,
         pageSize: 10
     });
+
+    const downloadPanSplicePDF = () => {
+      const container = document.getElementById("pancanc_splice");
+      if (!container) {
+        alert("Unable to locate the splicing SVG container.");
+        return;
+      }
+      const svgElement = container.querySelector("svg");
+      if (!svgElement) {
+        alert("No SVG content is available to download.");
+        return;
+      }
+
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svgElement);
+      const boundingRect = svgElement.getBoundingClientRect();
+      const widthAttr = parseInt(svgElement.getAttribute("width"), 10);
+      const heightAttr = parseInt(svgElement.getAttribute("height"), 10);
+      const width = Math.ceil(boundingRect.width || widthAttr || 800);
+      const height = Math.ceil(boundingRect.height || heightAttr || 600);
+
+      axios({
+        method: "post",
+        url: routeurl.concat("/api/datasets/createPlotlyPdf"),
+        data: {
+          data: {
+            svg: svgString,
+            width: width.toString(),
+            height: height.toString(),
+            filename: "pan_splice.pdf"
+          }
+        },
+        responseType: "blob",
+        headers: { "Content-Type": "application/json" }
+      })
+        .then((response) => {
+          const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+          const pdfUrl = window.URL.createObjectURL(pdfBlob);
+          const link = document.createElement("a");
+          link.href = pdfUrl;
+          link.download = "pan_splice.pdf";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(pdfUrl);
+        })
+        .catch((error) => {
+          console.error("Error downloading PDF:", error);
+          alert("Unable to download PDF. Please try again.");
+        });
+    };
+
+    const downloadTableCSV = () => {
+      if (!tableState.data || tableState.data.length === 0) {
+        alert("No table data available to download.");
+        return;
+      }
+
+      // Get column headers based on table type
+      const columns = tableState.type === "splice" ? rootTableColumnSpliceObj : rootTableColumnGeneObj;
+      
+      // Build CSV header row
+      const headers = columns.map(col => col.Header || col.accessor).join(",");
+      
+      // Build CSV data rows
+      const rows = tableState.data.map(row => {
+        return columns.map(col => {
+          const value = row[col.accessor];
+          // Handle values that might contain commas or quotes
+          if (value == null) return "";
+          const stringValue = String(value);
+          // Escape quotes and wrap in quotes if contains comma, quote, or newline
+          if (stringValue.includes(",") || stringValue.includes('"') || stringValue.includes("\n")) {
+            return '"' + stringValue.replace(/"/g, '""') + '"';
+          }
+          return stringValue;
+        }).join(",");
+      });
+      
+      // Combine header and rows
+      const csvContent = [headers, ...rows].join("\n");
+      
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      
+      // Generate filename based on signature and type
+      const signature = tableState.signature || "table";
+      const filename = `${signature}_${tableState.type}_${tableState.annotation || "all"}.csv`.replace(/[^a-zA-Z0-9._-]/g, "_");
+      link.download = filename;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    };
 
     const resetDaugtherPanels = () => {
       setVennState({
@@ -635,7 +752,7 @@ function PanCancerAnalysis(props){
         type: "splice",
         data: undefined,
         sortedColumn: {
-          name: "UID",
+          name: "rawp",
           order: false
         },
         firstID: undefined,
@@ -690,28 +807,28 @@ function PanCancerAnalysis(props){
 
     prevCancerTypeState.current = props.cancerName;
 
-    if(props.cancerName == "BLCA" || props.cancerName == "PCPG")
+    if(props.cancerName != undefined)
     {
-      var datarray_x1 = [];
-      var datarray_y1 = [];
+    var datarray_x1 = [];
+    var datarray_y1 = [];
 
-      var datarray_x2 = [];
-      var datarray_y2 = [];
-      const plotobjs = [];
-      var counter = 0;
+    var datarray_x2 = [];
+    var datarray_y2 = [];
+    const plotobjs = [];
+    var counter = 0;
 
-      let tmp_1 = [];
-      let tmp_2 = [];
-      let tmp_3 = [];
+    let tmp_1 = [];
+    let tmp_2 = [];
+    let tmp_3 = [];
 
-      console.log(props);
-      for (const [key, value] of Object.entries(props.clusterLength)) {
+    console.log(props);
+    for (const [key, value] of Object.entries(props.clusterLength)) {
         tmp_1.push(value.length);
         tmp_2.push(props.geneCount[key]);
         tmp_3.push(key);
-      }
+    }
 
-      setDoubleBarChartData({cluster: tmp_1, gene: tmp_2, key: tmp_3, targetdiv: "doubleBarChartDiv"})
+    setDoubleBarChartData({cluster: tmp_1, gene: tmp_2, key: tmp_3, targetdiv: "doubleBarChartDiv"})
     }
     }, [props.cancerName])
 
@@ -789,6 +906,7 @@ function PanCancerAnalysis(props){
                 <SetStackedBarChart
                   heightRatio={scaled_height}
                   widthRatio={scaled_width}
+                  cancerName={props.cancerName}
                   stackedBarChartState={stackedBarChartData}
                   tablePlotRequest={tablePlotRequest}
                   tableState={tableState}
@@ -833,6 +951,13 @@ function PanCancerAnalysis(props){
                 height={panel_SignatureEvents.height}
                 minConstraints={[panel_SignatureEvents.minWidth, panel_SignatureEvents.minHeight]}
                 maxConstraints={[panel_SignatureEvents.maxWidth, panel_SignatureEvents.maxHeight]}>
+              <Button
+                variant="contained"
+                style={{ backgroundColor: '#0F6A8B', color: "white", position: "absolute", left: 10, top: 10, zIndex: 100 }}
+                onClick={downloadTableCSV}
+              >
+                Download CSV
+              </Button>
               <div id="tableLoadingDiv" style={{position: "absolute", marginLeft: 15, display: "none", textAlign: "center", marginTop: 30}}>
               {loading_Gif}
               </div>
@@ -861,10 +986,16 @@ function PanCancerAnalysis(props){
                 minConstraints={[panel_SplicingGraph.minWidth, panel_SplicingGraph.minHeight]}
                 maxConstraints={[panel_SplicingGraph.maxWidth, panel_SplicingGraph.maxHeight]}
             >
+              <button
+                style={{ position: "absolute", right: 20, top: 15, zIndex: 5 }}
+                onClick={downloadPanSplicePDF}
+              >
+                Download PDF
+              </button>
                 <div id="panSpliceLoadingDiv" style={{position: "absolute", marginLeft: 15, display: "none", textAlign: "center", marginTop: 30}}>
                 {loading_Gif}
                 </div>
-                <div style={{overflow: "scroll", height: "100%", width: "100%", backgroundColor: "white", margin: 10}}>
+                <div id="panSpliceViewGraph" style={{overflow: "scroll", height: "100%", width: "100%", backgroundColor: "white", margin: 10}}>
                 <SetExonPlot exonPlotState={exonPlotState} setExonPlotState={setExonPlotState}></SetExonPlot>
                 <div id="pancanc_splice"></div>
                 <h3>Selection required from table above.</h3>

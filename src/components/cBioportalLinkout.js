@@ -5,7 +5,7 @@ import axios from 'axios';
 import { isBuild } from '../utilities/constants.js';
 import targeturl from '../targeturl.js';
 
-var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
 
 function goToCBio(uuid)
 {
@@ -31,51 +31,70 @@ function sendSamplesRetrieveURL(props)
 			cBioportalJsonData.push(tempHoldingArray);
 		}
 	}
+	console.log("cBioportalJsonData", cBioportalJsonData, rawSampleNamesAndGroups);
 	var studyID;
+	//console.log("Wagga", res["data"]);
+	var tir = {"BRCA": "brca_tcga_pan_can_atlas_2018",
+		"BLCA": "blca_tcga",
+		"CESC": "cesc_tcga",
+		"COAD": "coad_tcga_gdc",
+		"ESCA": "esca_tcga",
+		"GBM": "gbm_tcga",
+		"HNSC": "hnsc_tcga",
+		"KICH": "kich_tcga",
+		"KIRC": "kirc_tcga",
+		"LGG": "lgg_tcga",
+		"LIHC": "lihc_tcga",
+		"LUAD": "luad_tcga",
+		"LUSC": "lusc_tcga",
+		"OV": "ov_tcga",
+		"PAAD": "paad_tcga",
+		"PRAD": "prad_tcga",
+		"PCPG": "pcpg_tcga",
+		"READ": "read_tcga",
+		"SARC": "sarc_tcga",
+		"SKCM": "skcm_tcga",
+		"STAD": "stad_tcga",
+		"TGCT": "tgct_tcga",
+		"THCA": "thca_tcga",
+		"UCEC": "ucec_tcga"	
+	}
+	studyID = tir[props.cancer];
+	console.log("cbiosendoff_studyid: ", studyID, props.cancer);
+	let curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
+
+	for(let i in cBioportalJsonData)
+	{
+		let nameSet = Array.isArray(props.label[i]) == true ? props.label[i][0] : props.label[i];
+		curlCommandJsonDataObject["groups"][i] = {};
+		curlCommandJsonDataObject["groups"][i]["name"] = nameSet;
+		curlCommandJsonDataObject["groups"][i]["description"] = "";
+		curlCommandJsonDataObject["groups"][i]["studies"] = [];
+		curlCommandJsonDataObject["groups"][i]["studies"][0] = {};
+		curlCommandJsonDataObject["groups"][i]["studies"][0]["id"] = studyID;
+		curlCommandJsonDataObject["groups"][i]["studies"][0]["samples"] = cBioportalJsonData[i];
+		curlCommandJsonDataObject["groups"][i]["studies"][0]["patients"] = cBioportalJsonData[i];
+		curlCommandJsonDataObject["groups"][i]["origin"] = [];
+		curlCommandJsonDataObject["groups"][i]["origin"][0] = studyID;
+		curlCommandJsonDataObject["groups"][i]["uid"] = "62665b890934121b56df06b".concat(i.toString());
+		curlCommandJsonDataObject["groups"][i]["isSharedGroup"] = false;
+		curlCommandJsonDataObject["groups"][i]["nonExistentSamples"] = [];
+	}
+
+	var cBioportalFormData = curlCommandJsonDataObject;
+	console.log("pre-cbio", cBioportalFormData);
 	axios({
 		method: "post",
-		url: (routeurl.concat("/api/datasets/translatecbio")),
-		data: ({"data": {"cancerType": props.cancer}}),
-		headers: { "Content-Type": "application/json"},
+		url: (routeurl.concat("/api/datasets/cbioCurlCommand")),
+		data: cBioportalFormData,
+		headers: { "Content-Type": "application/json" },
 	})
-	.then(function (res) {
-		//console.log("Wagga", res["data"]);
-		studyID = res["data"];
-		let curlCommandJsonDataObject = {"groups": [], "origin": [studyID]};
-
-		for(let i in cBioportalJsonData)
-		{
-			let nameSet = Array.isArray(props.label[i]) == true ? props.label[i][0] : props.label[i];
-			curlCommandJsonDataObject["groups"][i] = {};
-			curlCommandJsonDataObject["groups"][i]["name"] = nameSet;
-			curlCommandJsonDataObject["groups"][i]["description"] = "";
-			curlCommandJsonDataObject["groups"][i]["studies"] = [];
-			curlCommandJsonDataObject["groups"][i]["studies"][0] = {};
-			curlCommandJsonDataObject["groups"][i]["studies"][0]["id"] = studyID;
-			curlCommandJsonDataObject["groups"][i]["studies"][0]["samples"] = cBioportalJsonData[i];
-			curlCommandJsonDataObject["groups"][i]["studies"][0]["patients"] = cBioportalJsonData[i];
-			curlCommandJsonDataObject["groups"][i]["origin"] = [];
-			curlCommandJsonDataObject["groups"][i]["origin"][0] = studyID;
-			curlCommandJsonDataObject["groups"][i]["uid"] = "62665b890934121b56df06b".concat(i.toString());
-			curlCommandJsonDataObject["groups"][i]["isSharedGroup"] = false;
-			curlCommandJsonDataObject["groups"][i]["nonExistentSamples"] = [];
-		}
-
-		var cBioportalFormData = curlCommandJsonDataObject;
-		//console.log("pre-cbio", cBioportalFormData);
-		axios({
-		    method: "post",
-		    url: (routeurl.concat("/api/datasets/cbioCurlCommand")),
-		    data: cBioportalFormData,
-		    headers: { "Content-Type": "application/json" },
-		})
-		    .then(function (response) {
-		      //console.log("cbio", response);
-		      var returned_uuid = response["data"]["id"];
-		      //uuid in this case is a comparison id returned by the curl command. It gives us the correct destination for our survival plot.
-		      goToCBio(returned_uuid);
-		})
-    });
+	.then(function (response) {
+		//console.log("cbio", response);
+		var returned_uuid = response["data"]["id"];
+		//uuid in this case is a comparison id returned by the curl command. It gives us the correct destination for our survival plot.
+		goToCBio(returned_uuid);
+	})
 
 }
 

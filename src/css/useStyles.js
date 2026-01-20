@@ -41,8 +41,6 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: "5px",
     paddingBottom: "5px",
     flexGrow: 1,
-    backgroundColor: 'white',
-    color: '#0F6A8B',
   },
   mainpane_margin_type1: {
     marginLeft: 30,

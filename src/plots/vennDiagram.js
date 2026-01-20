@@ -3,11 +3,25 @@ import axios from 'axios';
 import { isBuild } from '../utilities/constants.js';
 import React, { useRef } from "react";
 import targeturl from '../targeturl.js';
-var routeurl = isBuild ? "https://www.altanalyze.org/oncosplice" : "http://localhost:8081";
+var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
 
 function retrieveDataForVenn(comparedSignature, homeSignature, typeFor, setTableState, annot){
   //homeSignature = homeSignature.name;
-  var postedData = {"data": {"comparedSignature": comparedSignature, "cancer": "BLCA_TCGA", "homeSignature": homeSignature.name, "type": typeFor, "annot": annot}}
+  //console.log("VENN CLICK", comparedSignature, homeSignature);
+  var homeName = homeSignature.name;
+  var homeCancer = (homeName.substring(4)).split("_")[0];
+  homeCancer = (homeCancer.toUpperCase());
+
+  var cancerList = ["BLCA", "BRCA", "CESC", "COAD", "ESCA", "GBM", "GTEX", "HNSC", "KICH", "KIRC", "LGG", "LIHC", "LUAD", "OV", "PAAD", "PCPG", "PRAD", "READ", "SARC", "SKCM", "STAD", "TGCT", "THCA", "UCEC", "blca", "brca", "cesc", "coad", "esca", "gbm", "gtex", "hnsc", "kich", "kirc", "lgg", "lihc", "luad", "ov", "paad", "pcpg", "prad", "read", "sarc", "skcm", "stad", "tgct", "thca", "ucec"];
+  
+  // Check if homeCancer is in cancerList, if not set to "GTEXPSI"
+  if (!cancerList.includes(homeCancer)) {
+    homeCancer = "GTEX";
+  }
+
+  console.log("comparedSignature", comparedSignature);
+  
+  var postedData = {"data": {"comparedSignature": comparedSignature, "cancer": homeCancer, "homeSignature": homeSignature.name, "type": typeFor, "annot": annot}}
   //console.log(parentProps, comparedSignature, homeSignature);
   document.getElementById("tableLoadingDiv").style.display = "block";
   document.getElementById("rootTable").style.opacity = 0.2;
@@ -153,6 +167,29 @@ function CreateVennDiagram(props) {
       .attr("fill", "black")
       .text("Overlapping Events");
 
+    var textouse1 = props.vennState.data.annot;
+    var textouse2 = props.vennState.data.homeSignature;
+    var textouse3 = props.vennState.data.comparedSignature;
+    textouse1 = textouse1.replace("---", "-");
+    textouse2 = textouse2.replace("---", "-");
+    textouse3 = textouse3.replace("---", "-");
+
+    textouse1 = textouse1.replace("-VS-OTHERS", "");
+    textouse2 = textouse2.replace("-VS-OTHERS", "");
+    textouse3 = textouse3.replace("-VS-OTHERS", "");
+
+    if (textouse1.length > 15) {
+      textouse1 = textouse1.slice(0, 15).concat("...");
+    }
+    
+    if (textouse2.length > 15) {
+      textouse2 = textouse2.slice(0, 15).concat("...");
+    }
+    
+    if (textouse3.length > 15) {
+      textouse3 = textouse3.slice(0, 15).concat("...");
+    }
+
     // Create the circle
     const circle1 = svg.append('circle')
         .attr('cx', 85*w_scale)
@@ -185,7 +222,7 @@ function CreateVennDiagram(props) {
         .style("font-size", 12*font_scale)
         .style("opacity", 1.0)
         .attr("fill", "black")
-        .text("Annotation: ".concat(props.vennState.data.annot));
+        .text("Annotation: ".concat(textouse1));
 
     svg.append("text")
       .attr("x", 75*w_scale)
@@ -195,7 +232,7 @@ function CreateVennDiagram(props) {
       .style("opacity", 0.5)
       .attr("fill", "blue")
       .attr("font-weight", 700)
-      .text(props.vennState.data.homeSignature);
+      .text(textouse2);
 
     svg.append("text")
       .attr("x", 182*w_scale)
@@ -204,7 +241,7 @@ function CreateVennDiagram(props) {
       .style("font-size", 12*font_scale)
       .style("opacity", 0.9)
       .attr("fill", "#B8B965")
-      .text(props.vennState.data.comparedSignature)
+      .text(textouse3)
       .attr("font-weight", 700)
       .on("click", function() {
         var pretg = d3.select(this);

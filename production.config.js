@@ -15,7 +15,7 @@ module.exports = function(_env, argv) {
     output: {
       path: path.resolve(__dirname, 'build'),
       filename: "app.js",
-      publicPath: "/ICGS/Oncosplice/build/"
+      publicPath: "/ICGS/Oncosplice/neo/"
     },
     module: {
       rules: [

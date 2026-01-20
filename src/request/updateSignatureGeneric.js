@@ -6,12 +6,11 @@ import { isBuild } from '../utilities/constants.js';
 
 var routeurl = isBuild ? "https://www.altanalyze.org/neoxplorer" : "http://localhost:8081";
 
-function updateSignature(arg, targeturl)
+function updateSignatureGeneric(arg, targeturl)
 {
   const export_dict = {};
   const cancername = arg["cancerType"];
-  const callbackForSignatureList = arg["callbackOne"];
-  const callbackForSelectedSignature = arg["callbackTwo"];
+  const callbackForSignatureList = arg["callback"];
   //console.log("updateSignature_1", callbackOne);
   var postdata = {"data": cancername};
   axios({
@@ -22,22 +21,18 @@ function updateSignature(arg, targeturl)
     })
   .then(function (response) 
   {
-      console.log("CALLBACK RESPONSE", response);
+      console.log("CALLBACK RESPONSE", response["data"]["signatureTranslate"]);
       //console.log("cancername", cancername);
       //console.log("updateHeatmapArgs", args["updateHeatmapArgs"]);
       let sigTranslateVar = response["data"]["signatureTranslate"];
       let firstEntry = Object.keys(response["data"]["signatureTranslate"])[0];
       let simpleNameVar = sigTranslateVar[firstEntry];
       callbackForSignatureList(response["data"]["signatureTranslate"]);
-      callbackForSelectedSignature({"signature": Object.keys(response["data"]["signatureTranslate"])[0],
+      /*callbackForSelectedSignature({"signature": Object.keys(response["data"]["signatureTranslate"])[0],
                                     "simpleName": simpleNameVar,
                                     "oncocluster": simpleNameVar,
-                                    "initialized": true});
-      //This function can't directly call updateHeatmapData because it isn't using the state of the navBar object.
-      //This causes problems with certain selections and needs to be fixed ASAP. 
-      //arg["updateHeatmapArgs"]["signature"] = [Object.keys(response["data"]["signatureTranslate"])[0]];
-      makeRequest("updateHeatmapData", arg["updateHeatmapArgs"])
+                                    "initialized": true});*/
   });
 }
 
-export default updateSignature;
+export default updateSignatureGeneric;
